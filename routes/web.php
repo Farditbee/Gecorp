@@ -130,7 +130,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/stockbarang', [StockBarangController::class, 'index'])->name('master.stockbarang.index');
         Route::get('/stockbarang/create', [StockBarangController::class, 'create'])->name('master.stockbarang.create');
         Route::get('/get-stock-details/{id_barang}', [StockBarangController::class, 'getStockDetails'])->name('get-stock-details');
-        Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
+        Route::get('/get-item/{id}', [StockBarangController::class, 'getItem'])->name('get.item');
+        // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

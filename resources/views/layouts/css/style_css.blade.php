@@ -13,6 +13,13 @@
     th.desc::after {
         content: " ▼";
     }
+
+    .fixed-badge {
+    display: inline-block;
+    width: 80px; /* Tentukan ukuran yang sesuai */
+    text-align: center;
+    padding: 0.5em 0; /* Sesuaikan padding agar badge terlihat rapi */
+    }
 </style>
 
 <style>

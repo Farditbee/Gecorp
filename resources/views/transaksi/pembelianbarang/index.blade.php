@@ -69,13 +69,13 @@
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         @if ($beli->status == 'progress')
-                                                            <td><h5><span class="badge badge-warning">Progress</span></h5></td>
+                                                            <td><h5><span class="badge badge-warning fixed-badge">Progress</span></h5></td>
                                                         @elseif ($beli->status == 'success')
-                                                            <td><h5><span class="badge badge-success">Success</span></h5></td>
+                                                            <td><h5><span class="badge badge-success fixed-badge">Success</span></h5></td>
                                                         @elseif ($beli->status == 'failed')
-                                                            <td><h5><span class="badge badge-danger">Failed</span></h5></td>
+                                                            <td><h5><span class="badge badge-danger fixed-badge">Failed</span></h5></td>
                                                         @else
-                                                            <td><h5><span class="badge badge-primary">Mixed</span></h5></td>
+                                                            <td><h5><span class="badge badge-primary fixed-badge">Mixed</span></h5></td>
                                                         @endif
                                                         <td>{{ $beli->no_nota }}</td>
                                                         <td>{{ \DateTime::createFromFormat('Y-m-d H:i:s', $beli->tgl_nota)->format('d-m-Y') }}</td>

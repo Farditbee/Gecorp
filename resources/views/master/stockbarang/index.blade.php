@@ -53,13 +53,22 @@
                                                 </thead>
                                                 <tbody>
                                                     <?php $no = 1; ?>
-                                                    @forelse ($stock as $stk)
+                                                    @foreach ($stock as $stk)
                                                     <tr>
                                                         <td>{{$no++}}</td>
                                                         <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal">{{$stk->nama_barang}}</td>
                                                         <td>{{$stk->stock}}</td>
                                                         <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
-                                                        <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal" data-nama-barang="{{$stk->nama_barang}}">{{$stk->nama_barang}}</td>
+                                                        <td>
+                                                            <button type="button"
+                                                            class="btn btn-primary btn-sm"
+                                                            style="padding-top: 5px;"
+                                                            data-toggle="modal"
+                                                            data-target="#mediumModal-{{$stk->id}}"
+                                                            data-id_barang="{{$stk->id_barang}}"
+                                                            data-id="{{$stk->id}}">
+                                                            Cek Detail</button>
+                                                        </td>
                                                         <td>
                                                             <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="#" method="POST">
                                                                 @csrf
@@ -68,13 +77,109 @@
                                                             </form>
                                                         </td>
                                                     </tr>
-                                                    @empty
-                                                    <div class="alert alert-danger">
-                                                        Data Stock belum Tersedia.
-                                                    </div>
-                                                    @endforelse
+                                                    @endforeach
                                                 </tbody>
                                             </table>
+                                            @foreach ($stock as $stk )
+                                                    <div class="modal fade" id="mediumModal-{{$stk->id}}" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel-{{$stk->id}}" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="mediumModalLabel-{{$stk->id}}">{{$stk->barang->nama_barang}}</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
+                                                                            <li class="nav-item">
+                                                                                <a class="nav-link active text-uppercase" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Barang Di Toko</a>
+                                                                            </li>
+                                                                            <li class="nav-item">
+                                                                                <a class="nav-link text-uppercase" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
+                                                                            </li>
+                                                                            <li class="nav-item">
+                                                                                <a class="nav-link text-uppercase" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+                                                                            </li>
+                                                                        </ul>
+                                                                </div>
+                                                                <div class="tab-content" id="myTabContent">
+                                                                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                                                        <div class="tab-content" id="myTabContent">
+                                                                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                                                                                <div class="row">
+                                                                                <div class="col-md-7 ml-3">
+                                                                                        <div class="table-responsive">
+                                                                                            <table class="table table-striped" id="jsTable">
+                                                                                                <thead>
+                                                                                                    <tr>
+                                                                                                        <th>Nama Toko</th>
+                                                                                                        <th>Stock</th>
+                                                                                                        <th>Harga Satuan (Hpp Baru)</th>
+
+                                                                                                    </tr>
+                                                                                                </thead>
+                                                                                                <tbody>
+                                                                                                    <tr>
+                                                                                                        <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal">Nama Barang</td>
+                                                                                                        <td>20</td>
+                                                                                                        <td>Rp. 100.000</td>
+                                                                                                    </tr>
+
+                                                                                                </tbody>
+                                                                                            </table>
+                                                                                        </div>
+                                                                                </div>
+                                                                                <div class="col-md-4">
+                                                                                    <form>
+                                                                                        <div class="input-group mb-3">
+                                                                                            <div class="input-group-prepend">
+                                                                                                <span class="input-group-text">Level 1</span>
+                                                                                            </div>
+                                                                                            <div class="custom-file">
+                                                                                                <input type="text" class="form-control" placeholder="">
+                                                                                                <label class="input-group-text">0%</label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="input-group mb-3">
+                                                                                            <div class="input-group-prepend">
+                                                                                                <span class="input-group-text">Level 2</span>
+                                                                                            </div>
+                                                                                            <div class="custom-file">
+                                                                                                <input type="text" class="form-control" placeholder="">
+                                                                                                <label class="input-group-text">0%</label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div class="input-group mb-3">
+                                                                                            <div class="input-group-prepend">
+                                                                                                <span class="input-group-text">Level 3</span>
+                                                                                            </div>
+                                                                                            <div class="custom-file">
+                                                                                                <input type="text" class="form-control" placeholder="">
+                                                                                                <label class="input-group-text">0%</label>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </form>
+                                                                                </div>
+                                                                            </div>
+                                                                            </div>
+                                                                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+                                                                                More Tab
+                                                                            </div>
+                                                                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                                                                Another Tab
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Kembali</button>
+                                                                    <button type="button" class="btn btn-primary btn-sm">Simpan</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                            @endforeach
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div>
                                                     Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
@@ -91,109 +196,16 @@
                             </div>
                         </div>
                         {{-- Start Modal --}}
-                        <div class="modal fade" id="mediumModal" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-lg" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="mediumModalLabel">{{$stk->nama_barang}}</h5>
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                            <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                                                <li class="nav-item">
-                                                    <a class="nav-link active text-uppercase" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Barang Di Toko</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link text-uppercase" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="nav-link text-uppercase" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
-                                                </li>
-                                            </ul>
-                                            <div class="tab-content" id="myTabContent">
-                                                <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                                    <div class="row">
-                                                    <div class="col-md-7">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped" id="jsTable">
-                                                                    <thead>
-                                                                        <tr>
-                                                                            <th>Nama Barang</th>
-                                                                            <th>Stock</th>
-                                                                            <th>Harga Satuan (Hpp Baru)</th>
 
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                        <tr>
-                                                                            <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal">Nama Barang</td>
-                                                                            <td>20</td>
-                                                                            <td>Rp. 100.000</td>
-                                                                        </tr>
-
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                    </div>
-                                                    <div class="col-md-5 .ml-0">
-                                                        <form>
-                                                            <div class="input-group mb-3">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text">Level 1</span>
-                                                                </div>
-                                                                <div class="custom-file">
-                                                                    <input type="text" class="form-control" placeholder="">
-                                                                    <label class="input-group-text">0%</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="input-group mb-3">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text">Level 2</span>
-                                                                </div>
-                                                                <div class="custom-file">
-                                                                    <input type="text" class="form-control" placeholder="">
-                                                                    <label class="input-group-text">0%</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="input-group mb-3">
-                                                                <div class="input-group-prepend">
-                                                                    <span class="input-group-text">Level 3</span>
-                                                                </div>
-                                                                <div class="custom-file">
-                                                                    <input type="text" class="form-control" placeholder="">
-                                                                    <label class="input-group-text">0%</label>
-                                                                </div>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                                </div>
-                                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                                    More Tab
-                                                </div>
-                                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                                    Another Tab
-                                                </div>
-                                            </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Kembali</button>
-                                        <button type="button" class="btn btn-primary btn-sm">Simpan</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <!-- [ Main Content ] end -->
                     </div>
                 </div>
             </div>
 </div>
-
+{{--
 <script>
     // Saat modal akan ditampilkan
-    $('#mediumModal').on('show.bs.modal', function (event) {
+    $('#mediumModal-{{$stk->id}}').on('show.bs.modal', function (event) {
         // Dapatkan tombol yang diklik
         var button = $(event.relatedTarget);
 
@@ -204,7 +216,7 @@
         var modal = $(this);
         modal.find('.modal-title').text(namaBarang);
     });
-</script>
+</script> --}}
 
 
 @endsection

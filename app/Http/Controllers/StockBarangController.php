@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailPembelianBarang;
+use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
 use App\Models\StockBarang;
 use App\Models\Toko;
@@ -13,16 +14,24 @@ class StockBarangController extends Controller
     public function index()
     {
         $stock = StockBarang::orderBy('id', 'desc')->get();
-        $stocks = StockBarang::all();
 
-    return view('master.stockbarang.index', compact('stock', 'stocks'));
+    return view('master.stockbarang.index', compact('stock'));
     }
 
-    public function detail(string $id)
+    public function getItem($id_barang)
     {
-        $stock = StockBarang::findOrFail($id);
+        $item = StockBarang::where('id_barang', $id_barang)->first();
 
-        return view('master.stockbarang.index', compact('stock'));
+        // $detail = DetailStockBarang::where('id_barang', $id_barang)->get();
+
+        // Jika ditemukan, kembalikan respons JSON
+        if ($item) {
+            return response()->json([
+                'nama_barang' => $item->nama_barang
+            ]);
+        } else {
+            return response()->json(['error' => 'Item not found'], 404);
+        }
     }
 
     public function create()
