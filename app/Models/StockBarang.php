@@ -22,4 +22,9 @@ class StockBarang extends Model
     {
         return $this->belongsTo(Barang::class, 'id_barang', 'id');
     }
+
+    public function toko()
+    {
+        return $this->belongsTo(Toko::class, 'id_toko', 'id');
+    }
 }

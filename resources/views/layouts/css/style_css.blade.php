@@ -20,6 +20,12 @@
     text-align: center;
     padding: 0.5em 0; /* Sesuaikan padding agar badge terlihat rapi */
     }
+
+    .table.table-striped tbody tr:hover {
+    background-color: #c3d6e6d3; /* Warna background seluruh baris saat di-hover */
+    transition: background-color 0.3s ease; /* Transisi halus */
+}
+
 </style>
 
 <style>

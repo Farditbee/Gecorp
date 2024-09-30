@@ -54,131 +54,157 @@
                                                 <tbody>
                                                     <?php $no = 1; ?>
                                                     @foreach ($stock as $stk)
-                                                    <tr>
-                                                        <td>{{$no++}}</td>
-                                                        <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal">{{$stk->nama_barang}}</td>
-                                                        <td>{{$stk->stock}}</td>
-                                                        <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
-                                                        <td>
-                                                            <button type="button"
-                                                            class="btn btn-primary btn-sm"
-                                                            style="padding-top: 5px;"
-                                                            data-toggle="modal"
-                                                            data-target="#mediumModal-{{$stk->id}}"
-                                                            data-id_barang="{{$stk->id_barang}}"
-                                                            data-id="{{$stk->id}}">
-                                                            Cek Detail</button>
-                                                        </td>
-                                                        <td>
-                                                            <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="#" method="POST">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
+                                                        <tr data-toggle="modal" data-target="#mediumModal-{{$stk->id}}">
+                                                            <td>{{$no++}}</td>
+                                                            <td>{{$stk->nama_barang}}</td>
+                                                            <td>{{$stk->stock}}</td>
+                                                            <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
+                                                            <td>
+                                                                <button type="button"
+                                                                    class="btn btn-primary btn-sm"
+                                                                    style="padding-top: 5px;"
+                                                                    data-toggle="modal"
+                                                                    data-target="#mediumModal-{{$stk->id}}"
+                                                                    data-id_barang="{{$stk->id_barang}}"
+                                                                    data-id="{{$stk->id}}">
+                                                                    Cek Detail
+                                                                </button>
+                                                            </td>
+                                                            <td>
+                                                                <form onsubmit="return confirm('Ingin menghapus Data ini ?');" action="#" method="POST">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
                                                     @endforeach
                                                 </tbody>
                                             </table>
                                             @foreach ($stock as $stk )
-                                                    <div class="modal fade" id="mediumModal-{{$stk->id}}" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel-{{$stk->id}}" aria-hidden="true">
-                                                        <div class="modal-dialog modal-lg" role="document">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="mediumModalLabel-{{$stk->id}}">{{$stk->barang->nama_barang}}</h5>
-                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                        <span aria-hidden="true">&times;</span>
-                                                                    </button>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                                                                            <li class="nav-item">
-                                                                                <a class="nav-link active text-uppercase" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Barang Di Toko</a>
-                                                                            </li>
-                                                                            <li class="nav-item">
-                                                                                <a class="nav-link text-uppercase" id="profile-tab" data-toggle="tab" href="#profile" role="tab" aria-controls="profile" aria-selected="false">Profile</a>
-                                                                            </li>
-                                                                            <li class="nav-item">
-                                                                                <a class="nav-link text-uppercase" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
-                                                                            </li>
-                                                                        </ul>
-                                                                </div>
-                                                                <div class="tab-content" id="myTabContent">
-                                                                    <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                                                        <div class="tab-content" id="myTabContent">
-                                                                            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-                                                                                <div class="row">
-                                                                                <div class="col-md-7 ml-3">
-                                                                                        <div class="table-responsive">
-                                                                                            <table class="table table-striped" id="jsTable">
-                                                                                                <thead>
-                                                                                                    <tr>
-                                                                                                        <th>Nama Toko</th>
-                                                                                                        <th>Stock</th>
-                                                                                                        <th>Harga Satuan (Hpp Baru)</th>
+                                            <div class="modal fade" id="mediumModal-{{$stk->id}}" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel-{{$stk->id}}" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="mediumModalLabel-{{$stk->id}}">{{$stk->barang->nama_barang}}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <ul class="nav nav-tabs mb-3" id="myTab-{{$stk->id}}" role="tablist">
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link active text-uppercase" id="home-tab-{{$stk->id}}" data-toggle="tab" href="#home-{{$stk->id}}" role="tab" aria-controls="home-{{$stk->id}}" aria-selected="true">Barang Di Toko</a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link text-uppercase" id="profile-tab-{{$stk->id}}" data-toggle="tab" href="#profile-{{$stk->id}}" role="tab" aria-controls="profile-{{$stk->id}}" aria-selected="false">Profile</a>
+                                                                </li>
+                                                                <li class="nav-item">
+                                                                    <a class="nav-link text-uppercase" id="contact-tab-{{$stk->id}}" data-toggle="tab" href="#contact-{{$stk->id}}" role="tab" aria-controls="contact-{{$stk->id}}" aria-selected="false">Contact</a>
+                                                                </li>
+                                                            </ul>
+                                                            <div class="tab-content" id="myTabContent-{{$stk->id}}">
+                                                                <div class="tab-pane fade show active" id="home-{{$stk->id}}" role="tabpanel" aria-labelledby="home-tab-{{$stk->id}}">
+                                                                    <div class="row">
+                                                                        <div class="col-md-7 ml-3">
+                                                                            <div class="table-responsive">
+                                                                                <table class="table table-striped" id="jsTable-{{$stk->id}}">
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Nama Toko</th>
+                                                                                            <th>Stock</th>
+                                                                                            <th>Harga HPP Baru</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        @foreach ($toko as $tk)
+                                                                                        <tr>
+                                                                                            <td>{{ $tk->nama_toko }}</td>
 
-                                                                                                    </tr>
-                                                                                                </thead>
-                                                                                                <tbody>
-                                                                                                    <tr>
-                                                                                                        <td type="button" style="padding-top: 10px;" data-toggle="modal" data-target="#mediumModal">Nama Barang</td>
-                                                                                                        <td>20</td>
-                                                                                                        <td>Rp. 100.000</td>
-                                                                                                    </tr>
+                                                                                            @if ($tk->id == 1)
+                                                                                                {{-- Tampilkan stok dari tabel stock_barang untuk toko dengan id = 1 --}}
+                                                                                                @php
+                                                                                                    // Ambil stok dari tabel stock_barang hanya untuk barang yang sedang diklik
+                                                                                                    $stokBarangTokoUtama = $stock->where('id_barang', $stk->id_barang)->first();
+                                                                                                @endphp
 
-                                                                                                </tbody>
-                                                                                            </table>
-                                                                                        </div>
+                                                                                                @if ($stokBarangTokoUtama)
+                                                                                                    <td>{{ $stokBarangTokoUtama->stock }}</td>
+                                                                                                    <td>Rp. {{ number_format($stokBarangTokoUtama->harga_satuan, 0, ',', '.') }}</td>
+                                                                                                @else
+                                                                                                    <td>0</td>
+                                                                                                    <td>Rp. 0</td>
+                                                                                                @endif
+                                                                                            @else
+                                                                                                {{-- Tampilkan stok dari tabel detail_toko untuk toko selain id = 1 --}}
+                                                                                                @php
+                                                                                                    // Ambil stok dari tabel detail_toko hanya untuk barang yang sedang diklik
+                                                                                                    $stokBarangLain = $stokTokoLain->where('id_barang', $stk->id_barang)->where('id_toko', $tk->id)->first();
+                                                                                                @endphp
+
+                                                                                                @if ($stokBarangLain)
+                                                                                                    <td>{{ $stokBarangLain->qty }}</td>
+                                                                                                    <td>Rp. {{ number_format($stokBarangLain->harga, 0, ',', '.') }}</td>
+                                                                                                @else
+                                                                                                    <td>0</td>
+                                                                                                    <td>Rp. 0</td>
+                                                                                                @endif
+                                                                                            @endif
+                                                                                        </tr>
+                                                                                        @endforeach
+                                                                                    </tbody>
+                                                                                </table>
+
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-4">
+                                                                            <form>
+                                                                                <div class="input-group mb-3">
+                                                                                    <div class="input-group-prepend">
+                                                                                        <span class="input-group-text">Level 1</span>
+                                                                                    </div>
+                                                                                    <input type="text" class="form-control" placeholder="">
+                                                                                    <div class="input-group-append">
+                                                                                        <span class="input-group-text">0%</span>
+                                                                                    </div>
                                                                                 </div>
-                                                                                <div class="col-md-4">
-                                                                                    <form>
-                                                                                        <div class="input-group mb-3">
-                                                                                            <div class="input-group-prepend">
-                                                                                                <span class="input-group-text">Level 1</span>
-                                                                                            </div>
-                                                                                            <div class="custom-file">
-                                                                                                <input type="text" class="form-control" placeholder="">
-                                                                                                <label class="input-group-text">0%</label>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="input-group mb-3">
-                                                                                            <div class="input-group-prepend">
-                                                                                                <span class="input-group-text">Level 2</span>
-                                                                                            </div>
-                                                                                            <div class="custom-file">
-                                                                                                <input type="text" class="form-control" placeholder="">
-                                                                                                <label class="input-group-text">0%</label>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                        <div class="input-group mb-3">
-                                                                                            <div class="input-group-prepend">
-                                                                                                <span class="input-group-text">Level 3</span>
-                                                                                            </div>
-                                                                                            <div class="custom-file">
-                                                                                                <input type="text" class="form-control" placeholder="">
-                                                                                                <label class="input-group-text">0%</label>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </form>
+                                                                                <div class="input-group mb-3">
+                                                                                    <div class="input-group-prepend">
+                                                                                        <span class="input-group-text">Level 2</span>
+                                                                                    </div>
+                                                                                    <input type="text" class="form-control" placeholder="">
+                                                                                    <div class="input-group-append">
+                                                                                        <span class="input-group-text">0%</span>
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                            </div>
-                                                                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-                                                                                More Tab
-                                                                            </div>
-                                                                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                                                                Another Tab
-                                                                            </div>
+                                                                                <div class="input-group mb-3">
+                                                                                    <div class="input-group-prepend">
+                                                                                        <span class="input-group-text">Level 3</span>
+                                                                                    </div>
+                                                                                    <input type="text" class="form-control" placeholder="">
+                                                                                    <div class="input-group-append">
+                                                                                        <span class="input-group-text">0%</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </form>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Kembali</button>
-                                                                    <button type="button" class="btn btn-primary btn-sm">Simpan</button>
+                                                                <div class="tab-pane fade" id="profile-{{$stk->id}}" role="tabpanel" aria-labelledby="profile-tab-{{$stk->id}}">
+                                                                    More Tab
+                                                                </div>
+                                                                <div class="tab-pane fade" id="contact-{{$stk->id}}" role="tabpanel" aria-labelledby="contact-tab-{{$stk->id}}">
+                                                                    Another Tab
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Kembali</button>
+                                                            <button type="button" class="btn btn-primary btn-sm">Simpan</button>
+                                                        </div>
                                                     </div>
+                                                </div>
+                                            </div>
                                             @endforeach
                                             <div class="d-flex justify-content-between align-items-center mb-3">
                                                 <div>
@@ -202,21 +228,5 @@
                 </div>
             </div>
 </div>
-{{--
-<script>
-    // Saat modal akan ditampilkan
-    $('#mediumModal-{{$stk->id}}').on('show.bs.modal', function (event) {
-        // Dapatkan tombol yang diklik
-        var button = $(event.relatedTarget);
-
-        // Ambil data-nama-barang dari tombol tersebut
-        var namaBarang = button.data('nama=barang');
-
-        // Update judul modal dengan nama barang
-        var modal = $(this);
-        modal.find('.modal-title').text(namaBarang);
-    });
-</script> --}}
-
 
 @endsection

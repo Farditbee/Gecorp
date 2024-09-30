@@ -16,7 +16,7 @@
                                         </div>
                                         <ul class="breadcrumb ">
                                             <li class="breadcrumb-item ml-3"><a href="{{ route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="{{ route('master.pengirimanbarang.index')}}">Data Toko</a></li>
+                                            <li class="breadcrumb-item"><a href="{{ route('master.pengirimanbarang.index')}}">Data Pengiriman Barang</a></li>
                                             <li class="breadcrumb-item"><a>Detail Pengiriman Barang</a></li>
                                         </ul>
                                     </div>

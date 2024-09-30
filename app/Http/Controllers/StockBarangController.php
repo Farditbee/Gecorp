@@ -13,9 +13,20 @@ class StockBarangController extends Controller
 {
     public function index()
     {
-        $stock = StockBarang::orderBy('id', 'desc')->get();
+        // Mengambil stock barang beserta relasi ke barang dan toko
+        $stock = StockBarang::with(['barang', 'toko'])
+                            ->orderBy('id', 'desc')
+                            ->get();
 
-    return view('master.stockbarang.index', compact('stock'));
+                            // Ambil stok barang dari tabel 'detail_toko' untuk semua toko kecuali id = 1
+        $stokTokoLain = DetailToko::with('barang', 'toko')
+                            ->where('id_toko', '!=', 1)
+                            ->get();
+
+        // Ambil semua toko
+        $toko = Toko::all();
+
+        return view('master.stockbarang.index', compact('stock', 'stokTokoLain', 'toko'));
     }
 
     public function getItem($id_barang)
