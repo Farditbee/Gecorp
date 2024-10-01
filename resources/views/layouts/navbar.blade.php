@@ -1,11 +1,10 @@
-{{-- <header class="navbar pcoded-header navbar-expand-lg navbar-light header-dark"> --}}
+<!-- Tombol hamburger -->
+<div class="hamburger-menu" onclick="toggleNavbar()">&#9776;</div>
+
 <nav class="pcoded-navbar theme-horizontal menu-light">
     <div class="navbar-wrapper container">
-        <div class="navbar-content sidenav-horizontal" id="layout-sidenav">
             <ul class="nav pcoded-inner-navbar sidenav-inner">
-                <li class="nav-item pcoded-menu-caption">
-                    <label>Navigation</label>
-                </li>
+
                 <li class="nav-item">
                     <a href="{{ route('master.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span class="pcoded-mtext">Dashboard</span></a>
                 </li>
@@ -90,7 +89,12 @@
                     </div>
                 </li>
             </ul>
-        </div>
     </div>
 </nav>
-</header>
+
+<script>
+function toggleNavbar() {
+    var navbar = document.querySelector('.navbar-wrapper');
+    navbar.classList.toggle('active'); // Menambah/menghapus class 'active'
+}
+</script>
