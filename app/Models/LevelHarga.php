@@ -34,8 +34,11 @@ class LevelHarga extends Model
 
     public function toko()
     {
-        return $this->belongsToMany(Toko::class, 'id_level_harga');
+        return $this->hasMany(Toko::class, 'id_level_harga', 'id');
     }
 
-
+    public function stock()
+    {
+        return $this->hasMany(StockBarang::class, 'id_level_harga', 'id');
+    }
 }

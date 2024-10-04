@@ -16,7 +16,7 @@
                                         </div>
                                         <ul class="breadcrumb ">
                                             <li class="breadcrumb-item ml-3"><a href="{{ route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="{{ route('master.pengirimanbarang.index')}}">Data Toko</a></li>
+                                            <li class="breadcrumb-item"><a href="{{ route('master.pengirimanbarang.index')}}">Data Pengiriman Barang</a></li>
                                             <li class="breadcrumb-item"><a>Detail Pengiriman Barang</a></li>
                                         </ul>
                                     </div>
@@ -121,11 +121,11 @@
                                             <tr>
                                                 <td>{{ $loop->iteration}}</td>
                                                 @if ($dtpr->status == 'failed')
-                                                    <td><h4><span class="badge badge-danger">Failed</span></h4></td>
+                                                    <td><h5><span class="badge badge-danger fixed-badge">Failed</span></h5></td>
                                                 @elseif ($dtpr->status == 'progress')
-                                                <td><h4><span class="badge badge-warning">Progress</span></h4></td>
+                                                <td><h5><span class="badge badge-warning fixed-badge">Progress</span></h5></td>
                                                 @else
-                                                <td><h4><span class="badge badge-success">Success</span></h4></td>
+                                                <td><h5><span class="badge badge-success fixed-badge">Success</span></h5></td>
                                                 @endif
                                                 <td>{{ $dtpr->nama_barang}}</td>
                                                 <td>{{ $dtpr->qty}}</td>

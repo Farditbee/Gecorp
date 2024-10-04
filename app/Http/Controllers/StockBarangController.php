@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
+use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
+use App\Models\LevelHarga;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use Illuminate\Http\Request;
@@ -13,17 +15,38 @@ class StockBarangController extends Controller
 {
     public function index()
     {
-        $stock = StockBarang::orderBy('id', 'desc')->get();
-        $stocks = StockBarang::all();
+        // Mengambil stock barang beserta relasi ke barang dan toko
+        $stock = StockBarang::with(['barang', 'toko'])
+                            ->orderBy('id', 'desc')
+                            ->get();
 
-    return view('master.stockbarang.index', compact('stock', 'stocks'));
+                            // Ambil stok barang dari tabel 'detail_toko' untuk semua toko kecuali id = 1
+        $stokTokoLain = DetailToko::with('barang', 'toko')
+                            ->where('id_toko', '!=', 1)
+                            ->get();
+
+        // Ambil semua toko
+        $toko = Toko::all();
+        $levelharga = LevelHarga::all();
+        $barang = Barang::all();
+
+        return view('master.stockbarang.index', compact('stock', 'stokTokoLain', 'toko', 'levelharga', 'barang'));
     }
 
-    public function detail(string $id)
+    public function getItem($id_barang)
     {
-        $stock = StockBarang::findOrFail($id);
+        $item = StockBarang::where('id_barang', $id_barang)->first();
 
-        return view('master.stockbarang.index', compact('stock'));
+        // $detail = DetailStockBarang::where('id_barang', $id_barang)->get();
+
+        // Jika ditemukan, kembalikan respons JSON
+        if ($item) {
+            return response()->json([
+                'nama_barang' => $item->nama_barang
+            ]);
+        } else {
+            return response()->json(['error' => 'Item not found'], 404);
+        }
     }
 
     public function create()
@@ -82,5 +105,4 @@ class StockBarangController extends Controller
             ]);
         }
     }
-
 }

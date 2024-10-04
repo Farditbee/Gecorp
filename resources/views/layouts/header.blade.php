@@ -79,9 +79,6 @@
                                     </div>
                                 </li>
                             </ul>
-                            {{-- <div class="noti-footer">
-                                <a href="#!">show all</a>
-                            </div> --}}
                         </div>
                     </div>
                 </li>

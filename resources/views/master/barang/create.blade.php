@@ -43,7 +43,7 @@
                                                 <div class="form-group">
                                                         <div class="form-group">
                                                         <label for="nama_barang" class=" form-control-label">Nama Barang<span style="color: red">*</span></label>
-                                                        <input type="text" id="nama_barang" name="nama_barang" value="" class="form-control">
+                                                        <input type="text" id="nama_barang" name="nama_barang" value="" class="form-control" placeholder="Contoh : Barang Baru">
                                                     </div>
                                                 </div>
                                                 <div class="form-group">

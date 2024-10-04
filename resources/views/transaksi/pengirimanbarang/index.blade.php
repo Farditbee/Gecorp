@@ -66,11 +66,11 @@
                                                             <a href="{{ route('master.pengirimanbarang.detail', $prbr->id)}}" class="btn btn-primary btn-sm">Cek Detail</i></a>
                                                         </td>
                                                         @if ($prbr->status == 'failed')
-                                                            <td><h5><span class="badge badge-danger">Failed</span></h5></td>
+                                                        <td><h5><span class="badge badge-danger fixed-badge">Failed</span></h5></td>
                                                         @elseif ($prbr->status == 'progress')
-                                                        <td><h5><span style="color: black" class="badge badge-warning">Progress</span></h5></td>
+                                                        <td><h5><span style="color: black" class="badge badge-warning fixed-badge">Progress</span></h5></td>
                                                         @else
-                                                        <td><h5><span class="badge badge-success">Success</span></h5></td>
+                                                        <td><h5><span class="badge badge-success fixed-badge">Success</span></h5></td>
                                                         @endif
                                                         <td>{{ \DateTime::createFromFormat('Y-m-d', $prbr->tgl_kirim)->format('d-m-Y') }}</td>
                                                         <td>
