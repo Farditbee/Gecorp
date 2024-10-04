@@ -27,4 +27,10 @@ class StockBarang extends Model
     {
         return $this->belongsTo(Toko::class, 'id_toko', 'id');
     }
+
+    public function levelharga()
+    {
+        return $this->belongsTo(LevelHarga::class, 'id_level_harga', 'id');
+    }
+
 }

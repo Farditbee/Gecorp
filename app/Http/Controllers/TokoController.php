@@ -60,24 +60,31 @@ class TokoController extends Controller
 
     public function detail(string $id)
     {
-        // Ambil data toko berdasarkan id
         $toko = Toko::findOrFail($id);
 
-        // Ambil detail toko yang berhubungan dengan toko ini
+        $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
+
+        // Jika hanya satu id disimpan, pastikan dia array
+        if (is_int($levelHargaArray)) {
+            $levelHargaArray = [$levelHargaArray];
+        }
+
+        // Ambil data level harga berdasarkan id yang ada di array
+        $levelhargas = [];
+        if (is_array($levelHargaArray) && !empty($levelHargaArray)) {
+            $levelhargas = LevelHarga::whereIn('id', $levelHargaArray)->get();
+        }
+
+        // dd($toko->levelharga());
+
         $detail_toko = DetailToko::where('id_toko', $id)
                    ->with('barang')
-                   ->orderBy('id', 'desc') // Relasi barang
+                   ->orderBy('id', 'desc')
                    ->get();
 
-        // Inisialisasi variabel $stock
         $stock = StockBarang::orderBy('id', 'desc')->get();
 
-        // Jika toko dengan id = 1, ambil data stok barang
-        // if ($id == 1) {
-        //     $stock = StockBarang::whereIn('id_barang', $detail_toko->pluck('id_barang'))->get();
-        // }
-
-        return view('master.toko.detail', compact('toko', 'detail_toko', 'stock'));
+        return view('master.toko.detail', compact('toko', 'detail_toko', 'stock', 'levelhargas'));
     }
     // public function getHargaBarang($id_barang, $id_detail, $id_toko)
     // {

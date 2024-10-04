@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
 use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
+use App\Models\LevelHarga;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use Illuminate\Http\Request;
@@ -25,8 +27,10 @@ class StockBarangController extends Controller
 
         // Ambil semua toko
         $toko = Toko::all();
+        $levelharga = LevelHarga::all();
+        $barang = Barang::all();
 
-        return view('master.stockbarang.index', compact('stock', 'stokTokoLain', 'toko'));
+        return view('master.stockbarang.index', compact('stock', 'stokTokoLain', 'toko', 'levelharga', 'barang'));
     }
 
     public function getItem($id_barang)
@@ -57,7 +61,6 @@ class StockBarangController extends Controller
 
         // Ambil semua detail pembelian dengan status 'success' untuk barang tersebut
         $successfulDetails = DetailPembelianBarang::where('id_barang', $id_barang)
-                                                ->where('status', 'success')
                                                 ->get();
 
         // Hitung total harga dan total qty dari pembelian yang sudah 'success'
@@ -82,7 +85,4 @@ class StockBarangController extends Controller
             ]);
         }
     }
-
-
-
 }

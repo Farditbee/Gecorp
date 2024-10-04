@@ -71,6 +71,23 @@
                                                     </div>
                                                 </div>
                                             </li>
+                                            <li class="list-group-item">
+                                                <div class="row">
+                                                    <div class="col-3">
+                                                        <h4 class="mb-0"><i class="fa fa-sitemap"></i> Level Harga</h4>
+                                                    </div>
+                                                    <div class="col">
+                                                        @if(!empty($levelhargas))
+                                                        @foreach($levelhargas as $levelharga)
+                                                            <span style="font-size: 16px;" class="badge badge-pill badge-secondary">{{ $levelharga->nama_level_harga }}</span>
+                                                            @if (!$loop->last), @endif
+                                                        @endforeach
+                                                    @else
+                                                        Tidak Ada Level Harga
+                                                    @endif
+                                                    </div>
+                                                </div>
+                                            </li>
                                         </ul>
                                         <br>
                                         <div class="table-responsive">
