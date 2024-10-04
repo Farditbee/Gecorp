@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/pembelianbarang/{id}/delete', [PembelianBarangController::class, 'delete'])->name('master.pembelianbarang.delete');
         Route::get('/get-stock/{id_barang}', [PembelianBarangController::class, 'getStock'])->name('master.pembelian.getstock');
         Route::post('/pembelianbarang/update_status/{id}', [PembelianBarangController::class, 'updateStatus'])->name('master.pembelianbarang.update_status');
+        Route::get('/pembelian-barang/level-harga/{barangId}', [PembelianBarangController::class, 'getLevelHarga']);
 
         // Toko Controller
         Route::get('/toko', [TokoController::class, 'index'])->name('master.toko.index');
@@ -91,7 +92,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/barang/edit/{id}', [BarangController::class, 'edit'])->name('master.barang.edit');
         Route::put('/barang/update/{id}', [BarangController::class, 'update'])->name('master.barang.update');
         Route::get('/get-brands-by-jenis', [BrandController::class, 'getBrandsByJenis'])->name('getBrandsByJenis');
-
 
         // Supplier Controller
         Route::get('/supplier', [SupplierController::class, 'index'])->name('master.supplier.index');
@@ -131,7 +131,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/stockbarang/create', [StockBarangController::class, 'create'])->name('master.stockbarang.create');
         Route::get('/get-stock-details/{id_barang}', [StockBarangController::class, 'getStockDetails'])->name('get-stock-details');
         Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
-
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
 

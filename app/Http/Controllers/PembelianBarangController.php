@@ -16,8 +16,12 @@ class PembelianBarangController extends Controller
 {
     public function index()
     {
-        $pembelian = PembelianBarang::orderBy('id', 'desc')->get();
-        return view('transaksi.pembelianbarang.index', compact('pembelian'));
+        $pembelian_dt = PembelianBarang::orderBy('id', 'desc')->get();
+        $suppliers = Supplier::all();
+        $barang = Barang::all();
+        $suppliers = Supplier::all();
+        $LevelHarga = LevelHarga::all();
+        return view('transaksi.pembelianbarang.index', compact('pembelian_dt', 'suppliers', 'barang', 'LevelHarga'));
     }
 
     public function create()
@@ -31,7 +35,6 @@ class PembelianBarangController extends Controller
 
     public function store(Request $request)
     {
-
         $request->validate([
             'id_supplier' => 'required|exists:supplier,id',
             'tgl_nota' => 'required|date',
@@ -49,12 +52,22 @@ class PembelianBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('master.pembelianbarang.create')
-                             ->with('tab', 'detail')
-                             ->with('pembelian', $pembelian);
+            // // Cek apakah request dari AJAX
+            // if ($request->ajax()) {
+            //     return response()->json(['success' => true, 'message' => 'Pembelian berhasil disimpan', 'pembelian' => $pembelian]);
+            // }
+
+            return redirect()->route('master.pembelianbarang.index')
+                            ->with('tab', 'detail')
+                            ->with('pembelian', $pembelian);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
+            // Cek apakah request dari AJAX
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            }
 
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -72,6 +85,8 @@ class PembelianBarangController extends Controller
     {
         $stock = StockBarang::where('id_barang', $id_barang)->first();
 
+        $barang = Barang::where('id', $id_barang)->first();
+
         $detail = DetailPembelianBarang::where('id_barang', $id_barang)->get();
 
         $totalHargaSuccess = $detail->sum('total_harga');
@@ -85,7 +100,7 @@ class PembelianBarangController extends Controller
         }
 
         $level_harga = [];
-        if ($stock && $stock->level_harga) {
+        if ($barang && $barang->level_harga) {
             $decoded_level_harga = json_decode($stock->level_harga, true);
             foreach ($decoded_level_harga as $item) {
                 list($level_name, $level_value) = explode(' : ', $item);
@@ -106,21 +121,11 @@ class PembelianBarangController extends Controller
         $idBarangs = $request->input('id_barang', []);
         $qtys = $request->input('qty', []);
         $hargaBarangs = $request->input('harga_barang', []);
-
-        foreach ($idBarangs as $index => $id_barang) {
-            $qty = $qtys[$index] ?? null;
-            $harga_barang = $hargaBarangs[$index] ?? null;
-
-            if (is_null($qty) || is_null($harga_barang)) {
-                continue;
-            }
-
-            if ($qty <= 0 || $harga_barang <= 0) {
-                return redirect()->back()->with('error', 'Failed: Data harap diisi dengan benar.');
-            }
-        }
+        $levelNamas = $request->input('level_nama', []);
+        $levelHargas = $request->input('level_harga', []);
 
         try {
+            // dd($request->all());
             DB::beginTransaction();
 
             $pembelian = PembelianBarang::findOrFail($id);
@@ -128,16 +133,15 @@ class PembelianBarangController extends Controller
             $totalItem = 0;
             $totalNilai = 0;
 
-            $count = count($idBarangs);
-            for ($i = 0; $i < $count; $i++) {
-                $id_barang = $idBarangs[$i];
-                $qty = $qtys[$i] ?? null;
-                $harga_barang = $hargaBarangs[$i] ?? null;
+            foreach ($idBarangs as $index => $id_barang) {
+                $qty = $qtys[$index] ?? null;
+                $harga_barang = $hargaBarangs[$index] ?? null;
 
                 if (is_null($qty) || is_null($harga_barang)) {
                     continue;
                 }
 
+                // Update DetailPembelianBarang
                 if ($id_barang && $qty > 0 && $harga_barang > 0) {
                     $barang = Barang::findOrFail($id_barang);
 
@@ -156,20 +160,61 @@ class PembelianBarangController extends Controller
 
                     $totalItem += $detail->qty;
                     $totalNilai += $detail->total_harga;
+
+                    // Proses Level Harga
+                    $levelHargaBarang = [];
+                    
+                    if (isset($levelHargas[$index + 1]) && is_array($levelHargas[$index + 1])) {
+                        foreach ($levelHargas[$index + 1] as $levelIndex => $hargaLevel) {
+                            $levelNama = $levelNamas[$levelIndex] ?? 'Level ' . ($levelIndex + 1);
+                            if (!is_null($hargaLevel)) {
+                                $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
+                            }
+                        }
+                    }                                              
+
+                    // Simpan Level Harga sebagai JSON ke tabel Barang
+                    $barang->level_harga = json_encode($levelHargaBarang);
+                    $barang->save();
+
+                    // Update atau Insert ke stockBarang
+                    $stockBarang = StockBarang::firstOrNew(['id_barang' => $id_barang]);
+
+                    $hpp_awal = $stockBarang->hpp_awal ?: $harga_barang;
+                    $stock_awal = $stockBarang->stock ?: 0;
+
+                    // Hitung nilai total dan hpp baru
+                    $total_harga_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('total_harga');
+                    $total_qty_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('qty');
+
+                    if ($total_qty_barang > 0) {
+                        $hpp_baru = $total_harga_barang / $total_qty_barang;
+                    } else {
+                        $hpp_baru = $hpp_awal;
+                    }
+
+                    // Update stock dan nilai total di stockBarang
+                    $stockBarang->stock = $stock_awal + $detail->qty;
+                    $stockBarang->hpp_awal = $hpp_awal;
+                    $stockBarang->hpp_baru = $hpp_baru;
+                    $stockBarang->nilai_total = $hpp_baru * $stockBarang->stock;
+                    $stockBarang->nama_barang = $barang->nama_barang;
+                    $stockBarang->save();
                 }
             }
 
+            // Update total item dan total nilai pembelian
             $pembelian->total_item = $totalItem;
             $pembelian->total_nilai = $totalNilai;
+            $pembelian->status = 'success';
             $pembelian->save();
 
             DB::commit();
 
-            return redirect()->route('master.pembelianbarang.index')->with('success', 'Data Pembelian Barang berhasil disimpan.');
+            return redirect()->route('master.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
         } catch (\Exception $e) {
             DB::rollback();
-
-            return redirect()->back()->with('error', 'Failed to update pembelian barang. ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $e->getMessage()]);
         }
     }
 
@@ -214,28 +259,26 @@ class PembelianBarangController extends Controller
                 // Check if stock already exists
                 $existingStock = StockBarang::where('id_barang', $detail->id_barang)->first();
 
+                $barang = Barang::where('id', $detail->id_barang)->first();
+
                 if ($existingStock) {
                     $successfulDetails = DetailPembelianBarang::where('id_barang', $detail->id_barang)
                                                                 ->where('status', 'success')
                                                                 ->get();
-                    // dd($successfulDetails);
-                    // Hitung total harga dan qty dari pembelian yang sudah 'success'
+
                     $totalHargaSemua = $successfulDetails->sum('total_harga');
                     $totalQtySemua = $successfulDetails->sum('qty');
 
-                    // if ($totalQtyBaru > 0) {
-                    //     $hppBaru = $totalHargaBaru / $totalQtyBaru;
-                    // }
-                    // else{
-                    //     $hppBaru = 0;
-                    // }
                     // Hitung HPP baru
                     $hppBaru = $totalHargaSemua / $totalQtySemua;
 
                     $existingStock->stock += $detail->qty;
                     $existingStock->harga_satuan = $detail->harga_barang;
                     $existingStock->hpp_baru = $hppBaru;
-                    $existingStock->level_harga = $levelHargaJson;
+
+                    $barang->level_harga = $levelHargaJson;
+                    $barang->save();
+                    
                     $existingStock->save();
                 } else {
                     // Insert new stock record
@@ -247,7 +290,10 @@ class PembelianBarangController extends Controller
                     $newStock->hpp_baru = $detail->total_harga / $detail->qty;
                     $newStock->stock = $detail->qty;
                     $newStock->nilai_total = $detail->qty;
-                    $newStock->level_harga = $levelHargaJson;
+
+                    $barang->level_harga = $levelHargaJson;
+                    $barang->save();
+
                     $newStock->save();
                 }
             }
