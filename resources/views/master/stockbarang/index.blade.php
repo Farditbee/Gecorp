@@ -313,7 +313,7 @@ aturHargaButtons.forEach(button => {
         const id_modal = button.getAttribute('data-id');
         const modalId = `#atur-harga-${id_modal}`;
 
-        fetch(`/admin/get-stock/${id_barang}`)
+        fetch(`/admin/get-stock-details/${id_barang}`)
             .then(response => response.json())
             .then(data => {
                 const modal = document.querySelector(modalId);
