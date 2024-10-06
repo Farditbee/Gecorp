@@ -29,11 +29,11 @@
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
                                         <!-- Tombol Tambah -->
-                                        <a href="{{ route('master.pembelianbarang.create')}}" class="btn btn-primary">
+                                        {{-- <a href="{{ route('master.pembelianbarang.create')}}" class="btn btn-primary">
                                             <i class="ti-plus menu-icon"></i> Tambah
-                                        </a>
+                                        </a> --}}
                                         <a href="" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">
-                                            <i class="ti-plus menu-icon"></i> Modal
+                                            <i class="ti-plus menu-icon"></i> Tambah
                                         </a>
                                         <!-- Input Search -->
                                         <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
@@ -121,7 +121,7 @@
 							<div class="modal-dialog modal-lg">
 								<div class="modal-content">
 									<div class="modal-header">
-										<h5 class="modal-title h4" id="myLargeModalLabel">Large Modal</h5>
+										<h5 class="modal-title h4" id="myLargeModalLabel">Pembelian Barang</h5>
 										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 									</div>
 									<div class="modal-body">
@@ -598,19 +598,23 @@ $(document).ready(function(){
                         originalLevelHarga = { ...data.level_harga };  // Simpan salinan level harga asli
 
                         // Mengisi nilai level harga dari server dan menghitung persentase
-                        Object.keys(data.level_harga).forEach(function(level_name, index) {
+                        document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
+                            const namaLevel = namaLevelInput.value;
                             const inputField = document.querySelectorAll('input[name="level_harga[]"]')[index];
-                            if (inputField) {
-                                inputField.value = data.level_harga[level_name];
+                            const persenElement = document.querySelector(`#persen_${index}`);
+
+                            // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
+                            if (data.level_harga.hasOwnProperty(namaLevel)) {
+                                inputField.value = data.level_harga[namaLevel];
                                 let levelHarga = parseFloat(inputField.value) || 0;
                                 let persen = 0;
                                 if (initialHppBaru > 0) {
                                     persen = ((levelHarga - initialHppBaru) / initialHppBaru) * 100;
                                 }
-                                const persenElement = document.querySelector(`#persen_${index}`);
-                                if (persenElement) {
-                                    persenElement.textContent = `${persen.toFixed(2)}%`;
-                                }
+                                persenElement.textContent = `${persen.toFixed(2)}%`;
+                            } else {
+                                inputField.value = '';  // Biarkan kosong jika tidak ada data
+                                persenElement.textContent = '0%';
                             }
                         });
 
@@ -763,21 +767,23 @@ $(document).ready(function(){
             document.querySelector('.card-text strong.hpp-baru').textContent = `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
             // Kembalikan nilai level harga ke nilai asli dari server
-            Object.keys(originalLevelHarga).forEach(function(level_name, index) {
-                const inputField = document.querySelector(`input[name="level_harga[${index}][]"]`);
-                if (inputField) {
-                    inputField.value = originalLevelHarga[level_name] || '';  // Kembalikan nilai asli
+            document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
+                const namaLevel = namaLevelInput.value;
+                const inputField = document.querySelectorAll('input[name="level_harga[]"]')[index];
+                const persenElement = document.querySelector(`#persen_${index}`);
+
+                // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
+                if (originalLevelHarga.hasOwnProperty(namaLevel)) {
+                    inputField.value = originalLevelHarga[namaLevel] || '';  // Kembalikan nilai asli jika ada
                     let levelHarga = parseFloat(inputField.value) || 0;
                     let persen = 0;
-
                     if (initialHppBaru > 0) {
                         persen = ((levelHarga - initialHppBaru) / initialHppBaru) * 100;
                     }
-
-                    const persenElement = document.querySelector(`#persen_${index}`);
-                    if (persenElement) {
-                        persenElement.textContent = `${persen.toFixed(2)}%`;
-                    }
+                    persenElement.textContent = `${persen.toFixed(2)}%`;
+                } else {
+                    inputField.value = '';  // Kosongkan jika tidak ada data
+                    persenElement.textContent = '0%';
                 }
             });
         }
