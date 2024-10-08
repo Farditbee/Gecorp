@@ -556,8 +556,6 @@ $(document).ready(function(){
 
                 updateNumbers();
 
-                // restoreFields(data);
-
                 // Enable input fields if no items are added
                 if (!addedItems.size) {
                     toggleInputFields(false);
@@ -570,6 +568,8 @@ $(document).ready(function(){
 
         document.getElementById('id_barang').addEventListener('change', function () {
             checkInputFields();
+            document.getElementById('jml_item').value = '';
+            document.getElementById('harga_barang').value = '';
 
             let idBarang = this.value;
 
@@ -608,8 +608,8 @@ $(document).ready(function(){
                                 inputField.value = data.level_harga[namaLevel];
                                 let levelHarga = parseFloat(inputField.value) || 0;
                                 let persen = 0;
-                                if (initialHppBaru > 0) {
-                                    persen = ((levelHarga - initialHppBaru) / initialHppBaru) * 100;
+                                if (initialHppAwal > 0) {
+                                    persen = ((levelHarga - initialHppAwal) / initialHppAwal) * 100;
                                 }
                                 persenElement.textContent = `${persen.toFixed(2)}%`;
                             } else {
@@ -629,6 +629,30 @@ $(document).ready(function(){
             }
         });
 
+        document.querySelectorAll('.level-harga').forEach(function(input) {
+            input.addEventListener('input', function() {
+                let hppAwal = initialHppAwal || 0;
+                let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
+                let levelHarga = parseFloat(this.value) || 0;
+
+                let persen = 0;
+
+                // Jika harga barang belum diisi, gunakan hpp_awal
+                if (hppBaru === 0 && hppAwal > 0) {
+                    persen = ((levelHarga - hppAwal) / hppAwal) * 100;
+                } else if (hppBaru > 0) {
+                    // Jika harga barang sudah diisi, gunakan hpp_baru
+                    persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+                }
+
+                const index = this.getAttribute('data-index');
+                const persenElement = document.getElementById(`persen_${index}`);
+                if (persenElement) {
+                    persenElement.textContent = `${persen.toFixed(2)}%`;
+                }
+            });
+        });
+
         // Fungsi untuk mendengarkan perubahan input jumlah dan harga
         function setupInputListeners(totalHarga, totalQty) {
             document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function (input) {
@@ -638,13 +662,17 @@ $(document).ready(function(){
             });
         }
 
-        // Fungsi untuk menghitung HPP Baru dan memperbarui level harga
+        document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function (input) {
+            input.addEventListener('input', function () {
+                calculateHPP(0, 0);  // Asumsikan barang baru jika tidak ada total harga atau qty dari database
+            });
+        });
+
         function calculateHPP(totalHarga, totalQty) {
             let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
             let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
 
-            // Jika barang belum memiliki data di database (HPP awal dari database = 0)
-            let hppAwal = initialHppBaru || 0;
+            let hppAwal = initialHppAwal || 0;  // Ambil HPP awal dari server
 
             if (jumlah > 0 && harga > 0) {
                 let totalHargaBaru = jumlah * harga;
@@ -664,51 +692,38 @@ $(document).ready(function(){
                     input.setAttribute('data-hpp-baru', finalHpp);
                 });
 
-                // Hitung ulang persentase setelah HPP baru dihitung
-                document.querySelectorAll('.level-harga').forEach(function(input) {
-                    let levelHarga = parseFloat(input.value) || 0;
-                    let persen = 0;
-                    if (finalHpp > 0) {
-                        persen = ((levelHarga - finalHpp) / finalHpp) * 100;
-                    }
+                // Hitung ulang persentase menggunakan HPP baru
+                updatePercentages(finalHpp);
 
-                    const persenElement = document.getElementById(`persen_${input.getAttribute('data-index')}`);
-                    if (persenElement) {
-                        persenElement.textContent = `${persen.toFixed(2)}%`;
-                    }
-                });
             } else {
-                // Jika input kosong, gunakan HPP awal
+                // Jika input jumlah atau harga dikosongkan, gunakan HPP awal dari server
                 document.querySelector('.card-text strong.hpp-baru').textContent = `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
-                // Set HPP awal dari server kembali ke input level harga
+                // Set HPP awal dari server di setiap input level harga
                 document.querySelectorAll('.level-harga').forEach(function(input) {
-                    input.setAttribute('data-hpp-baru', initialHppBaru);
+                    input.setAttribute('data-hpp-baru', initialHppAwal);
                 });
 
                 // Hitung ulang persentase menggunakan HPP awal
-                document.querySelectorAll('.level-harga').forEach(function(input) {
-                    let levelHarga = parseFloat(input.value) || 0;
-                    let persen = 0;
-                    if (initialHppBaru > 0) {
-                        persen = ((levelHarga - initialHppBaru) / initialHppBaru) * 100;
-                    }
-
-                    const persenElement = document.getElementById(`persen_${input.getAttribute('data-index')}`);
-                    if (persenElement) {
-                        persenElement.textContent = `${persen.toFixed(2)}%`;
-                    }
-                });
+                updatePercentages(initialHppAwal);
             }
         }
 
-        // Event listener untuk perubahan pada input jumlah dan harga
-        document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function (input) {
-            input.addEventListener('input', function () {
-                // Asumsikan totalHarga dan totalQty dari database sebagai 0 jika barang baru
-                calculateHPP(0, 0);
+        // Fungsi untuk memperbarui persentase
+        function updatePercentages(hpp) {
+            document.querySelectorAll('.level-harga').forEach(function(input) {
+                let levelHarga = parseFloat(input.value) || 0;
+                let persen = 0;
+                if (hpp > 0) {
+                    persen = ((levelHarga - hpp) / hpp) * 100;
+                }
+
+                const persenElement = document.getElementById(`persen_${input.getAttribute('data-index')}`);
+                if (persenElement) {
+                    persenElement.textContent = `${persen.toFixed(2)}%`;
+                }
             });
-        });
+        }
 
         function updateNumbers() {
             document.querySelectorAll('.table-bordered tbody tr .numbered').forEach((element, index) => {
@@ -723,25 +738,25 @@ $(document).ready(function(){
             tabDetail.show();
         });
 
-        // Event listener untuk menghitung ulang persentase saat input level harga berubah
-        document.querySelectorAll('.level-harga').forEach(function(input) {
-            input.addEventListener('input', function() {
-                let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
-                let levelHarga = parseFloat(this.value) || 0;
+        // // Event listener untuk menghitung ulang persentase saat input level harga berubah
+        // document.querySelectorAll('.level-harga').forEach(function(input) {
+        //     input.addEventListener('input', function() {
+        //         let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
+        //         let levelHarga = parseFloat(this.value) || 0;
 
-                // Hitung persentase jika HPP baru lebih dari 0
-                let persen = 0;
-                if (hppBaru > 0) {
-                    persen = ((levelHarga - hppBaru) / hppBaru) * 100;
-                }
+        //         // Hitung persentase jika HPP baru lebih dari 0
+        //         let persen = 0;
+        //         if (hppBaru > 0) {
+        //             persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+        //         }
 
-                const index = this.getAttribute('data-index');
-                const persenElement = document.getElementById(`persen_${index}`);
-                if (persenElement) {
-                    persenElement.textContent = `${persen.toFixed(2)}%`;
-                }
-            });
-        });
+        //         const index = this.getAttribute('data-index');
+        //         const persenElement = document.getElementById(`persen_${index}`);
+        //         if (persenElement) {
+        //             persenElement.textContent = `${persen.toFixed(2)}%`;
+        //         }
+        //     });
+        // });
 
         function resetFields() {
             // Kosongkan tampilan HPP, stock, dan level harga
@@ -764,7 +779,6 @@ $(document).ready(function(){
             // Kembalikan nilai HPP dan stock dari server
             document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString('id-ID');
             document.querySelector('.card-text strong.hpp-awal').textContent = `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
-            document.querySelector('.card-text strong.hpp-baru').textContent = `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
             // Kembalikan nilai level harga ke nilai asli dari server
             document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {

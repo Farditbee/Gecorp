@@ -158,20 +158,24 @@ class PembelianBarangController extends Controller
                         ]
                     );
 
+                    // Update status menjadi success jika tidak ingin merubah field lain
+                    $detail->status = 'success';
+                    $detail->save();
+
                     $totalItem += $detail->qty;
                     $totalNilai += $detail->total_harga;
 
                     // Proses Level Harga
                     $levelHargaBarang = [];
-                    
-                    if (isset($levelHargas[$index + 1]) && is_array($levelHargas[$index + 1])) {
-                        foreach ($levelHargas[$index + 1] as $levelIndex => $hargaLevel) {
+
+                    if (isset($levelHargas[$id_barang]) && is_array($levelHargas[$id_barang])) {
+                        foreach ($levelHargas[$id_barang] as $levelIndex => $hargaLevel) {
                             $levelNama = $levelNamas[$levelIndex] ?? 'Level ' . ($levelIndex + 1);
                             if (!is_null($hargaLevel)) {
                                 $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
                             }
                         }
-                    }                                              
+                    }                            
 
                     // Simpan Level Harga sebagai JSON ke tabel Barang
                     $barang->level_harga = json_encode($levelHargaBarang);

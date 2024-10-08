@@ -89,8 +89,8 @@ class StockBarangController extends Controller
         if ($stockBarang) {
             return response()->json([
                 'stock' => $stockBarang->stock,
-                'hpp_awal' => $stockBarang->hpp_awal,
-                'hpp_baru' => $hppBaru,
+                'hpp_awal' => $hppBaru,
+                'hpp_baru' => 0,
                 'total_harga_success' => $totalHargaSuccess,
                 'total_qty_success' => $totalQtySuccess,
                 'level_harga' => $level_harga,
@@ -102,6 +102,7 @@ class StockBarangController extends Controller
                 'hpp_baru' => $hpp0,
                 'total_harga_success' => $totalHargaSuccess,
                 'total_qty_success' => $totalQtySuccess,
+                'level_harga' => [],
             ]);
         }
     }
