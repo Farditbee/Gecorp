@@ -7,12 +7,9 @@
 
 @include('layouts.css.style_css')
 
-<body style="transform: scale(0.8);
-    transform-origin: left;">
-
     <!-- [ auth-signin ] start -->
 <div class="auth-wrapper">
-	<div class="auth-content text-center" style="transform: scale(1.2);">
+	<div class="auth-content text-center">
 		<img src="assets/images/logo.png" alt="" class="img-fluid mb-4">
 		<div class="card borderless">
 			<div class="row align-items-center ">
