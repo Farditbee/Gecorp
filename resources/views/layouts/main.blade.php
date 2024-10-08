@@ -15,8 +15,6 @@
     <!-- prism css -->
     @include('layouts.css.style_css')
 
-
-
 </head>
 <body>
 

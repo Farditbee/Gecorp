@@ -352,9 +352,6 @@ body {
     color: #373a3c;
     text-align: left;
     background-color: #e9e9e9;
-    transform: scale(0.8); /* Mengecilkan tampilan menjadi 80% */
-    transform-origin: top left; /* Menentukan titik asal scaling */
-    width: 125%; /* Mengkompensasi lebar tampilan yang berkurang */
 }
 
 [tabindex="-1"]:focus {
@@ -6064,8 +6061,6 @@ a.close.disabled {
 
 .modal-backdrop.fade {
     opacity: 0;
-    transform: scale(1.5); /* Ubah nilai sesuai kebutuhan */
-    transform-origin: center;
 }
 
 .modal-backdrop.show {
@@ -10595,11 +10590,7 @@ a.text-dark:hover, a.text-dark:focus {
     }
 
     body {
-        min-width: 100%;
-    }
-
-    .pcoded-navbar {
-        max-width: 100%; /* Agar navbar tidak melampaui lebar body */
+        min-width: 992px !important;
     }
 
     .container {
@@ -21221,6 +21212,16 @@ pre[class*=language-]:before {
 /* ===  scroll bar End  ===== */
 /* menu [ vartical ] css end */
 /* menu[ horizontal ] css start */
+.pcoded-navbar.theme-horizontal {
+    display: block;
+    height: 56px;
+    width: 100%;
+    z-index: 1023;
+    position: fixed;
+    border-radius: 0;
+    top: 56px;
+    margin-top: 0;
+}
 
 .pcoded-navbar.theme-horizontal .pcoded-badge {
     display: none;
@@ -21248,17 +21249,6 @@ pre[class*=language-]:before {
 
 .pcoded-navbar.theme-horizontal .header-logo {
     display: none;
-}
-
-.pcoded-navbar.theme-horizontal {
-    display: flex;
-    height: 56px;
-    width: 100%;
-    z-index: 1023;
-    position: relative;
-    border-radius: 0;
-    top: 56px;
-    margin-top: 0;
 }
 
 .pcoded-navbar.theme-horizontal .sidenav-horizontal-wrapper {
@@ -21877,7 +21867,7 @@ pre[class*=language-]:before {
 /* * Horizontal */
 .theme-horizontal .sidenav-horizontal-wrapper {
     flex: 1 1 auto;
-    width: 10;
+    width: 0;
 }
 
 .sidenav:not(.sidenav-no-animation) .theme-horizontal .sidenav-horizontal-wrapper .sidenav-inner {
@@ -21926,7 +21916,7 @@ pre[class*=language-]:before {
 .theme-horizontal .sidenav-horizontal:after, .theme-horizontal .sidenav-horizontal:before {
     content: "";
     background: #2c3e50;
-    width: 10;
+    width: 100%;
     position: absolute;
     top: 0;
     height: 100%;
@@ -24005,7 +23995,6 @@ body[class*='background-img-'] .pcoded-navbar.theme-horizontal ~ .pcoded-header[
     background-position: top right;
     background-attachment: fixed;
 }
-
 
 body.background-img-1 {
     background-image: url("../images/nav-bg/body-bg-1.jpg");
