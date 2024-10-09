@@ -116,6 +116,7 @@ class PembelianBarangController extends Controller
         ]);
     }
 
+    // Test buat pembelian
     public function update(Request $request, $id)
     {
         $idBarangs = $request->input('id_barang', []);
