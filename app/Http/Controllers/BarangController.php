@@ -105,8 +105,17 @@ class BarangController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function delete(string $id)
     {
-        //
+        DB::beginTransaction();
+        $barang = Barang::findOrFail($id);
+        try {
+            $barang->delete();
+        DB::commit();
+        return redirect()->route('master.barang.index')->with('success', 'Sukses menghapus Data Barang');
+        } catch (\Throwable $th) {
+        DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menghapus Data Barang' . $th->getMessage());
+        }
     }
 }

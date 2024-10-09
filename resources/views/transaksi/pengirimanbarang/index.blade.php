@@ -4,123 +4,119 @@
 @section('content')
 
 <div class="pcoded-main-container">
-            <div class="pcoded-inner-content">
-                <div class="main-body">
-                    <div class="page-wrapper">
-                        <div class="page-header">
-                            <div class="page-block">
-                                <div class="row align-items-center">
-                                    <div class="col-md-12">
-                                        <div class="page-header-title">
-                                            <h4 class="m-b-10 ml-3">Pengiriman Barang</h4>
-                                        </div>
-                                        <ul class="breadcrumb ">
-                                            <li class="breadcrumb-item ml-3"><a href="{{ route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="{{ route('master.pengirimanbarang.index')}}">Pengiriman Barang</a></li>
-                                        </ul>
-                                    </div>
-
-                                </div>
-                            </div>
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Data Pengiriman Barang</h5>
                         </div>
-                        <!-- [ Main Content ] start -->
-                        <div class="row">
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <!-- Tombol Tambah -->
-                                        <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary">
-                                            <i class="ti-plus menu-icon"></i> Tambah
-                                        </a>
-                                        <!-- Input Search -->
-                                        <form class="d-flex" method="GET" action="{{ route('master.pengirimanbarang.index') }}">
-                                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pengiriman" aria-label="Search">
-                                        </form>
-                                    </div>
-                                    <x-adminlte-alerts />
-                                    <div class="card-body table-border-style">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped" id="jsTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Detail</th>
-                                                        <th>Status</th>
-                                                        <th>Tgl Kirim</th>
-                                                        <th>Tgl Terima</th>
-                                                        <th>No. Resi</th>
-                                                        <th>Toko Pengirim</th>
-                                                        <th>Nama Pengirim</th>
-                                                        <th>Ekspedisi</th>
-                                                        <th>Jumlah Qty</th>
-                                                        <th>Total Harga</th>
-                                                        <th>Toko Penerima</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @forelse ($pengiriman_barang as $prbr)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration}}</td>
-                                                        <td>
-                                                            <a href="{{ route('master.pengirimanbarang.detail', $prbr->id)}}" class="btn btn-primary btn-sm">Cek Detail</i></a>
-                                                        </td>
-                                                        @if ($prbr->status == 'failed')
-                                                        <td><h5><span class="badge badge-danger fixed-badge">Failed</span></h5></td>
-                                                        @elseif ($prbr->status == 'progress')
-                                                        <td><h5><span style="color: black" class="badge badge-warning fixed-badge">Progress</span></h5></td>
-                                                        @else
-                                                        <td><h5><span class="badge badge-success fixed-badge">Success</span></h5></td>
-                                                        @endif
-                                                        <td>{{ \DateTime::createFromFormat('Y-m-d', $prbr->tgl_kirim)->format('d-m-Y') }}</td>
-                                                        <td>
-                                                            {{ $prbr->tgl_terima ? \DateTime::createFromFormat('Y-m-d', $prbr->tgl_terima)->format('d-m-Y') : '' }}
-                                                        </td>
-
-                                                        <td>{{ $prbr->no_resi}}</td>
-                                                        <td>{{ $prbr->toko->nama_toko}}</td>
-                                                        <td>{{ $prbr->user->nama}}</td>
-                                                        <td>{{ $prbr->ekspedisi}}</td>
-                                                        <td>{{ $prbr->total_item}}</td>
-                                                        <td>Rp. {{ number_format($prbr->total_nilai, 0, '.', '.') }}</td>
-                                                        <td>{{ $prbr->tokos->nama_toko}}</td>
-                                                        <td>
-                                                            <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');" action="#">
-                                                                <a href="{{ route('master.pengirimanbarang.edit', $prbr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                    @empty
-
-                                                    @endforelse
-                                                </tbody>
-                                            </table>
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div>
-                                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
-                                                </div>
-                                                <nav aria-label="Page navigation example">
-                                                    <ul class="pagination justify-content-end" id="pagination">
-                                                      {{-- isian paginate --}}
-                                                    </ul>
-                                                  </nav>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- [ Main Content ] end -->
-                        <!-- [ Main Content ] start -->
-                        <!-- [ Main Content ] end -->
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a>Data Pengiriman Barang</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <!-- Tombol Tambah -->
+                        <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary">
+                            <i class="ti-plus menu-icon"></i> Tambah
+                        </a>
+                        <!-- Input Search -->
+                        <form class="d-flex" method="GET" action="{{ route('master.pengirimanbarang.index') }}">
+                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pengiriman" aria-label="Search">
+                        </form>
+                    </div>
+                    <x-adminlte-alerts />
+                    <div class="card-body table-border-style">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="jsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Detail</th>
+                                        <th>Status</th>
+                                        <th>Tgl Kirim</th>
+                                        <th>Tgl Terima</th>
+                                        <th>No. Resi</th>
+                                        <th>Toko Pengirim</th>
+                                        <th>Nama Pengirim</th>
+                                        <th>Ekspedisi</th>
+                                        <th>Jumlah Qty</th>
+                                        <th>Total Harga</th>
+                                        <th>Toko Penerima</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($pengiriman_barang as $prbr)
+                                    <tr>
+                                        <td>{{ $loop->iteration}}</td>
+                                        <td>
+                                            <a href="{{ route('master.pengirimanbarang.detail', $prbr->id)}}" class="btn btn-primary btn-sm" style="font-size: 12px;">Cek Detail</i></a>
+                                        </td>
+                                        @if ($prbr->status == 'failed')
+                                        <td><span class="badge badge-danger fixed-badge">Failed</span></td>
+                                        @elseif ($prbr->status == 'progress')
+                                        <td><span style="color: black" class="badge badge-warning fixed-badge">Progress</span></td>
+                                        @else
+                                        <td><span class="badge badge-success fixed-badge">Success</span></td>
+                                        @endif
+                                        <td>{{ \DateTime::createFromFormat('Y-m-d', $prbr->tgl_kirim)->format('d-m-Y') }}</td>
+                                        <td>
+                                            {{ $prbr->tgl_terima ? \DateTime::createFromFormat('Y-m-d', $prbr->tgl_terima)->format('d-m-Y') : '' }}
+                                        </td>
+
+                                        <td>{{ $prbr->no_resi}}</td>
+                                        <td>{{ $prbr->toko->nama_toko}}</td>
+                                        <td>{{ $prbr->user->nama}}</td>
+                                        <td>{{ $prbr->ekspedisi}}</td>
+                                        <td>{{ $prbr->total_item}}</td>
+                                        <td>Rp. {{ number_format($prbr->total_nilai, 0, '.', '.') }}</td>
+                                        <td>{{ $prbr->tokos->nama_toko}}</td>
+                                        <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');" action="#">
+                                        <td>
+                                                <a href="{{ route('master.pengirimanbarang.edit', $prbr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                            </td>
+                                        </form>
+                                    </tr>
+                                    @empty
+
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
+                                </div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-end" id="pagination">
+                                      {{-- isian paginate --}}
+                                    </ul>
+                                  </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>

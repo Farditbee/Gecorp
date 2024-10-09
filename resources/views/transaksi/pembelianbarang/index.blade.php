@@ -4,308 +4,306 @@
 @section('content')
 
 <div class="pcoded-main-container">
-            <div class="pcoded-inner-content">
-                <div class="main-body">
-                    <div class="page-wrapper">
-                        <div class="page-header">
-                            <div class="page-block">
-                                <div class="row align-items-center">
-                                    <div class="col-md-12">
-                                        <div class="page-header-title">
-                                            <h4 class="m-b-10 ml-3">Pembelian Barang</h4>
-                                        </div>
-                                        <ul class="breadcrumb ">
-                                            <li class="breadcrumb-item ml-3"><a href="{{ route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="{{ route('master.pembelianbarang.index')}}">Pembelian Barang</a></li>
-                                        </ul>
-                                    </div>
-
-                                </div>
-                            </div>
+    <div class="pcoded-content">
+        <!-- [ breadcrumb ] start -->
+        <div class="page-header">
+            <div class="page-block">
+                <div class="row align-items-center">
+                    <div class="col-md-12">
+                        <div class="page-header-title">
+                            <h5 class="m-b-10">Data Pembelian Barang</h5>
                         </div>
-                        <!-- [ Main Content ] start -->
-                        <div class="row">
-                            <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-header d-flex justify-content-between align-items-center">
-                                        <!-- Tombol Tambah -->
-                                        {{-- <a href="{{ route('master.pembelianbarang.create')}}" class="btn btn-primary">
-                                            <i class="ti-plus menu-icon"></i> Tambah
-                                        </a> --}}
-                                        <a href="" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">
-                                            <i class="ti-plus menu-icon"></i> Tambah
-                                        </a>
-                                        <!-- Input Search -->
-                                        <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
-                                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pembelian" aria-label="Search">
-                                        </form>
-                                    </div>
-                                    <div class="content">
-                                        @if (session('success'))
-                                        <div class="alerts">
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="alert alert-success" role="alert" id="success-alert">
-                                                        {{ session('success') }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endif
-                                    <div class="card-body table-border-style">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped" id="jsTable">
-                                                <thead>
-                                                    <tr>
-                                                        <th>No</th>
-                                                        <th>Status</th>
-                                                        <th>No. Nota</th>
-                                                        <th>Tgl Nota</th>
-                                                        <th>Supplier</th>
-                                                        <th>Total Item</th>
-                                                        <th>Total Harga</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach ($pembelian_dt as $beli)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        @if ($beli->status == 'progress')
-                                                            <td><h5><span class="badge badge-warning fixed-badge">Progress</span></h5></td>
-                                                        @elseif ($beli->status == 'success')
-                                                            <td><h5><span class="badge badge-success fixed-badge">Success</span></h5></td>
-                                                        @elseif ($beli->status == 'failed')
-                                                            <td><h5><span class="badge badge-danger fixed-badge">Failed</span></h5></td>
-                                                        @else
-                                                            <td><h5><span class="badge badge-primary fixed-badge">Mixed</span></h5></td>
-                                                        @endif
-                                                        <td>{{ $beli->no_nota }}</td>
-                                                        <td>{{ \DateTime::createFromFormat('Y-m-d H:i:s', $beli->tgl_nota)->format('d-m-Y') }}</td>
-                                                        <td>{{ $beli->supplier->nama_supplier }}</td>
-                                                        <td>{{ $beli->total_item }}</td>
-                                                        <td>Rp. {{ number_format($beli->total_nilai, 0, '.', '.') }} </td>
-                                                        <td>
-                                                            <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');" action="{{ route('master.pembelianbarang.delete', $beli->id) }}" method="POST">
-                                                                @if ($beli->status == 'progress')
-                                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-book menu-icon"></i></a>
-                                                                @else
-                                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
-                                                                @endif
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                                <div>
-                                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
-                                                </div>
-                                                <nav aria-label="Page navigation example">
-                                                    <ul class="pagination justify-content-end" id="pagination">
-                                                      {{-- isian paginate --}}
-                                                    </ul>
-                                                  </nav>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-							<div class="modal-dialog modal-lg">
-								<div class="modal-content">
-									<div class="modal-header">
-										<h5 class="modal-title h4" id="myLargeModalLabel">Pembelian Barang</h5>
-										<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-									</div>
-									<div class="modal-body">
-										<div class="card-body">
-                                            <div class="custom-tab">
-                                                <nav>
-                                                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah-tab" data-toggle="tab" href="#tambah" role="tab" aria-controls="tambah" aria-selected="true" {{ session('tab') == 'detail' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Tambah Pembelian</a>
-                                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? 'active' : '' }}" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false" {{ session('tab') == '' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Detail Pembelian</a>
-                                                    </div>
-                                                </nav>
-                                                <div class="tab-content pl-3 pt-2" id="nav-tabContent">
-                                                    <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
-                                                        <br>
-                                                        <form id="form-tambah-pembelian" action="{{ route('master.pembelianbarang.store') }}" method="POST">
-                                                            @csrf
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <!-- Nama Supplier -->
-                                                                    <div class="form-group">
-                                                                        <label for="id_supplier" class="form-control-label">Nama Supplier</label>
-                                                                        <select name="id_supplier" id="id_supplier" class="form-control">
-                                                                            <option value="" selected>Pilih Supplier</option>
-                                                                            @foreach($suppliers as $supplier)
-                                                                                <option value="{{ $supplier->id }}">{{ $supplier->nama_supplier }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                
-                                                                <div class="col-6">
-                                                                    <label for="id_supplier" class="form-control-label">Tanggal Nota</label>
-                                                                    <input class="form-control" type="date" name="tgl_nota" id="tgl_nota">
-                                                                </div>
-                                                            </div>
-                
-                                                            <div class="form-group">
-                                                                <label for="no_nota" class=" form-control-label">Nomor Nota<span style="color: red">*</span></label>
-                                                                <input type="number" id="no_nota" name="no_nota" placeholder="Contoh : 001" class="form-control">
-                                                            </div>
-                                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
-                                                        </form>
-                                                    </div>
-                                                    <div class="tab-pane fade {{ session('tab') == 'detail' ? 'show active' : '' }}" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                                                    <br>
-                                                    @php
-                                                        $pembelian = session('pembelian', $pembelian ?? null);
-                                                    @endphp
-                
-                                                    @if ($pembelian)
-                                                        <ul class="list-group list-group-flush">
-                                                            <li class="list-group-item">
-                                                                <h5><i class="fa fa-home"></i> Nomor Nota <span class="badge badge-secondary pull-right">{{ $pembelian->no_nota }}</span></h5>
-                                                            </li>
-                                                            <li class="list-group-item">
-                                                                <h5><i class="fa fa-globe"></i> Nama Supplier <span class="badge badge-secondary pull-right">{{ $pembelian->supplier->nama_supplier }}</span></h5>
-                                                            </li>
-                                                            <li class="list-group-item">
-                                                                <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span class="badge badge-secondary pull-right">{{ $pembelian->tgl_nota }}</span></h5>
-                                                            </li>
-                                                        </ul>
-                                                    <br>
-                                                    <form action="{{ route('master.pembelianbarang.update', $pembelian->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <!-- Item Container -->
-                                                    <div id="item-container">
-                                                        <div class="item-group">
-                                                            <div class="row">
-                                                                <div class="col-12">
-                                                                    <!-- Jenis Barang -->
-                                                                    <div class="form-group">
-                                                                        <label for="id_barang" class="form-control-label">Nama Barang<span style="color: red">*</span></label>
-                                                                        <select name="id_barang[]" id="id_barang"  data-placeholder="Pilih Barang..." class="form-control">
-                                                                            <option value="" disabled selected required>Pilih Barang</option>
-                                                                            @foreach($barang as $brg)
-                                                                                <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
-                                                                            @endforeach
-                                                                        </select>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <!-- Jumlah Item -->
-                                                                    <div class="form-group">
-                                                                        <label for="jml_item" class="form-control-label">Jumlah Item<span style="color: red">*</span></label>
-                                                                        <input type="number" id="jml_item" min="1" name="qty[]" placeholder="Contoh: 16" class="form-control jumlah-item">
-                                                                    </div>
-                                                                </div>
-                
-                                                                <div class="col-6">
-                                                                    <!-- Harga Barang -->
-                                                                    <div class="form-group">
-                                                                        <label for="harga_barang" class="form-control-label">Harga Barang<span style="color: red">*</span></label>
-                                                                        <input type="number" id="harga_barang" min="1" name="harga_barang[]" placeholder="Contoh: 16000" class="form-control harga-barang">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                
-                                                <button type="button" id="add-item-detail" style="float: right" class="btn btn-secondary">Add</button>
-                                                <br><br>
-                
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                        <div class="card border border-primary">
-                                                            <div class="card-body">
-                                                                <p class="card-text">Detail Stock <strong>(GSS)</strong></p>
-                                                                <p class="card-text">Stock :<strong class="stock">0</strong></p>
-                                                                <p class="card-text">Hpp Awal : <strong class="hpp-awal">Rp 0</strong></p>
-                                                                <p class="card-text">Hpp Baru : <strong class="hpp-baru">Rp 0</strong></p>
-                                                            </div>
-                                                            <button type="button" id="reset" style="float: right" class="btn btn-secondary">Reset</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        @foreach ($LevelHarga as $index => $level)
-                                                        <div class="input-group mb-3">
-                                                            <div class="input-group-prepend">
-                                                                <span class="input-group-text">{{ $level->nama_level_harga }}</span>
-                                                            </div>
-                                                            <input type="hidden" name="level_nama[]" value="{{ $level->nama_level_harga }}">
-                                                            <div class="custom-file">
-                                                                <input type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
-                                                                <label class="input-group-text" id="persen_{{ $index }}">0%</label>
-                                                            </div>
-                                                        </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                                <br>
-                                                    <div class="row">
-                                                        <div class="col-12">
-                                                            <table class="table table-bordered">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th>Action</th>
-                                                                        <th scope="col">No</th>
-                                                                        <th scope="col">Nama Barang</th>
-                                                                        <th scope="col">Qty</th>
-                                                                        <th scope="col">Harga</th>
-                                                                        <th scope="col">Total Harga</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    <!-- Rows akan ditambahkan di sini oleh JavaScript -->
-                                                                </tbody>
-                                                                <tfoot>
-                                                                    <tr>
-                                                                        <th scope="col" colspan="5" style="text-align:right">SubTotal</th>
-                                                                        <th scope="col">Rp </th>
-                                                                    </tr>
-                                                                </tfoot>
-                                                            </table>
-                                                            <!-- Submit Button -->
-                                                            <div class="form-group">
-                                                                <button type="submit" class="btn btn-primary pull-right">
-                                                                    <i class="fa fa-dot-circle-o"></i> Simpan
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    </form>
-                                                    @else
-                                                    <div class="alert alert-warning">
-                                                        <strong>Perhatian!</strong> Anda perlu menambahkan data pembelian di tab "Tambah Pembelian" terlebih dahulu.
-                                                    </div>
-                                                    @endif
-                                                    <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel" aria-labelledby="custom-nav-contact-tab">
-                                                        <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-									</div>
-								</div>
-							</div>
-						</div>
-
+                        <ul class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
+                            <li class="breadcrumb-item"><a>Data Pembelian Barang</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
+        </div>
+        <!-- [ breadcrumb ] end -->
+
+        <!-- [ Main Content ] start -->
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <!-- Tombol Tambah -->
+                        {{-- <a href="{{ route('master.pembelianbarang.create')}}" class="btn btn-primary">
+                            <i class="ti-plus menu-icon"></i> Tambah
+                        </a> --}}
+                        <a href="" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">
+                            <i class="ti-plus menu-icon"></i> Tambah
+                        </a>
+                        <!-- Input Search -->
+                        <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
+                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pembelian" aria-label="Search">
+                        </form>
+                    </div>
+                    <div class="content">
+                        @if (session('success'))
+                        <div class="alerts">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="alert alert-success" role="alert" id="success-alert">
+                                        {{ session('success') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                    <div class="card-body table-border-style">
+                        <div class="table-responsive">
+                            <table class="table table-striped" id="jsTable">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Status</th>
+                                        <th>No. Nota</th>
+                                        <th>Tgl Nota</th>
+                                        <th>Supplier</th>
+                                        <th>Total Item</th>
+                                        <th>Total Harga</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach ($pembelian_dt as $beli)
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        @if ($beli->status == 'progress')
+                                            <td><span class="badge badge-warning fixed-badge">Progress</span></td>
+                                        @elseif ($beli->status == 'success')
+                                            <td><span class="badge badge-success fixed-badge">Success</span></td>
+                                        @elseif ($beli->status == 'failed')
+                                            <td><span class="badge badge-danger fixed-badge">Failed</span></td>
+                                        @else
+                                            <td><span class="badge badge-primary fixed-badge">Mixed</span></td>
+                                        @endif
+                                        <td>{{ $beli->no_nota }}</td>
+                                        <td>{{ \DateTime::createFromFormat('Y-m-d H:i:s', $beli->tgl_nota)->format('d-m-Y') }}</td>
+                                        <td>{{ $beli->supplier->nama_supplier }}</td>
+                                        <td>{{ $beli->total_item }}</td>
+                                        <td>Rp. {{ number_format($beli->total_nilai, 0, '.', '.') }} </td>
+                                        <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');" action="{{ route('master.pembelianbarang.delete', $beli->id) }}" method="POST">
+                                        <td>
+                                                @if ($beli->status == 'progress')
+                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}" class="btn btn-primary btn-sm"><i class="fa fa-book menu-icon"></i></a>
+                                                @else
+                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                @endif
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                            </td>
+                                        </form>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
+                                </div>
+                                <nav aria-label="Page navigation example">
+                                    <ul class="pagination justify-content-end" id="pagination">
+                                      {{-- isian paginate --}}
+                                    </ul>
+                                  </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title h4" id="myLargeModalLabel">Pembelian Barang</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card-body">
+                            <div class="custom-tab">
+                                <nav>
+                                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah-tab" data-toggle="tab" href="#tambah" role="tab" aria-controls="tambah" aria-selected="true" {{ session('tab') == 'detail' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Tambah Pembelian</a>
+                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? 'active' : '' }}" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false" {{ session('tab') == '' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Detail Pembelian</a>
+                                    </div>
+                                </nav>
+                                <div class="tab-content pl-3 pt-2" id="nav-tabContent">
+                                    <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
+                                        <br>
+                                        <form id="form-tambah-pembelian" action="{{ route('master.pembelianbarang.store') }}" method="POST">
+                                            @csrf
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <!-- Nama Supplier -->
+                                                    <div class="form-group">
+                                                        <label for="id_supplier" class="form-control-label">Nama Supplier</label>
+                                                        <select name="id_supplier" id="id_supplier" class="form-control">
+                                                            <option value="" selected>Pilih Supplier</option>
+                                                            @foreach($suppliers as $supplier)
+                                                                <option value="{{ $supplier->id }}">{{ $supplier->nama_supplier }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <label for="id_supplier" class="form-control-label">Tanggal Nota</label>
+                                                    <input class="form-control" type="date" name="tgl_nota" id="tgl_nota">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="no_nota" class=" form-control-label">Nomor Nota<span style="color: red">*</span></label>
+                                                <input type="number" id="no_nota" name="no_nota" placeholder="Contoh : 001" class="form-control">
+                                            </div>
+                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                                        </form>
+                                    </div>
+                                    <div class="tab-pane fade {{ session('tab') == 'detail' ? 'show active' : '' }}" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                                    <br>
+                                    @php
+                                        $pembelian = session('pembelian', $pembelian ?? null);
+                                    @endphp
+
+                                    @if ($pembelian)
+                                        <ul class="list-group list-group-flush">
+                                            <li class="list-group-item">
+                                                <h5><i class="fa fa-home"></i> Nomor Nota <span class="badge badge-secondary pull-right">{{ $pembelian->no_nota }}</span></h5>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <h5><i class="fa fa-globe"></i> Nama Supplier <span class="badge badge-secondary pull-right">{{ $pembelian->supplier->nama_supplier }}</span></h5>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span class="badge badge-secondary pull-right">{{ $pembelian->tgl_nota }}</span></h5>
+                                            </li>
+                                        </ul>
+                                    <br>
+                                    <form action="{{ route('master.pembelianbarang.update', $pembelian->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <!-- Item Container -->
+                                    <div id="item-container">
+                                        <div class="item-group">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <!-- Jenis Barang -->
+                                                    <div class="form-group">
+                                                        <label for="id_barang" class="form-control-label">Nama Barang<span style="color: red">*</span></label>
+                                                        <select name="id_barang[]" id="id_barang"  data-placeholder="Pilih Barang..." class="form-control">
+                                                            <option value="" disabled selected required>Pilih Barang</option>
+                                                            @foreach($barang as $brg)
+                                                                <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <!-- Jumlah Item -->
+                                                    <div class="form-group">
+                                                        <label for="jml_item" class="form-control-label">Jumlah Item<span style="color: red">*</span></label>
+                                                        <input type="number" id="jml_item" min="1" name="qty[]" placeholder="Contoh: 16" class="form-control jumlah-item">
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <!-- Harga Barang -->
+                                                    <div class="form-group">
+                                                        <label for="harga_barang" class="form-control-label">Harga Barang<span style="color: red">*</span></label>
+                                                        <input type="number" id="harga_barang" min="1" name="harga_barang[]" placeholder="Contoh: 16000" class="form-control harga-barang">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                <button type="button" id="add-item-detail" style="float: right" class="btn btn-secondary">Add</button>
+                                <br><br>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="card border border-primary">
+                                            <div class="card-body">
+                                                <p class="card-text">Detail Stock <strong>(GSS)</strong></p>
+                                                <p class="card-text">Stock :<strong class="stock">0</strong></p>
+                                                <p class="card-text">Hpp Awal : <strong class="hpp-awal">Rp 0</strong></p>
+                                                <p class="card-text">Hpp Baru : <strong class="hpp-baru">Rp 0</strong></p>
+                                            </div>
+                                            <button type="button" id="reset" style="float: right" class="btn btn-secondary">Reset</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        @foreach ($LevelHarga as $index => $level)
+                                        <div class="input-group mb-3">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">{{ $level->nama_level_harga }}</span>
+                                            </div>
+                                            <input type="hidden" name="level_nama[]" value="{{ $level->nama_level_harga }}">
+                                            <div class="custom-file">
+                                                <input type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
+                                                <label class="input-group-text" id="persen_{{ $index }}">0%</label>
+                                            </div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <br>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Action</th>
+                                                        <th scope="col">No</th>
+                                                        <th scope="col">Nama Barang</th>
+                                                        <th scope="col">Qty</th>
+                                                        <th scope="col">Harga</th>
+                                                        <th scope="col">Total Harga</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Rows akan ditambahkan di sini oleh JavaScript -->
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th scope="col" colspan="5" style="text-align:right">SubTotal</th>
+                                                        <th scope="col">Rp </th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                            <!-- Submit Button -->
+                                            <div class="form-group">
+                                                <button type="submit" class="btn btn-primary pull-right">
+                                                    <i class="fa fa-dot-circle-o"></i> Simpan
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </form>
+                                    @else
+                                    <div class="alert alert-warning">
+                                        <strong>Perhatian!</strong> Anda perlu menambahkan data pembelian di tab "Tambah Pembelian" terlebih dahulu.
+                                    </div>
+                                    @endif
+                                    <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel" aria-labelledby="custom-nav-contact-tab">
+                                        <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- [ Main Content ] end -->
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

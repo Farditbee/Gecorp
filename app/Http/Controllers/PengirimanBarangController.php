@@ -288,6 +288,7 @@ public function edit($id)
 
     public function updateStatus(Request $request, $id)
     {
+        dd($request->all());
         // Ambil data pengiriman_barang
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
         $toko_pengirim = $pengiriman_barang->toko_pengirim;

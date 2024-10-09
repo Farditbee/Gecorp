@@ -5,6 +5,8 @@
     <!-- vendor css -->
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/style.css') }}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+
 
 <style>
 

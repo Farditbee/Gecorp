@@ -24,7 +24,7 @@ class TokoController extends Controller
 
     public function create()
     {
-        $levelharga = LevelHarga::all();
+        $levelharga = LevelHarga::orderBy('id', 'desc')->get();
         return view('master.toko.create', compact('levelharga'));
     }
 
