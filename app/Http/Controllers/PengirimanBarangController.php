@@ -66,17 +66,6 @@ class PengirimanBarangController extends Controller
                 'toko_penerima' => $request->toko_penerima,
                 'tgl_kirim' => $request->tgl_kirim
             ]);
-            // dd($pengiriman_barang);
-
-            // $stock = null;
-            // $details = null;
-
-            // if($request->toko_pengirim == 1){
-            //     $stock = StockBarang::all();
-            // } else {
-            //     $details = DetailToko::all();
-            //     // dd($detail);
-            // }
 
             DB::commit();
             // Redirect ke tab "detail pengiriman" dengan data pengiriman yang baru disimpan
