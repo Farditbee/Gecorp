@@ -133,6 +133,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/stockbarang/create', [StockBarangController::class, 'create'])->name('master.stockbarang.create');
         Route::get('/get-stock-details/{id_barang}', [StockBarangController::class, 'getStockDetails'])->name('get-stock-details');
         Route::get('/get-item/{id}', [StockBarangController::class, 'getItem'])->name('get.item');
+        Route::post('/update-level-harga', [StockBarangController::class, 'updateLevelHarga'])->name('updateLevelHarga');
         // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');

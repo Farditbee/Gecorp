@@ -10,6 +10,7 @@ use App\Models\LevelHarga;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StockBarangController extends Controller
 {
@@ -106,4 +107,44 @@ class StockBarangController extends Controller
             ]);
         }
     }
+
+    public function updateLevelHarga(Request $request)
+{
+    $id_barang = $request->input('id_barang'); // Mengambil ID barang dari request
+
+    try {
+        DB::beginTransaction();
+
+        // Ambil data barang berdasarkan ID
+        $barang = Barang::findOrFail($id_barang);
+
+        // Ambil semua level harga yang dikirim dari form
+        $levelNamas = $request->input('level_nama', []);
+        $levelHargas = $request->input('level_harga', []);
+
+        $levelHargaBarang = [];
+
+        // Loop untuk memperbarui level harga berdasarkan input dari form
+        foreach ($levelHargas as $index => $hargaLevel) {
+            $levelNama = $levelNamas[$index] ?? 'Level ' . ($index + 1);
+
+            // Jika harga level tidak kosong, masukkan ke array level harga
+            if (!is_null($hargaLevel)) {
+                $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
+            }
+        }
+
+        // Simpan level harga yang baru dalam format JSON
+        $barang->level_harga = json_encode($levelHargaBarang);
+        $barang->save(); // Simpan perubahan ke database
+
+        DB::commit(); // Commit transaksi jika semuanya berhasil
+
+        return redirect()->back()->with('success', 'Level harga berhasil diperbarui');
+    } catch (\Exception $e) {
+        DB::rollback(); // Rollback jika ada error
+        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+    }
+}
+
 }

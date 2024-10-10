@@ -16,6 +16,8 @@ class Barang extends Model
 
     protected $guarded = [''];
 
+    protected $fillable = ['level_harga',];
+
     public $incrementing = false;
 
     public $timestamps = false;

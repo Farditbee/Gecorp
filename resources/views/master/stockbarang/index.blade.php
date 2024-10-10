@@ -236,27 +236,38 @@
                                                         <div class="row">
                                                             <div class="col-md-12">
                                                                 <div class="harga-form" id="harga-form-{{ $stk->id_barang }}">
-                                                                    <form>
-                                                                        @php
-                                                                            $stokBarang = $stock->where('id_barang', $stk->id_barang)->first();
-                                                                        @endphp
-                                                                        @foreach ($levelharga as $lh)
+                                                                    <form method="POST" action="{{ route('updateLevelHarga') }}">
+                                                                        @csrf
+                                                                        <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
+
+                                                                        @foreach ($levelharga as $index => $lh)
                                                                         <div class="input-group mb-3">
                                                                             <div class="input-group-prepend">
                                                                                 <span class="input-group-text">{{ $lh->nama_level_harga }}</span>
                                                                             </div>
-                                                                            <input type="text" id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
-                                                                                   class="form-control level-harga"
-                                                                                   placeholder="Atur harga baru"
-                                                                                   data-raw-value="">
-                                                                            <input type="hidden" id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}-hidden"
-                                                                                   name="harga_level_{{ $lh->id }}_barang_{{ $stk->id_barang }}" value="">
+                                                                            <!-- Input visible untuk harga level -->
+                                                                            <input type="text" name="level_harga[]"
+                                                                                id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
+                                                                                class="form-control level-harga"
+                                                                                placeholder="Atur harga baru"
+                                                                                value="{{ isset($lh->harga) }}"
+                                                                                oninput="formatCurrency(this)"
+                                                                                onblur="updateRawValue(this, {{ $index }})">
+
+                                                                            <!-- Hidden input untuk menyimpan raw value -->
+                                                                            <input type="hidden"
+                                                                                id="level_harga_raw_{{ $index }}"
+                                                                                name="harga_level_{{ str_replace(' ', '_', $lh->nama_level_harga) }}_barang_{{ $stk->id_barang }}"
+                                                                                value="{{ isset($lh->harga) ? $lh->harga : '' }}"> <!-- Pastikan hidden input menyimpan nilai awal -->
+                                                                            <input type="hidden" name="level_nama[]" value="{{ $lh->nama_level_harga}}">
+
                                                                             <div class="input-group-append">
                                                                                 <span class="input-group-text" id="persen-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}">0%</span>
                                                                             </div>
                                                                         </div>
-                                                                    @endforeach
-                                                                    <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}" value="{{ $stokBarang->hpp_baru }}">
+                                                                        @endforeach
+                                                                        <button type="submit" class="btn btn-primary">Update</button>
+                                                                        <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}" value="{{ $stokBarang->hpp_baru }}">
                                                                     </form>
                                                                 </div>
                                                             </div>
@@ -299,86 +310,230 @@
     </div>
 </div>
 
-    <script>
-        const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
+<script>
+    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
 
-aturHargaButtons.forEach(button => {
-    button.addEventListener('click', function(event) {
-        const id_barang = button.getAttribute('data-id_barang');
-        const id_modal = button.getAttribute('data-id');
-        const modalId = `#atur-harga-${id_modal}`;
+    aturHargaButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            const id_barang = button.getAttribute('data-id_barang');
+            const id_modal = button.getAttribute('data-id');
+            const modalId = `#atur-harga-${id_modal}`;
 
-        fetch(`/admin/get-stock-details/${id_barang}`)
-            .then(response => response.json())
-            .then(data => {
-                const modal = document.querySelector(modalId);
-                if (modal) {
-                    // Ambil HPP Baru dari elemen tersembunyi
-                    let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
-                    console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
+            fetch(`/admin/get-stock-details/${id_barang}`)
+                .then(response => response.json())
+                .then(data => {
+                    const modal = document.querySelector(modalId);
+                    if (modal) {
+                        // Ambil HPP Baru dari elemen tersembunyi
+                        let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
+                        console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
 
-                    // Set nilai HPP baru di setiap input level harga
-                    modal.querySelectorAll('.level-harga').forEach(function(input) {
-                        input.setAttribute('data-hpp-baru', hppBaru);
-                    });
+                        // Set nilai HPP baru di setiap input level harga
+                        modal.querySelectorAll('.level-harga').forEach(function(input) {
+                            input.setAttribute('data-hpp-baru', hppBaru);
+                        });
 
-                    // Mengisi nilai level harga dari server ke dalam input
-                    Object.keys(data.level_harga).forEach(function(level_name) {
-                        const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
+                        // Mengisi nilai level harga dari server ke dalam input tanpa pemisah ribuan
+                        Object.keys(data.level_harga).forEach(function(level_name) {
+                            const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
 
-                        if (inputField) {
-                            // Mengisi nilai level harga dari server
-                            inputField.setAttribute('data-raw-value', data.level_harga[level_name]); // Simpan nilai asli
-                            inputField.value = new Intl.NumberFormat().format(data.level_harga[level_name]); // Format tampilan
+                            if (inputField) {
+                                // Mengisi nilai level harga dari server
+                                let levelHarga = parseFloat(data.level_harga[level_name].replace(/,/g, '')); // Pastikan koma dihapus
+                                inputField.setAttribute('data-raw-value', levelHarga); // Simpan nilai asli
+                                inputField.value = levelHarga; // Tampilkan nilai tanpa format
 
-                            // Hitung persentase langsung setelah mengisi nilai dari server
-                            calculatePercentage(inputField, hppBaru);
+                                // Hitung persentase langsung setelah mengisi nilai dari server
+                                calculatePercentage(inputField, hppBaru);
 
-                            // Tambahkan event listener untuk menangani perubahan input
-                            inputField.addEventListener('input', function() {
-                                // Mengambil nilai raw dan mengubah tampilan
-                                let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
-                                this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw
+                                // Tambahkan event listener untuk menangani perubahan input
+                                inputField.addEventListener('input', function() {
+                                    // Mengambil nilai raw dan mengubah tampilan
+                                    let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
+                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw
 
-                                // Ubah tampilan menjadi format number
-                                if (rawValue) {
-                                    this.value = new Intl.NumberFormat().format(rawValue);
-                                } else {
-                                    this.value = ''; // Reset jika tidak ada input
-                                }
+                                    // Ubah tampilan menjadi format number
+                                    if (rawValue) {
+                                        this.value = rawValue; // Tampilkan nilai tanpa pemisah ribuan
+                                    } else {
+                                        this.value = ''; // Reset jika tidak ada input
+                                    }
 
-                                calculatePercentage(inputField, hppBaru); // Hitung ulang persentase
-                            });
-                        }
-                    });
-                } else {
-                    console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching data:', error);
-            });
-});
+                                    calculatePercentage(inputField, hppBaru); // Hitung ulang persentase
+                                });
+                            }
+                        });
+                    } else {
+                        console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+    });
 
-// Fungsi untuk menghitung persentase
-function calculatePercentage(inputField, hppBaru) {
-    let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0; // Ambil nilai raw
-    let persen = 0;
-    if (hppBaru > 0) {
-        persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+    // Fungsi untuk menghitung persentase
+    function calculatePercentage(inputField, hppBaru) {
+        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0; // Ambil nilai raw tanpa pemisah ribuan
+        let persen = 0;
+        if (hppBaru > 0) {
+            persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+        }
+
+        // Tampilkan persentase
+        const levelName = inputField.id.split('-').slice(2).join('-');
+        const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
+        if (persenElement) {
+            persenElement.textContent = `${persen.toFixed(2)}%`;
+            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`); // Log level harga dan persentase
+        }
     }
 
-    // Tampilkan persentase
-    const levelName = inputField.id.split('-').slice(2).join('-');
-    const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
-    if (persenElement) {
-        persenElement.textContent = `${persen.toFixed(2)}%`;
-        console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`); // Log level harga dan persentase
+    // Fungsi untuk mempersiapkan data form sebelum disubmit
+    function prepareFormData(event) {
+        event.preventDefault(); // Cegah form langsung submit
+
+        const form = event.target;
+
+        // Loop semua input field yang punya kelas 'level-harga'
+        const levelHargaInputs = form.querySelectorAll('.level-harga');
+
+        levelHargaInputs.forEach(input => {
+            // Ambil raw value dari atribut 'data-raw-value'
+            const rawValue = input.getAttribute('data-raw-value');
+
+            // Update hidden input field untuk mengirimkan nilai raw ke server
+            const hiddenInput = form.querySelector(`#${input.id}-hidden`);
+            if (hiddenInput) {
+                hiddenInput.value = rawValue; // Set raw value di hidden input
+            }
+        });
+
+        // Setelah data di-update, kirim form
+        form.submit();
     }
-}
+</script>
 
-});
+    {{-- <script>
+    // Fungsi untuk memformat tampilan input agar menggunakan format ribuan
+    function formatCurrency(input) {
+        let value = input.value.replace(/\./g, ''); // Hilangkan titik sebagai separator ribuan
+        if (!isNaN(value) && value !== '') {
+            input.value = new Intl.NumberFormat('id-ID').format(value); // Tambahkan kembali format ribuan
+        }
+    }
 
-    </script>
+    // Fungsi untuk menyimpan nilai mentah (tanpa titik) ke hidden input
+    function updateRawValue(input, index) {
+        let rawValue = input.value.replace(/\./g, ''); // Hilangkan titik agar menjadi nilai mentah
+        document.getElementById('level_harga_raw_' + index).value = rawValue; // Simpan nilai mentah ke hidden input
+    }
+</script>
+
+<script>
+    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
+
+    aturHargaButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+            const id_barang = button.getAttribute('data-id_barang');
+            const id_modal = button.getAttribute('data-id');
+            const modalId = `#atur-harga-${id_modal}`;
+
+            fetch(`/admin/get-stock-details/${id_barang}`)
+                .then(response => response.json())
+                .then(data => {
+                    const modal = document.querySelector(modalId);
+                    if (modal) {
+                        // Ambil HPP Baru dari elemen tersembunyi
+                        let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
+                        console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
+
+                        // Set nilai HPP baru di setiap input level harga
+                        modal.querySelectorAll('.level-harga').forEach(function(input) {
+                            input.setAttribute('data-hpp-baru', hppBaru);
+                        });
+
+                        // Mengisi nilai level harga dari server ke dalam input
+                        Object.keys(data.level_harga).forEach(function(level_name) {
+                            const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
+
+                            if (inputField) {
+                                // Mengisi nilai level harga dari server
+                                inputField.setAttribute('data-raw-value', data.level_harga[level_name]); // Simpan nilai asli
+                                inputField.value = new Intl.NumberFormat().format(data.level_harga[level_name]); // Format tampilan
+
+                                // Hitung persentase langsung setelah mengisi nilai dari server
+                                calculatePercentage(inputField, hppBaru);
+
+                                // Tambahkan event listener untuk menangani perubahan input
+                                inputField.addEventListener('input', function() {
+                                    // Mengambil nilai raw dan mengubah tampilan
+                                    let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
+                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw
+
+                                    // Ubah tampilan menjadi format number
+                                    if (rawValue) {
+                                        this.value = new Intl.NumberFormat().format(rawValue);
+                                    } else {
+                                        this.value = ''; // Reset jika tidak ada input
+                                    }
+
+                                    calculatePercentage(inputField, hppBaru); // Hitung ulang persentase
+                                });
+                            }
+                        });
+                    } else {
+                        console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+    });
+
+    // Fungsi untuk menghitung persentase
+    function calculatePercentage(inputField, hppBaru) {
+        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0; // Ambil nilai raw
+        let persen = 0;
+        if (hppBaru > 0) {
+            persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+        }
+
+        // Tampilkan persentase
+        const levelName = inputField.id.split('-').slice(2).join('-');
+        const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
+        if (persenElement) {
+            persenElement.textContent = `${persen.toFixed(2)}%`;
+            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`); // Log level harga dan persentase
+        }
+    }
+
+    // Fungsi untuk mempersiapkan data form sebelum disubmit
+    function prepareFormData(event) {
+        event.preventDefault(); // Cegah form langsung submit
+
+        const form = event.target;
+
+        // Loop semua input field yang punya kelas 'level-harga'
+        const levelHargaInputs = form.querySelectorAll('.level-harga');
+
+        levelHargaInputs.forEach(input => {
+            // Ambil raw value dari atribut 'data-raw-value'
+            const rawValue = input.getAttribute('data-raw-value');
+
+            // Update hidden input field untuk mengirimkan nilai raw ke server
+            const hiddenInput = form.querySelector(`#${input.id}-hidden`);
+            if (hiddenInput) {
+                hiddenInput.value = rawValue; // Set raw value di hidden input
+            }
+        });
+
+        // Setelah data di-update, kirim form
+        form.submit();
+    }
+
+</script> --}}
 
 @endsection
