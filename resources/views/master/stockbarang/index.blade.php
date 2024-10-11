@@ -236,7 +236,7 @@
                                                         <div class="row">
                                                             <div class="col-md-12">
                                                                 <div class="harga-form" id="harga-form-{{ $stk->id_barang }}">
-                                                                    <form method="POST" action="{{ route('updateLevelHarga') }}">
+                                                                    <form method="POST" action="{{ route('updateLevelHarga') }}" class="level-harga-form">
                                                                         @csrf
                                                                         <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
 
@@ -311,8 +311,32 @@
 </div>
 
 <script>
-    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
+    // Simpan ID tab aktif saat user klik submit
+    document.querySelectorAll('.level-harga-form').forEach(form => {
+        form.addEventListener('submit', function() {
+            const activeTabId = document.querySelector('.tab-pane.active').id; // Ambil ID tab aktif
+            localStorage.setItem('activeTab', activeTabId); // Simpan di local storage
+        });
+    });
 
+    // Cek apakah ada tab aktif yang disimpan di Local Storage
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cek apakah ada fragment di URL
+        let fragment = window.location.hash;
+        if (fragment) {
+            // Temukan tab yang sesuai dengan fragment
+            let activeTab = document.querySelector(`a[href="${fragment}"]`);
+            if (activeTab) {
+                // Aktifkan tab yang sesuai
+                new bootstrap.Tab(activeTab).show();
+            }
+        }
+    });
+</script>
+
+<script>
+
+    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
     aturHargaButtons.forEach(button => {
         button.addEventListener('click', function(event) {
             const id_barang = button.getAttribute('data-id_barang');
@@ -341,20 +365,20 @@
                                 // Mengisi nilai level harga dari server
                                 let levelHarga = parseFloat(data.level_harga[level_name].replace(/,/g, '')); // Pastikan koma dihapus
                                 inputField.setAttribute('data-raw-value', levelHarga); // Simpan nilai asli
-                                inputField.value = levelHarga; // Tampilkan nilai tanpa format
+                                inputField.value = levelHarga.toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
 
                                 // Hitung persentase langsung setelah mengisi nilai dari server
                                 calculatePercentage(inputField, hppBaru);
 
                                 // Tambahkan event listener untuk menangani perubahan input
                                 inputField.addEventListener('input', function() {
-                                    // Mengambil nilai raw dan mengubah tampilan
+                                    // Mengambil nilai raw dari input (tanpa pemisah ribuan)
                                     let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
-                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw
+                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw tanpa pemisah
 
-                                    // Ubah tampilan menjadi format number
+                                    // Tampilkan nilai dengan format ribuan saat user mengetik
                                     if (rawValue) {
-                                        this.value = rawValue; // Tampilkan nilai tanpa pemisah ribuan
+                                        this.value = parseInt(rawValue).toLocaleString(); // Tambahkan pemisah ribuan
                                     } else {
                                         this.value = ''; // Reset jika tidak ada input
                                     }
@@ -391,29 +415,31 @@
     }
 
     // Fungsi untuk mempersiapkan data form sebelum disubmit
-    function prepareFormData(event) {
-        event.preventDefault(); // Cegah form langsung submit
+function prepareFormData(event) {
+    event.preventDefault(); // Cegah form langsung submit
 
-        const form = event.target;
+    const form = event.target;
 
-        // Loop semua input field yang punya kelas 'level-harga'
-        const levelHargaInputs = form.querySelectorAll('.level-harga');
+    // Loop semua input field yang punya kelas 'level-harga'
+    const levelHargaInputs = form.querySelectorAll('.level-harga');
 
-        levelHargaInputs.forEach(input => {
-            // Ambil raw value dari atribut 'data-raw-value'
-            const rawValue = input.getAttribute('data-raw-value');
+    levelHargaInputs.forEach(input => {
+        // Ambil raw value dari atribut 'data-raw-value'
+        const rawValue = input.getAttribute('data-raw-value') || input.value.replace(/[^0-9]/g, ''); // Ambil nilai asli tanpa separator
 
-            // Update hidden input field untuk mengirimkan nilai raw ke server
-            const hiddenInput = form.querySelector(`#${input.id}-hidden`);
-            if (hiddenInput) {
-                hiddenInput.value = rawValue; // Set raw value di hidden input
-            }
-        });
+        // Update hidden input field untuk mengirimkan nilai raw ke server
+        const hiddenInput = form.querySelector(`#${input.id}-hidden`);
+        if (hiddenInput) {
+            hiddenInput.value = rawValue; // Set raw value di hidden input tanpa format ribuan
+        }
+    });
 
-        // Setelah data di-update, kirim form
-        form.submit();
-    }
+    // Setelah data di-update, kirim form
+    form.submit();
+}
+
 </script>
+
 
     {{-- <script>
     // Fungsi untuk memformat tampilan input agar menggunakan format ribuan
