@@ -129,12 +129,12 @@
                             <div class="custom-tab">
                                 <nav>
                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah-tab" data-toggle="tab" href="#tambah" role="tab" aria-controls="tambah" aria-selected="true" {{ session('tab') == 'detail' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Tambah Pembelian</a>
-                                        <a class="nav-item nav-link {{ session('tab') == 'detail' ? 'active' : '' }}" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false" {{ session('tab') == '' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Detail Pembelian</a>
+                                        <a class="nav-item nav-link active" id="tambah-tab" data-toggle="tab" href="#tambah" role="tab" aria-controls="tambah" aria-selected="true">Tambah Pembelian</a>
+                                        <a class="nav-item nav-link disabled" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="false">Detail Pembelian</a>
                                     </div>
                                 </nav>
                                 <div class="tab-content pl-3 pt-2" id="nav-tabContent">
-                                    <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
+                                    <div class="tab-pane fade show active" id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
                                         <br>
                                         <form id="form-tambah-pembelian" action="{{ route('master.pembelianbarang.store') }}" method="POST">
                                             @csrf
@@ -162,29 +162,24 @@
                                                 <label for="no_nota" class=" form-control-label">Nomor Nota<span style="color: red">*</span></label>
                                                 <input type="number" id="no_nota" name="no_nota" placeholder="Contoh : 001" class="form-control">
                                             </div>
-                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary"><i class="fa fa-save"></i> Simpan</button>
+                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary"><i class="fa fa-save"></i> Lanjut</button>
                                         </form>
                                     </div>
-                                    <div class="tab-pane fade {{ session('tab') == 'detail' ? 'show active' : '' }}" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                                    <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
                                     <br>
-                                    @php
-                                        $pembelian = session('pembelian', $pembelian ?? null);
-                                    @endphp
-
-                                    @if ($pembelian)
                                         <ul class="list-group list-group-flush">
                                             <li class="list-group-item">
-                                                <h5><i class="fa fa-home"></i> Nomor Nota <span class="badge badge-secondary pull-right">{{ $pembelian->no_nota }}</span></h5>
+                                                <h5><i class="fa fa-home"></i> Nomor Nota <span id="no-nota" class="badge badge-secondary pull-right"></span></h5>
                                             </li>
                                             <li class="list-group-item">
-                                                <h5><i class="fa fa-globe"></i> Nama Supplier <span class="badge badge-secondary pull-right">{{ $pembelian->supplier->nama_supplier }}</span></h5>
+                                                <h5><i class="fa fa-globe"></i> Nama Supplier <span id="nama-supplier" class="badge badge-secondary pull-right"></span></h5>
                                             </li>
                                             <li class="list-group-item">
-                                                <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span class="badge badge-secondary pull-right">{{ $pembelian->tgl_nota }}</span></h5>
+                                                <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span id="tgl-nota" class="badge badge-secondary pull-right"></span></h5>
                                             </li>
                                         </ul>
                                     <br>
-                                    <form action="{{ route('master.pembelianbarang.update', $pembelian->id) }}" method="POST">
+                                    <form id="form-update-pembelian" action="{{ route('master.pembelianbarang.update', ':id') }}" method="POST">
                                     @csrf
                                     @method('PUT')
                                     <!-- Item Container -->
@@ -287,14 +282,6 @@
                                         </div>
                                     </div>
                                     </form>
-                                    @else
-                                    <div class="alert alert-warning">
-                                        <strong>Perhatian!</strong> Anda perlu menambahkan data pembelian di tab "Tambah Pembelian" terlebih dahulu.
-                                    </div>
-                                    @endif
-                                    <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel" aria-labelledby="custom-nav-contact-tab">
-                                        <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -436,6 +423,47 @@ $(document).ready(function(){
         updateDataCount(); // Perbarui jumlah data yang terlihat
     });
 
+    // Ketika form tambah pembelian disubmit
+    $('#form-tambah-pembelian').on('submit', function(e) {
+        e.preventDefault(); // Menghentikan proses form biasa
+
+        var formData = $(this).serialize(); // Mengambil data form
+
+        $.ajax({
+            url: $(this).attr('action'),
+            method: $(this).attr('method'),
+            data: formData,
+            success: function(response) {
+                console.log(response);
+
+                // Pastikan Anda mendapatkan id_pembelian dari respons
+                var id_pembelian = response.id_pembelian;
+                // Ganti URL action form untuk update
+                var updateFormAction = "{{ route('master.pembelianbarang.update', ':id') }}";
+                updateFormAction = updateFormAction.replace(':id', id_pembelian);
+                $('#form-update-pembelian').attr('action', updateFormAction);
+                // console.log('URL action untuk update telah diganti menjadi: ', updateFormAction);
+
+                // Update detail pada tab Detail Pembelian menggunakan ID
+                $('#no-nota').text(response.no_nota); // No Nota
+                $('#nama-supplier').text(response.nama_supplier); // Nama Supplier
+                $('#tgl-nota').text(response.tgl_nota); // Tanggal Nota
+
+                $('#tambah-tab').addClass('disabled');
+                $('#tambah-tab').removeClass('active');
+                $('#tambah').removeClass('show active');
+                $('#detail').addClass('show active');
+                $('#detail-tab').addClass('active');
+                $('#detail-tab').removeClass('disabled');
+                $('#detail-tab').tab('show');
+
+            },
+            error: function(xhr) {
+                // Tangani error di sini
+                alert('Terjadi kesalahan: ' + xhr.responseText);
+            }
+        });
+    });
 
 });
 

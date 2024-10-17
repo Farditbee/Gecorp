@@ -52,24 +52,22 @@ class PembelianBarangController extends Controller
 
             DB::commit();
 
-            // // Cek apakah request dari AJAX
-            // if ($request->ajax()) {
-            //     return response()->json(['success' => true, 'message' => 'Pembelian berhasil disimpan', 'pembelian' => $pembelian]);
-            // }
-
-            return redirect()->route('master.pembelianbarang.index')
-                            ->with('tab', 'detail')
-                            ->with('pembelian', $pembelian);
+            return response()->json([
+                'status' => 'success',
+                'no_nota' => $pembelian->no_nota,
+                'nama_supplier' => $pembelian->supplier->nama_supplier,
+                'tgl_nota' => $pembelian->tgl_nota,
+                'id_pembelian' => $pembelian->id
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Cek apakah request dari AJAX
-            if ($request->ajax()) {
-                return response()->json(['success' => false, 'message' => $e->getMessage()]);
-            }
-
-            return redirect()->back()->with('error', $e->getMessage());
+            // Kembalikan response error dalam format JSON
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
