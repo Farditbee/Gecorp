@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('member', function (Blueprint $table) {
             $table->id('id')->primary();
             $table->string('id_toko');
-            $table->string('level_harga');
+            $table->string('level_info')->nullable();
             $table->string('nama_member');
             $table->string('no_hp');
             $table->string('alamat');

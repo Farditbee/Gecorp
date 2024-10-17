@@ -106,7 +106,10 @@ Route::middleware(['auth'])->group(function () {
         // Member Controller
         // Route::get('/get-wilayah', [MemberController::class, 'getWilayah']);
         Route::get('/member', [MemberController::class, 'index'])->name('master.member.index');
-        Route::get('/member/create', [MemberController::class, 'create'])->name('master.member.create');
+        Route::post('/member/store', [MemberController::class, 'store'])->name('master.member.store');
+        Route::get('/members/{id}/edit', [MemberController::class, 'edit'])->name('members.edit');
+        Route::put('/member/update/{id}', [MemberController::class, 'update'])->name('master.member.update');
+        Route::delete('/member/delete/{id}', [MemberController::class, 'delete'])->name('master.member.delete');
 
         // Promo Controller
         Route::get('/promo', [PromoController::class, 'index'])->name('master.promo.index');
