@@ -48,6 +48,7 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         DB::beginTransaction();
         try{
             $validatedData = $request->validate([
@@ -73,7 +74,7 @@ class BarangController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+            return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
 

@@ -218,8 +218,6 @@
                                             </div>
                                         </div>
                                     </div>
-
-                                <button type="button" id="add-item-detail" style="float: right" class="btn btn-secondary">Add</button>
                                 <br><br>
 
                                 <div class="row">
@@ -233,6 +231,7 @@
                                             </div>
                                             <button type="button" id="reset" style="float: right" class="btn btn-secondary">Reset</button>
                                         </div>
+                                        <button type="button" id="add-item-detail" style="float: right" class="btn btn-secondary">Add</button>
                                     </div>
                                     <div class="col-6">
                                         @foreach ($LevelHarga as $index => $level)
@@ -242,7 +241,7 @@
                                             </div>
                                             <input type="hidden" name="level_nama[]" value="{{ $level->nama_level_harga }}">
                                             <div class="custom-file">
-                                                <input type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
+                                                <input required type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
                                                 <label class="input-group-text" id="persen_{{ $index }}">0%</label>
                                             </div>
                                         </div>
@@ -470,6 +469,7 @@ $(document).ready(function(){
 </script>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
         let subtotal = 0;
         let addedItems = new Set();
@@ -512,6 +512,18 @@ $(document).ready(function(){
 
             if (!qty || !harga) {
                 alert('Jumlah dan harga barang harus diisi.');
+                return;
+            }
+
+            let allLevelsFilled = true;
+            document.querySelectorAll('.level-harga').forEach((input) => {
+                if (!input.value){
+                    allLevelsFilled = false;
+                }
+            });
+
+            if (!allLevelsFilled) {
+                alert('Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
                 return;
             }
 

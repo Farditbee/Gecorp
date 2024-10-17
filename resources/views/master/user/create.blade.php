@@ -60,7 +60,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="nama" class=" form-control-label">Nama<span style="color: red">*</span></label>
-                                    <input type="text" id="nama" name="nama" placeholder="Contoh : User 1" class="form-control">
+                                    <input required type="text" id="nama" name="nama" placeholder="Contoh : User 1" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="email" class=" form-control-label">Email<span style="color: red">*</span></label>
