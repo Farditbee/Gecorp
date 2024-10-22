@@ -41,17 +41,7 @@
                         </form>
                     </div>
                     <div class="content">
-                        @if (session('success'))
-                        <div class="alerts">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="alert alert-success" role="alert" id="success-alert">
-                                        {{ session('success') }}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
+                    <x-adminlte-alerts />
                     <div class="card-body table-border-style">
                         <div class="table-responsive">
                             <table class="table table-striped" id="jsTable">
@@ -162,7 +152,10 @@
                                                 <label for="no_nota" class=" form-control-label">Nomor Nota<span style="color: red">*</span></label>
                                                 <input type="number" id="no_nota" name="no_nota" placeholder="Contoh : 001" class="form-control">
                                             </div>
-                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary"><i class="fa fa-save"></i> Lanjut</button>
+                                            <button type="submit" style="float: right" id="save-btn" class="btn btn-primary">
+                                                <span id="save-btn-text"><i class="fa fa-save"></i> Lanjut</span>
+                                                <span id="save-btn-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></span>
+                                            </button>                                            
                                         </form>
                                     </div>
                                     <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
@@ -241,7 +234,7 @@
                                             </div>
                                             <input type="hidden" name="level_nama[]" value="{{ $level->nama_level_harga }}">
                                             <div class="custom-file">
-                                                <input required type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
+                                                <input type="text" class="form-control level-harga" name="level_harga[]" id="level_harga_{{ $index }}" data-index="{{ $index }}" data-hpp-baru="0">
                                                 <label class="input-group-text" id="persen_{{ $index }}">0%</label>
                                             </div>
                                         </div>
@@ -274,8 +267,11 @@
                                             </table>
                                             <!-- Submit Button -->
                                             <div class="form-group">
-                                                <button type="submit" class="btn btn-primary pull-right">
+                                                <button type="submit" class="btn btn-primary pull-right" style="float: right">
                                                     <i class="fa fa-dot-circle-o"></i> Simpan
+                                                </button>
+                                                <button type="button" id="cancel-button" class="btn btn-warning pull-right" style="float: right">
+                                                    <i class="fa fa-dot-circle-o"></i> Cancel
                                                 </button>
                                             </div>
                                         </div>
@@ -426,6 +422,11 @@ $(document).ready(function(){
     $('#form-tambah-pembelian').on('submit', function(e) {
         e.preventDefault(); // Menghentikan proses form biasa
 
+        // Ubah tombol menjadi spinner
+        $('#save-btn-text').hide();  // Sembunyikan teks "Lanjut"
+        $('#save-btn-spinner').show();  // Tampilkan spinner
+        $('#save-btn').prop('disabled', true);  // Nonaktifkan tombol submit agar tidak diklik dua kali
+
         var formData = $(this).serialize(); // Mengambil data form
 
         $.ajax({
@@ -448,13 +449,17 @@ $(document).ready(function(){
                 $('#nama-supplier').text(response.nama_supplier); // Nama Supplier
                 $('#tgl-nota').text(response.tgl_nota); // Tanggal Nota
 
+                // Kembalikan tombol ke kondisi semula
+                $('#save-btn-text').show();  // Tampilkan teks "Lanjut" lagi
+                $('#save-btn-spinner').hide();  // Sembunyikan spinner
+                $('#save-btn').prop('disabled', false);  // Aktifkan kembali tombol submit
+
                 $('#tambah-tab').addClass('disabled');
                 $('#tambah-tab').removeClass('active');
                 $('#tambah').removeClass('show active');
                 $('#detail').addClass('show active');
                 $('#detail-tab').addClass('active');
                 $('#detail-tab').removeClass('disabled');
-                $('#detail-tab').tab('show');
 
             },
             error: function(xhr) {
@@ -769,33 +774,6 @@ $(document).ready(function(){
             });
         }
 
-        document.querySelector('#detail-tab').addEventListener('click', function (e) {
-            e.preventDefault();
-            // Logika untuk berpindah ke tab detail
-            let tabDetail = new bootstrap.Tab(document.querySelector('#detail-tab'));
-            tabDetail.show();
-        });
-
-        // // Event listener untuk menghitung ulang persentase saat input level harga berubah
-        // document.querySelectorAll('.level-harga').forEach(function(input) {
-        //     input.addEventListener('input', function() {
-        //         let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
-        //         let levelHarga = parseFloat(this.value) || 0;
-
-        //         // Hitung persentase jika HPP baru lebih dari 0
-        //         let persen = 0;
-        //         if (hppBaru > 0) {
-        //             persen = ((levelHarga - hppBaru) / hppBaru) * 100;
-        //         }
-
-        //         const index = this.getAttribute('data-index');
-        //         const persenElement = document.getElementById(`persen_${index}`);
-        //         if (persenElement) {
-        //             persenElement.textContent = `${persen.toFixed(2)}%`;
-        //         }
-        //     });
-        // });
-
         function resetFields() {
             // Kosongkan tampilan HPP, stock, dan level harga
             document.querySelector('.card-text strong.stock').textContent = '0';
@@ -814,9 +792,20 @@ $(document).ready(function(){
 
         // Fungsi untuk mereset nilai ke nilai asli dari server
         function resetFieldsToOriginal() {
+            // Cek apakah sudah ada HPP baru
+            let currentHppBaru = parseFloat(document.querySelector('.card-text strong.hpp-baru').textContent.replace(/\D/g, ''));
+
+            let hppUntukPerhitungan = initialHppAwal;  // Default gunakan HPP awal
+
+            // Jika HPP baru sudah dihitung, gunakan HPP baru
+            if (currentHppBaru && currentHppBaru > 0) {
+                hppUntukPerhitungan = currentHppBaru;
+            }
+
             // Kembalikan nilai HPP dan stock dari server
             document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString('id-ID');
             document.querySelector('.card-text strong.hpp-awal').textContent = `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
+            document.querySelector('.card-text strong.hpp-baru').textContent = `Rp ${hppUntukPerhitungan.toLocaleString('id-ID')}`;
 
             // Kembalikan nilai level harga ke nilai asli dari server
             document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
@@ -829,8 +818,8 @@ $(document).ready(function(){
                     inputField.value = originalLevelHarga[namaLevel] || '';  // Kembalikan nilai asli jika ada
                     let levelHarga = parseFloat(inputField.value) || 0;
                     let persen = 0;
-                    if (initialHppBaru > 0) {
-                        persen = ((levelHarga - initialHppBaru) / initialHppBaru) * 100;
+                    if (hppUntukPerhitungan > 0) {
+                        persen = ((levelHarga - hppUntukPerhitungan) / hppUntukPerhitungan) * 100;
                     }
                     persenElement.textContent = `${persen.toFixed(2)}%`;
                 } else {
@@ -850,6 +839,11 @@ $(document).ready(function(){
                 // Jika tidak ada barang yang dipilih, reset semua field menjadi kosong
                 resetFields();
             }
+        });
+
+        document.getElementById('cancel-button').addEventListener('click', function(event) {
+            event.preventDefault();  // Mencegah event default jika ada
+            location.reload();  // Reload halaman
         });
 
     });
