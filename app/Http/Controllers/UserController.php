@@ -31,6 +31,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         $validatedData = $request->validate([
             'id_toko' => 'required',
             'id_level' => 'required',

@@ -275,7 +275,7 @@
                                                 </label>
                                             </div>
                                             <div class="d-inline-block align-middle">
-                                                <img src="assets/images/user/avatar-4.jpg" alt="user image" class="img-radius wid-40 align-top m-r-15">
+                                                <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-4.jpg') }}" alt="user image" class="img-radius wid-40 align-top m-r-15">
                                                 <div class="d-inline-block">
                                                     <h6>John Deo</h6>
                                                     <p class="text-muted m-b-0">Graphics Designer</p>
@@ -295,7 +295,7 @@
                                                 </label>
                                             </div>
                                             <div class="d-inline-block align-middle">
-                                                <img src="assets/images/user/avatar-2.jpg" alt="user image" class="img-radius wid-40 align-top m-r-15">
+                                                <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-2.jpg') }}" alt="user image" class="img-radius wid-40 align-top m-r-15">
                                                 <div class="d-inline-block">
                                                     <h6>Jenifer Vintage</h6>
                                                     <p class="text-muted m-b-0">Web Designer</p>
@@ -315,7 +315,7 @@
                                                 </label>
                                             </div>
                                             <div class="d-inline-block align-middle">
-                                                <img src="assets/images/user/avatar-3.jpg" alt="user image" class="img-radius wid-40 align-top m-r-15">
+                                                <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-3.jpg') }}" alt="user image" class="img-radius wid-40 align-top m-r-15">
                                                 <div class="d-inline-block">
                                                     <h6>William Jem</h6>
                                                     <p class="text-muted m-b-0">Developer</p>
@@ -335,7 +335,7 @@
                                                 </label>
                                             </div>
                                             <div class="d-inline-block align-middle">
-                                                <img src="assets/images/user/avatar-2.jpg" alt="user image" class="img-radius wid-40 align-top m-r-15">
+                                                <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-2.jpg') }}" alt="user image" class="img-radius wid-40 align-top m-r-15">
                                                 <div class="d-inline-block">
                                                     <h6>David Jones</h6>
                                                     <p class="text-muted m-b-0">Developer</p>
@@ -411,7 +411,7 @@
                                             <tr>
                                                 <td class="b-none">
                                                     <a href="#!" class="align-middle">
-                                                        <img src="assets/images/user/avatar-2.jpg" alt="user image" class="img-radius wid-40 align-top m-r-15">
+                                                        <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-2.jpg') }}" alt="user image" class="img-radius wid-40 align-top m-r-15">
                                                         <div class="d-inline-block">
                                                             <h6>Jeny William</h6>
                                                             <p class="text-muted m-b-0">Graphic Designer</p>

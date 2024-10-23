@@ -38,6 +38,28 @@ class MemberController extends Controller
         return view('master.member.index', compact('member', 'toko', 'jenis_barang', 'levelharga', 'jenis_barang', 'selected_levels'));
     }
 
+    public function getLevelHarga($id_toko)
+    {
+        // Ambil data toko berdasarkan id_toko
+        $toko = Toko::where('id', $id_toko)->first();
+
+        // Jika toko ditemukan
+        if ($toko) {
+            // Decode kolom id_level_harga yang disimpan sebagai JSON
+            $levelHargaIds = json_decode($toko->id_level_harga, true);
+
+            // Ambil data level_harga berdasarkan id yang terdecode
+            $levelHarga = LevelHarga::whereIn('id', $levelHargaIds)->get();
+
+            // Return sebagai JSON untuk digunakan di AJAX
+            return response()->json($levelHarga);
+        }
+
+        // Jika toko tidak ditemukan
+        return response()->json(['error' => 'Toko tidak ditemukan'], 404);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */

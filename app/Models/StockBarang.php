@@ -30,7 +30,7 @@ class StockBarang extends Model
 
     public function levelharga()
     {
-        return $this->belongsTo(LevelHarga::class, 'id_level_harga', 'id');
+        return $this->hasMany(LevelHarga::class, 'id_barang', 'id');
     }
 
 }

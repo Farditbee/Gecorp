@@ -31,6 +31,7 @@
                         <ul class="pcoded-submenu">
                             <li><a class="dropdown-item" href="{{ route('master.pembelianbarang.index')}}"><i class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.pengirimanbarang.index')}}"><i class="fa fa-truck"></i> Pengiriman Barang</a></li>
+                            <li><a class="dropdown-item" href="{{ route('master.kasir.index')}}"><i class="fa fa-laptop"></i> Transaksi Kasir</a></li>
                         </ul>
                     </li>
                     <li class="nav-item">

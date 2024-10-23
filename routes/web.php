@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JenisBarangController;
+use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
@@ -104,12 +105,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/supplier/delete/{id}', [SupplierController::class, 'delete'])->name('master.supplier.delete');
 
         // Member Controller
-        // Route::get('/get-wilayah', [MemberController::class, 'getWilayah']);
         Route::get('/member', [MemberController::class, 'index'])->name('master.member.index');
         Route::post('/member/store', [MemberController::class, 'store'])->name('master.member.store');
         Route::get('/members/{id}/edit', [MemberController::class, 'edit'])->name('members.edit');
         Route::put('/member/update/{id}', [MemberController::class, 'update'])->name('master.member.update');
         Route::delete('/member/delete/{id}', [MemberController::class, 'delete'])->name('master.member.delete');
+        Route::get('/get-level-harga/{id_toko}', [MemberController::class, 'getLevelHarga']);
 
         // Promo Controller
         Route::get('/promo', [PromoController::class, 'index'])->name('master.promo.index');
@@ -155,6 +156,13 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengirimanbarang/edit/{id}', [PengirimanBarangController::class, 'edit'])->name('master.pengirimanbarang.edit');
         Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('master.pengirimanbarang.update_status');
         Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('master.pengirimanbarang.update');
+
+        // Kasir Controller
+        Route::get('/kasir', [KasirController::class, 'index'])->name('master.kasir.index');
+        Route::post('/kasir/store', [KasirController::class, 'store'])->name('master.kasir.store');
+        Route::get('/kasirs/{id}/detail', [KasirController::class, 'detail'])->name('kasirs.detail');
+        Route::put('/kasir/update/{id}', [KasirController::class, 'update'])->name('master.kasir.update');
+        Route::delete('/kasir/delete/{id}', [KasirController::class, 'delete'])->name('master.kasir.delete');
 
     });
 

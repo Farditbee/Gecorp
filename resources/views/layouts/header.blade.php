@@ -152,7 +152,11 @@
                             <ul class="pro-body">
                                 <li><a href="user-profile.html" class="dropdown-item"><i class="feather icon-user"></i> Profile</a></li>
                                 <li><a href="email_inbox.html" class="dropdown-item"><i class="feather icon-mail"></i> My Messages</a></li>
-                                <li><a href="auth-signin.html" class="dropdown-item"><i class="feather icon-log-out"></i> Log Out</a></li>
+                                <li><form action="{{ route ('logout')}}" method="post">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item"><i class="feather icon-log-out"></i> Log Out</button>
+                                </form></li>
+                                {{-- <li><a href="{{route('logout')}}" class="dropdown-item"><i class="feather icon-log-out"></i> Log Out</a></li> --}}
                             </ul>
                         </div>
                     </div>

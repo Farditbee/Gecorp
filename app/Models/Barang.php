@@ -47,4 +47,9 @@ class Barang extends Model
         return $this->hasMany(DetailPengirimanBarang::class, 'id_barang', 'id');
     }
 
+    public function level_harga()
+    {
+        return $this->hasMany(LevelHarga::class, 'id_barang', 'id');
+    }
+
 }

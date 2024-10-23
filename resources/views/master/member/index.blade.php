@@ -69,7 +69,7 @@
                                         <td>{{$mbr->alamat}}</td>
                                         <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="{{ route('master.member.delete', $mbr->id)}}" method="post">
                                         <td>
-                                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editMemberModal{{ $mbr->id }}">
+                                            <button type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#editMemberModal{{ $mbr->id }}" data-id="{{ $mbr->id }}">
                                                 <i class="fa fa-edit"></i>
                                             </button>
                                                 {{-- <a href{{ route('master.member.index', $mbr->id)}} type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target=".bds-example-modal-lg"><i class="fa fa-edit" style="color: white;"></i></a> --}}
@@ -119,13 +119,15 @@
                                     <form action="{{ route('master.member.store')}}" method="post" class="">
                                         @csrf
                                         <div class="form-group">
-                                            <label for="id_toko" class=" form-control-label">Nama Toko<span style="color: red">*</span></label>
-                                            <select name="id_toko" id="selector" class="form-control" tabindex="1">
-                                                <option value="" required>~Silahkan Pilih Toko~</option>
-                                                    @foreach ($toko as $tk)
-                                                    <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
-                                                    @endforeach
-                                                </select>
+                                            <label for="id_toko" class="form-control-label">Nama Toko<span style="color: red">*</span></label>
+                                            <select id="id_toko" name="id_toko" class="form-control id-toko">
+                                                <option value="" selected>~Silahkan Pilih Toko~</option> <!-- Selalu dipilih secara default -->
+                                                @foreach ($toko as $tk)
+                                                <option value="{{ $tk->id }}">
+                                                    {{ $tk->nama_toko }}
+                                                </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                         <div class="form-group">
                                             <label for="jenis_barang" class="form-control-label">Jenis Barang</label>
@@ -133,10 +135,10 @@
                                                 @foreach ($jenis_barang as $jb)
                                                 <li class="list-group-item">
                                                     <h6>{{ $jb->nama_jenis_barang }}
-                                                        <select name="level_harga[{{ $jb->id }}]" class="form-control">
-                                                            <option value="">~Silahkan Pilih~</option>
-                                                            @foreach ($levelharga as $lh)
-                                                            <option value="{{ $lh->id }}">{{ $lh->nama_level_harga }}</option>
+                                                        <select name="level_harga[{{ $jb->id }}]" id="level_harga_{{ $jb->id }}" class="form-control">
+                                                            <option value="" selected>~Silahkan Pilih Toko Dahulu~</option>
+                                                            @foreach($levelharga as $lh)
+                                                            
                                                             @endforeach
                                                         </select>
                                                     </h6>
@@ -144,6 +146,7 @@
                                                 @endforeach
                                             </ul>
                                         </div>
+                                        
                                         <div class="form-group">
                                             <label for="nama_member" class=" form-control-label">Nama Member<span style="color: red">*</span></label>
                                             <input type="text" id="nama_member" name="nama_member" placeholder="Contoh : Member 1" class="form-control">
@@ -211,7 +214,7 @@
                             @foreach ($jenis_barang as $jb)
                             <li class="list-group-item">
                                 <h6>{{ $jb->nama_jenis_barang }}
-                                    <select name="level_harga[{{ $jb->id }}]" class="form-control">
+                                    <select name="level_harga[{{ $jb->id }}]" id="level_harga_{{ $jb->id }}" class="form-control">
                                         <option value="">~Silahkan Pilih~</option>
                                         @foreach($levelharga as $lh)
                                         <option value="{{ $lh->id }}"
@@ -225,7 +228,7 @@
                             @endforeach
                         </ul>
                     </div>
-
+                    
                     <!-- Nomor Hp -->
                     <div class="form-group">
                         <label for="no_hp">No HP<span style="color: red">*</span></label>
@@ -249,6 +252,7 @@
 @endforeach
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
     const element = document.getElementById('selector');
     const choices = new Choices(element, {
@@ -256,58 +260,108 @@
         searchEnabled: true,    // Mengaktifkan pencarian
     });
 });
+
 document.addEventListener('DOMContentLoaded', function () {
+
+    document.getElementById('id_toko').addEventListener('change', function() {
+        var idToko = this.value; // Ambil nilai id_toko yang dipilih
+
+// Loop melalui semua jenis barang
+@foreach ($jenis_barang as $jb)
+(function(jbId) {
+    var levelHargaDropdown = document.getElementById('level_harga_' + jbId); // Ambil elemen dropdown level_harga untuk jenis barang ini
+
+    // Reset isi dropdown level_harga
+    levelHargaDropdown.innerHTML = '<option value="">~Silahkan Pilih~</option>';
+
+    if (idToko) { // Pastikan ada id_toko yang dipilih
+        // Buat request AJAX untuk mendapatkan level_harga
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                console.log('Respon dari server:', xhr.responseText);
+                
+                var data = JSON.parse(xhr.responseText);
+                
+                // Cek apakah data level harga ada
+                if (data.length > 0) {
+                    // Loop melalui data level harga yang diterima dan tambahkan opsi ke dropdown
+                    data.forEach(function(level) {
+                        var option = document.createElement('option');
+                        option.value = level.id; // ID dari level harga
+                        option.text = level.nama_level_harga; // Nama dari level harga
+                        levelHargaDropdown.appendChild(option);
+                    });
+                } else {
+                    // Jika tidak ada level harga, tambahkan opsi "Tidak ada Level"
+                    var option = document.createElement('option');
+                    option.value = ""; // Value kosong
+                    option.text = "Tidak ada Level"; // Teks untuk opsi
+                    levelHargaDropdown.appendChild(option);
+                }
+            } else {
+                console.error('Error mendapatkan data dari server');
+            }
+        };
+
+        xhr.send(); // Kirim request
+    }
+})({{ $jb->id }});
+@endforeach
+});
+
     const element = document.getElementById('selectors');
     const choices = new Choices(element, {
         removeItemButton: true, // Memungkinkan penghapusan item
         searchEnabled: true,    // Mengaktifkan pencarian
     });
 
-    function editMember(id) {
+    document.addEventListener('DOMContentLoaded', function () {
+    // Ambil semua tombol dengan atribut data-id
+    var editButtons = document.querySelectorAll('button[data-id]');
+
+    // Tambahkan event listener ke setiap tombol edit
+    editButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            // Ambil id_member dari atribut data-id
+            var idMember = this.getAttribute('data-id');
+
+            // Tampilkan id_member di console log
+            console.log('Tombol Edit diklik, ID Member:', idMember);
+        });
+    });
+});
+
+function editMember(id) {
+    console.log('ID Member yang diedit:', id);  // Log id_member yang sedang diedit
+
     $.ajax({
         url: '/member/' + id + '/edit',  // URL menuju method edit
         method: 'GET',
         success: function(data) {
+            console.log('ID Toko yang dipilih:', data.id_toko);  // Log id_toko yang dipilih
+            
             // Isi form modal dengan data dari server
             $('#edit_nama_member').val(data.nama_member);
             $('#edit_no_hp').val(data.no_hp);
             $('#edit_alamat').val(data.alamat);
             $('#edit_toko').val(data.id_toko);
 
-            // Isi dropdown level_harga untuk setiap jenis_barang
-            data.level_info.forEach(function(level) {
-                // Temukan select berdasarkan id_jenis_barang
-                let level_harga_select = '#edit_level_harga_' + level.jenis_barang_id;
-                $(level_harga_select).val(level.level_harga_id);
-            });
+            // Muat level harga berdasarkan id_toko yang sudah dipilih tanpa reset
+            loadLevelHargaEditWithoutReset(data.id_toko, data.level_info);
 
             // Tampilkan modal
-            $('#editMemberModal').modal('show');
+            $('#editMemberModal').modal('show');  // Tampilkan modal jika belum otomatis
         },
         error: function(xhr) {
             console.log('Error:', xhr);
         }
     });
 }
+
 });
 </script>
-{{-- <script>
-    function updateMember() {
-        // Kirim request update data member melalui AJAX
-        var formData = $('#editMemberForm').serialize();
-        $.ajax({
-            url: '/member/update',
-            method: 'POST',
-            data: formData,
-            success: function(response) {
-                // Tampilkan pesan sukses dan tutup modal
-                alert('Member updated successfully');
-                $('#editMemberModal').modal('hide');
-            },
-            error: function(xhr) {
-                console.log('Error:', xhr);
-            }
-        });
-    }
-</script> --}}
+
 @endsection

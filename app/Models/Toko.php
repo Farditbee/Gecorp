@@ -30,7 +30,7 @@ class Toko extends Model
 
     public function user()
     {
-        return $this->hasMany(User::class, 'id_toko', 'id');
+        return $this->belongsTo(User::class, 'id_toko', 'id');
     }
 
     public function pengiriman_barang()
@@ -43,8 +43,8 @@ class Toko extends Model
         return $this->hasMany(StockBarang::class, 'toko_pengirim', 'id');
     }
 
-    public function levelharga()
+        public function levelHarga()
     {
-        return $this->belongsTo(LevelHarga::class, 'id_level_harga');
+        return $this->hasMany(LevelHarga::class, 'id_toko');
     }
 }
