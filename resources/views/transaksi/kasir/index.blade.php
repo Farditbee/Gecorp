@@ -106,35 +106,70 @@
                             aria-hidden="true">&times;</span></button>
                 </div>
                 <br>
-                <div class="col-xl-12 d-flex">
-                    <div class="col-2">
-                        <p class="mb-0">No Nota</p>
+                <div class="col-xl-12 d-flex justify-content-between">
+                    <div class="d-flex col-6">
+                        <div class="col-4">
+                            <p class="mb-0">No Nota</p>
+                        </div>
+                        <div class="col-8">
+                            <p>: 123</p>
+                        </div>
                     </div>
-                    <div class="col-4">
-                        <p>: 123</p>
+                    <div class="d-flex col-6 justify-content-end">
+                        <div class="col-4 text-end">
+                            <p class="mb-0">Nama Toko</p>
+                        </div>
+                        <div class="col-8">
+                            @if (Auth::check())
+                            <h5>: <span class="badge badge-info">{{Auth::user()->toko->nama_toko}}</span></h5>
+                            @endif
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-12 d-flex">
-                    <div class="col-2">
-                        <p class="mb-0">Tgl Transaksi</p>
+                
+                <div class="col-xl-12 d-flex justify-content-between">
+                    <div class="d-flex col-6">
+                        <div class="col-4">
+                            <p class="mb-0">Tgl Transaksi</p>
+                        </div>
+                        <div class="col-8">
+                            <p>: 123</p>
+                        </div>
                     </div>
-                    <div class="col-4">
-                        <p>: 123</p>
+                    <div class="d-flex col-6 justify-content-end">
+                        <div class="col-4 text-end">
+                            <p class="mb-0">Kasir</p>
+                        </div>
+                        <div class="col-8">
+                            @if (Auth::check())
+                            <h5>: <span class="badge badge-info">{{Auth::user()->nama}}</span></h5>
+                            @endif
+                        </div>
                     </div>
                 </div>
-                <div class="col-xl-12 d-flex">
-                    <div class="col-2">
-                        <p class="mb-0">Member</p>
+                <div class="col-xl-12 d-flex justify-content-between">
+                    <div class="d-flex col-6">
+                        <div class="col-4">
+                            
+                        </div>
+                        <div class="col-8">
+                            
+                        </div>
                     </div>
-                    <div class="col-4">
-                        <p>:
-                            <select name="id_member" id="id_member">
-                                <option value="Guest" selected>Guest</option>
-                                @foreach ($member as $mbr)
-                                    <option value="{{ $mbr->id }}" data-level-info='@json($mbr->level_info)'>{{ $mbr->nama_member }}</option>
-                                @endforeach
-                            </select>
-                        </p>
+                    <div class="d-flex col-6 justify-content-end">
+                        <div class="col-4 text-end">
+                            <p class="mb-0">Member</p>
+                        </div>
+                        <div class="col-8">
+                            <p>:
+                                <select name="id_member" id="id_member">
+                                    <option value="Guest" selected>Guest</option>
+                                    @foreach ($member as $mbr)
+                                        <option value="{{ $mbr->id }}" data-level-info='@json($mbr->level_info)'>{{ $mbr->nama_member }}</option>
+                                    @endforeach
+                                </select>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
@@ -155,7 +190,7 @@
                                                         <select name="id_barang" id="selector" class="form-control">
                                                             <option value="">~Silahkan Pilih Barang~</option>
                                                             {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
-                                                            @if (Auth::user()->id_toko == 1)
+                                                            @if  (Auth::user()->id_level == 1)
                                                                 @if ($stock->isEmpty())
                                                                     <option value="">Tidak ada Barang</option>
                                                                 @else
