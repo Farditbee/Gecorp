@@ -10,12 +10,14 @@ use App\Models\LevelHarga;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class StockBarangController extends Controller
 {
     public function index()
     {
+        $user = Auth::user(); // Mendapatkan user yang sedang login
         // Mengambil stock barang beserta relasi ke barang dan toko
         $stock = StockBarang::with(['barang', 'toko'])
                             ->orderBy('id', 'desc')
@@ -128,8 +130,11 @@ class StockBarangController extends Controller
         foreach ($levelHargas as $index => $hargaLevel) {
             $levelNama = $levelNamas[$index] ?? 'Level ' . ($index + 1);
 
-            // Jika harga level tidak kosong, masukkan ke array level harga
+            // Jika harga level tidak kosong, hapus pemisah ribuan dan masukkan ke array level harga
             if (!is_null($hargaLevel)) {
+                // Hapus pemisah ribuan dari hargaLevel
+                $hargaLevel = str_replace(',', '', $hargaLevel);
+
                 $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
             }
         }
