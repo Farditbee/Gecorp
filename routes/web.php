@@ -163,6 +163,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kasirs/{id}/detail', [KasirController::class, 'detail'])->name('kasirs.detail');
         Route::put('/kasir/update/{id}', [KasirController::class, 'update'])->name('master.kasir.update');
         Route::delete('/kasir/delete/{id}', [KasirController::class, 'delete'])->name('master.kasir.delete');
+        Route::get('/kasir/get-filtered-harga', [KasirController::class, 'getFilteredHarga']);
 
     });
 
