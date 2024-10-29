@@ -6,6 +6,7 @@ use App\Models\LevelUser;
 use App\Models\Toko;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Expr\FuncCall;
 
@@ -13,11 +14,26 @@ class UserController extends Controller
 {
     public function index()
     {
+        $user = Auth::user(); // Mendapatkan user yang sedang login
 
-        $user = User::with('leveluser', 'toko')
-                    ->orderBy('id', 'desc')->get();
-        return view('master.user.index', compact('user'));
+        // Jika user memiliki leveluser = 1, tampilkan semua data user
+        if ($user->id_level == 1) {
+            $users = User::with('leveluser', 'toko')
+                        ->orderBy('id', 'desc')
+                        ->get();
+        } else {
+            // Jika leveluser selain 1, hanya tampilkan user dari toko yang sama
+            $users = User::with('leveluser', 'toko')
+                        ->where('id_toko', $user->id_toko)
+                        ->orderBy('id', 'desc')
+                        ->get();
+        }
+
+        $leveluser = LevelUser::all();
+
+        return view('master.user.index', compact('users', 'leveluser'));
     }
+
 
     public function create()
     {

@@ -8,19 +8,28 @@ use App\Models\LevelHarga;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class TokoController extends Controller
 {
 
-    public function index(Request $request)
-    {
+    public function index()
+{
+    $user = Auth::user(); // Mendapatkan user yang sedang login
+
+    // Jika level_user = 1, tampilkan semua data toko
+    if ($user->id_level == 1) {
         $toko = Toko::orderBy('id', 'desc')->get();
-        $levelharga = LevelHarga::all();
-        // Kembalikan ke view dengan variabel $toko yang berisi hasil pagination
-        return view('master.toko.index', compact('toko','levelharga'));
+    } else {
+        // Jika level_user selain 1, tampilkan hanya toko yang sesuai dengan id_toko user yang login
+        $toko = Toko::where('id', $user->id_toko)->orderBy('id', 'desc')->get();
     }
 
+    $levelharga = LevelHarga::all();
+    
+    return view('master.toko.index', compact('toko', 'levelharga'));
+}
 
     public function create()
     {

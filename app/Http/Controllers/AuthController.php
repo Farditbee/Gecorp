@@ -25,11 +25,11 @@ class AuthController extends Controller
 
                 // dd($user);
                 if ($user->id_level == 1) {
-                    return redirect()->route('master.index')->with('message', 'Berhasil Login');
+                    return redirect()->route('master.index')->with('success', 'Berhasil Login');
                 } elseif ($user->nama_level == 'petugas') {
-                    return redirect('/petugas/dashboard')->with('message', 'Berhasil Login');
+                    return redirect('/petugas/dashboard')->with('success', 'Berhasil Login');
                 } else {
-                    return redirect('/default/dashboard')->with('message', 'Berhasil Login');
+                    return redirect()->route('master.index')->with('success', 'Berhasil Login');
                 }
             } else {
                 // Jika kredensial salah

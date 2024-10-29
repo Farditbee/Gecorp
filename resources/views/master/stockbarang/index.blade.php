@@ -2,6 +2,12 @@
 @extends('layouts.main')
 
 @section('content')
+<style>
+    .highlight-row {
+    background-color: #87fc87 !important; /* Gunakan !important jika perlu */
+}
+
+</style>
 <div class="pcoded-main-container">
     <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
@@ -28,7 +34,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <!-- Tombol Tambah -->
-                        <a href="{{ route('master.pembelianbarang.create') }}" class="btn btn-primary">
+                        <a href="{{ route('master.pembelianbarang.index') }}" class="btn btn-primary">
                             <i class="ti-plus menu-icon"></i> Tambah
                         </a>
                         <!-- Input Search -->
@@ -46,8 +52,10 @@
                                         <th>#</th>
                                         <th>Nama Barang</th>
                                         <th>Jenis Barang</th>
-                                        <th>Stock</th>
-                                        <th>Harga Satuan (Hpp Baru)</th>
+                                        @if  (Auth::user()->id_level == 1)
+                                            <th>Stock</th>
+                                            <th>Harga Satuan (Hpp Baru)</th>
+                                        @endif
                                         <th>Detail</th>
                                         <th>Action</th>
                                     </tr>
@@ -59,29 +67,27 @@
                                             <td>{{ $no++ }}</td>
                                             <td>{{ $stk->nama_barang }}</td>
                                             <td>{{ $stk->barang->jenis->nama_jenis_barang }}</td>
-                                            <td>{{ $stk->stock }}</td>
-                                            <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
-                                                <!-- Daftar barang ditampilkan melalui tabel -->
+                                            @if  (Auth::user()->id_level == 1)
+                                                <td>{{ $stk->stock }}</td>
+                                                <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
+                                            @endif
                                             <td>
-                                                <button type="button" class="btn btn-primary btn-sm atur-harga-btn"
-                                                    data-toggle="modal" data-target="#mediumModal-{{ $stk->id }}"
-                                                    data-id_barang="{{ $stk->id_barang }}" data-id="{{ $stk->id }}" style="font-size: 12px;">
+                                                <button type="button" class="btn btn-primary btn-sm atur-harga-btn" data-toggle="modal" data-target="#mediumModal-{{ $stk->id }}" data-id_barang="{{ $stk->id_barang }}" data-id="{{ $stk->id }}" style="font-size: 12px;">
                                                     Cek Detail
                                                 </button>
                                             </td>
-                                            <form onsubmit="return confirm('Ingin menghapus Data ini ?');"
-                                            action="#" method="POST">
-                                            <td>
+                                            <form onsubmit="return confirm('Ingin menghapus Data ini ?');" action="#" method="POST">
+                                                <td>
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i
-                                                            class="fa fa-trash menu-icon"></i></button>
-                                                        </td>
-                                                    </form>
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                </td>
+                                            </form>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
+
                             @foreach ($stock as $stk)
                                 <div class="modal fade" id="mediumModal-{{ $stk->id }}" tabindex="-1"
                                     role="dialog" aria-labelledby="mediumModalLabel-{{ $stk->id }}"
@@ -110,6 +116,8 @@
                                                             aria-controls="home-{{ $stk->id }}"
                                                             aria-selected="true">Barang Di Toko</a>
                                                     </li>
+
+                                                    @if  (Auth::user()->id_level == 1)
                                                     <li class="nav-item">
                                                         <a class="nav-link text-uppercase"
                                                             id="atur-harga-tab-{{ $stk->id }}"
@@ -119,14 +127,7 @@
                                                             aria-controls="atur-harga-{{ $stk->id }}"
                                                             aria-selected="false">Atur Harga</a>
                                                     </li>
-                                                    {{-- <li class="nav-item">
-                                                        <a class="nav-link text-uppercase"
-                                                            id="contact-tab-{{ $stk->id }}"
-                                                            data-toggle="tab"
-                                                            href="#contact-{{ $stk->id }}" role="tab"
-                                                            aria-controls="contact-{{ $stk->id }}"
-                                                            aria-selected="false">Contact</a>
-                                                    </li> --}}
+                                                    @endif
                                                 </ul>
                                                 <div class="tab-content" id="myTabContent-{{ $stk->id }}">
                                                     <div class="tab-pane fade show active"
@@ -141,24 +142,27 @@
                                                                             <tr>
                                                                                 <th>Nama Toko</th>
                                                                                 <th>Stock</th>
+                                                                                @if  (Auth::user()->id_level == 1)
                                                                                 <th>Level Harga</th>
+                                                                                @endif
                                                                             </tr>
                                                                         </thead>
                                                                         <tbody>
-                                                                            @foreach ($toko as $tk)
-                                                                                <tr>
-                                                                                    <td>{{ $tk->nama_toko }}
-                                                                                    </td>
-
+                                                                            @php
+                                                                                $idTokoLogin = auth()->user()->id_toko;
+                                                                                $toko = $toko->sortByDesc(function($tk) use ($idTokoLogin) {
+                                                                                    return $tk->id == $idTokoLogin ? 1 : 0;
+                                                                                });
+                                                                            @endphp
+                                                                            @foreach ($toko as $index => $tk)
+                                                                            <tr class="{{ $tk->id == $idTokoLogin ? 'highlight-row' : '' }}">
+                                                                                <td>{{ $tk->nama_toko }}</td>
                                                                                     @if ($tk->id == 1)
                                                                                         {{-- Tampilkan stok dari tabel stock_barang untuk toko dengan id = 1 --}}
                                                                                         @php
                                                                                             // Ambil stok dari tabel stock_barang hanya untuk barang yang sedang diklik
                                                                                             $stokBarangTokoUtama = $stock
-                                                                                                ->where(
-                                                                                                    'id_barang',
-                                                                                                    $stk->id_barang,
-                                                                                                )
+                                                                                                ->where('id_barang',$stk->id_barang,)
                                                                                                 ->first();
                                                                                         @endphp
 
@@ -190,6 +194,7 @@
                                                                                             <td>0</td>
                                                                                         @endif
                                                                                     @endif
+                                                                                    @if  (Auth::user()->id_level == 1)
                                                                                     <td>
                                                                                         @php
                                                                                             $levelHargaArray =
@@ -224,6 +229,7 @@
                                                                                             Harga
                                                                                         @endif
                                                                                     </td>
+                                                                                    @endif
                                                                                 </tr>
                                                                             @endforeach
                                                                         </tbody>
@@ -333,7 +339,6 @@
 </script>
 
 <script>
-
     const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
     aturHargaButtons.forEach(button => {
         button.addEventListener('click', function(event) {
@@ -346,42 +351,34 @@
                 .then(data => {
                     const modal = document.querySelector(modalId);
                     if (modal) {
-                        // Ambil HPP Baru dari elemen tersembunyi
                         let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
                         console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
 
-                        // Set nilai HPP baru di setiap input level harga
                         modal.querySelectorAll('.level-harga').forEach(function(input) {
                             input.setAttribute('data-hpp-baru', hppBaru);
                         });
 
-                        // Mengisi nilai level harga dari server ke dalam input tanpa pemisah ribuan
                         Object.keys(data.level_harga).forEach(function(level_name) {
                             const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
 
                             if (inputField) {
-                                // Mengisi nilai level harga dari server
-                                let levelHarga = parseFloat(data.level_harga[level_name].replace(/,/g, '')); // Pastikan koma dihapus
+                                let levelHarga = parseFloat(data.level_harga[level_name].replace(/,/g, ''));
                                 inputField.setAttribute('data-raw-value', levelHarga); // Simpan nilai asli
                                 inputField.value = levelHarga.toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
 
-                                // Hitung persentase langsung setelah mengisi nilai dari server
                                 calculatePercentage(inputField, hppBaru);
 
-                                // Tambahkan event listener untuk menangani perubahan input
                                 inputField.addEventListener('input', function() {
-                                    // Mengambil nilai raw dari input (tanpa pemisah ribuan)
-                                    let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
-                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw tanpa pemisah
+                                    let rawValue = this.value.replace(/[^0-9]/g, '');
+                                    this.setAttribute('data-raw-value', rawValue);
 
-                                    // Tampilkan nilai dengan format ribuan saat user mengetik
                                     if (rawValue) {
-                                        this.value = parseInt(rawValue).toLocaleString(); // Tambahkan pemisah ribuan
+                                        this.value = parseInt(rawValue).toLocaleString();
                                     } else {
-                                        this.value = ''; // Reset jika tidak ada input
+                                        this.value = '';
                                     }
 
-                                    calculatePercentage(inputField, hppBaru); // Hitung ulang persentase
+                                    calculatePercentage(inputField, hppBaru);
                                 });
                             }
                         });
@@ -395,169 +392,42 @@
         });
     });
 
-    // Fungsi untuk menghitung persentase
     function calculatePercentage(inputField, hppBaru) {
-        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0; // Ambil nilai raw tanpa pemisah ribuan
+        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0;
         let persen = 0;
         if (hppBaru > 0) {
             persen = ((levelHarga - hppBaru) / hppBaru) * 100;
         }
 
-        // Tampilkan persentase
         const levelName = inputField.id.split('-').slice(2).join('-');
         const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
         if (persenElement) {
             persenElement.textContent = `${persen.toFixed(2)}%`;
-            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`); // Log level harga dan persentase
+            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`);
         }
     }
 
-    // Fungsi untuk mempersiapkan data form sebelum disubmit
-function prepareFormData(event) {
-    event.preventDefault(); // Cegah form langsung submit
-
-    const form = event.target;
-
-    // Loop semua input field yang punya kelas 'level-harga'
-    const levelHargaInputs = form.querySelectorAll('.level-harga');
-
-    levelHargaInputs.forEach(input => {
-        // Ambil raw value dari atribut 'data-raw-value'
-        const rawValue = input.getAttribute('data-raw-value') || input.value.replace(/[^0-9]/g, ''); // Ambil nilai asli tanpa separator
-
-        // Update hidden input field untuk mengirimkan nilai raw ke server
-        const hiddenInput = form.querySelector(`#${input.id}-hidden`);
-        if (hiddenInput) {
-            hiddenInput.value = rawValue; // Set raw value di hidden input tanpa format ribuan
-        }
-    });
-
-    // Setelah data di-update, kirim form
-    form.submit();
-}
-
-</script>
-
-
-    {{-- <script>
-    // Fungsi untuk memformat tampilan input agar menggunakan format ribuan
-    function formatCurrency(input) {
-        let value = input.value.replace(/\./g, ''); // Hilangkan titik sebagai separator ribuan
-        if (!isNaN(value) && value !== '') {
-            input.value = new Intl.NumberFormat('id-ID').format(value); // Tambahkan kembali format ribuan
-        }
-    }
-
-    // Fungsi untuk menyimpan nilai mentah (tanpa titik) ke hidden input
-    function updateRawValue(input, index) {
-        let rawValue = input.value.replace(/\./g, ''); // Hilangkan titik agar menjadi nilai mentah
-        document.getElementById('level_harga_raw_' + index).value = rawValue; // Simpan nilai mentah ke hidden input
-    }
-</script>
-
-<script>
-    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
-
-    aturHargaButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
-            const id_barang = button.getAttribute('data-id_barang');
-            const id_modal = button.getAttribute('data-id');
-            const modalId = `#atur-harga-${id_modal}`;
-
-            fetch(`/admin/get-stock-details/${id_barang}`)
-                .then(response => response.json())
-                .then(data => {
-                    const modal = document.querySelector(modalId);
-                    if (modal) {
-                        // Ambil HPP Baru dari elemen tersembunyi
-                        let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
-                        console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
-
-                        // Set nilai HPP baru di setiap input level harga
-                        modal.querySelectorAll('.level-harga').forEach(function(input) {
-                            input.setAttribute('data-hpp-baru', hppBaru);
-                        });
-
-                        // Mengisi nilai level harga dari server ke dalam input
-                        Object.keys(data.level_harga).forEach(function(level_name) {
-                            const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
-
-                            if (inputField) {
-                                // Mengisi nilai level harga dari server
-                                inputField.setAttribute('data-raw-value', data.level_harga[level_name]); // Simpan nilai asli
-                                inputField.value = new Intl.NumberFormat().format(data.level_harga[level_name]); // Format tampilan
-
-                                // Hitung persentase langsung setelah mengisi nilai dari server
-                                calculatePercentage(inputField, hppBaru);
-
-                                // Tambahkan event listener untuk menangani perubahan input
-                                inputField.addEventListener('input', function() {
-                                    // Mengambil nilai raw dan mengubah tampilan
-                                    let rawValue = this.value.replace(/[^0-9]/g, ''); // Hapus karakter non-numeric
-                                    this.setAttribute('data-raw-value', rawValue); // Simpan nilai raw
-
-                                    // Ubah tampilan menjadi format number
-                                    if (rawValue) {
-                                        this.value = new Intl.NumberFormat().format(rawValue);
-                                    } else {
-                                        this.value = ''; // Reset jika tidak ada input
-                                    }
-
-                                    calculatePercentage(inputField, hppBaru); // Hitung ulang persentase
-                                });
-                            }
-                        });
-                    } else {
-                        console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        });
-    });
-
-    // Fungsi untuk menghitung persentase
-    function calculatePercentage(inputField, hppBaru) {
-        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0; // Ambil nilai raw
-        let persen = 0;
-        if (hppBaru > 0) {
-            persen = ((levelHarga - hppBaru) / hppBaru) * 100;
-        }
-
-        // Tampilkan persentase
-        const levelName = inputField.id.split('-').slice(2).join('-');
-        const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
-        if (persenElement) {
-            persenElement.textContent = `${persen.toFixed(2)}%`;
-            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`); // Log level harga dan persentase
-        }
-    }
-
-    // Fungsi untuk mempersiapkan data form sebelum disubmit
     function prepareFormData(event) {
-        event.preventDefault(); // Cegah form langsung submit
+        event.preventDefault();
 
         const form = event.target;
-
-        // Loop semua input field yang punya kelas 'level-harga'
         const levelHargaInputs = form.querySelectorAll('.level-harga');
 
         levelHargaInputs.forEach(input => {
-            // Ambil raw value dari atribut 'data-raw-value'
-            const rawValue = input.getAttribute('data-raw-value');
+            const rawValue = input.getAttribute('data-raw-value') || input.value.replace(/[^0-9]/g, '');
 
-            // Update hidden input field untuk mengirimkan nilai raw ke server
             const hiddenInput = form.querySelector(`#${input.id}-hidden`);
             if (hiddenInput) {
-                hiddenInput.value = rawValue; // Set raw value di hidden input
+                hiddenInput.value = rawValue;
             }
         });
 
-        // Setelah data di-update, kirim form
         form.submit();
     }
 
-</script> --}}
+    // Tambahkan event listener untuk submit form
+    document.querySelector('form').addEventListener('submit', prepareFormData);
+</script>
+
 
 @endsection

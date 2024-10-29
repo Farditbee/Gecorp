@@ -29,9 +29,15 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <!-- Tombol Tambah -->
+                        @if (Auth::user()->id_level == 1)
                         <a href="{{ route('master.user.create')}}" class="btn btn-primary">
                             <i class="ti-plus menu-icon"></i> Tambah
                         </a>
+                        @else
+                        <a href="{{ route('master.user.create')}}" class="btn btn-secondary disabled">
+                            <i class="ti-plus menu-icon"></i> Tambah
+                        </a>
+                        @endif
                         <!-- Input Search -->
                         <form class="d-flex" method="GET" action="{{ route('master.user.index') }}">
                             <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari User" aria-label="Search">
@@ -56,7 +62,7 @@
                                 </thead>
                                 <tbody>
                                     <?php $no = 1; ?>
-                                    @forelse ($user as $usr)
+                                    @forelse ($users as $usr)
                                     <tr>
                                         <td>{{$no++}}</td>
                                         <td>{{$usr->nama}}</td>
@@ -71,7 +77,9 @@
                                                 <a href="{{ route('master.user.edit', $usr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
                                                 @csrf
                                                 @method('DELETE')
+                                                @if (Auth::user()->id_level == 1)
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                @endif
                                             </td>
                                         </form>
                                     </tr>

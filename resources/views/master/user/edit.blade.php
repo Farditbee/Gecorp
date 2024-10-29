@@ -41,6 +41,7 @@
                             <form action="{{ route('master.user.update', $user->id)}}" method="post" enctype="multipart/form-data">
                                 @csrf
                                 @method('put')
+                                @if (Auth::user()->id_level == 1)
                                 <div class="form-group">
                                     <label for="id_toko" class=" form-control-label">Nama Toko<span style="color: red">*</span></label>
                                     <select name="id_toko" id="selector" class="form-control" tabindex="1">
@@ -59,6 +60,26 @@
                                             @endforeach
                                         </select>
                                 </div>
+                                @else
+                                <div class="form-group">
+                                    <label for="id_toko" class=" form-control-label">Nama Toko<span style="color: red">*</span></label>
+                                    <select name="id_toko" id="selector" class="form-control" tabindex="1">
+                                        <option value="">~Pilih~</option>
+                                            @foreach ($toko as $tk)
+                                            <option value="{{ $tk->id }}" {{ $user->id_toko == $tk->id ? 'selected' : '' }}>{{ $tk->nama_toko }}</option>
+                                            @endforeach
+                                        </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="id_level" class=" form-control-label">Level<span style="color: red">*</span></label>
+                                    <select name="id_level" id="selectors" class="form-control" tabindex="1">
+                                        <option value="">~Pilih~</option>
+                                            @foreach ($leveluser as $lu)
+                                            <option value="{{ $lu->id }}" {{ old('id_level', $user->id_level) == "$lu->id" ? "selected" : "" }}>{{ $lu->nama_level }}</option>
+                                            @endforeach
+                                        </select>
+                                </div>
+                                @endif
                                 <div class="form-group">
                                     <label for="nama" class=" form-control-label">Nama<span style="color: red">*</span></label>
                                     <input type="text" class="form-control @error('nama') is-invalid @enderror" name="nama" value="{{ old('nama', $user->nama) }}" placeholder="Masukkan nama">
@@ -74,7 +95,7 @@
 
                                 <label for="password" class=" form-control-label">Password</label>
                                 <div class="input-group">
-                                    <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" placeholder="Password akan sama jika tidak diubah" aria-label="Recipient's username" aria-describedby="basic-addon2" >
+                                    <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password', $user->password) }}" placeholder="Password akan sama jika tidak diubah" aria-label="Recipient's username" aria-describedby="basic-addon2" >
                                         <div class="input-group-append">
                                             <button type="button" id="toggle-password" class="btn btn-outline-secondary">👁️</button>
                                         </div>
@@ -119,6 +140,12 @@ document.addEventListener('DOMContentLoaded', function () {
         searchEnabled: true,    // Mengaktifkan pencarian
     });
 });
+document.getElementById('toggle-password').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? '👁️' : '🙈'; // Mengubah ikon sesuai dengan tipe
+    });
 </script>
 
 @endsection

@@ -9,6 +9,7 @@ use App\Models\Member;
 use App\Models\Toko;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Throwable;
 
 class MemberController extends Controller
@@ -18,8 +19,20 @@ class MemberController extends Controller
      */
     public function index()
     {
-        $member = Member::orderBy('id', 'desc')->
-                            with(['levelharga', 'toko', 'jenis_barang'])->get();
+        $user = Auth::user();
+
+        // Jika user memiliki id_level = 1, tampilkan semua data member
+        if ($user->id_level == 1) {
+            $member = Member::orderBy('id', 'desc')
+                            ->with(['levelharga', 'toko', 'jenis_barang'])
+                            ->get();
+        } else {
+            // Jika id_level selain 1, hanya tampilkan member dari toko yang sama dengan user yang login
+            $member = Member::where('id_toko', $user->id_toko)
+                            ->orderBy('id', 'desc')
+                            ->with(['levelharga', 'toko', 'jenis_barang'])
+                            ->get();
+        }
         $jenis_barang = JenisBarang::all();
         $toko = Toko::all();
         $levelharga = LevelHarga::all();

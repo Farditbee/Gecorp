@@ -30,9 +30,15 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <!-- Tombol Tambah -->
+                        @if (Auth::user()->id_level == 1)
                         <a href="{{ route('master.toko.create')}}" class="btn btn-primary">
                             <i class="ti-plus menu-icon"></i> Tambah
                         </a>
+                        @else
+                        <a href="{{ route('master.toko.create')}}" class="disabled btn btn-secondary">
+                            <i class="ti-plus menu-icon"></i> Tambah
+                        </a>
+                        @endif
                         <!-- Input Search -->
                         <form class="d-flex" method="GET" action="{{ route('master.toko.index') }}">
                             <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Toko" aria-label="Search">
@@ -85,7 +91,9 @@
                                             <a href="{{ route('master.toko.edit', $tk->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
                                                 @csrf
                                                 @method('DELETE')
+                                                @if (Auth::user()->id_level == 1)
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                @endif
                                             </td>
                                         </form>
                                     </tr>
