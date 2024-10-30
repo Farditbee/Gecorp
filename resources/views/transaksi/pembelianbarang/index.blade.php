@@ -108,7 +108,7 @@
         </div>
 
         <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
+            <div class="modal-dialog modal-lgs">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title h4" id="myLargeModalLabel">Pembelian Barang</h5>
@@ -155,7 +155,7 @@
                                             <button type="submit" style="float: right" id="save-btn" class="btn btn-primary">
                                                 <span id="save-btn-text"><i class="fa fa-save"></i> Lanjut</span>
                                                 <span id="save-btn-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></span>
-                                            </button>                                            
+                                            </button>
                                         </form>
                                     </div>
                                     <div class="tab-pane fade" id="detail" role="tabpanel" aria-labelledby="detail-tab">
