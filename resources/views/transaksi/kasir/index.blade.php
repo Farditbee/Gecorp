@@ -1,7 +1,7 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
-
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <div class="pcoded-main-container">
         <div class="pcoded-content">
             <!-- [ breadcrumb ] start -->
@@ -114,7 +114,7 @@
                             <p class="mb-0">No Nota</p>
                         </div>
                         <div class="col-8">
-                            <p id="noNota">: </p> <!-- ID untuk mengupdate nomor nota -->
+                            <p id="noNota"> </p> <!-- ID untuk mengupdate nomor nota -->
                         </div>
                     </div>
                     <div class="d-flex col-6 justify-content-end">
@@ -173,7 +173,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
 
                 <div class="modal-body">
                     <div class="row">
@@ -288,19 +287,20 @@
             </div>
         </div>
     </div>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Fungsi untuk menghasilkan nomor acak 8 digit
+                function generateRandomNumber() {
+                    return Math.floor(10000000 + Math.random() * 90000000); // Angka 8 digit
+                }
 
-    <script>
-        // Fungsi untuk menghasilkan nomor acak 8 digit
-        function generateRandomNumber() {
-            return Math.floor(10000000 + Math.random() * 90000000); // Angka antara 10000000 dan 99999999
-        }
-
-        // Event listener untuk modal
-        $('.bd-example-modal-lg').on('show.bs.modal', function () {
-            const noNotaElement = document.getElementById('noNota');
-            noNotaElement.textContent = ': ' + generateRandomNumber();
-        });
-    </script>
+                // Event listener untuk menampilkan nomor nota saat modal dibuka
+                $('.bd-example-modal-lg').on('show.bs.modal', function () {
+                    const noNotaElement = document.getElementById('noNota');
+                    noNotaElement.textContent = ': ' + generateRandomNumber();
+                });
+            </script>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
