@@ -13,20 +13,20 @@
         </div>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav mr-auto">
-                
+
             </ul>
             <ul class="navbar-nav ml-auto">
-                
+
                 <li>
                     <div class="dropdown drp-user">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Profile
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ Auth::user()->nama }}
                         </a>
                         <div class="dropdown-menu dropdown-menu-right profile-notification">
                             <div class="pro-head">
                                 {{-- <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-1.jpg') }}" class="img-radius" alt="User-Profile-Image"> --}}
                                 @if(Auth::check())
-                                    <h5 style="color: white">{{ Auth::user()->nama }}</h5>
-                                    <span>{{ Auth::user()->leveluser->nama_level }}</span><p style="color: white">{{ Auth::user()->toko->nama_toko }}</p>
+                                    <h5 style="color: white">{{ Auth::user()->toko->nama_toko }}</h5>
+                                    <p style="color: white">{{ Auth::user()->leveluser->nama_level }}</p>
                                 @endif
                             </div>
                             <ul class="pro-body">
