@@ -1,7 +1,7 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <div class="pcoded-main-container">
         <div class="pcoded-content">
             <!-- [ breadcrumb ] start -->
@@ -29,7 +29,8 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <!-- Tombol Tambah -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target=".bd-example-modal-lg">
                                 Tambah
                             </button>
                             <!-- Input Search -->
@@ -98,186 +99,197 @@
     </div>
 
     <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog modal-lgs">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h6 class="modal-title h4" id="myLargeModalLabel">Data Transaksi</h6>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="col-xl-12 d-flex justify-content-between">
-                    <div class="d-flex col-6">
-                        <div class="col-4">
-                            <p class="mb-0">No Nota</p>
-                        </div>
-                        <div class="col-8">
-                            <p id="noNota"> </p> <!-- ID untuk mengupdate nomor nota -->
-                        </div>
-                    </div>
-                    <div class="d-flex col-6 justify-content-end">
-                        <div class="col-4 text-end">
-                            <p class="mb-0">Nama Toko</p>
-                        </div>
-                        <div class="col-8">
-                            @if (Auth::check())
-                                <h5>: <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span></h5>
-                            @endif
-                        </div>
-                    </div>
+        aria-hidden="true">
+        <div class="modal-dialog modal-lgs">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="modal-title h4" id="myLargeModalLabel">Data Transaksi</h6>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
-
-                <div class="col-xl-12 d-flex justify-content-between">
-                    <div class="d-flex col-6">
-                        <div class="col-4">
-                            <p class="mb-0">Tgl Transaksi</p>
-                        </div>
-                        <div class="col-8">
-                            <p>: 123</p> <!-- Anda bisa mengganti dengan tanggal yang sesuai -->
-                        </div>
-                    </div>
-                    <div class="d-flex col-6 justify-content-end">
-                        <div class="col-4 text-end">
-                            <p class="mb-0">Kasir</p>
-                        </div>
-                        <div class="col-8">
-                            @if (Auth::check())
-                                <h5>: <span class="badge badge-info">{{ Auth::user()->nama }}</span></h5>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-12 d-flex justify-content-between">
-                    <div class="d-flex col-6">
-                        <div class="col-4"></div>
-                        <div class="col-8"></div>
-                    </div>
-                    <div class="d-flex col-6 justify-content-end">
-                        <div class="col-4 text-end">
-                            <p class="mb-0">Member</p>
-                        </div>
-                        <div class="col-8">
-                            <p>:
-                                <select name="id_member" id="id_member">
-                                    <option value="" selected>~ Pilih Member ~</option>
-                                    <option value="Guest">Guest</option>
-                                    @foreach ($member as $mbr)
-                                        <option value="{{ $mbr->id }}" data-level-info='@json($mbr->level_info)'>
-                                            {{ $mbr->nama_member }}</option>
-                                    @endforeach
-                                </select>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="modal-body">
-                    <div class="row">
-                        <div class="col-xl-12">
-                            <div class="card">
-                                <div class="card-body table-border-style">
-                                    <div class="table-responsive">
-                                        <form action="{{ route('master.kasir.store') }}" method="post" class="">
-                                            @csrf
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <!-- Nama Barang -->
-                                                    <div class="form-group">
-                                                        <label for="id_barang" class="form-control-label">Nama Barang<span
+                    <div class="col-xl-12 d-flex justify-content-between">
+                        <div class="d-flex col-6">
+                            <div class="col-4">
+                                <p class="mb-0">No Nota</p>
+                            </div>
+                            <div class="col-8">
+                                <p id="noNota" name="no_nota"> </p> <!-- ID untuk mengupdate nomor nota -->
+                            </div>
+                        </div>
+                        <div class="d-flex col-6 justify-content-end">
+                            <div class="col-4 text-end">
+                                <p class="mb-0">Nama Toko</p>
+                            </div>
+                            <div class="col-8">
+                                @if (Auth::check())
+                                    <h5>: <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span></h5>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 d-flex justify-content-between">
+                        <div class="d-flex col-6">
+                            <div class="col-4">
+                                <p class="mb-0">Tgl Transaksi</p>
+                            </div>
+                            <div class="col-8">
+                                <p name="tgl_transaksi" id="tglTransaksi">: </p> <!-- Anda bisa mengganti dengan tanggal yang sesuai -->
+                            </div>
+                        </div>
+                        <div class="d-flex col-6 justify-content-end">
+                            <div class="col-4 text-end">
+                                <p class="mb-0">Kasir</p>
+                            </div>
+                            <div class="col-8">
+                                @if (Auth::check())
+                                    <h5>: <span class="badge badge-info">{{ Auth::user()->nama }}</span></h5>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xl-12 d-flex justify-content-between">
+                        <div class="d-flex col-6">
+                            <div class="col-4"></div>
+                            <div class="col-8"></div>
+                        </div>
+                        <div class="d-flex col-6 justify-content-end">
+                            <div class="col-4 text-end">
+                                <p class="mb-0">Member</p>
+                            </div>
+                            <div class="col-8">
+                                <p>:
+                                    <select name="id_member" id="id_member">
+                                        <option value="" selected>~ Pilih Member ~</option>
+                                        <option value="Guest">Guest</option>
+                                        @foreach ($member as $mbr)
+                                            <option value="{{ $mbr->id }}"
+                                                data-level-info='@json($mbr->level_info)'>
+                                                {{ $mbr->nama_member }}</option>
+                                        @endforeach
+                                    </select>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-xl-12">
+                                <div class="card">
+                                    <div class="card-body table-border-style">
+                                        <div class="form">
+                                            <form action="{{ route('master.kasir.store') }}" method="post"
+                                                class="">
+                                                @csrf
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <!-- Nama Barang -->
+                                                        <div class="form-group">
+                                                            <label for="id_barang" class="form-control-label">Nama
+                                                                Barang<span style="color: red">*</span></label>
+                                                            <select name="id_barang" id="barang" class="form-control">
+                                                                <option value="">~Silahkan Pilih Barang~</option>
+                                                                {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
+                                                                @foreach ($barang as $brg)
+                                                                    <option value="{{ $brg->id_barang }}"
+                                                                        data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
+                                                                        data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
+                                                                        data-level-harga='@json($brg->barang->level_harga)'>
+                                                                        {{ $brg->barang->nama_barang }} (Stock:
+                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label for="harga" class="form-control-label">Harga<span
                                                                 style="color: red">*</span></label>
-                                                        <select name="id_barang" id="barang" class="form-control">
-                                                            <option value="">~Silahkan Pilih Barang~</option>
-                                                            {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
-                                                            @foreach ($barang as $brg)
-                                                                <option value="{{ $brg->id_barang }}" data-jenis-barang="{{ $brg->barang->id_jenis_barang }}" data-level-harga='@json($brg->barang->level_harga)'>{{ $brg->barang->nama_barang }} (Stock: {{Auth::user()->id_level == 1 ? $brg->stock : $brg->qty}})</option>
-                                                            @endforeach
+                                                        <select class="form-control" name="harga" id="harga"
+                                                            style="display: block;">
+                                                            <option value="">~Pilih Member Dahulu~</option>
+
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-6">
-                                                    <label for="harga" class="form-control-label">Harga<span
-                                                            style="color: red">*</span></label>
-                                                    <select class="form-control" name="harga" id="harga"
-                                                        style="display: block;">
-                                                        <option value="">~Pilih Member Dahulu~</option>
 
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-6">
-                                                </div>
-                                                <div class="col-6">
-                                                    <label for="qty" class=" form-control-label">Item<span
-                                                            style="color: red">*</span></label>
-                                                    <input type="number" id="qty" name="qty"
-                                                        placeholder="Contoh : 1" class="form-control">
-                                                    <br>
-                                                    <button type="button" id="add-button"
-                                                        class="btn btn-sm btn-secondary"
-                                                        style="float: right;">Add</button>
-                                                </div>
-                                            </div>
-                                            <br>
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Action</th>
-                                                                <th scope="col">No</th>
-                                                                <th scope="col">Nama Barang</th>
-                                                                <th scope="col">Qty</th>
-                                                                <th scope="col">Harga</th>
-                                                                <th scope="col">Total Harga</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <!-- Rows akan ditambahkan di sini oleh JavaScript -->
-                                                        </tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <th scope="col" colspan="5"
-                                                                    style="text-align:right">SubTotal</th>
-                                                                <th scope="col">Rp </th>
-                                                            </tr>
-                                                            <tr>
-                                                                <th scope="col" colspan="5"
-                                                                    style="text-align:right">Payment</th>
-                                                                <th scope="col">
-                                                                    <select name="" id="metode" style="width: 100%">
-                                                                        <option value="">~Pilih Payment~</option>
-                                                                        <option value="Tunai">Tunai</option>
-                                                                        <option value="Non-Tunai">Non-Tunai</option>
-                                                                    </select>
-                                                                </th>
-                                                            </tr>
-                                                            <tr id="uang-bayar-row">
-                                                                <th scope="col" colspan="5"
-                                                                    style="text-align:right">Uang Bayar</th>
-                                                                <th scope="col"><input type="text"
-                                                                    style="width: 100%" id="uang-bayar-input"></th>
-                                                            </tr>
-                                                            <tr id="kembalian-row">
-                                                                <th scope="col" colspan="5"
-                                                                    style="text-align:right">Kembalian</th>
-                                                                <th scope="col" id="kembalian-amount">Rp </th>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                    <!-- Submit Button -->
-                                                    <div class="form-group">
-                                                        <button type="submit" class="btn btn-primary">
-                                                            <i class="fa fa-dot-circle-o"></i> Simpan
-                                                        </button>
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label for="qty" class=" form-control-label">Item<span
+                                                                style="color: red">*</span></label>
+                                                        <input type="number" id="qty" name="qty"
+                                                            placeholder="Contoh : 1" class="form-control">
+                                                        <br>
+                                                        <button type="button" id="add-button"
+                                                            class="btn btn-sm btn-secondary"
+                                                            style="float: right;">Add</button>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        </form>
+                                                <br>
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Action</th>
+                                                                    <th scope="col">No</th>
+                                                                    <th scope="col">Nama Barang</th>
+                                                                    <th scope="col">Qty</th>
+                                                                    <th scope="col">Harga</th>
+                                                                    <th scope="col">Total Harga</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <!-- Rows akan ditambahkan di sini oleh JavaScript -->
+                                                            </tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <th scope="col" colspan="5"
+                                                                        style="text-align:right">SubTotal</th>
+                                                                    <th scope="col" name="total_nilai">Rp </th>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th scope="col" colspan="5"
+                                                                        style="text-align:right">Payment</th>
+                                                                    <th scope="col">
+                                                                        <select name="metode" id="metode"
+                                                                            style="width: 100%">
+                                                                            <option value="">~Pilih Payment~</option>
+                                                                            <option value="Tunai">Tunai</option>
+                                                                            <option value="Non-Tunai">Non-Tunai</option>
+                                                                        </select>
+                                                                    </th>
+                                                                </tr>
+                                                                <tr id="uang-bayar-row">
+                                                                    <th scope="col" colspan="5"
+                                                                        style="text-align:right">Jml Bayar</th>
+                                                                    <th scope="col"><input type="text"
+                                                                            style="width: 100%" name="jml_bayar" id="uang-bayar-input">
+                                                                    </th>
+                                                                </tr>
+                                                                <tr id="kembalian-row">
+                                                                    <th scope="col" colspan="5"
+                                                                        style="text-align:right">Kembalian</th>
+                                                                    <th scope="col" id="kembalian-amount" name="kembalian">Rp </th>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                        <!-- Submit Button -->
+                                                        <div class="form-group">
+                                                            <button type="submit" class="btn btn-primary">
+                                                                <i class="fa fa-dot-circle-o"></i> Simpan
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -287,20 +299,50 @@
             </div>
         </div>
     </div>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-            <script>
-                // Fungsi untuk menghasilkan nomor acak 8 digit
-                function generateRandomNumber() {
-                    return Math.floor(10000000 + Math.random() * 90000000); // Angka 8 digit
-                }
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function getTodayDateWithDay() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const year = today.getFullYear();
 
-                // Event listener untuk menampilkan nomor nota saat modal dibuka
-                $('.bd-example-modal-lg').on('show.bs.modal', function () {
-                    const noNotaElement = document.getElementById('noNota');
-                    noNotaElement.textContent = ': ' + generateRandomNumber();
-                });
-            </script>
+            // Array nama hari
+            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const dayName = days[today.getDay()]; // Mendapatkan nama hari berdasarkan indeks
+
+            return `${dayName}, ${day}-${month}-${year}`;
+        }
+
+        // Menampilkan tanggal dan hari di elemen dengan ID tglTransaksi
+        document.getElementById('tglTransaksi').textContent += getTodayDateWithDay();
+        // Fungsi untuk menghasilkan nomor berdasarkan format yang diinginkan
+        function generateFormattedNumber() {
+            const now = new Date();
+
+            // Mendapatkan tanggal, bulan, tahun (2 digit), jam, menit, dan detik
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const year = String(now.getFullYear()).slice(-2);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            // Mendapatkan 3 digit angka acak
+            const randomDigits = Math.floor(100 + Math.random() * 900);
+
+            // Menggabungkan semuanya
+            return `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
+        }
+
+        // Event listener untuk menampilkan nomor nota saat modal dibuka
+        $('.bd-example-modal-lg').on('show.bs.modal', function() {
+            const noNotaElement = document.getElementById('noNota');
+            noNotaElement.textContent = ': ' + generateFormattedNumber();
+        });
+    </script>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -352,7 +394,8 @@
                                 hargaSelect.innerHTML +=
                                     `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
                             }
-                            hargaSelect.disabled = !hargaSelect.querySelectorAll('option[value]').length;
+                            hargaSelect.disabled = !hargaSelect.querySelectorAll('option[value]')
+                                .length;
                         })
                         .catch(error => console.error('Error fetching filtered harga:', error));
                 }
@@ -449,5 +492,4 @@
             metodeSelect.dispatchEvent(new Event('change'));
         });
     </script>
-
 @endsection
