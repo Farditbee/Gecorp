@@ -64,12 +64,14 @@
                                                 <td>{{ $no++ }}</td>
                                                 <td>{{ $ksr->no_nota }}</td>
                                                 <td>{{ $ksr->tgl_transaksi }}</td>
-                                                <td>{{ $ksr->member->nama_member }}</td>
+                                                {{-- <td>{{ $ksr->id_member = 0 ? 'Guest' : $ksr->member->nama_member}}</td> --}}
+                                                <td>Guest</td>
                                                 <td>{{ $ksr->toko->nama_toko }}</td>
                                                 <td>{{ $ksr->total_item }}</td>
                                                 <td>{{ $ksr->total_nilai }}</td>
                                                 <td>{{ $ksr->metode }}</td>
-                                                <td>{{ $ksr->users->nama }}</td>
+                                                {{-- <td>{{ $ksr->users->nama }}</td> --}}
+                                                <td>Jono</td>
                                             </tr>
                                         @empty
                                             <td colspan="9" style="text-align: center">
@@ -187,13 +189,16 @@
                                             <form action="{{ route('master.kasir.store') }}" method="post"
                                                 class="">
                                                 @csrf
+                                                <input type="hidden" id="hiddenNoNota" name="no_nota">
+                                                <input type="hidden" id="hiddenKembalian" name="kembalian">
+                                                <input type="hidden" id="hiddenMember" name="id_member">
                                                 <div class="row">
                                                     <div class="col-6">
                                                         <!-- Nama Barang -->
                                                         <div class="form-group">
                                                             <label for="id_barang" class="form-control-label">Nama
                                                                 Barang<span style="color: red">*</span></label>
-                                                            <select name="id_barang" id="barang">
+                                                            <select name="id_barang[]" id="barang">
                                                                 <option value="">~Silahkan Pilih Barang~</option>
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
@@ -211,7 +216,7 @@
                                                     <div class="col-6">
                                                         <label for="harga" class="form-control-label">Harga<span
                                                                 style="color: red">*</span></label>
-                                                        <select class="form-control" name="harga" id="harga"
+                                                        <select class="form-control" name="harga[]" id="harga"
                                                             style="display: block;">
                                                             <option value="">~Pilih Member Dahulu~</option>
 
@@ -225,7 +230,7 @@
                                                     <div class="col-6">
                                                         <label for="qty" class=" form-control-label">Item<span
                                                                 style="color: red">*</span></label>
-                                                        <input type="number" id="qty" name="qty"
+                                                        <input type="number" id="qty" name="qty[]"
                                                             placeholder="Contoh : 1" class="form-control">
                                                         <br>
                                                         <button type="button" id="add-button"
@@ -274,6 +279,7 @@
                                                                     <th scope="col"><input type="text"
                                                                             style="width: 100%" name="jml_bayar"
                                                                             id="uang-bayar-input">
+                                                                        <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
                                                                     </th>
                                                                 </tr>
                                                                 <tr id="kembalian-row">
@@ -344,21 +350,28 @@
 
         // Event listener untuk menampilkan nomor nota saat modal dibuka
         $('.bd-example-modal-lg').on('show.bs.modal', function() {
+            const noNota = generateFormattedNumber();
             const noNotaElement = document.getElementById('noNota');
-            noNotaElement.textContent = ': ' + generateFormattedNumber();
+            const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
+
+            // Menampilkan nomor nota di elemen tampilan
+            noNotaElement.textContent = ': ' + noNota;
+
+            // Mengatur nilai nomor nota ke input hidden
+            hiddenNoNotaInput.value = noNota;
         });
     </script>
 
     <script>
          document.addEventListener('DOMContentLoaded', function() {
             const selectBarang = new TomSelect("#barang", {
-        // Menyimpan data value dan text untuk setiap opsi
-        valueField: 'value',
-        labelField: 'text',
-        searchField: ['text', 'data-search-barang'], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
-        render: {
-        }
-        });
+                // Menyimpan data value dan text untuk setiap opsi
+                valueField: 'value',
+                labelField: 'text',
+                searchField: ['text', 'data-search-barang'], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
+                render: {}
+            });
+
             const memberSelect = document.getElementById('id_member');
             const barangSelect = document.getElementById('barang');
             const hargaSelect = document.getElementById('harga');
@@ -415,10 +428,12 @@
             });
 
             addButton.addEventListener('click', function() {
+                let idBarang = document.getElementById('barang').value;
                 const selectedBarang = barangSelect.options[barangSelect.selectedIndex];
                 const selectedHarga = hargaSelect.value;
                 const qty = parseInt(qtyInput.value);
                 const stock = parseInt(selectedBarang.getAttribute('data-stock'));
+                let harga = parseInt(document.getElementById('harga').value);
 
                 // Cek apakah barang sudah ada di tabel
                 const existingRow = Array.from(tableBody.children).find(row => {
@@ -451,14 +466,16 @@
                 newRow.innerHTML = `
                     <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
                     <td></td> <!-- Ini akan diisi oleh fungsi updateRowNumbers -->
-                    <td>${selectedBarang.textContent}</td>
-                    <td>${qty}</td>
-                    <td>Rp ${parseFloat(selectedHarga).toLocaleString()}</td>
+                    <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.textContent}</td>
+                    <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                    <td><input type="hidden" name="harga[]" value="${harga}">Rp ${parseFloat(selectedHarga).toLocaleString()}</td>
                     <td>Rp ${totalHarga.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(newRow);
 
                 qtyInput.value = '';
+                document.getElementById('harga').value = '';
+                document.getElementById('barang').value = '';
 
                 // Menambah event listener untuk tombol hapus
                 newRow.querySelector('.remove-btn').addEventListener('click', function() {
@@ -471,17 +488,36 @@
                 updateRowNumbers(); // Memperbarui nomor baris setelah menambahkan
             });
 
+            document.getElementById('id_member').addEventListener('change', function() {
+                const selectedMember = this.value;
+                document.getElementById('hiddenMember').value = selectedMember;
+            });
+
+            // Set hidden inputs before form submission
+            document.querySelector('form').addEventListener('submit', function(event) {
+                document.getElementById('hiddenNoNota').value = document.getElementById('noNota').textContent;
+                document.getElementById('hiddenKembalian').value = document.getElementById('kembalian-amount').textContent;
+                document.getElementById('hiddenMember').value = document.getElementById('id_member').value;
+            });
+
             // Fungsi untuk update kembalian berdasarkan subtotal dan input Uang Bayar
             function updateKembalian() {
                 const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0; // Menghapus koma
                 const kembalian = uangBayar - subtotal;
                 kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
+
+                // Menyimpan nilai kembalian ke input hidden
+                document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : 0;
             }
 
             // Format input uang bayar dengan pemisah ribuan
             uangBayarInput.addEventListener('input', function() {
                 // Menghapus semua karakter non-digit (kecuali koma)
                 let value = this.value.replace(/[^0-9]/g, '');
+
+                // Menyimpan nilai asli (tanpa koma) di hidden input untuk database
+                document.getElementById('hiddenUangBayar').value = value;
+                
                 // Menggunakan format pemisah ribuan
                 if (value) {
                     this.value = parseInt(value).toLocaleString();

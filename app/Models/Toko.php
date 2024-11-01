@@ -47,4 +47,9 @@ class Toko extends Model
     {
         return $this->hasMany(LevelHarga::class, 'id_toko');
     }
+
+    public function kasir()
+    {
+        return $this->hasMany(Kasir::class, 'id_toko', 'id');
+    }
 }
