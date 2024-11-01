@@ -64,14 +64,12 @@
                                                 <td>{{ $no++ }}</td>
                                                 <td>{{ $ksr->no_nota }}</td>
                                                 <td>{{ $ksr->tgl_transaksi }}</td>
-                                                {{-- <td>{{ $ksr->id_member = 0 ? 'Guest' : $ksr->member->nama_member}}</td> --}}
-                                                <td>Guest</td>
+                                                <td>{{ $ksr->id_member == 0 ? 'Guest' : $ksr->member->nama_member}}</td>
                                                 <td>{{ $ksr->toko->nama_toko }}</td>
                                                 <td>{{ $ksr->total_item }}</td>
                                                 <td>{{ $ksr->total_nilai }}</td>
                                                 <td>{{ $ksr->metode }}</td>
-                                                {{-- <td>{{ $ksr->users->nama }}</td> --}}
-                                                <td>Jono</td>
+                                                <td>{{ $ksr->users->nama }}</td>
                                             </tr>
                                         @empty
                                             <td colspan="9" style="text-align: center">
@@ -219,7 +217,6 @@
                                                         <select class="form-control" name="harga[]" id="harga"
                                                             style="display: block;">
                                                             <option value="">~Pilih Member Dahulu~</option>
-
                                                         </select>
                                                     </div>
                                                 </div>
@@ -405,6 +402,10 @@
                 const barangId = selectedBarang.value;
 
                 if (memberId && barangId) {
+
+                    hargaSelect.innerHTML = '<option value="">Loading...</option>';
+                    hargaSelect.disabled = true;
+
                     fetch(`/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
                         .then(response => response.json())
                         .then(data => {
