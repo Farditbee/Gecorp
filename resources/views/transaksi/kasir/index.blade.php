@@ -196,12 +196,11 @@
                                                                 {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
-                                                                        data-search-barang="{{ $brg->barang->nama_barang }}"
+                                                                        data-search-barang = "{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
                                                                         data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
                                                                         data-level-harga='@json($brg->barang->level_harga)'>
-                                                                        {{ $brg->barang->nama_barang }} (Stock:
-                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
+                                                                        {{ $brg->barang->nama_barang }} (Stock: {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -349,37 +348,27 @@
 
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+         document.addEventListener('DOMContentLoaded', function() {
             const element = document.getElementById('barang');
-            const options = [{
-                value: '',
-                label: '~Silahkan Pilih Barang~',
-                selected: true,
-                disabled: true
-            }];
-
-            Array.from(element.options).forEach(option => {
-                options.push({
-                    value: option.value,
-                    label: option.getAttribute('data-search-barang'),
-                    customProperties: {
-                        stock: option.getAttribute('data-stock'),
-                        jenisBarang: option.getAttribute('data-jenis-barang'),
-                        levelHarga: option.getAttribute('data-level-harga')
-                    },
-                    selected: option.selected
-                });
-            });
-
+            // const element = document.getElementById('selector');
             const choices = new Choices(element, {
-                choices: options,
-                searchEnabled: true,
-                searchResultLimit: 10,
-                itemSelectText: '',
-                shouldSort: false,
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
+        searchEnabled: true,
+        itemSelectText: '',
+        searchResultLimit: -1,
+        searchFn: (search, element) => {
+            const searchValue = search.toLowerCase();
+            const dataSearchBarang = element.dataset.searchBarang ? element.dataset.searchBarang.toLowerCase() : '';
+            console.log("Searching for:", searchValue, "in:", dataSearchBarang); // Log untuk melihat data yang dicari
+            return dataSearchBarang.includes(searchValue) || element.innerText.toLowerCase().includes(searchValue);
+        }
+    });
+
+    // Log semua opsi untuk melihat data-search-barang
+    Array.from(element.options).forEach(option => {
+        const searchBarang = option.getAttribute('data-search-barang');
+        console.log("Option value:", option.value, "Data search barang:", searchBarang);
+    });
+
             const memberSelect = document.getElementById('id_member');
             const barangSelect = document.getElementById('barang');
             const hargaSelect = document.getElementById('harga');
