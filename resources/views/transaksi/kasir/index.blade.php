@@ -1,7 +1,6 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <div class="pcoded-main-container">
         <div class="pcoded-content">
             <!-- [ breadcrumb ] start -->
@@ -136,7 +135,8 @@
                                 <p class="mb-0">Tgl Transaksi</p>
                             </div>
                             <div class="col-8">
-                                <p name="tgl_transaksi" id="tglTransaksi">: </p> <!-- Anda bisa mengganti dengan tanggal yang sesuai -->
+                                <p name="tgl_transaksi" id="tglTransaksi">: </p>
+                                <!-- Anda bisa mengganti dengan tanggal yang sesuai -->
                             </div>
                         </div>
                         <div class="d-flex col-6 justify-content-end">
@@ -196,6 +196,7 @@
                                                                 {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
+                                                                        data-search-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
                                                                         data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
                                                                         data-level-harga='@json($brg->barang->level_harga)'>
@@ -270,13 +271,15 @@
                                                                     <th scope="col" colspan="5"
                                                                         style="text-align:right">Jml Bayar</th>
                                                                     <th scope="col"><input type="text"
-                                                                            style="width: 100%" name="jml_bayar" id="uang-bayar-input">
+                                                                            style="width: 100%" name="jml_bayar"
+                                                                            id="uang-bayar-input">
                                                                     </th>
                                                                 </tr>
                                                                 <tr id="kembalian-row">
                                                                     <th scope="col" colspan="5"
                                                                         style="text-align:right">Kembalian</th>
-                                                                    <th scope="col" id="kembalian-amount" name="kembalian">Rp </th>
+                                                                    <th scope="col" id="kembalian-amount"
+                                                                        name="kembalian">Rp </th>
                                                                 </tr>
                                                             </tfoot>
                                                         </table>
@@ -301,6 +304,7 @@
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
     <script>
         function getTodayDateWithDay() {
             const today = new Date();
@@ -345,6 +349,36 @@
 
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('barang');
+            const options = [{
+                value: '',
+                label: '~Silahkan Pilih Barang~',
+                selected: true,
+                disabled: true
+            }];
+
+            Array.from(element.options).forEach(option => {
+                options.push({
+                    value: option.value,
+                    label: option.getAttribute('data-search-barang'),
+                    customProperties: {
+                        stock: option.getAttribute('data-stock'),
+                        jenisBarang: option.getAttribute('data-jenis-barang'),
+                        levelHarga: option.getAttribute('data-level-harga')
+                    },
+                    selected: option.selected
+                });
+            });
+
+            const choices = new Choices(element, {
+                choices: options,
+                searchEnabled: true,
+                searchResultLimit: 10,
+                itemSelectText: '',
+                shouldSort: false,
+            });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             const memberSelect = document.getElementById('id_member');
             const barangSelect = document.getElementById('barang');
