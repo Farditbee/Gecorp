@@ -1,6 +1,8 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+
     <div class="pcoded-main-container">
         <div class="pcoded-content">
             <!-- [ breadcrumb ] start -->
@@ -191,16 +193,16 @@
                                                         <div class="form-group">
                                                             <label for="id_barang" class="form-control-label">Nama
                                                                 Barang<span style="color: red">*</span></label>
-                                                            <select name="id_barang" id="barang" class="form-control">
+                                                            <select name="id_barang" id="barang">
                                                                 <option value="">~Silahkan Pilih Barang~</option>
-                                                                {{-- Jika users id_toko nya adalah 1, ambil data dari StockBarang --}}
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
-                                                                        data-search-barang = "{{ $brg->barang->nama_barang }}"
+                                                                        data-search-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
                                                                         data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
                                                                         data-level-harga='@json($brg->barang->level_harga)'>
-                                                                        {{ $brg->barang->nama_barang }} (Stock: {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
+                                                                        {{ $brg->barang->nama_barang }} (Stock:
+                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -302,6 +304,7 @@
         </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -346,29 +349,16 @@
         });
     </script>
 
-
     <script>
          document.addEventListener('DOMContentLoaded', function() {
-            const element = document.getElementById('barang');
-            // const element = document.getElementById('selector');
-            const choices = new Choices(element, {
-        searchEnabled: true,
-        itemSelectText: '',
-        searchResultLimit: -1,
-        searchFn: (search, element) => {
-            const searchValue = search.toLowerCase();
-            const dataSearchBarang = element.dataset.searchBarang ? element.dataset.searchBarang.toLowerCase() : '';
-            console.log("Searching for:", searchValue, "in:", dataSearchBarang); // Log untuk melihat data yang dicari
-            return dataSearchBarang.includes(searchValue) || element.innerText.toLowerCase().includes(searchValue);
+            const selectBarang = new TomSelect("#barang", {
+        // Menyimpan data value dan text untuk setiap opsi
+        valueField: 'value',
+        labelField: 'text',
+        searchField: ['text', 'data-search-barang'], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
+        render: {
         }
-    });
-
-    // Log semua opsi untuk melihat data-search-barang
-    Array.from(element.options).forEach(option => {
-        const searchBarang = option.getAttribute('data-search-barang');
-        console.log("Option value:", option.value, "Data search barang:", searchBarang);
-    });
-
+        });
             const memberSelect = document.getElementById('id_member');
             const barangSelect = document.getElementById('barang');
             const hargaSelect = document.getElementById('harga');
