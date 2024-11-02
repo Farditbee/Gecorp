@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('id_jenis_barang');
             $table->string('id_brand_barang');
             $table->string('nama_barang');
+            $table->string('level_harga')->nullable();
             $table->softDeletes();
         });
     }

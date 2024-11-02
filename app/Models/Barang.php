@@ -14,7 +14,7 @@ class Barang extends Model
 
     protected $table = 'barang';
 
-    protected $fillable = ['id_jenis_barang', 'id_brand_barang', 'nama_barang'];
+    protected $guarded = [''];
 
     public $incrementing = false;
 
