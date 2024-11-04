@@ -55,6 +55,7 @@
                                             <th>Nilai</th>
                                             <th>Payment</th>
                                             <th>Kasir</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -63,13 +64,23 @@
                                             <tr>
                                                 <td>{{ $no++ }}</td>
                                                 <td>{{ $ksr->no_nota }}</td>
-                                                <td>{{ $ksr->tgl_transaksi }}</td>
+                                                <td>
+                                                    {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
+                                                </td>
                                                 <td>{{ $ksr->id_member == 0 ? 'Guest' : $ksr->member->nama_member}}</td>
                                                 <td>{{ $ksr->toko->nama_toko }}</td>
                                                 <td>{{ $ksr->total_item }}</td>
-                                                <td>{{ $ksr->total_nilai }}</td>
+                                                <td>Rp. {{ number_format($ksr->total_nilai, 0, '.', '.') }}</td>
                                                 <td>{{ $ksr->metode }}</td>
                                                 <td>{{ $ksr->users->nama }}</td>
+                                                <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="#" method="post">
+                                                    <td>
+                                                            <a href="#" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                    </td>
+                                                </form>
                                             </tr>
                                         @empty
                                             <td colspan="9" style="text-align: center">
@@ -518,7 +529,7 @@
 
                 // Menyimpan nilai asli (tanpa koma) di hidden input untuk database
                 document.getElementById('hiddenUangBayar').value = value;
-                
+
                 // Menggunakan format pemisah ribuan
                 if (value) {
                     this.value = parseInt(value).toLocaleString();

@@ -84,14 +84,19 @@
                                         <td>{{ $prbr->total_item}}</td>
                                         <td>Rp. {{ number_format($prbr->total_nilai, 0, '.', '.') }}</td>
                                         <td>{{ $prbr->tokos->nama_toko}}</td>
-                                        <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');" action="#">
-                                        <td>
-                                                <a href="{{ route('master.pengirimanbarang.edit', $prbr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                        <form onsubmit="return confirm('Ingin menghapus Kostum ini ?');" action="#">
+                                            <td>
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                @if(auth()->user()->id_toko === $prbr->toko_penerima)
+                                                    <a href="{{ route('master.pengirimanbarang.edit', $prbr->id) }}" class="btn btn-warning btn-sm">
+                                                        <i class="fa fa-edit menu-icon"></i>
+                                                    </a>
+                                                @endif
                                             </td>
                                         </form>
+
                                     </tr>
                                     @empty
 

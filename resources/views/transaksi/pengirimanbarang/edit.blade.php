@@ -156,11 +156,15 @@
                                             </tfoot>
                                         </table>
                                         <!-- Submit Button -->
+                                        @if ($pengiriman_barang->status == 'progress')
                                         <div class="form-group">
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fa fa-dot-circle-o"></i> Simpan
                                             </button>
                                         </div>
+                                        @else
+
+                                        @endif
                                     </div>
                                 </div>
                             </form>

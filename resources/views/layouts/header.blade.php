@@ -1,3 +1,5 @@
+{{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"> --}}
+
 <header class="navbar pcoded-header navbar-expand-lg navbar-light header-dark">
     <div class="container">
         <div class="m-header">
@@ -19,8 +21,7 @@
 
                 <li>
                     <div class="dropdown drp-user">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ Auth::user()->nama }}
-                        </a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" tabindex="0">{{ Auth::user()->nama }} <i class="fa fa-chevron-down m-l-5"></i></a>
                         <div class="dropdown-menu dropdown-menu-right profile-notification">
                             <div class="pro-head">
                                 {{-- <img src="{{ asset('flat-able-lite/dist/assets/images/user/avatar-1.jpg') }}" class="img-radius" alt="User-Profile-Image"> --}}
@@ -46,3 +47,7 @@
         </div>
     </div>
 </header>
+{{--
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script> --}}

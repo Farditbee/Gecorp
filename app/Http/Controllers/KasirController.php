@@ -9,6 +9,7 @@ use App\Models\Kasir;
 use App\Models\LevelHarga;
 use App\Models\Member;
 use App\Models\StockBarang;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +21,8 @@ class KasirController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $kasir = Kasir::all();
+        $kasir = Kasir::orderBy('id', 'desc')
+                        ->get();
 
         if($user->id_level == 1){
             $barang = StockBarang::all();
@@ -140,13 +142,13 @@ class KasirController extends Controller
                 foreach ($idBarangs as $index => $id_barang) {
                     $qty = $qtys[$index] ?? null;
                     $harga_barang = $hargaBarangs[$index] ?? null;
-    
+
                     if (is_null($qty) || is_null($harga_barang)) {
                         continue;
                     }
-    
+
                     if ($id_barang && $qty > 0 && $harga_barang > 0) {
-    
+
                         $detail = DetailKasir::updateOrCreate(
                             [
                                 'id_kasir' => $kasir->id,
@@ -158,7 +160,7 @@ class KasirController extends Controller
                                 'total_harga' => $qty * $harga_barang,
                             ]
                         );
-    
+
                         $totalItem += $detail->qty;
                         $totalNilai += $detail->total_harga;
 
@@ -180,7 +182,7 @@ class KasirController extends Controller
                                 $detailToko->save();
                             }
                         }
-                        
+
                     }
                 }
             }
