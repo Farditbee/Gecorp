@@ -19,6 +19,11 @@ use Illuminate\Support\Facades\Log;
 
 class KasirController extends Controller
 {
+    public function cetakStruk($idKasir) {
+        $kasir = Kasir::with('detailKasir')->find($idKasir);
+        return view('transaksi.kasir.cetak_struk', compact('kasir'));
+    }
+
     public function index()
     {
         $user = Auth::user();

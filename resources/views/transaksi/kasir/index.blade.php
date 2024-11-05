@@ -464,11 +464,14 @@
                                                 <tbody>
                                                     <!-- Filter hanya data detail yang sesuai dengan kasir -->
                                                     @foreach ($detail_kasir->where('id_kasir', $ksr->id) as $dtks)
-                                                    <tr>
-                                                        <td class="narrow-column">{{ $loop->iteration }}.</td>
-                                                        <td class="wide-column">{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs @.{{ number_format($dtks->harga, 0, '.', '.') }})</td>
-                                                        <td class="price-column">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
-                                                    </tr>
+                                                        <tr>
+                                                            <td class="narrow-column">{{ $loop->iteration }}.</td>
+                                                            <td class="wide-column">({{ $dtks->barang->nama_barang }})
+                                                                {{ $dtks->qty }}pcs
+                                                                @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
+                                                            <td class="price-column">
+                                                                {{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
+                                                        </tr>
                                                     @endforeach
                                                 </tbody>
                                                 <tfoot>
@@ -480,16 +483,20 @@
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2" style="text-align:left">Dibayar</td>
-                                                        <td class="price-column">{{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
+                                                        <td class="price-column">
+                                                            {{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2" style="text-align:left">Kembalian</td>
-                                                        <td class="price-column">{{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
+                                                        <td class="price-column">
+                                                            {{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
                                                     </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
                                         <p class="card-text" style="text-align: center">Terima Kasih</p>
+                                        <button type="button" class="btn btn-primary btn-sm"
+                                            onclick="cetakStruk({{ $ksr->id }})">Cetak Struk</button>
                                     </div>
                                 </div>
                             </div>
@@ -511,6 +518,17 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        function cetakStruk(idKasir) {
+            // URL yang menuju ke halaman cetak struk
+            const url = `/cetak-struk/${idKasir}`;
+            // Buka halaman cetak pada tab baru dan langsung jalankan print
+            const newWindow = window.open(url, '_blank');
+            newWindow.onload = function() {
+                newWindow.print();
+            };
+        }
+    </script>
     <script>
         function getTodayDateWithDay() {
             const today = new Date();

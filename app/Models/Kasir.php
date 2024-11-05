@@ -53,4 +53,9 @@ class Kasir extends Model
     {
         return $this->belongsTo(User::class, 'id_users');
     }
+
+    public function detailKasir(): BelongsTo
+    {
+        return $this->belongsTo(DetailKasir::class, 'id');
+    }
 }

@@ -164,6 +164,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/kasir/update/{id}', [KasirController::class, 'update'])->name('master.kasir.update');
         Route::delete('/kasir/delete/{id}', [KasirController::class, 'delete'])->name('master.kasir.delete');
         Route::get('/kasir/get-filtered-harga', [KasirController::class, 'getFilteredHarga']);
+        Route::get('/cetak-struk/{idKasir}', [KasirController::class, 'cetakStruk']);
 
     });
 
