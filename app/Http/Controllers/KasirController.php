@@ -9,6 +9,7 @@ use App\Models\Kasir;
 use App\Models\LevelHarga;
 use App\Models\Member;
 use App\Models\StockBarang;
+use App\Models\Toko;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -21,8 +22,18 @@ class KasirController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $kasir = Kasir::orderBy('id', 'desc')
+        $users = User::all();
+        $detail_kasir = DetailKasir::all();
+        $toko = Toko::all();
+
+        if ($user->id_level == 1) {
+            $kasir = Kasir::orderBy('id', 'desc')
                         ->get();
+        } else {
+            $kasir = Kasir::where('id_toko', $user->id_toko)
+                        ->orderBy('id', 'desc')
+                        ->get();
+        }
 
         if($user->id_level == 1){
             $barang = StockBarang::all();
@@ -32,7 +43,7 @@ class KasirController extends Controller
             $member = Member::where('id_toko', $user->id_toko)->get();
         }
 
-        return view('transaksi.kasir.index', compact('barang', 'kasir', 'member'));
+        return view('transaksi.kasir.index', compact('barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
     }
 
     public function getFilteredHarga(Request $request)

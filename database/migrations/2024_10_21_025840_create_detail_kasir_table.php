@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('id_barang');
             $table->integer('qty');
             $table->double('harga');
+            $table->integer('diskon')->nullable();
             $table->double('total_harga');
             $table->timestamps();
             $table->softDeletes();

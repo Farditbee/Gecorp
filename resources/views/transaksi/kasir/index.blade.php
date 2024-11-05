@@ -1,7 +1,7 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
-<link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
 
     <div class="pcoded-main-container">
         <div class="pcoded-content">
@@ -61,24 +61,34 @@
                                     <tbody>
                                         <?php $no = 1; ?>
                                         @forelse ($kasir as $ksr)
-                                            <tr>
+                                            <tr data-toggle="modal" class="atur-harga-btn"
+                                                data-target="#mediumModal-{{ $ksr->id }}"
+                                                data-id_barang="{{ $ksr->id_barang }}" data-id="{{ $ksr->id }}">
                                                 <td>{{ $no++ }}</td>
                                                 <td>{{ $ksr->no_nota }}</td>
                                                 <td>
                                                     {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
                                                 </td>
-                                                <td>{{ $ksr->id_member == 0 ? 'Guest' : $ksr->member->nama_member}}</td>
+                                                <td>{{ $ksr->id_member == 0 ? 'Guest' : $ksr->member->nama_member }}</td>
                                                 <td>{{ $ksr->toko->nama_toko }}</td>
                                                 <td>{{ $ksr->total_item }}</td>
                                                 <td>Rp. {{ number_format($ksr->total_nilai, 0, '.', '.') }}</td>
                                                 <td>{{ $ksr->metode }}</td>
                                                 <td>{{ $ksr->users->nama }}</td>
-                                                <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="#" method="post">
+                                                <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');"
+                                                    action="#" method="post">
                                                     <td>
-                                                            <a href="#" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
+                                                        <button type="button" class="btn btn-primary btn-sm atur-harga-btn"
+                                                            data-toggle="modal"
+                                                            data-target="#mediumModal-{{ $ksr->id }}"
+                                                            data-id_barang="{{ $ksr->id_barang }}"
+                                                            data-id="{{ $ksr->id }}" style="font-size: 12px;">
+                                                            <i class="fa fa-book menu-icon"></i>
+                                                        </button>
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-danger btn-sm"><i
+                                                                class="fa fa-trash menu-icon"></i></button>
                                                     </td>
                                                 </form>
                                             </tr>
@@ -287,7 +297,8 @@
                                                                     <th scope="col"><input type="text"
                                                                             style="width: 100%" name="jml_bayar"
                                                                             id="uang-bayar-input">
-                                                                        <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
+                                                                        <input type="hidden" id="hiddenUangBayar"
+                                                                            name="jml_bayar">
                                                                     </th>
                                                                 </tr>
                                                                 <tr id="kembalian-row">
@@ -317,6 +328,185 @@
             </div>
         </div>
     </div>
+
+    @foreach ($kasir as $ksr)
+        <div class="modal fade" id="mediumModal-{{ $ksr->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="mediumModalLabel-{{ $ksr->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lgs" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mediumModalLabel-{{ $ksr->id }}">Detail Transaksi</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Detail Kasir -->
+                        <div class="tab-content" id="myTabContent-{{ $ksr->id }}">
+                            <div class="tab-pane fade show active" id="home-{{ $ksr->id }}" role="tabpanel"
+                                aria-labelledby="home-tab-{{ $ksr->id }}">
+                                <div class="row">
+                                    <!-- Informasi Transaksi -->
+                                    <div class="col-md-7">
+                                        <div class="info-wrapper">
+                                            <div class="info-wrapper">
+                                                <div class="info-row">
+                                                    <p class="label">No Nota</p>
+                                                    <p class="value">: {{ $ksr->no_nota }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Tgl Transaksi</p>
+                                                    <p class="value">:
+                                                        {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
+                                                    </p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Jml Item</p>
+                                                    <p class="value">: {{ $ksr->total_item }} Item</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Nilai Transaksi</p>
+                                                    <p class="value">: Rp.
+                                                        {{ number_format($ksr->total_nilai, 0, '.', '.') }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Nilai Voucher</p>
+                                                    <p class="value">: 0</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Jumlah Bayar</p>
+                                                    <p class="value">: Rp.
+                                                        {{ number_format($ksr->jml_bayar, 0, '.', '.') }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Kembalian</p>
+                                                    <p class="value">: Rp.
+                                                        {{ number_format($ksr->kembalian, 0, '.', '.') }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Kasir</p>
+                                                    <p class="value">: {{ $ksr->users->nama }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Item Retur</p>
+                                                    <p class="value">: 0</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Nilai Retur</p>
+                                                    <p class="value">: 0</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Tabel Data Barang -->
+                                        <div class="table-responsive-js">
+                                            <table class="table table-striped" id="jsTable-{{ $ksr->id }}">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Id trx</th>
+                                                        <th>Nama Barang</th>
+                                                        <th>Item</th>
+                                                        <th>Harga</th>
+                                                        <th>N.retur</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Filter hanya data detail yang sesuai dengan kasir -->
+                                                    @foreach ($detail_kasir->where('id_kasir', $ksr->id) as $dtks)
+                                                        <tr>
+                                                            <td>{{ $dtks->id_kasir }}</td>
+                                                            <td>{{ $dtks->barang->nama_barang }}</td>
+                                                            <td>{{ $dtks->qty }}</td>
+                                                            <td>{{ number_format($dtks->harga, 0, '.', '.') }}</td>
+                                                            <td>0</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tabel kedua di sebelah kanan -->
+                                    <div class="col-md-5" style="background-color: rgb(250, 250, 250)">
+                                        <div class="card text-center" style="background-color: rgb(250, 250, 250)">
+                                            <div class="card-body">
+                                                {{-- <h5 class="card-title">{{ $ksr->toko->nama_toko }}</h5> --}}
+                                                <h5 class="card-subtitle">{{ $ksr->toko->nama_toko }}</h5>
+                                                <p class="card-text">{{ $ksr->toko->alamat }}</p>
+                                            </div>
+                                        </div>
+                                        <div class="info-wrapper">
+                                            <div class="info-wrapper">
+                                                <div class="info-row">
+                                                    <p class="label">No Nota</p>
+                                                    <p class="value">: {{ $ksr->no_nota }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Tgl Transaksi</p>
+                                                    <p class="value">:
+                                                        {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
+                                                    </p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Member</p>
+                                                    <p class="value">: {{ $ksr->member->nama_member }}</p>
+                                                </div>
+                                                <div class="info-row">
+                                                    <p class="label">Kasir</p>
+                                                    <p class="value">: {{ $ksr->users->nama }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive-js">
+                                            <table class="table-borderless" id="jsTable-{{ $ksr->id }}">
+                                                <tbody>
+                                                    <!-- Filter hanya data detail yang sesuai dengan kasir -->
+                                                    @foreach ($detail_kasir->where('id_kasir', $ksr->id) as $dtks)
+                                                    <tr>
+                                                        <td class="narrow-column">{{ $loop->iteration }}.</td>
+                                                        <td class="wide-column">{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs @.{{ number_format($dtks->harga, 0, '.', '.') }})</td>
+                                                        <td class="price-column">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th scope="col" colspan="2" style="text-align:left">Total
+                                                        </th>
+                                                        <th scope="col" class="price-column">
+                                                            {{ number_format($ksr->total_nilai, 0, '.', '.') }}</th>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:left">Dibayar</td>
+                                                        <td class="price-column">{{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="2" style="text-align:left">Kembalian</td>
+                                                        <td class="price-column">{{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                        <p class="card-text" style="text-align: center">Terima Kasih</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="contact-{{ $ksr->id }}" role="tabpanel"
+                                aria-labelledby="contact-tab-{{ $ksr->id }}">
+                                Another Tab
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -371,12 +561,14 @@
     </script>
 
     <script>
-         document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             const selectBarang = new TomSelect("#barang", {
                 // Menyimpan data value dan text untuk setiap opsi
                 valueField: 'value',
                 labelField: 'text',
-                searchField: ['text', 'data-search-barang'], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
+                searchField: ['text',
+                    'data-search-barang'
+                ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
                 render: {}
             });
 
@@ -507,8 +699,10 @@
 
             // Set hidden inputs before form submission
             document.querySelector('form').addEventListener('submit', function(event) {
-                document.getElementById('hiddenNoNota').value = document.getElementById('noNota').textContent;
-                document.getElementById('hiddenKembalian').value = document.getElementById('kembalian-amount').textContent;
+                document.getElementById('hiddenNoNota').value = document.getElementById('noNota')
+                    .textContent;
+                document.getElementById('hiddenKembalian').value = document.getElementById(
+                    'kembalian-amount').textContent;
                 document.getElementById('hiddenMember').value = document.getElementById('id_member').value;
             });
 
