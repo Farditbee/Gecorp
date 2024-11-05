@@ -357,7 +357,8 @@
                                                 <div class="info-row">
                                                     <p class="label">Tgl Transaksi</p>
                                                     <p class="value">:
-                                                        {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
+                                                        {{ $ksr->created_at->format('d-m-Y H:i:s') }}
+
                                                     </p>
                                                 </div>
                                                 <div class="info-row">
@@ -446,7 +447,7 @@
                                                 <div class="info-row">
                                                     <p class="label">Tgl Transaksi</p>
                                                     <p class="value">:
-                                                        {{ $ksr->tgl_transaksi ? \DateTime::createFromFormat('Y-m-d', $ksr->tgl_transaksi)->format('d-m-Y') : '' }}
+                                                        {{ $ksr->created_at->format('d-m-Y H:i:s') }}
                                                     </p>
                                                 </div>
                                                 <div class="info-row">
