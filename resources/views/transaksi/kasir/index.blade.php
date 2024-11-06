@@ -352,12 +352,16 @@
                                             <div class="info-wrapper">
                                                 <div class="info-row">
                                                     <p class="label">No Nota</p>
-                                                    <p class="value">: {{ $ksr->no_nota }}</p>
+                                                    <p class="value" id="notaS">: @php
+                                                        // Mendapatkan nilai no_nota dari database
+                                                        $noNotaFormatted = substr($ksr->no_nota, 0, 6) . '-' . substr($ksr->no_nota, 6, 6) . '-' . substr($ksr->no_nota, 12);
+                                                    @endphp
+                                                    {{ $noNotaFormatted }}</p>
                                                 </div>
                                                 <div class="info-row">
                                                     <p class="label">Tgl Transaksi</p>
                                                     <p class="value">:
-                                                        {{ $ksr->created_at->format('d-m-Y H:i:s') }}
+                                                        {{ $ksr->created_at->setTimezone('Asia/Jakarta')->format('d-m-Y H:i:s') }}
 
                                                     </p>
                                                 </div>
@@ -442,12 +446,16 @@
                                             <div class="info-wrapper">
                                                 <div class="info-row">
                                                     <p class="label">No Nota</p>
-                                                    <p class="value">: {{ $ksr->no_nota }}</p>
+                                                    <p class="value">: @php
+                                                        // Mendapatkan nilai no_nota dari database
+                                                        $noNotaFormatted = substr($ksr->no_nota, 0, 6) . '-' . substr($ksr->no_nota, 6, 6) . '-' . substr($ksr->no_nota, 12);
+                                                    @endphp
+                                                    {{ $noNotaFormatted }}</p>
                                                 </div>
                                                 <div class="info-row">
                                                     <p class="label">Tgl Transaksi</p>
                                                     <p class="value">:
-                                                        {{ $ksr->created_at->format('d-m-Y H:i:s') }}
+                                                        {{ $ksr->created_at->setTimezone('Asia/Jakarta')->format('d-m-Y H:i:s') }}
                                                     </p>
                                                 </div>
                                                 <div class="info-row">
@@ -560,21 +568,24 @@
             // Mendapatkan 3 digit angka acak
             const randomDigits = Math.floor(100 + Math.random() * 900);
 
-            // Menggabungkan semuanya
-            return `${day}${month}${year}-${hours}${minutes}${seconds}-${randomDigits}`;
+            const noNota = `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
+
+            // Menyisipkan separator '-' setelah 6 digit pertama dan 6 digit kedua
+            return `${noNota.slice(0, 6)}-${noNota.slice(6, 12)}-${noNota.slice(12)}`;
         }
 
         // Event listener untuk menampilkan nomor nota saat modal dibuka
         $('.bd-example-modal-lg').on('show.bs.modal', function() {
-            const noNota = generateFormattedNumber();
+            const formattedNoNota = generateFormattedNumber();
             const noNotaElement = document.getElementById('noNota');
             const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
 
             // Menampilkan nomor nota di elemen tampilan
-            noNotaElement.textContent = ': ' + noNota;
+            noNotaElement.textContent = ': ' + formattedNoNota;
 
-            // Mengatur nilai nomor nota ke input hidden
-            hiddenNoNotaInput.value = noNota;
+            // Menghilangkan separator untuk penyimpanan
+            const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
+            hiddenNoNotaInput.value = noNotaWithoutSeparator;
         });
     </script>
 
