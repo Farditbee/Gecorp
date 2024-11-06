@@ -520,15 +520,14 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        function cetakStruk(idKasir) {
-            // URL yang menuju ke halaman cetak struk
-            const url = `/cetak-struk/${idKasir}`;
-            // Buka halaman cetak pada tab baru dan langsung jalankan print
-            const newWindow = window.open(url, '_blank');
-            newWindow.onload = function() {
-                newWindow.print();
-            };
-        }
+        function cetakStruk(id_kasir) {
+        const url = `{{ route('cetak.struk', ':id_kasir') }}`.replace(':id_kasir', id_kasir);
+        const newWindow = window.open(url, '_blank');
+        newWindow.onload = function() {
+            newWindow.print();
+        };
+    }
+
     </script>
     <script>
         function getTodayDateWithDay() {
@@ -562,7 +561,7 @@
             const randomDigits = Math.floor(100 + Math.random() * 900);
 
             // Menggabungkan semuanya
-            return `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
+            return `${day}${month}${year}-${hours}${minutes}${seconds}-${randomDigits}`;
         }
 
         // Event listener untuk menampilkan nomor nota saat modal dibuka
