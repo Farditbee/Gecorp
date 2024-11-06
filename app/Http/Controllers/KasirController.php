@@ -19,10 +19,17 @@ use Illuminate\Support\Facades\Log;
 
 class KasirController extends Controller
 {
-    public function cetakStruk($idKasir) {
-        $kasir = Kasir::with('detailKasir')->find($idKasir);
-        return view('transaksi.kasir.cetak_struk', compact('kasir'));
+    public function cetakStruk($id_kasir)
+    {
+        {
+            $kasir = Kasir::with('toko', 'member', 'users')->findOrFail($id_kasir); // Pastikan relasi 'toko', 'member', dan 'users' termuat
+            $detail_kasir = DetailKasir::where('id_kasir', $id_kasir)->get(); // Hanya ambil detail kasir yang sesuai
+
+            return view('transaksi.kasir.cetak_struk', compact('kasir', 'detail_kasir'));
+        }
+
     }
+
 
     public function index()
     {
