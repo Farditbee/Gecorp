@@ -114,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Promo Controller
         Route::get('/promo', [PromoController::class, 'index'])->name('master.promo.index');
-        Route::get('/promo.create', [PromoController::class, 'create'])->name('master.promo.create');
+        Route::post('/promo/store', [PromoController::class, 'store'])->name('master.promo.store');
 
         // Level Harga Controller
         Route::get('/levelharga', [LevelHargaController::class, 'index'])->name('master.levelharga.index');
