@@ -452,7 +452,7 @@
                                                 </div>
                                                 <div class="info-row">
                                                     <p class="label">Member</p>
-                                                    <p class="value">: {{ $ksr->member->nama_member }}</p>
+                                                    <p class="value">: {{ $ksr->id_member == 0 ? 'Guest' : $ksr->member->nama_member }}</p>
                                                 </div>
                                                 <div class="info-row">
                                                     <p class="label">Kasir</p>
