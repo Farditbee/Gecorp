@@ -52,4 +52,9 @@ class Barang extends Model
         return $this->hasMany(LevelHarga::class, 'id_barang', 'id');
     }
 
+    public function promo()
+    {
+        return $this->hasMany(Promo::class, 'id_barang');
+    }
+
 }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('no_nota');
             $table->double('total_item');
             $table->double('total_nilai');
+            $table->double('total_diskon')->nullable();
             $table->double('jml_bayar');
             $table->double('kembalian');
             $table->enum('metode', ['Tunai', 'Non-Tunai']);

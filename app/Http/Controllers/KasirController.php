@@ -8,6 +8,7 @@ use App\Models\DetailToko;
 use App\Models\Kasir;
 use App\Models\LevelHarga;
 use App\Models\Member;
+use App\Models\Promo;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use App\Models\User;
@@ -126,40 +127,33 @@ class KasirController extends Controller
 
     public function store(Request $request)
     {
-        // dd($request->all());
-
         $idBarangs = $request->input('id_barang', []);
         $qtys = $request->input('qty', []);
         $hargaBarangs = $request->input('harga', []);
-
-        // dd($idBarangs, $qtys, $hargaBarangs);
 
         try {
             DB::beginTransaction();
 
             $user = Auth::user();
+            $tglTransaksi = now();
 
+            // Inisialisasi transaksi kasir
             $kasir = new Kasir();
             $kasir->id_member = $request->id_member == 'Guest' ? 0 : $request->id_member;
             $kasir->id_users = $user->id;
-            $kasir->tgl_transaksi = now();
+            $kasir->tgl_transaksi = $tglTransaksi;
             $kasir->id_toko = $user->id_toko;
-            $kasir->total_item = 0; // Nilai awal untuk mencegah error
-            $kasir->total_nilai = 0; // Nilai awal untuk mencegah error
+            $kasir->total_item = 0;
+            $kasir->total_nilai = 0;
             $kasir->no_nota = $request->no_nota;
             $kasir->metode = $request->metode;
             $kasir->jml_bayar = $request->jml_bayar;
             $kasir->kembalian = $request->kembalian;
             $kasir->save();
 
-            // // Debugging untuk memastikan $kasir->id telah ada
-            // if (is_null($kasir->id)) {
-            //     DB::rollback();
-            //     return response()->json(['success' => false, 'message' => 'Failed to save Kasir data: id_kasir is null.']);
-            // }
-
             $totalItem = 0;
             $totalNilai = 0;
+            $totalDiskon = 0;
 
             if ($request->has('id_barang')) {
                 foreach ($idBarangs as $index => $id_barang) {
@@ -170,48 +164,91 @@ class KasirController extends Controller
                         continue;
                     }
 
-                    if ($id_barang && $qty > 0 && $harga_barang > 0) {
+                    // Cek promo yang berlaku berdasarkan tanggal
+                    $promo = Promo::where('id_barang', $id_barang)
+                        ->where('status', 'ongoing')
+                        ->where('dari', '<=', $tglTransaksi)
+                        ->where('sampai', '>=', $tglTransaksi)
+                        ->first();
 
-                        $detail = DetailKasir::updateOrCreate(
-                            [
-                                'id_kasir' => $kasir->id,
-                                'id_barang' => $id_barang,
-                            ],
-                            [
-                                'qty' => $qty,
-                                'harga' => $harga_barang,
-                                'total_harga' => $qty * $harga_barang,
-                            ]
-                        );
+                    $potongan = 0;
 
-                        $totalItem += $detail->qty;
-                        $totalNilai += $detail->total_harga;
+                    if ($promo) {
+                        // Cek syarat minimal qty untuk mendapat diskon
+                        if ($qty >= $promo->minimal) {
+                            // Hitung jumlah diskon
+                            $diskon = $promo->diskon;
+                            $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
 
-                        // Pengurangan stok berdasarkan kondisi id_toko
-                        if ($user->id_toko == 1) {
-                            // Kurangi stok di tabel StockBarang
-                            $stock = StockBarang::where('id_barang', $id_barang)->first();
-                            if ($stock) {
-                                $stock->stock -= $qty;
-                                $stock->save();
+                            $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
+                            $totalDiskon += $potongan;
+
+                            if ($promo->jumlah) {
+                                // Batas maksimal barang diskon yang bisa dibeli
+                                $eligibleQty = min($qty, $promo->jumlah - $promo->terjual);
+                                $promo->terjual += $eligibleQty;
+                            
+                                // Ubah status promo jika kuota habis
+                                if ($promo->terjual >= $promo->jumlah) {
+                                    $promo->status = 'done';
+                                }
+                            } else {
+                                // Jika tidak ada batasan, tambahkan semua qty yang mendapat diskon
+                                $promo->terjual += $qty;
                             }
-                        } else {
-                            // Kurangi stok di tabel DetailToko sesuai id_toko
-                            $detailToko = DetailToko::where('id_barang', $id_barang)
-                                ->where('id_toko', $user->id_toko)
-                                ->first();
-                            if ($detailToko) {
-                                $detailToko->qty -= $qty;
-                                $detailToko->save();
-                            }
+                            
+                            $promo->save();
                         }
-
+                    } else {
+                        // Cek jika ada promo 'ongoing' yang kadaluarsa, ubah status jadi 'done'
+                        $expiredPromo = Promo::where('id_barang', $id_barang)
+                            ->where('status', 'ongoing')
+                            ->where('sampai', '<', $tglTransaksi)
+                            ->first();
+                        
+                        if ($expiredPromo) {
+                            $expiredPromo->status = 'done';
+                            $expiredPromo->save();
+                        }
                     }
+
+                    // Simpan detail kasir
+                    $detail = DetailKasir::create([
+                        'id_kasir' => $kasir->id,
+                        'id_barang' => $id_barang,
+                        'qty' => $qty,
+                        'harga' => $harga_barang,
+                        'diskon' => $totalDiskon,
+                        'total_harga' => ($qty * $harga_barang) - $potongan,
+                    ]);
+
+                    // Update stok berdasarkan `id_toko`
+                    if ($user->id_toko == 1) {
+                        $stock = StockBarang::where('id_barang', $id_barang)->first();
+                        if ($stock) {
+                            $stock->stock -= $qty;
+                            $stock->save();
+                        }
+                    } else {
+                        $detailToko = DetailToko::where('id_barang', $id_barang)
+                            ->where('id_toko', $user->id_toko)
+                            ->first();
+                        if ($detailToko) {
+                            $detailToko->qty -= $qty;
+                            $detailToko->save();
+                        }
+                    }
+
+                    $totalItem += $qty;
+                    $totalNilai += ($qty * $harga_barang) - $potongan;
                 }
             }
 
+            // Update kasir dengan total item, nilai, dan total diskon
             $kasir->total_item = $totalItem;
             $kasir->total_nilai = $totalNilai;
+            $kasir->total_diskon = $totalDiskon;
+            $kasir->kembalian = $kasir->jml_bayar - $totalNilai; // Kembalian dihitung setelah diskon
             $kasir->save();
 
             DB::commit();
@@ -220,7 +257,7 @@ class KasirController extends Controller
 
         } catch (\Throwable $th) {
             DB::rollback();
-            return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $th->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Failed to save transaction: ' . $th->getMessage()]);
         }
     }
 
