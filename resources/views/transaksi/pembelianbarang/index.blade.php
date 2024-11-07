@@ -3,6 +3,8 @@
 
 @section('content')
 
+<link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+
 <div class="pcoded-main-container">
     <div class="pcoded-content">
         <!-- [ breadcrumb ] start -->
@@ -133,7 +135,7 @@
                                                     <!-- Nama Supplier -->
                                                     <div class="form-group">
                                                         <label for="id_supplier" class="form-control-label">Nama Supplier</label>
-                                                        <select name="id_supplier" id="id_supplier" class="form-control">
+                                                        <select name="id_supplier" id="id_supplier">
                                                             <option value="" selected>Pilih Supplier</option>
                                                             @foreach($suppliers as $supplier)
                                                                 <option value="{{ $supplier->id }}">{{ $supplier->nama_supplier }}</option>
@@ -183,7 +185,7 @@
                                                     <!-- Jenis Barang -->
                                                     <div class="form-group">
                                                         <label for="id_barang" class="form-control-label">Nama Barang<span style="color: red">*</span></label>
-                                                        <select name="id_barang[]" id="id_barang"  data-placeholder="Pilih Barang..." class="form-control">
+                                                        <select name="id_barang[]" id="id_barang"  data-placeholder="Pilih Barang...">
                                                             <option value="" disabled selected required>Pilih Barang</option>
                                                             @foreach($barang as $brg)
                                                                 <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
@@ -288,8 +290,31 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+<script>
+    document.getElementById('tgl_nota').addEventListener('focus', function() {
+        this.showPicker(); // Membuka picker tanggal saat input difokuskan
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        new TomSelect("#id_supplier", {
+            placeholder: "Pilih Supplier",
+            allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
+            create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        new TomSelect("#id_barang", {
+            placeholder: "Pilih Barang",
+            allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
+            create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
+        });
+    });
+</script>
 <script>
     // Fungsi Search
     $(document).ready(function() {
