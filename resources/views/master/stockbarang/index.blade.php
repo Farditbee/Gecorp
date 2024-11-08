@@ -50,6 +50,7 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
+                                        <th class="barcode-column">Barcode</th>
                                         <th>Nama Barang</th>
                                         <th>Jenis Barang</th>
                                         @if  (Auth::user()->id_level == 1)
@@ -65,6 +66,7 @@
                                     @foreach ($stock as $stk)
                                         <tr data-toggle="modal" class="atur-harga-btn" data-target="#mediumModal-{{ $stk->id }}" data-id_barang="{{ $stk->id_barang }}" data-id="{{ $stk->id }}">
                                             <td>{{ $no++ }}</td>
+                                            <td class="barcode-column">{{ $stk->barang->barcode }}</td>
                                             <td>{{ $stk->nama_barang }}</td>
                                             <td>{{ $stk->barang->jenis->nama_jenis_barang }}</td>
                                             @if  (Auth::user()->id_level == 1)
@@ -313,6 +315,15 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+    // Menyembunyikan kolom barcode
+    $(".barcode-column").hide();
+});
+</script>
 
 <script>
     // Simpan ID tab aktif saat user klik submit

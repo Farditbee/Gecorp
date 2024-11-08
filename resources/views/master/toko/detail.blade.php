@@ -94,6 +94,7 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
+                                        <th class="barcode-column">Barcode</th>
                                         <th>Nama Barang</th>
                                         <th>Stock</th>
                                         <th>Harga Satuan (Hpp Baru)</th>
@@ -106,6 +107,7 @@
                                     @forelse ($stock as $stk)
                                     <tr>
                                         <td>{{ $no++ }}</td>
+                                        <td class="barcode-column">{{ $stk->barang->barcode }}</td>
                                         <td>{{ $stk->nama_barang }}</td>
                                         <td>{{ $stk->stock }}</td>
                                         <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
@@ -129,6 +131,7 @@
                                     @forelse ($detail_toko as $dt)
                                     <tr>
                                         <td>{{ $no++ }}</td>
+                                        <td class="barcode-column">{{ $dt->barang->barcode }}</td>
                                         <td>{{ $dt->barang->nama_barang }}</td>
                                         <td>{{ $dt->qty }}</td>
                                         <td>Rp. {{ number_format($dt->harga, 0, ',', '.') }}</td>
@@ -169,5 +172,14 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+    // Menyembunyikan kolom barcode
+    $(".barcode-column").hide();
+});
+</script>
 
 @endsection

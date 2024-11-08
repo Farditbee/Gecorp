@@ -55,16 +55,19 @@ class BarangController extends Controller
                 'id_jenis_barang' => 'required|string|max:255',
                 'id_brand_barang' => 'required|string|max:255',
                 'nama_barang' => 'required|string|max:255',
+                'barcode' => 'required|string|max:255',
             ],[
                 'id_jenis_barang.required' => 'Jenis Barang tidak boleh kosong.',
                 'id_brand_barang.required' => 'Brand Barang tidak boleh kosong.',
                 'nama_barang.required' => 'Nama Barang tidak boleh kosong.',
+                'barcode.required' => 'Barkode Wajib di Isi!.',
             ]);
 
             Barang::create([
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
+                'barcode' => $request->barcode,
             ]);
 
             DB::commit();
@@ -99,8 +102,9 @@ class BarangController extends Controller
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
+                'barcode' => $request->barcode,
             ]);
-            return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data User');
+            return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }

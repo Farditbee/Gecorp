@@ -67,6 +67,10 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="barcode" class=" form-control-label">Barcode<span style="color: red">*</span></label>
+                                    <input type="text" id="barcode" name="barcode" value="{{ old('barcode', $barang->barcode) }}" placeholder="Contoh : 9302350FA" class="form-control">
+                                </div>
                                 <div class="form-actions form-group">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                 </div>

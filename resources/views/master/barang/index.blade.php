@@ -44,6 +44,7 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
+                                            <th>Barcode</th>
                                             <th>Nama Barang</th>
                                             <th>Jenis Barang</th>
                                             <th>Brand Barang</th>
@@ -54,6 +55,7 @@
                                         @forelse ($barang as $brg)
                                         <tr>
                                             <td>{{$loop->iteration}}</td>
+                                            <td>{{ !empty($brg->barcode) ? $brg->barcode : 'Belum ada Barcode' }}</td>
                                             <td>{{$brg->nama_barang}}</td>
                                             <td>{{$brg->jenis->nama_jenis_barang}}</td>
                                             <td>{{$brg->brand->nama_brand}}</td>
