@@ -14,15 +14,36 @@ use Illuminate\Support\Facades\DB;
 
 class PembelianBarangController extends Controller
 {
-    public function index()
-    {
-        $pembelian_dt = PembelianBarang::orderBy('id', 'desc')->get();
-        $suppliers = Supplier::all();
-        $barang = Barang::all();
-        $suppliers = Supplier::all();
-        $LevelHarga = LevelHarga::all();
-        return view('transaksi.pembelianbarang.index', compact('pembelian_dt', 'suppliers', 'barang', 'LevelHarga'));
+    public function index(Request $request)
+{
+    // Mulai query untuk mengambil data PembelianBarang
+    $query = PembelianBarang::orderBy('id', 'desc');
+
+    // Cek apakah ada parameter tanggal yang dikirimkan
+    if ($request->has('startDate') && $request->has('endDate')) {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        // Lakukan filter berdasarkan tanggal
+        $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+
+        // Ambil data pembelian yang sudah difilter
+        $pembelian_dt = $query->get();
+    } else {
+        // Jika tidak ada filter tanggal, ambil semua data
+        $pembelian_dt = $query->get();
     }
+
+    // Ambil data lainnya
+    $suppliers = Supplier::all();
+    $barang = Barang::all();
+    $LevelHarga = LevelHarga::all();
+
+    // Kirim data ke view
+    return view('transaksi.pembelianbarang.index', compact('pembelian_dt', 'suppliers', 'barang', 'LevelHarga'))
+        ->with('startDate', $request->input('startDate'))
+        ->with('endDate', $request->input('endDate'));
+}
 
     public function create()
     {
@@ -174,7 +195,7 @@ class PembelianBarangController extends Controller
                                 $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
                             }
                         }
-                    }                            
+                    }
 
                     // Simpan Level Harga sebagai JSON ke tabel Barang
                     $barang->level_harga = json_encode($levelHargaBarang);
@@ -281,7 +302,7 @@ class PembelianBarangController extends Controller
 
                     $barang->level_harga = $levelHargaJson;
                     $barang->save();
-                    
+
                     $existingStock->save();
                 } else {
                     // Insert new stock record

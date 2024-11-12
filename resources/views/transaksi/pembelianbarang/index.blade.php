@@ -30,18 +30,22 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah -->
-                        {{-- <a href="{{ route('master.pembelianbarang.create')}}" class="btn btn-primary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a> --}}
-                        <a href="" class="btn btn-primary" data-toggle="modal" data-target=".bd-example-modal-lg">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
+                        <!-- Tombol Tambah dan Filter -->
+                        <div class="d-flex">
+                            <a href="" class="btn btn-primary mr-2" data-toggle="modal" data-target=".bd-example-modal-lg">
+                                <i class="ti-plus menu-icon"></i> Tambah
+                            </a>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
+                                <i class="ti-plus menu-icon"></i> Filter
+                            </a>
+                        </div>
+
                         <!-- Input Search -->
                         <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
                             <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pembelian" aria-label="Search">
                         </form>
                     </div>
+
                     <div class="content">
                     <x-adminlte-alerts />
                     <div class="card-body table-border-style">
@@ -108,6 +112,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal untuk Filter Tanggal -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('master.pembelianbarang.index') }}" method="GET">
+                    <div class="form-group">
+                        <label for="startDate">Tanggal Mulai</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control" value="{{ request('startDate') }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Tanggal Selesai</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control" value="{{ request('endDate') }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
         <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lgs">
@@ -294,8 +326,23 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('startDate'); // Hapus startDate
+        url.searchParams.delete('endDate');   // Hapus endDate
+        window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa parameter
+    }
+    </script>
 <script>
+
     document.getElementById('tgl_nota').addEventListener('focus', function() {
+        this.showPicker(); // Membuka picker tanggal saat input difokuskan
+    });
+    document.getElementById('startDate').addEventListener('focus', function() {
+        this.showPicker(); // Membuka picker tanggal saat input difokuskan
+    });
+    document.getElementById('endDate').addEventListener('focus', function() {
         this.showPicker(); // Membuka picker tanggal saat input difokuskan
     });
 
