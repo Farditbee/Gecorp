@@ -74,13 +74,17 @@
                                         <td>{{$usr->alamat}}</td>
                                         <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="{{ route('master.user.delete', $usr->id)}}" method="post">
                                         <td>
+                                            @if (Auth::id() === $usr->id || Auth::user()->id_level == 1)
                                                 <a href="{{ route('master.user.edit', $usr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                @else
+                                                <a href="{{ route('master.user.edit', $usr->id)}}" class="btn btn-warning btn-sm disabled"><i class="fa fa-edit menu-icon"></i></a>
+                                                @endif
                                                 @csrf
                                                 @method('DELETE')
                                                 @if (Auth::user()->id_level == 1)
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
                                                 @endif
-                                            </td>
+                                        </td>
                                         </form>
                                     </tr>
                                     @empty
