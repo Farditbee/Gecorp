@@ -216,7 +216,7 @@
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <label for="id_barang" class="form-control-label">Ketik Nama / Scan Barang<span style="color: red">*</span></label>
-                                                        <input type="text" id="search-barang" placeholder="" class="form-control">
+                                                        <input type="text" autocomplete="off" id="search-barang" placeholder="" class="form-control">
                                                     </div>
                                                 </div>
 
@@ -646,6 +646,7 @@
                             // Jika barcode cocok, set nilai dropdown ke id barang yang sesuai
                             dropdown.value = option.value;
                             found = true;
+                            dropdown.dispatchEvent(new Event('change'));
                             break;
                         }
                     }
