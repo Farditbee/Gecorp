@@ -1,6 +1,7 @@
 <title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
 @section('content')
+    
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
 
     <div class="pcoded-main-container">
@@ -232,10 +233,11 @@
                                                                         data-search-barang="{{ $brg->barang->barcode }}"
                                                                         data-nama-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
+                                                                        data-barcode="{{ $brg->barang->barcode }}"
                                                                         data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
                                                                         data-level-harga='@json($brg->barang->level_harga)'>
                                                                         {{ $brg->barang->nama_barang }} (Stock:
-                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
+                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}) {{ $brg->barang->barcode }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
