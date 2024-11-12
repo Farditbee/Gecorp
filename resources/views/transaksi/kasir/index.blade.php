@@ -211,17 +211,26 @@
                                                 <input type="hidden" id="hiddenNoNota" name="no_nota">
                                                 <input type="hidden" id="hiddenKembalian" name="kembalian">
                                                 <input type="hidden" id="hiddenMember" name="id_member">
+
                                                 <div class="row">
-                                                    <div class="col-6">
+                                                    <div class="col-12">
+                                                        <label for="id_barang" class="form-control-label">Ketik Nama / Scan Barang<span style="color: red">*</span></label>
+                                                        <input type="text" id="search-barang" placeholder="" class="form-control">
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div class="col-4">
                                                         <!-- Nama Barang -->
                                                         <div class="form-group">
                                                             <label for="id_barang" class="form-control-label">Nama
                                                                 Barang<span style="color: red">*</span></label>
-                                                            <select name="id_barang[]" id="barang">
+                                                            <select name="id_barang[]" id="barang" class="form-control">
                                                                 <option value="">~Silahkan Pilih Barang~</option>
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
-                                                                        data-search-barang="{{ $brg->barang->nama_barang }}"
+                                                                        data-search-barang="{{ $brg->barang->barcode }}"
+                                                                        data-nama-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
                                                                         data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
                                                                         data-level-harga='@json($brg->barang->level_harga)'>
@@ -232,7 +241,7 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="col-6">
+                                                    <div class="col-4">
                                                         <label for="harga" class="form-control-label">Harga<span
                                                                 style="color: red">*</span></label>
                                                         <select class="form-control" name="harga[]" id="harga"
@@ -240,12 +249,7 @@
                                                             <option value="">~Pilih Member Dahulu~</option>
                                                         </select>
                                                     </div>
-                                                </div>
-
-                                                <div class="row">
-                                                    <div class="col-6">
-                                                    </div>
-                                                    <div class="col-6">
+                                                    <div class="col-4">
                                                         <label for="qty" class=" form-control-label">Item<span
                                                                 style="color: red">*</span></label>
                                                         <input type="number" id="qty" name="qty[]"
@@ -256,6 +260,7 @@
                                                             style="float: right;">Add</button>
                                                     </div>
                                                 </div>
+
                                                 <br>
                                                 <div class="row">
                                                     <div class="col-12">
@@ -591,15 +596,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const selectBarang = new TomSelect("#barang", {
-                // Menyimpan data value dan text untuk setiap opsi
-                valueField: 'value',
-                labelField: 'text',
-                searchField: ['text',
-                    'data-search-barang'
-                ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
-                render: {}
-            });
+            // const selectBarang = new TomSelect("#barang", {
+            //     // Menyimpan data value dan text untuk setiap opsi
+            //     valueField: 'value',
+            //     labelField: 'text',
+            //     searchField: ['text',
+            //         'data-search-barang'
+            //     ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
+            //     render: {}
+            // });
 
             const memberSelect = document.getElementById('id_member');
             const barangSelect = document.getElementById('barang');
@@ -621,6 +626,36 @@
                     row.children[1].textContent = index + 1; // Mengupdate nomor baris
                 });
             }
+
+            document.getElementById('search-barang').addEventListener('keypress', function(event) {
+                // Cek jika tombol yang ditekan adalah "Enter"
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Cegah form terkirim
+                    
+                    let searchValue = this.value;
+                    let dropdown = document.getElementById('barang'); // Ambil elemen select untuk barang
+                    let found = false;
+
+                    // Loop melalui semua opsi di dropdown
+                    for (let option of dropdown.options) {
+                        let barcode = option.getAttribute('data-search-barang');
+                        let namaBarang = option.getAttribute('data-nama-barang');
+                        if (barcode === searchValue || namaBarang === searchValue ) {
+                            // Jika barcode cocok, set nilai dropdown ke id barang yang sesuai
+                            dropdown.value = option.value;
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        alert('Barang dengan barcode tersebut tidak ditemukan.');
+                    }
+
+                    // Kosongkan input setelah scan agar siap menerima scan berikutnya
+                    this.value = '';
+                }
+            });
 
             memberSelect.addEventListener('change', function() {
                 barangSelect.disabled = !this.value;
