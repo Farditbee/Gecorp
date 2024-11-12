@@ -65,6 +65,7 @@ class BarangController extends Controller
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
+                'barcode' => $request->barcode,
             ]);
 
             DB::commit();
@@ -99,6 +100,7 @@ class BarangController extends Controller
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
+                'barcode' => $request->barcode,
             ]);
             return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
         } catch (\Throwable $th) {
