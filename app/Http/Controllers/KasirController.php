@@ -31,33 +31,42 @@ class KasirController extends Controller
 
     }
 
+    public function index(Request $request)
+{
+    $user = Auth::user();
+    $users = User::all();
+    $detail_kasir = DetailKasir::all();
+    $toko = Toko::all();
 
-    public function index()
-    {
-        $user = Auth::user();
-        $users = User::all();
-        $detail_kasir = DetailKasir::all();
-        $toko = Toko::all();
-
-        if ($user->id_level == 1) {
-            $kasir = Kasir::orderBy('id', 'desc')
-                        ->get();
-        } else {
-            $kasir = Kasir::where('id_toko', $user->id_toko)
-                        ->orderBy('id', 'desc')
-                        ->get();
-        }
-
-        if($user->id_level == 1){
-            $barang = StockBarang::all();
-            $member = Member::all();
-        }else{
-            $barang = DetailToko::where('id_toko', $user->id_toko)->get();
-            $member = Member::where('id_toko', $user->id_toko)->get();
-        }
-
-        return view('transaksi.kasir.index', compact('barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
+    // Mengambil data berdasarkan level user
+    if ($user->id_level == 1) {
+        $kasirQuery = Kasir::orderBy('id', 'desc');
+    } else {
+        $kasirQuery = Kasir::where('id_toko', $user->id_toko)
+                           ->orderBy('id', 'desc');
     }
+
+    // Filter berdasarkan tgl_transaksi
+    if ($request->has(['start_date', 'end_date'])) {
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $kasirQuery->whereBetween('tgl_transaksi', [$startDate, $endDate]);
+    }
+
+    $kasir = $kasirQuery->get();
+
+    // Ambil data barang dan member berdasarkan level user
+    if ($user->id_level == 1) {
+        $barang = StockBarang::all();
+        $member = Member::all();
+    } else {
+        $barang = DetailToko::where('id_toko', $user->id_toko)->get();
+        $member = Member::where('id_toko', $user->id_toko)->get();
+    }
+
+    return view('transaksi.kasir.index', compact('barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
+}
 
     public function getFilteredHarga(Request $request)
     {
@@ -164,7 +173,7 @@ class KasirController extends Controller
                         continue;
                     }
 
-                    // Cek promo yang berlaku berdasarkan tanggal
+                    // Cek promo yang berlaku berdasarkan tgl_transaksi
                     $promo = Promo::where('id_barang', $id_barang)
                         ->where('status', 'ongoing')
                         ->where('dari', '<=', $tglTransaksi)
@@ -187,7 +196,7 @@ class KasirController extends Controller
                                 // Batas maksimal barang diskon yang bisa dibeli
                                 $eligibleQty = min($qty, $promo->jumlah - $promo->terjual);
                                 $promo->terjual += $eligibleQty;
-                            
+
                                 // Ubah status promo jika kuota habis
                                 if ($promo->terjual >= $promo->jumlah) {
                                     $promo->status = 'done';
@@ -196,7 +205,7 @@ class KasirController extends Controller
                                 // Jika tidak ada batasan, tambahkan semua qty yang mendapat diskon
                                 $promo->terjual += $qty;
                             }
-                            
+
                             $promo->save();
                         }
                     } else {
@@ -205,7 +214,7 @@ class KasirController extends Controller
                             ->where('status', 'ongoing')
                             ->where('sampai', '<', $tglTransaksi)
                             ->first();
-                        
+
                         if ($expiredPromo) {
                             $expiredPromo->status = 'done';
                             $expiredPromo->save();

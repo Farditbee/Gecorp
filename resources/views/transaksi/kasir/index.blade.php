@@ -31,10 +31,14 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <!-- Tombol Tambah -->
-                            <button type="button" class="btn btn-primary" data-toggle="modal"
-                                data-target=".bd-example-modal-lg">
-                                Tambah
-                            </button>
+                            <div class="d-flex">
+                                <a href="" class="btn btn-primary mr-2" data-toggle="modal" data-target=".bd-example-modal-lg">
+                                    <i class="ti-plus menu-icon"></i> Tambah
+                                </a>
+                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
+                                    <i class="ti-plus menu-icon"></i> Filter
+                                </a>
+                            </div>
                             <!-- Input Search -->
                             <form class="d-flex" method="GET" action="{{ route('master.kasir.index') }}">
                                 <input class="form-control me-2" id="search" type="search" name="search"
@@ -118,6 +122,33 @@
                 </div>
             </div>
             <!-- [ Main Content ] end -->
+        </div>
+    </div>
+
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="filterForm" method="GET" action="{{ route('master.kasir.index') }}">
+                        <div class="form-group">
+                            <label for="startDate">Dari Tanggak</label>
+                            <input type="date" class="form-control" id="startDate" name="start_date" placeholder="Start Date">
+                        </div>
+                        <div class="form-group">
+                            <label for="endDate">Hingga Tanggal</label>
+                            <input type="date" class="form-control" id="endDate" name="end_date" placeholder="End Date">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -534,6 +565,40 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Tambahkan script di bawah ini setelah form di view Anda -->
+<script>
+    // Menambahkan event listener untuk membuka picker tanggal saat input fokus
+    document.getElementById('startDate').addEventListener('focus', function() {
+        this.showPicker();
+    });
+    document.getElementById('endDate').addEventListener('focus', function() {
+        this.showPicker();
+    });
+
+    // Validasi form filter agar tanggal dipilih sebelum submit
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        if (startDate && endDate) {
+            return true; // Kirim form jika tanggal dipilih
+        } else {
+            alert('Pilih rentang tanggal untuk filter.');
+            event.preventDefault(); // Cegah submit jika tanggal belum dipilih
+        }
+    });
+
+    // Cek jika filter tanggal ada di URL, hapus parameter saat halaman di-refresh
+    $(document).ready(function() {
+        if (window.location.search.includes('start_date') || window.location.search.includes('end_date')) {
+            const url = new URL(window.location);
+            url.searchParams.delete('start_date'); // Hapus start_date
+            url.searchParams.delete('end_date');   // Hapus end_date
+            window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa parameter
+        }
+    });
+</script>
+
     <script>
         function cetakStruk(id_kasir) {
         const url = `{{ route('cetak.struk', ':id_kasir') }}`.replace(':id_kasir', id_kasir);
@@ -633,7 +698,7 @@
                 // Cek jika tombol yang ditekan adalah "Enter"
                 if (event.key === 'Enter') {
                     event.preventDefault(); // Cegah form terkirim
-                    
+
                     let searchValue = this.value;
                     let dropdown = document.getElementById('barang'); // Ambil elemen select untuk barang
                     let found = false;
