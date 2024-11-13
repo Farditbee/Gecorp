@@ -28,13 +28,19 @@
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah -->
-                        <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
+                        <!-- Tombol Tambah dan Filter -->
+                        <div class="d-flex">
+                            <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary mr-2">
+                                <i class="ti-plus menu-icon"></i> Tambah
+                            </a>
+                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
+                                <i class="ti-plus menu-icon"></i> Filter
+                            </a>
+                        </div>
+
                         <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.pengirimanbarang.index') }}">
-                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pengiriman" aria-label="Search">
+                        <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
+                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pembelian" aria-label="Search">
                         </form>
                     </div>
                     <x-adminlte-alerts />
@@ -122,7 +128,77 @@
     </div>
 </div>
 
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Form Filter Tanggal -->
+                <form id="filterForm" method="GET" action="{{ route('master.pengirimanbarang.index') }}">
+                    <div class="form-group">
+                    <label for="startDate">Dari Tanggal:</label>
+                    <input type="date" class="form-control" id="startDate" name="start_date" value="{{ request('start_date') }}">
+                    </div>
+                    <div class="form-group">
+                    <label for="endDate">Hingga Tanggal:</label>
+                    <input type="date" class="form-control" id="endDate" name="end_date" value="{{ request('end_date') }}">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Simpan status filter ke localStorage ketika form filter disubmit
+    document.getElementById('filterForm').addEventListener('submit', function(event) {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+
+        // Cek apakah tanggal diisi
+        if (startDate && endDate) {
+            localStorage.setItem('filterApplied', 'true'); // Tandai filter sebagai "terapkan"
+            return true; // Kirim form jika tanggal dipilih
+        } else {
+            alert('Pilih rentang tanggal untuk filter.');
+            event.preventDefault(); // Cegah submit jika tanggal belum dipilih
+        }
+    });
+
+    // Menghapus filter dari URL saat halaman di-refresh
+    $(document).ready(function() {
+        // Periksa apakah filter sudah diterapkan dan halaman di-refresh
+        if (localStorage.getItem('filterApplied') === 'true') {
+            const url = new URL(window.location);
+
+            // Hapus parameter start_date dan end_date dari URL jika ada
+            if (url.searchParams.has('start_date') || url.searchParams.has('end_date')) {
+                url.searchParams.delete('start_date');
+                url.searchParams.delete('end_date');
+                window.history.replaceState({}, document.title, url.toString()); // Perbarui URL
+            }
+
+            // Hapus status filter dari localStorage setelah halaman di-refresh
+            localStorage.removeItem('filterApplied');
+        }
+    });
+
+    // Event listener untuk membuka picker tanggal saat input difokuskan
+    document.getElementById('startDate').addEventListener('focus', function() {
+        this.showPicker();
+    });
+    document.getElementById('endDate').addEventListener('focus', function() {
+        this.showPicker();
+    });
+</script>
 
 <script>
     // Fungsi Search
