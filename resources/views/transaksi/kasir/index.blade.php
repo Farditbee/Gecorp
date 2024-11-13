@@ -230,7 +230,7 @@
                                                                 <option value="">~Silahkan Pilih Barang~</option>
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->id_barang }}"
-                                                                        data-search-barang="{{ $brg->barang->barcode }}"
+                                                                        data-barcode-barang="{{ $brg->barang->barcode }}"
                                                                         data-nama-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
                                                                         data-barcode="{{ $brg->barang->barcode }}"
@@ -595,6 +595,76 @@
             hiddenNoNotaInput.value = noNotaWithoutSeparator;
         });
     </script>
+    
+    <script>
+        const searchInput = document.getElementById("search-barang");
+        const select = document.getElementById("barang");
+    
+        // Event listener untuk memfilter opsi dropdown saat pengguna mengetik
+        searchInput.addEventListener("input", function(event) {
+            const searchValue = event.target.value.toLowerCase();
+            let matchCount = 0; // Hitung opsi yang cocok
+    
+            // Loop melalui opsi dan tampilkan/sembunyikan berdasarkan kecocokan searchValue
+            for (const option of select.options) {
+                const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
+                
+                // Tampilkan opsi yang mengandung searchValue, sembunyikan yang lain
+                if (namaBarang && namaBarang.includes(searchValue)) {
+                    option.style.display = ""; // Tampilkan opsi yang cocok
+                    matchCount++; // Tambahkan hitungan untuk opsi yang cocok
+                } else {
+                    option.style.display = "none"; // Sembunyikan opsi yang tidak cocok
+                }
+            }
+    
+            // Atur ukuran dropdown agar terlihat sejumlah opsi yang cocok
+            select.size = matchCount > 0 ? matchCount : 1; // Minimal ukuran dropdown tetap 1
+        });
+    
+        // Event listener untuk memilih opsi jika Enter ditekan
+        searchInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Mencegah form submit jika ada
+                const searchValue = event.target.value.toLowerCase();
+                let found = false;
+    
+                for (const option of select.options) {
+                    const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
+                    const barcodeBarang = option.getAttribute("data-barcode-barang")?.toLowerCase();
+                    
+                    if (namaBarang === searchValue || barcodeBarang === searchValue) {
+                        option.selected = true;
+                        found = true;
+                        select.dispatchEvent(new Event('change'));
+                        break;
+                    }
+                }
+    
+                if (!found && searchValue) {
+                    alert("Barang tidak ditemukan. Pastikan nama barang sesuai.");
+                }
+    
+                // Reset ukuran dropdown dan bersihkan input
+                select.size = 1; // Kembali ke ukuran normal setelah pemilihan
+                this.value = ''; // Bersihkan input setelah pencarian
+            }
+        });
+    
+        // Event listener untuk menangkap pilihan barang secara langsung
+        select.addEventListener("change", function() {
+            select.size = 1; // Kembali ke ukuran normal setelah memilih opsi
+            searchInput.value = ''; // Bersihkan input setelah pilihan
+        });
+    
+        // Tutup dropdown ketika pengguna mengklik di luar input atau dropdown
+        document.addEventListener("click", function(event) {
+            if (!select.contains(event.target) && !searchInput.contains(event.target)) {
+                select.size = 1; // Tutup dropdown ketika klik di luar
+            }
+        });
+    </script>
+    
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -628,37 +698,6 @@
                     row.children[1].textContent = index + 1; // Mengupdate nomor baris
                 });
             }
-
-            document.getElementById('search-barang').addEventListener('keypress', function(event) {
-                // Cek jika tombol yang ditekan adalah "Enter"
-                if (event.key === 'Enter') {
-                    event.preventDefault(); // Cegah form terkirim
-                    
-                    let searchValue = this.value;
-                    let dropdown = document.getElementById('barang'); // Ambil elemen select untuk barang
-                    let found = false;
-
-                    // Loop melalui semua opsi di dropdown
-                    for (let option of dropdown.options) {
-                        let barcode = option.getAttribute('data-search-barang');
-                        let namaBarang = option.getAttribute('data-nama-barang');
-                        if (barcode === searchValue || namaBarang === searchValue ) {
-                            // Jika barcode cocok, set nilai dropdown ke id barang yang sesuai
-                            dropdown.value = option.value;
-                            found = true;
-                            dropdown.dispatchEvent(new Event('change'));
-                            break;
-                        }
-                    }
-
-                    if (!found) {
-                        alert('Barang dengan barcode tersebut tidak ditemukan.');
-                    }
-
-                    // Kosongkan input setelah scan agar siap menerima scan berikutnya
-                    this.value = '';
-                }
-            });
 
             memberSelect.addEventListener('change', function() {
                 barangSelect.disabled = !this.value;
