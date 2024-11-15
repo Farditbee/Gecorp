@@ -59,7 +59,7 @@
                                 </a>
                                 <a href="{{ route('laporan.pembelian.index') }}" class="btn btn-secondary ml-2"
                                     onclick="resetFilter()">
-                                    Reset Filter
+                                    Reset
                                 </a>
                                 <!-- Keterangan Periode Tanggal di Bawah Tombol Filter -->
                                 @if (request('startDate') && request('endDate'))
@@ -179,17 +179,22 @@
                 url.searchParams.delete('endDate');
                 window.location.href = url.toString();
             }
-        </script>
 
-        <script>
-            document.getElementById('tgl_nota').addEventListener('focus', function() {
-                this.showPicker(); // Membuka picker tanggal saat input difokuskan
-            });
-            document.getElementById('startDate').addEventListener('focus', function() {
-                this.showPicker(); // Membuka picker tanggal saat input difokuskan
-            });
-            document.getElementById('endDate').addEventListener('focus', function() {
-                this.showPicker(); // Membuka picker tanggal saat input difokuskan
+            document.addEventListener('DOMContentLoaded', function() {
+                const startDateInput = document.getElementById('startDate');
+                const endDateInput = document.getElementById('endDate');
+
+                if (startDateInput) {
+                    startDateInput.addEventListener('focus', function() {
+                        this.showPicker?.(); // Modern browsers
+                    });
+                }
+
+                if (endDateInput) {
+                    endDateInput.addEventListener('focus', function() {
+                        this.showPicker?.(); // Modern browsers
+                    });
+                }
             });
         </script>
     @endsection
