@@ -5,6 +5,7 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\LapPembelianController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
@@ -166,6 +167,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/kasir/get-filtered-harga', [KasirController::class, 'getFilteredHarga']);
         Route::get('/cetak-struk/{id_kasir}', [KasirController::class, 'cetakStruk'])->name('cetak.struk');
 
+        Route::get('/lappembelian', [LapPembelianController::class, 'index'])->name('laporan.pembelian.index');
     });
 
 });

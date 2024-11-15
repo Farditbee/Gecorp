@@ -42,7 +42,7 @@
                     <li class="nav-item pcoded-hasmenu">
                         <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="icon feather icon-file-text"></i></span><span class="pcoded-mtext">Laporan</span></a>
                         <ul class="pcoded-submenu">
-                            <li><a class="dropdown-item" href="#"><i class="fa fa-book"></i> Laporan 1</a></li>
+                            <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index')}}"><i class="fa fa-book"></i> Laporan Pembelian</a></li>
                         </ul>
                     </li>
                     <li class="nav-item pcoded-hasmenu">
