@@ -6,6 +6,7 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LapPembelianController;
+use App\Http\Controllers\LapPengirimanController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
@@ -168,6 +169,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cetak-struk/{id_kasir}', [KasirController::class, 'cetakStruk'])->name('cetak.struk');
 
         Route::get('/lappembelian', [LapPembelianController::class, 'index'])->name('laporan.pembelian.index');
+        Route::get('/lappengiriman', [LapPengirimanController::class, 'index'])->name('laporan.pengiriman.index');
     });
 
 });
