@@ -14,6 +14,7 @@ use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\RatingController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\StockOpnameController;
 use App\Http\Controllers\SupplierController;
@@ -170,6 +171,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/lappembelian', [LapPembelianController::class, 'index'])->name('laporan.pembelian.index');
         Route::get('/lappengiriman', [LapPengirimanController::class, 'index'])->name('laporan.pengiriman.index');
+        Route::get('/laprating', [RatingController::class, 'index'])->name('laporan.rating.index');
+        Route::get('/rating-barang/data', [RatingController::class, 'getBarangTerjual']);
+
     });
 
 });

@@ -13,7 +13,13 @@ class PengirimanBarang extends Model
     protected $table = 'pengiriman_barang';
 
     protected $fillable = [
-        'no_resi', 'toko_pengirim', 'nama_pengirim', 'ekspedisi', 'toko_penerima', 'tgl_kirim', 'tgl_terima'
+        'no_resi',
+        'toko_pengirim',
+        'nama_pengirim',
+        'ekspedisi',
+        'toko_penerima',
+        'tgl_kirim',
+        'tgl_terima'
     ];
 
     public $timestamps = false;

@@ -19,7 +19,7 @@
         #jsTables tbody td {
             padding: 5px;
             /* Sesuaikan padding untuk jarak antar sel */
-            line-height: 1;
+            line-height: 1,4;
             /* Sesuaikan tinggi baris */
             vertical-align: middle;
             font-size: 14px;
@@ -80,28 +80,71 @@
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Toko</th>
+                                                <th>Pengirim</th>
+                                                <th>Penerima</th>
+                                                <th>Jml Barang</th>
+                                                <th>Total Nilai</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($toko as $tk)
+                                            @if ($toko->isEmpty())
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $tk->nama_toko }}</td>
+                                                    <td colspan="5" class="text-center">Silahkan Filter periode untuk menampilkan data.</td>
                                                 </tr>
-                                            @endforeach
+                                            @else
+                                                @foreach ($toko as $tk)
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $tk->nama_toko }}</td>
+                                                        <td>
+                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                @foreach ($tk->pengirimanSebagaiPengirim->unique('toko_penerima') as $pengiriman)
+                                                                    <div style="margin-bottom: 10px;">
+                                                                        {{ $pengiriman->tokos->nama_toko ?? '-' }}
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div>-</div>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $pengirimanGroup)
+                                                                    <div style="margin-bottom: 10px;">
+                                                                        {{ $pengirimanGroup->sum('total_item') }}
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div>0</div>
+                                                            @endif
+                                                        </td>
+                                                        <td>
+                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $pengirimanGroup)
+                                                                    <div style="margin-bottom: 10px;">
+                                                                        {{ number_format($pengirimanGroup->sum('total_nilai'), 0, '.', '.') }}
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div>0</div>
+                                                            @endif
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="table-success">
+                                                        <td></td>
+                                                        <td><strong>Total</strong></td>
+                                                        <td></td>
+                                                        <td><strong>{{ $tk->pengirimanSebagaiPengirim->sum('total_item') }}</strong></td>
+                                                        <td><strong>{{ number_format($tk->pengirimanSebagaiPengirim->sum('total_nilai'), 0, '.', '.') }}</strong></td>
+                                                    </tr>
+                                                @endforeach
+                                            @endif
                                         </tbody>
                                     </table>
+
+
                                     <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div>
-                                            Menampilkan <span id="current-count">0</span> data dari <span
-                                                id="total-count">0</span> total data.
-                                        </div>
-                                        <nav aria-label="Page navigation example">
-                                            <ul class="pagination justify-content-end" id="pagination">
-                                                {{-- isian paginate --}}
-                                            </ul>
-                                        </nav>
+
                                     </div>
                                 </div>
                             </div>
@@ -121,7 +164,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('laporan.pembelian.index') }}" method="GET">
+                                <form action="{{ route('laporan.pengiriman.index') }}" method="GET">
                                     <div class="form-group">
                                         <label for="startDate">Tanggal Mulai</label>
                                         <input type="date" name="startDate" id="startDate" class="form-control"

@@ -87,20 +87,24 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach ($suppliers as $spl)
+                                            @if ($pembelian_dt->isNotEmpty())
+                                                @foreach ($suppliers as $spl)
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $spl->nama_supplier }}</td>
+                                                        <td>{{ $pembelian_dt->where('id_supplier', $spl->id)->count() }}</td>
+                                                        <td>{{ $pembelian_dt->where('id_supplier', $spl->id)->sum('total_item') }}</td>
+                                                        <td>Rp. {{ number_format($pembelian_dt->where('id_supplier', $spl->id)->sum('total_nilai')) }}</td>
+                                                    </tr>
+                                                @endforeach
+                                            @else
                                                 <tr>
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $spl->nama_supplier }}</td>
-                                                    <td>{{ $pembelian_dt->where('id_supplier', $spl->id)->count() }}</td>
-                                                    <td>{{ $pembelian_dt->where('id_supplier', $spl->id)->sum('total_item') }}
-                                                    </td>
-                                                    <td>Rp.
-                                                        {{ number_format($pembelian_dt->where('id_supplier', $spl->id)->sum('total_nilai')) }}
-                                                    </td>
+                                                    <td colspan="5" class="text-center">Silahkan Filter periode untuk menampilkan data.</td>
                                                 </tr>
-                                            @endforeach
+                                            @endif
                                         </tbody>
                                     </table>
+
                                     <div class="d-flex justify-content-between align-items-center mb-3">
                                         <div>
                                             Menampilkan <span id="current-count">0</span> data dari <span
