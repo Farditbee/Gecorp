@@ -32,7 +32,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <!-- Tombol Tambah -->
                             <div class="d-flex">
-                                <a href="" class="btn btn-primary mr-2" data-toggle="modal" data-target=".bd-example-modal-lg">
+                                <a href="" class="btn btn-primary mr-2" id="btn-tambah" data-toggle="modal" data-target=".bd-example-modal-lg">
                                     <i class="ti-plus menu-icon"></i> Tambah
                                 </a>
                                 <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
@@ -729,7 +729,47 @@
             }
         });
     </script>
+
+    <script>
+    document.getElementById('btn-tambah').addEventListener('click', function () {
+        // Tunggu modal tampil
+        setTimeout(function () {
+            document.getElementById('search-barang').focus();
+        }, 1000); // Penyesuaian waktu, sesuai animasi modal
+    });
+
+    $('.bd-example-modal-lg').on('shown.bs.modal', function () {
+        const searchBarangInput = document.getElementById('search-barang');
     
+        if (searchBarangInput) {
+            // Fokus awal ke input search-barang
+            searchBarangInput.focus();
+    
+            // Event listener untuk klik di modal
+            const modalContent = document.querySelector('.bd-example-modal-lg .modal-content');
+    
+            modalContent.addEventListener('click', function (event) {
+                // Daftar elemen interaktif yang tidak akan memicu fokus ulang
+                const nonInteractiveElements = ['input', 'select', 'textarea', 'button', 'a'];
+    
+                // Jika area yang diklik bukan elemen interaktif, fokuskan kembali ke input search-barang
+                if (!nonInteractiveElements.includes(event.target.tagName.toLowerCase())) {
+                    searchBarangInput.focus();
+                }
+            });
+        }
+    });
+    </script>
+
+    <style>
+        #search-barang:focus {
+            border-color: #007bff; /* Warna border biru */
+            background-color: rgb(31, 248, 2);
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Efek glow */
+            transition: box-shadow 0.3s ease, border-color 0.3s ease;
+            outline: none; /* Menghilangkan outline default */
+        }
+    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -776,14 +816,15 @@
                 const barangId = selectedBarang.value;
 
                 if (memberId && barangId) {
-
                     hargaSelect.innerHTML = '<option value="">Loading...</option>';
                     hargaSelect.disabled = true;
 
                     fetch(`/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
                         .then(response => response.json())
                         .then(data => {
-                            hargaSelect.innerHTML = '<option value="">~Masukkan Harga~</option>';
+                            console.log(data.filteredHarga);
+                            hargaSelect.innerHTML = ''; // Kosongkan dropdown sebelum menambahkan opsi baru
+
                             if (Array.isArray(data.filteredHarga)) {
                                 data.filteredHarga.forEach(harga => {
                                     if (harga) {
@@ -795,12 +836,27 @@
                                 hargaSelect.innerHTML +=
                                     `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
                             }
-                            hargaSelect.disabled = !hargaSelect.querySelectorAll('option[value]')
-                                .length;
+
+                            const options = hargaSelect.querySelectorAll('option[value]');
+                            if (options.length === 1) {
+                                // Jika hanya ada satu opsi, langsung pilih opsi tersebut
+                                hargaSelect.value = options[0].value; // Pilih nilai secara langsung
+                            } else {
+                                // Jika lebih dari satu opsi, tambahkan opsi default
+                                hargaSelect.insertAdjacentHTML('afterbegin', '<option value="">~Masukkan Harga~</option>');
+                            }
+
+                            // Aktifkan kembali dropdown jika ada opsi
+                            hargaSelect.disabled = options.length === 0;
                         })
                         .catch(error => console.error('Error fetching filtered harga:', error));
                 }
             });
+
+            function toggleMemberSelectDisabled() {
+                const hasRows = tableBody.children.length > 0;
+                memberSelect.disabled = hasRows;
+            }
 
             addButton.addEventListener('click', function() {
                 let idBarang = document.getElementById('barang').value;
@@ -858,9 +914,14 @@
                     subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
                     newRow.remove();
                     updateRowNumbers(); // Memperbarui nomor baris setelah menghapus
+                    toggleMemberSelectDisabled();
                 });
 
                 updateRowNumbers(); // Memperbarui nomor baris setelah menambahkan
+                toggleMemberSelectDisabled();
+
+                const searchBarangInput = document.getElementById('search-barang');
+                searchBarangInput.focus();
             });
 
             document.getElementById('id_member').addEventListener('change', function() {

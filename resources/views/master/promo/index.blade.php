@@ -82,12 +82,11 @@
             </div>
         </div>
 
-        <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
+    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lgs">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title h4" id="myLargeModalLabel">Data Transaksi</h6>
+                    <h6 class="modal-title h4" id="myLargeModalLabel">Data Promo</h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -111,12 +110,13 @@
 
                             <div class="col-3">
                                 <label for="minimal" class="form-control-label">Minimal</label>
-                                <input class="form-control" type="number" min='0' name="minimal" id="minimal">
+                                <input class="form-control" type="number" min='1' name="minimal" id="minimal">
                             </div>
 
                             <div class="col-3">
                                 <label for="id_supplier" class="form-control-label">Jumlah</label>
                                 <input class="form-control" type="number" min='0' name="jumlah" id="jumlah">
+                                <small id="jumlah-error" style="color: red; display: none;">Jumlah harus kelipatan dari minimal</small>
                             </div>
 
                             <div class="col-3">
@@ -146,5 +146,30 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<script>
+    let typingTimer;
+    const doneTypingInterval = 500; // Waktu jeda setelah selesai mengetik (ms)
+    
+    document.getElementById("jumlah").addEventListener("input", function() {
+        clearTimeout(typingTimer);
+        const jumlahInput = this;
+        
+        typingTimer = setTimeout(() => {
+            const minimal = parseInt(document.getElementById("minimal").value);
+            const jumlah = parseInt(jumlahInput.value);
+            const errorMessage = document.getElementById("jumlah-error");
+
+            // Pastikan minimal ada nilainya dan jumlah bukan kelipatan dari minimal
+            if (minimal && jumlah % minimal !== 0) {
+                errorMessage.style.display = "block";
+                errorMessage.textContent = `Jumlah harus kelipatan dari ${minimal}`;
+                jumlahInput.value = ""; // Mengosongkan input jumlah jika tidak valid
+            } else {
+                errorMessage.style.display = "none";
+            }
+        }, doneTypingInterval);
+    });
+</script>
 
 @endsection
