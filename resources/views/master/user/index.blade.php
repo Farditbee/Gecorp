@@ -67,7 +67,7 @@
                                         <td>{{$no++}}</td>
                                         <td>{{$usr->nama}}</td>
                                         <td>{{$usr->leveluser->nama_level}}</td>
-                                        <td>{{$usr->toko->nama_toko}}</td>
+                                        <td class="text-wrap" style="max-width: 150px;">{{$usr->toko->nama_toko}}</td>
                                         <td>{{$usr->username}}</td>
                                         <td>{{$usr->email}}</td>
                                         <td>{{$usr->no_hp}}</td>

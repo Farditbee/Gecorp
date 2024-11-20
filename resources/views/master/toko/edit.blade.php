@@ -47,6 +47,10 @@
                                     <input type="text" class="form-control @error('nama_toko') is-invalid @enderror" name="nama_toko" value="{{ old('nama_toko', $toko->nama_toko) }}">
                                 </div>
                                 <div class="form-group">
+                                    <label for="singkatan" class=" form-control-label">Singkatan<span style="color: red">*</span></label>
+                                    <input type="text" class="form-control @error('singkatan') is-invalid @enderror" name="singkatan" value="{{ old('singkatan', $toko->singkatan) }}">
+                                </div>
+                                <div class="form-group">
                                     <label for="id_level_harga" class="form-control-label">Level Harga<span style="color: red">*</span></label>
                                     <select class="form-control" id="id_level_harga" name="id_level_harga[]" multiple>
                                         @foreach ($levelharga as $lh)

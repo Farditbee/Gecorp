@@ -27,7 +27,7 @@ class TokoController extends Controller
     }
 
     $levelharga = LevelHarga::all();
-    
+
     return view('master.toko.index', compact('toko', 'levelharga'));
 }
 
@@ -39,13 +39,18 @@ class TokoController extends Controller
 
     public function store(Request $request)
     {
+        // dd($request);
         $validatedData = $request->validate([
             'nama_toko' => 'required|max:255',
+            'singkatan' => 'required|max:4|unique:toko,singkatan',
             'id_level_harga' => 'required|array', // Validasi sebagai array
             'wilayah' => 'required|max:255',
             'alamat' => 'required|max:255',
         ],[
             'nama_toko.required' => 'Nama Toko tidak boleh kosong.',
+            'singkatan' => 'Singkatan Sudah Digunakan',
+            'singkatan.required' => 'Singkatan Wajib di Isi.',
+            // 'singkatan.max' => 'Karakter melebihi Batas.',
             'id_level_harga.required' => 'Level Harga tidak boleh kosong.',
             'wilayah.required' => 'Wilayah tidak boleh kosong.',
             'alamat.required' => 'Alamat tidak boleh kosong.',
@@ -55,6 +60,7 @@ class TokoController extends Controller
             // Simpan data Toko
             Toko::create([
                 'nama_toko' => $request->nama_toko,
+                'singkatan' => $request->singkatan,
                 'wilayah' => $request->wilayah,
                 'alamat' => $request->alamat,
                 'id_level_harga' => json_encode($request->id_level_harga), // Menyimpan array sebagai JSON
@@ -65,7 +71,6 @@ class TokoController extends Controller
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
     }
-
 
     public function detail(string $id)
     {
@@ -95,19 +100,6 @@ class TokoController extends Controller
 
         return view('master.toko.detail', compact('toko', 'detail_toko', 'stock', 'levelhargas'));
     }
-    // public function getHargaBarang($id_barang, $id_detail, $id_toko)
-    // {
-    //     $detailToko = DetailToko::where('id', $id_detail)
-    //                             ->where('id_barang', $id_barang)
-    //                             ->where('id_toko', $id_toko)
-    //                             ->first(['harga']);
-    //     // dd($detailToko);
-    //     if (!$detailToko) {
-    //         return response()->json(['error' => 'No price found'], 404);
-    //     }
-
-    //     return response()->json(['harga' => $detailToko->harga]);
-    // }
 
     public function create_detail(string $id)
     {
@@ -167,20 +159,36 @@ class TokoController extends Controller
     }
 
     public function update(Request $request, string $id)
-    {
-        $toko = Toko::findOrFail($id);
-        try {
-            $toko->update([
-                'nama_toko' => $request->nama_toko,
-                'wilayah' => $request->wilayah,
-                'alamat' => $request->alamat,
-                'id_level_harga' => json_encode($request->id_level_harga),
-            ]);
-        } catch (\Throwable $th) {
-            return redirect()->back()->with('error', $th->getMessage())->withInput();
-        }
-        return redirect()->route('master.toko.index')->with('success', 'Sukses Mengubah Data Toko');
+{
+    $toko = Toko::findOrFail($id);
+
+    // Validasi input
+    $request->validate([
+        'nama_toko' => 'required',
+        'singkatan' => 'required|max:4|unique:toko,singkatan,' . $id, // Abaikan validasi untuk data saat ini
+        'wilayah'   => 'required',
+        'alamat'    => 'required',
+    ], [
+        'singkatan.unique' => 'Singkatan sudah digunakan.', // Custom error message
+    ]);
+
+    try {
+        // Update data
+        $toko->update([
+            'nama_toko'     => $request->nama_toko,
+            'singkatan'     => $request->singkatan,
+            'wilayah'       => $request->wilayah,
+            'alamat'        => $request->alamat,
+            'id_level_harga'=> json_encode($request->id_level_harga),
+        ]);
+    } catch (\Throwable $th) {
+        // Kembalikan dengan pesan error jika gagal
+        return redirect()->back()->with('error', $th->getMessage())->withInput();
     }
+
+    // Redirect jika berhasil
+    return redirect()->route('master.toko.index')->with('success', 'Sukses Mengubah Data Toko');
+}
 
     public function update_detail(Request $request, string $id_toko, string $id_barang){
         $validatedData = $request->validate([

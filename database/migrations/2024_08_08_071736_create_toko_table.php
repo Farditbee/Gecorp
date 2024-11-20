@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-
     public function up(): void
     {
         Schema::create('toko', function (Blueprint $table) {
@@ -18,5 +17,4 @@ return new class extends Migration
             $table->softDeletes();
         });
     }
-
 };

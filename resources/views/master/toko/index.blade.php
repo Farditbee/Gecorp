@@ -52,6 +52,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Nama Toko</th>
+                                        <th>Singkatan</th>
                                         <th>Level Harga</th>
                                         <th>Wilayah</th>
                                         <th>Alamat</th>
@@ -64,6 +65,7 @@
                                     <tr data-id="{{ $tk->id }}">
                                         <td>{{$loop->iteration}}</td>
                                         <td>{{$tk->nama_toko}}</td>
+                                        <td>{{$tk->singkatan}}</td>
                                         <td>
                                             @php
                                                 $levelHargaArray = json_decode($tk->id_level_harga, true) ?? [];
@@ -80,7 +82,7 @@
                                                     @if (!$loop->last), @endif
                                                 @endforeach
                                             @else
-                                                Tidak Ada Level Harga
+                                                Tidak Ada Level
                                             @endif
                                         </td>
                                         <td>{{$tk->wilayah}}</td>
