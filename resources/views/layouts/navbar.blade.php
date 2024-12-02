@@ -36,21 +36,12 @@
                             <li><a class="dropdown-item" href="{{ route('master.kasir.index')}}"><i class="fa fa-laptop"></i> Transaksi Kasir</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link "><span class="pcoded-micon"><i class="fa fa-truck"></i></span><span class="pcoded-mtext">Mutasi Toko</span></a>
-                    </li>
                     <li class="nav-item pcoded-hasmenu">
                         <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="icon feather icon-file-text"></i></span><span class="pcoded-mtext">Laporan</span></a>
                         <ul class="pcoded-submenu">
                             <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index')}}"><i class="fa fa-book"></i> Laporan Pembelian</a></li>
                             <li><a class="dropdown-item" href="{{ route('laporan.pengiriman.index')}}"><i class="fa fa-book"></i> Laporan Pengiriman</a></li>
                             <li><a class="dropdown-item" href="{{ route('laporan.rating.index')}}"><i class="fa fa-star"></i> Rating Barang</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item pcoded-hasmenu">
-                        <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-tag"></i></span><span class="pcoded-mtext">Addon</span></a>
-                        <ul class="pcoded-submenu">
-                            <li><a href="#" class="dropdown-item"><i class="fa fa-tag"></i> Addon 1</a></li>
                         </ul>
                     </li>
                     <li class="nav-item pcoded-hasmenu">
