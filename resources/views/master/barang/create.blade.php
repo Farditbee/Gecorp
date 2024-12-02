@@ -39,7 +39,7 @@
                         <x-adminlte-alerts />
                         <div class="card-body table-border-style">
                             <div class="table-responsive">
-                                <form action="{{ route('master.barang.store') }}" method="post" class="">
+                                <form action="{{ route('master.barang.store') }}" method="post" class="" enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <div class="form-group">
@@ -71,10 +71,8 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
-                                            <label for="barcode" class=" form-control-label">Barcode</label>
-                                            <input type="text" id="barcode" name="barcode" value=""
-                                                class="form-control"
-                                                placeholder="Kosongkan jika belum ada Barcode">
+                                            <label class="form-control-label">Gambar Barang</label>
+                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control">
                                         </div>
                                     </div>
                                     <br>

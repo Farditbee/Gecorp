@@ -33,10 +33,10 @@ class AuthController extends Controller
                 }
             } else {
                 // Jika kredensial salah
-                return redirect()->back()->withErrors(['error' => 'Username atau password salah'])->withInput();
+                return redirect()->back()->withErrors(['error' => 'Username atau password salah'])->onlyInput('username');
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->onlyInput('username');
         }
     }
 
