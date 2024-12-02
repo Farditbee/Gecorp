@@ -44,6 +44,7 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
+                                            <th>Kode Barcode</th>
                                             <th>Barcode</th>
                                             <th>Nama Barang</th>
                                             <th>Jenis Barang</th>
@@ -56,12 +57,15 @@
                                         <tr>
                                             <td>{{$loop->iteration}}</td>
                                             <td>{{ !empty($brg->barcode) ? $brg->barcode : 'Belum ada Barcode' }}</td>
+                                            <td><img src="{{ asset('storage/' . $brg->barcode_path) }}" class="barcode-img" alt="Barcode"></td>
+                                            {{-- {{ dd(Storage::url($brg->barcode_path)) }} --}}
                                             <td>{{$brg->nama_barang}}</td>
                                             <td>{{$brg->jenis->nama_jenis_barang}}</td>
                                             <td>{{$brg->brand->nama_brand}}</td>
                                             <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="{{ route('master.barang.delete', $brg->id)}}" method="POST">
                                             <td>
                                                     <a href="{{ route('master.barang.edit', $brg->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                    <a href="{{ asset('storage/' . $brg->barcode_path) }}" download class="btn btn-success btn-sm"><i class="fa fa-download"></i></a>
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
@@ -93,5 +97,13 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+
+<style>
+.barcode-img {
+    width: 100px; /* Atur lebar gambar */
+    height: auto; /* Pertahankan rasio aspek */
+    margin: 0 auto; /* Opsi tambahan untuk memposisikan gambar di tengah */
+}
+</style>
 
 @endsection

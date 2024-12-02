@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Brand;
-use App\Models\DetailPembelianBarang;
 use App\Models\JenisBarang;
-use App\Models\PembelianBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Milon\Barcode\Facades\DNS1DFacade;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class BarangController extends Controller
 {
@@ -31,57 +32,91 @@ class BarangController extends Controller
         ]);
     }
 
-            public function getBrandsByJenis(Request $request)
-        {
-            // Validasi bahwa id_jenis_barang dikirim melalui AJAX
-            $request->validate([
-                'id_jenis_barang' => 'required|exists:jenis_barang,id'
-            ]);
+    public function getBrandsByJenis(Request $request)
+    {
+        // Validasi bahwa id_jenis_barang dikirim melalui AJAX
+        $request->validate([
+            'id_jenis_barang' => 'required|exists:jenis_barang,id'
+        ]);
 
-            // Ambil semua Brand yang memiliki id_jenis_barang sesuai dengan yang dipilih
-            $brands = Brand::where('id_jenis_barang', $request->id_jenis_barang)->get();
+        // Ambil semua Brand yang memiliki id_jenis_barang sesuai dengan yang dipilih
+        $brands = Brand::where('id_jenis_barang', $request->id_jenis_barang)->get();
 
-            // Kembalikan data dalam bentuk JSON
-            return response()->json($brands);
-        }
+        // Kembalikan data dalam bentuk JSON
+        return response()->json($brands);
+    }
 
 
     public function store(Request $request)
     {
-        // dd($request);
-        DB::beginTransaction();
-        try{
-            $validatedData = $request->validate([
-                'id_jenis_barang' => 'required|string|max:255',
-                'id_brand_barang' => 'required|string|max:255',
-                'nama_barang' => 'required|string|max:255',
-            ],[
-                'id_jenis_barang.required' => 'Jenis Barang tidak boleh kosong.',
-                'id_brand_barang.required' => 'Brand Barang tidak boleh kosong.',
-                'nama_barang.required' => 'Nama Barang tidak boleh kosong.',
-            ]);
+        // Validasi input
+        $validated = $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'id_jenis_barang' => 'required|exists:jenis_barang,id',
+            'id_brand_barang' => 'required|exists:brand,id',
+            'barcode' => 'nullable|string|max:255',
+            'gambar_barang' => 'nullable|image|max:2048',
+        ]);
 
-            Barang::create([
-                'id_jenis_barang' => $request->id_jenis_barang,
-                'id_brand_barang' => $request->id_brand_barang,
-                'nama_barang' => $request->nama_barang,
-                'barcode' => $request->barcode,
-            ]);
+        try {
+            // Ambil nama jenis dan brand barang
+            $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang; 
+            $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
+    
+            // Buat kombinasi kode nama
+            $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
+    
+            // Generate barcode value
+            $barcodeValue = $request->barcode ?: $initials . '-' . random_int(100000, 999999);
+    
+            // Generate barcode as PNG file
+            $barcodeFilename = "barcodes/{$barcodeValue}.png";
+            if (!Storage::exists($barcodeFilename)) {
+                $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
+    
+                if (!$barcodeImage) {
+                    throw new \Exception('Failed to generate barcode PNG as Base64');
+                }
+    
+                // Save to Storage
+                if (!Storage::put($barcodeFilename, base64_decode($barcodeImage))) {
+                    throw new \Exception('Failed to save barcode image to storage');
+                }
+            }
 
-            DB::commit();
-
+            // Simpan gambar barang jika diunggah
+            $gambarPath = null; // Default null jika gambar tidak diunggah
+            if ($request->hasFile('gambar_barang')) {
+                $gambarFile = $request->file('gambar_barang');
+                $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Simpan ke storage/public/gambar_barang
+            }
+    
+            // Simpan informasi barang ke database
+            $barang = new Barang();
+            $barang->nama_barang = $request->nama_barang;
+            $barang->id_jenis_barang = $request->id_jenis_barang;
+            $barang->id_brand_barang = $request->id_brand_barang;
+            $barang->barcode = $barcodeValue;
+            $barang->barcode_path = $barcodeFilename;
+            $barang->gambar_path = $gambarPath;
+            $barang->save();
+    
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
-
         } catch (\Exception $e) {
-            DB::rollBack();
-
             return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
 
-    public function show(string $id)
+    public function downloadQrCode(Barang $barang)
     {
-        //
+        // Pastikan file barcode ada
+        if (Storage::exists($barang->barcode_path)) {
+            // Nama file download berdasarkan nama barang
+            $filename = "{$barang->nama_barang}.png";
+            return Storage::download($barang->barcode_path, $filename);
+        }
+        
+        return redirect()->back()->with('error', 'QR Code tidak ditemukan.');
     }
 
     public function edit(string $id)
@@ -111,14 +146,20 @@ class BarangController extends Controller
     public function delete(string $id)
     {
         DB::beginTransaction();
+    
         $barang = Barang::findOrFail($id);
+    
         try {
+
             $barang->delete();
-        DB::commit();
-        return redirect()->route('master.barang.index')->with('success', 'Sukses menghapus Data Barang');
+    
+            DB::commit();
+    
+            return redirect()->route('master.barang.index')->with('success', 'Sukses menghapus Data Barang');
         } catch (\Throwable $th) {
-        DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Barang' . $th->getMessage());
+            DB::rollBack();
+    
+            return redirect()->back()->with('error', 'Gagal menghapus Data Barang: ' . $th->getMessage());
         }
     }
 }

@@ -28,7 +28,7 @@
                                 <li><a href="{{ route('master.user.edit', Auth::id()) }}" class="dropdown-item"><i class="feather icon-user"></i> Profile</a></li>
                                 {{-- <li><a href="email_inbox.html" class="dropdown-item"><i class="feather icon-mail"></i> My Messages</a></li> --}}
                                 <li>
-                                    <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item">
+                                    <a href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item">
                                         <i class="feather icon-log-out"></i> Log Out
                                     </a>
                                 </li>
