@@ -12,6 +12,8 @@ return new class extends Migration
         Schema::create('barang', function (Blueprint $table) {
             $table->id('id');
             $table->string('barcode')->nullable();
+            $table->string('barcode_path')->nullable();
+            $table->string('gambar_path')->nullable();
             $table->string('id_jenis_barang');
             $table->string('id_brand_barang');
             $table->string('nama_barang');
