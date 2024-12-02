@@ -7,40 +7,55 @@
         /* Atur kolom No */
         #jsTables th:nth-child(1),
         #jsTables td:nth-child(1) {
-            width: 5%; /* Lebar kecil untuk kolom No */
-            text-align: left; /* Nomor tetap rata kiri */
-            padding-left: 8px; /* Opsional: tambahkan sedikit padding kiri */
+            width: 5%;
+            /* Lebar kecil untuk kolom No */
+            text-align: left;
+            /* Nomor tetap rata kiri */
+            padding-left: 8px;
+            /* Opsional: tambahkan sedikit padding kiri */
         }
 
         /* Atur kolom Nama Barang */
         #jsTables th:nth-child(2),
         #jsTables td:nth-child(2) {
-            width: 30%; /* Tetapkan lebar tetap untuk kolom Nama Barang */
-            word-wrap: break-word; /* Bungkus teks panjang */
-            word-break: break-word; /* Pecah kata panjang */
-            white-space: normal; /* Izinkan teks turun ke baris baru */
+            width: 30%;
+            /* Tetapkan lebar tetap untuk kolom Nama Barang */
+            word-wrap: break-word;
+            /* Bungkus teks panjang */
+            word-break: break-word;
+            /* Pecah kata panjang */
+            white-space: normal;
+            /* Izinkan teks turun ke baris baru */
         }
 
         /* Atur kolom Nama Toko (mulai dari kolom ke-3 dan seterusnya) */
         #jsTables th:nth-child(n+3),
         #jsTables td:nth-child(n+3) {
-            width: 10%; /* Tetapkan lebar tetap untuk kolom Toko */
-            word-wrap: break-word; /* Bungkus teks panjang */
-            word-break: break-word; /* Pecah kata panjang */
-            white-space: normal; /* Izinkan teks turun ke baris baru */
-            text-align: center; /* Rata tengah untuk teks dan angka */
+            width: 10%;
+            /* Tetapkan lebar tetap untuk kolom Toko */
+            word-wrap: break-word;
+            /* Bungkus teks panjang */
+            word-break: break-word;
+            /* Pecah kata panjang */
+            white-space: normal;
+            /* Izinkan teks turun ke baris baru */
+            text-align: center;
+            /* Rata tengah untuk teks dan angka */
         }
 
         /* Pastikan tabel tidak terlalu melebar */
         #jsTables {
-            table-layout: fixed; /* Gunakan layout tabel tetap */
-            width: 100%; /* Pastikan tabel menggunakan 100% lebar halaman */
+            table-layout: fixed;
+            /* Gunakan layout tabel tetap */
+            width: 100%;
+            /* Pastikan tabel menggunakan 100% lebar halaman */
         }
 
         /* Opsional: Tambahkan margin antara kolom */
         #jsTables td,
         #jsTables th {
-            padding: 5px 10px; /* Atur padding sesuai keinginan */
+            padding: 5px 10px;
+            /* Atur padding sesuai keinginan */
         }
     </style>
 
@@ -79,16 +94,19 @@
                                             <select class="form-control" id="selector" name="toko_select[]" multiple>
                                                 <option value="">~Silahkan Pilih Toko~</option>
                                                 @foreach ($toko as $tk)
-                                                    <option value="{{ $tk->id }}" data-singkatan="{{ $tk->singkatan }}">{{ $tk->nama_toko }}</option>
+                                                    <option value="{{ $tk->id }}"
+                                                        data-singkatan="{{ $tk->singkatan }}">{{ $tk->nama_toko }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-4 d-flex align-items-start">
-                                        <a href="#" class="btn btn-warning mr-2" data-toggle="modal" data-target="#filterModal">
+                                        <a href="#" class="btn btn-warning mr-2" data-toggle="modal"
+                                            data-target="#filterModal">
                                             <i class="ti-plus menu-icon"></i> Filter
                                         </a>
-                                        <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary" onclick="resetFilter()">
+                                        <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary"
+                                            onclick="resetFilter()">
                                             Reset
                                         </a>
                                     </div>
@@ -104,8 +122,6 @@
                                 @endif
                             </div>
                         </div>
-
-                        <div class="content">
                             <x-adminlte-alerts />
                             <div class="card-body table-border-style">
                                 <div class="table-responsive">
@@ -119,7 +135,8 @@
                                         <tbody>
                                             @if ($barang->isEmpty())
                                                 <tr>
-                                                    <td colspan="5" class="text-center">Silahkan Pilih toko dan filter tanggal untuk tampilkan tanggal.</td>
+                                                    <td colspan="5" class="text-center">Silahkan Pilih toko dan filter
+                                                        tanggal untuk tampilkan tanggal.</td>
                                                 </tr>
                                             @else
                                                 @foreach ($barang as $brg)
@@ -179,59 +196,59 @@
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-            const element = document.getElementById('selector');
-            const choices = new Choices(element, {
-                removeItemButton: true,
-                searchEnabled: true,
+            document.addEventListener('DOMContentLoaded', function() {
+                const element = document.getElementById('selector');
+                const choices = new Choices(element, {
+                    removeItemButton: true,
+                    searchEnabled: true,
+                });
             });
-        });
         </script>
         <script>
-            document.getElementById('selector').addEventListener('change', function () {
-    // Ambil elemen tabel
-    const table = document.getElementById('jsTables');
-    const headerRow = table.querySelector('thead tr');
-    const bodyRows = table.querySelectorAll('tbody tr');
+            document.getElementById('selector').addEventListener('change', function() {
+                // Ambil elemen tabel
+                const table = document.getElementById('jsTables');
+                const headerRow = table.querySelector('thead tr');
+                const bodyRows = table.querySelectorAll('tbody tr');
 
-    // Hapus semua kolom toko sebelumnya (jika ada)
-    const existingHeaders = headerRow.querySelectorAll('.dynamic-column');
-    existingHeaders.forEach(header => header.remove());
+                // Hapus semua kolom toko sebelumnya (jika ada)
+                const existingHeaders = headerRow.querySelectorAll('.dynamic-column');
+                existingHeaders.forEach(header => header.remove());
 
-    bodyRows.forEach(row => {
-        const dynamicCells = row.querySelectorAll('.dynamic-cell');
-        dynamicCells.forEach(cell => cell.remove());
-    });
+                bodyRows.forEach(row => {
+                    const dynamicCells = row.querySelectorAll('.dynamic-cell');
+                    dynamicCells.forEach(cell => cell.remove());
+                });
 
-    // Ambil toko yang dipilih dan singkatan
-    const selectedOptions = Array.from(this.selectedOptions)
-        .filter(option => option.value !== "")
-        .map(option => ({
-            id: option.value, // ID toko
-            singkatan: option.getAttribute('data-singkatan') // Singkatan toko
-        }));
+                // Ambil toko yang dipilih dan singkatan
+                const selectedOptions = Array.from(this.selectedOptions)
+                    .filter(option => option.value !== "")
+                    .map(option => ({
+                        id: option.value, // ID toko
+                        singkatan: option.getAttribute('data-singkatan') // Singkatan toko
+                    }));
 
-    // Jika tidak ada toko yang dipilih, keluar dari fungsi
-    if (selectedOptions.length === 0) return;
+                // Jika tidak ada toko yang dipilih, keluar dari fungsi
+                if (selectedOptions.length === 0) return;
 
-    // Tambahkan kolom toko (menggunakan singkatan) ke header tabel
-    selectedOptions.forEach(toko => {
-        const th = document.createElement('th');
-        th.textContent = toko.singkatan; // Menggunakan singkatan toko
-        th.classList.add('dynamic-column');
-        headerRow.appendChild(th);
-    });
+                // Tambahkan kolom toko (menggunakan singkatan) ke header tabel
+                selectedOptions.forEach(toko => {
+                    const th = document.createElement('th');
+                    th.textContent = toko.singkatan; // Menggunakan singkatan toko
+                    th.classList.add('dynamic-column');
+                    headerRow.appendChild(th);
+                });
 
-    // Tambahkan sel kosong (default 0) ke setiap baris body
-    bodyRows.forEach(row => {
-        selectedOptions.forEach(() => {
-            const td = document.createElement('td');
-            td.textContent = '0'; // Default value
-            td.classList.add('dynamic-cell');
-            row.appendChild(td);
-        });
-    });
-});
+                // Tambahkan sel kosong (default 0) ke setiap baris body
+                bodyRows.forEach(row => {
+                    selectedOptions.forEach(() => {
+                        const td = document.createElement('td');
+                        td.textContent = '0'; // Default value
+                        td.classList.add('dynamic-cell');
+                        row.appendChild(td);
+                    });
+                });
+            });
         </script>
 
         <script>

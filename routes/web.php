@@ -172,7 +172,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/lappembelian', [LapPembelianController::class, 'index'])->name('laporan.pembelian.index');
         Route::get('/lappengiriman', [LapPengirimanController::class, 'index'])->name('laporan.pengiriman.index');
         Route::get('/laprating', [RatingController::class, 'index'])->name('laporan.rating.index');
-        Route::get('/rating-barang/data', [RatingController::class, 'getBarangTerjual']);
 
     });
 

@@ -32,28 +32,4 @@ class RatingController extends Controller
         return view('laporan.rating.index', compact('barang', 'toko', 'dataBarang', 'selectedTokoIds'));
     }
 
-    public function getBarangTerjual(Request $request)
-    {
-        $tokoIds = $request->input('toko_ids', []);
-
-        if (empty($tokoIds)) {
-            return response()->json(['data' => [], 'toko' => []]); // Jika tidak ada toko yang dipilih
-        }
-
-        // Ambil data barang terjual berdasarkan toko
-        $barangTerjual = DetailKasir::whereIn('id_toko', $tokoIds)
-            ->selectRaw('id_barang, id_toko, SUM(jumlah) as total_terjual')
-            ->groupBy('id_barang', 'id_toko')
-            ->get()
-            ->groupBy('id_barang')
-            ->map(function ($items) {
-                return $items->pluck('total_terjual', 'id_toko');
-            });
-
-        // Ambil nama toko berdasarkan id_toko
-        $toko = Toko::whereIn('id', $tokoIds)
-            ->pluck('nama_toko', 'id');
-
-        return response()->json(['data' => $barangTerjual, 'toko' => $toko]);
-    }
 }
