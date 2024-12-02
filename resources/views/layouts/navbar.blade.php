@@ -27,7 +27,7 @@
                             <li><a class="dropdown-item" href="{{ route('master.stockopname.index')}}"><i class="fa fa-edit"></i> Stock Opname</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.planorder.index')}}"><i class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
                         </ul>
-                    </li>
+                    </li> 
                     <li class="nav-item pcoded-hasmenu">
                         <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="icon feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Data Transaksi</span></a>
                         <ul class="pcoded-submenu">
