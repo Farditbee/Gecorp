@@ -30,4 +30,9 @@ class DetailKasir extends Model
     {
         return $this->belongsTo(Barang::class, 'id_barang');
     }
+
+    public function kasir(): BelongsTo
+    {
+        return $this->belongsTo(Kasir::class, 'id_kasir');
+    }
 }

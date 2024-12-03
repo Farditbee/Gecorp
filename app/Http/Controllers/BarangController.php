@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\Facades\DNS1DFacade;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class BarangController extends Controller
 {
@@ -60,24 +59,24 @@ class BarangController extends Controller
 
         try {
             // Ambil nama jenis dan brand barang
-            $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang; 
+            $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
             $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
-    
+
             // Buat kombinasi kode nama
             $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
-    
+
             // Generate barcode value
             $barcodeValue = $request->barcode ?: $initials . '-' . random_int(100000, 999999);
-    
+
             // Generate barcode as PNG file
-            $barcodeFilename = "barcodes/{$barcodeValue}.png";
+            $barcodeFilename = "barcodes/{$barcodeValue}.jpg";
             if (!Storage::exists($barcodeFilename)) {
                 $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
-    
+
                 if (!$barcodeImage) {
                     throw new \Exception('Failed to generate barcode PNG as Base64');
                 }
-    
+
                 // Save to Storage
                 if (!Storage::put($barcodeFilename, base64_decode($barcodeImage))) {
                     throw new \Exception('Failed to save barcode image to storage');
@@ -90,7 +89,7 @@ class BarangController extends Controller
                 $gambarFile = $request->file('gambar_barang');
                 $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Simpan ke storage/public/gambar_barang
             }
-    
+
             // Simpan informasi barang ke database
             $barang = new Barang();
             $barang->nama_barang = $request->nama_barang;
@@ -100,7 +99,7 @@ class BarangController extends Controller
             $barang->barcode_path = $barcodeFilename;
             $barang->gambar_path = $gambarPath;
             $barang->save();
-    
+
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
         } catch (\Exception $e) {
             return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
@@ -115,7 +114,7 @@ class BarangController extends Controller
             $filename = "{$barang->nama_barang}.png";
             return Storage::download($barang->barcode_path, $filename);
         }
-        
+
         return redirect()->back()->with('error', 'QR Code tidak ditemukan.');
     }
 
@@ -146,19 +145,19 @@ class BarangController extends Controller
     public function delete(string $id)
     {
         DB::beginTransaction();
-    
+
         $barang = Barang::findOrFail($id);
-    
+
         try {
 
             $barang->delete();
-    
+
             DB::commit();
-    
+
             return redirect()->route('master.barang.index')->with('success', 'Sukses menghapus Data Barang');
         } catch (\Throwable $th) {
             DB::rollBack();
-    
+
             return redirect()->back()->with('error', 'Gagal menghapus Data Barang: ' . $th->getMessage());
         }
     }

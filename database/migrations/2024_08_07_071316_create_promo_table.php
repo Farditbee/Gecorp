@@ -17,8 +17,8 @@ return new class extends Migration
             $table->integer('diskon')->nullable();
             $table->integer('jumlah')->nullable();
             $table->integer('terjual')->nullable();
-            $table->date('dari');
-            $table->date('sampai');
+            $table->dateTime('dari');
+            $table->dateTime('sampai');
             $table->enum('status', ['done', 'ongoing', 'queue'])->default('ongoing');
             $table->softDeletes();
         });

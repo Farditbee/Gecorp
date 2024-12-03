@@ -105,7 +105,7 @@
                                             data-target="#filterModal">
                                             <i class="ti-plus menu-icon"></i> Filter
                                         </a>
-                                        <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary"
+                                        <a href="{{ route('laporan.rating.index') }}" class="btn btn-secondary"
                                             onclick="resetFilter()">
                                             Reset
                                         </a>
@@ -122,173 +122,201 @@
                                 @endif
                             </div>
                         </div>
-                            <x-adminlte-alerts />
-                            <div class="card-body table-border-style">
-                                <div class="table-responsive">
-                                    <table class="table table-striped" id="jsTables">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Nama Barang</th>
+                        <x-adminlte-alerts />
+                        <div class="card-body table-border-style">
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="jsTables">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Nama Barang</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($barang as $brg)
+                                            <tr data-barang-id="{{ $brg->id }}">
+                                                <td>{{ $loop->iteration }}</td>
+                                                <td>{{ $brg->nama_barang }}</td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            @if ($barang->isEmpty())
-                                                <tr>
-                                                    <td colspan="5" class="text-center">Silahkan Pilih toko dan filter
-                                                        tanggal untuk tampilkan tanggal.</td>
-                                                </tr>
-                                            @else
-                                                @foreach ($barang as $brg)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $brg->nama_barang }}</td>
-                                                    </tr>
-                                                @endforeach
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                    </div>
+                                        @endforeach
+                                    </tbody>
+
+                                </table>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Modal untuk Filter Tanggal -->
-                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('laporan.pengiriman.index') }}" method="GET">
-                                    <div class="form-group">
-                                        <label for="startDate">Tanggal Mulai</label>
-                                        <input type="date" name="startDate" id="startDate" class="form-control"
-                                            value="{{ request('startDate') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="endDate">Tanggal Selesai</label>
-                                        <input type="date" name="endDate" id="endDate" class="form-control"
-                                            value="{{ request('endDate') }}">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                </form>
-                            </div>
+            <!-- Modal untuk Filter Tanggal -->
+            <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="{{ route('laporan.rating.index') }}" method="GET">
+                                <div class="form-group">
+                                    <label for="startDate">Tanggal Mulai</label>
+                                    <input type="date" name="startDate" id="startDate" class="form-control"
+                                        value="{{ request('startDate') }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">Tanggal Selesai</label>
+                                    <input type="date" name="endDate" id="endDate" class="form-control"
+                                        value="{{ request('endDate') }}">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                            </form>
                         </div>
                     </div>
                 </div>
-
-                <!-- [ Main Content ] end -->
             </div>
+
+            <!-- [ Main Content ] end -->
         </div>
+    </div>
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const element = document.getElementById('selector');
-                const choices = new Choices(element, {
-                    removeItemButton: true,
-                    searchEnabled: true,
-                });
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('selector');
+            const choices = new Choices(element, {
+                removeItemButton: true,
+                searchEnabled: true,
             });
-        </script>
-        <script>
-            document.getElementById('selector').addEventListener('change', function() {
-                // Ambil elemen tabel
-                const table = document.getElementById('jsTables');
-                const headerRow = table.querySelector('thead tr');
-                const bodyRows = table.querySelectorAll('tbody tr');
+        });
+    </script>
+    <script>
+        const dataBarangTerjual = @json($dataBarang);
+        console.log('Data Barang Terjual:', dataBarangTerjual);
+    </script>
+    <script>
+        document.getElementById('selector').addEventListener('change', function() {
+    const selectedOptions = Array.from(this.selectedOptions)
+        .filter(option => option.value !== "")
+        .map(option => ({
+            id: option.value,
+            singkatan: option.getAttribute('data-singkatan')
+        }));
 
-                // Hapus semua kolom toko sebelumnya (jika ada)
-                const existingHeaders = headerRow.querySelectorAll('.dynamic-column');
-                existingHeaders.forEach(header => header.remove());
+    console.log('Selected Toko:', selectedOptions);
 
-                bodyRows.forEach(row => {
-                    const dynamicCells = row.querySelectorAll('.dynamic-cell');
-                    dynamicCells.forEach(cell => cell.remove());
-                });
+    if (selectedOptions.length === 0) return; // Jika tidak ada toko yang dipilih
 
-                // Ambil toko yang dipilih dan singkatan
-                const selectedOptions = Array.from(this.selectedOptions)
-                    .filter(option => option.value !== "")
-                    .map(option => ({
-                        id: option.value, // ID toko
-                        singkatan: option.getAttribute('data-singkatan') // Singkatan toko
-                    }));
+    // Kirim permintaan AJAX untuk mendapatkan data barang terjual
+    fetch('{{ route('get-barang-jual') }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ toko_select: selectedOptions.map(option => option.id) })
+    })
+    .then(response => response.json())
+    .then(dataBarangTerjual => {
+        console.log('Data Barang Terjual:', dataBarangTerjual);
 
-                // Jika tidak ada toko yang dipilih, keluar dari fungsi
-                if (selectedOptions.length === 0) return;
+        const table = document.getElementById('jsTables');
+        const headerRow = table.querySelector('thead tr');
+        const bodyRows = table.querySelectorAll('tbody tr');
 
-                // Tambahkan kolom toko (menggunakan singkatan) ke header tabel
-                selectedOptions.forEach(toko => {
-                    const th = document.createElement('th');
-                    th.textContent = toko.singkatan; // Menggunakan singkatan toko
-                    th.classList.add('dynamic-column');
-                    headerRow.appendChild(th);
-                });
+        // Hapus semua kolom toko sebelumnya
+        const existingHeaders = headerRow.querySelectorAll('.dynamic-column');
+        existingHeaders.forEach(header => header.remove());
 
-                // Tambahkan sel kosong (default 0) ke setiap baris body
-                bodyRows.forEach(row => {
-                    selectedOptions.forEach(() => {
-                        const td = document.createElement('td');
-                        td.textContent = '0'; // Default value
-                        td.classList.add('dynamic-cell');
-                        row.appendChild(td);
-                    });
-                });
-            });
-        </script>
+        bodyRows.forEach(row => {
+            const dynamicCells = row.querySelectorAll('.dynamic-cell');
+            dynamicCells.forEach(cell => cell.remove());
+        });
 
-        <script>
-            $(document).ready(function() {
-                // Buka modal ketika tombol filter diklik
-                $('#filterButton').on('click', function() {
-                    $('#filterModal').modal('show');
-                });
+        // Tambahkan header toko
+        selectedOptions.forEach(toko => {
+            const th = document.createElement('th');
+            th.textContent = toko.singkatan;
+            th.classList.add('dynamic-column');
+            headerRow.appendChild(th);
+        });
 
-                // Saat modal ditutup, bersihkan tanggal jika diperlukan
-                $('#filterModal').on('hidden.bs.modal', function() {
-                    $('#startDate').val('');
-                    $('#endDate').val('');
-                });
-            });
-        </script>
-
-        <script>
-            function resetFilter() {
-                const url = new URL(window.location.href);
-                url.searchParams.delete('startDate');
-                url.searchParams.delete('endDate');
-                window.location.href = url.toString();
+        // Tambahkan data barang terjual ke tabel
+        bodyRows.forEach(row => {
+            const barangId = row.getAttribute('data-barang-id'); // ID Barang
+            if (!barangId) {
+                console.warn(`Row tanpa data-barang-id ditemukan:`, row);
+                return;
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const startDateInput = document.getElementById('startDate');
-                const endDateInput = document.getElementById('endDate');
+            console.log(`Processing Barang ID: ${barangId}`);
 
-                if (startDateInput) {
-                    startDateInput.addEventListener('focus', function() {
-                        this.showPicker?.(); // Modern browsers
-                    });
-                }
+            selectedOptions.forEach(toko => {
+                const tokoData = (dataBarangTerjual[barangId] || []).find(d => d.id_toko == toko.id);
+                const jumlahTerjual = tokoData ? tokoData.total_terjual : 0;
 
-                if (endDateInput) {
-                    endDateInput.addEventListener('focus', function() {
-                        this.showPicker?.(); // Modern browsers
-                    });
-                }
+                console.log(`Barang ID: ${barangId}, Toko ID: ${toko.id}, Jumlah Terjual: ${jumlahTerjual}`);
+
+                const td = document.createElement('td');
+                td.textContent = jumlahTerjual; // Tampilkan jumlah terjual
+                td.classList.add('dynamic-cell');
+                row.appendChild(td);
             });
-        </script>
-    @endsection
+        });
+
+        console.log('Updated Table Rows:', Array.from(bodyRows).map(row => row.outerHTML));
+    })
+    .catch(error => {
+        console.error('Error fetching data:', error);
+    });
+});
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Buka modal ketika tombol filter diklik
+            $('#filterButton').on('click', function() {
+                $('#filterModal').modal('show');
+            });
+
+            // Saat modal ditutup, bersihkan tanggal jika diperlukan
+            $('#filterModal').on('hidden.bs.modal', function() {
+                $('#startDate').val('');
+                $('#endDate').val('');
+            });
+        });
+    </script>
+
+    <script>
+        function resetFilter() {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('startDate');
+            url.searchParams.delete('endDate');
+            window.location.href = url.toString();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+
+            if (startDateInput) {
+                startDateInput.addEventListener('focus', function() {
+                    this.showPicker?.(); // Modern browsers
+                });
+            }
+
+            if (endDateInput) {
+                endDateInput.addEventListener('focus', function() {
+                    this.showPicker?.(); // Modern browsers
+                });
+            }
+        });
+    </script>
+@endsection

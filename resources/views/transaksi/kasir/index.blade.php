@@ -260,7 +260,7 @@
                                                             <select name="id_barang[]" id="barang" class="form-control">
                                                                 <option value="">~Silahkan Pilih Barang~</option>
                                                                 @foreach ($barang as $brg)
-                                                                    <option value="{{ $brg->id_barang }}"
+                                                                    <option value="{{ $brg->barang->id }}"
                                                                         data-barcode-barang="{{ $brg->barang->barcode }}"
                                                                         data-nama-barang="{{ $brg->barang->nama_barang }}"
                                                                         data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
@@ -660,20 +660,20 @@
             hiddenNoNotaInput.value = noNotaWithoutSeparator;
         });
     </script>
-    
+
     <script>
         const searchInput = document.getElementById("search-barang");
         const select = document.getElementById("barang");
-    
+
         // Event listener untuk memfilter opsi dropdown saat pengguna mengetik
         searchInput.addEventListener("input", function(event) {
             const searchValue = event.target.value.toLowerCase();
             let matchCount = 0; // Hitung opsi yang cocok
-    
+
             // Loop melalui opsi dan tampilkan/sembunyikan berdasarkan kecocokan searchValue
             for (const option of select.options) {
                 const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
-                
+
                 // Tampilkan opsi yang mengandung searchValue, sembunyikan yang lain
                 if (namaBarang && namaBarang.includes(searchValue)) {
                     option.style.display = ""; // Tampilkan opsi yang cocok
@@ -682,22 +682,22 @@
                     option.style.display = "none"; // Sembunyikan opsi yang tidak cocok
                 }
             }
-    
+
             // Atur ukuran dropdown agar terlihat sejumlah opsi yang cocok
             select.size = matchCount > 0 ? matchCount : 1; // Minimal ukuran dropdown tetap 1
         });
-    
+
         // Event listener untuk memilih opsi jika Enter ditekan
         searchInput.addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault(); // Mencegah form submit jika ada
                 const searchValue = event.target.value.toLowerCase();
                 let found = false;
-    
+
                 for (const option of select.options) {
                     const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
                     const barcodeBarang = option.getAttribute("data-barcode-barang")?.toLowerCase();
-                    
+
                     if (namaBarang === searchValue || barcodeBarang === searchValue) {
                         option.selected = true;
                         found = true;
@@ -705,23 +705,23 @@
                         break;
                     }
                 }
-    
+
                 if (!found && searchValue) {
                     alert("Barang tidak ditemukan. Pastikan nama barang sesuai.");
                 }
-    
+
                 // Reset ukuran dropdown dan bersihkan input
                 select.size = 1; // Kembali ke ukuran normal setelah pemilihan
                 this.value = ''; // Bersihkan input setelah pencarian
             }
         });
-    
+
         // Event listener untuk menangkap pilihan barang secara langsung
         select.addEventListener("change", function() {
             select.size = 1; // Kembali ke ukuran normal setelah memilih opsi
             searchInput.value = ''; // Bersihkan input setelah pilihan
         });
-    
+
         // Tutup dropdown ketika pengguna mengklik di luar input atau dropdown
         document.addEventListener("click", function(event) {
             if (!select.contains(event.target) && !searchInput.contains(event.target)) {
@@ -740,18 +740,18 @@
 
     $('.bd-example-modal-lg').on('shown.bs.modal', function () {
         const searchBarangInput = document.getElementById('search-barang');
-    
+
         if (searchBarangInput) {
             // Fokus awal ke input search-barang
             searchBarangInput.focus();
-    
+
             // Event listener untuk klik di modal
             const modalContent = document.querySelector('.bd-example-modal-lg .modal-content');
-    
+
             modalContent.addEventListener('click', function (event) {
                 // Daftar elemen interaktif yang tidak akan memicu fokus ulang
                 const nonInteractiveElements = ['input', 'select', 'textarea', 'button', 'a'];
-    
+
                 // Jika area yang diklik bukan elemen interaktif, fokuskan kembali ke input search-barang
                 if (!nonInteractiveElements.includes(event.target.tagName.toLowerCase())) {
                     searchBarangInput.focus();

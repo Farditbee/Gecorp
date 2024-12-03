@@ -41,44 +41,47 @@
                     <div class="card-body table-border-style">
                         <div class="table-responsive">
                             <table class="table table-striped" id="jsTable">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Kode Barcode</th>
-                                            <th>Barcode</th>
-                                            <th>Nama Barang</th>
-                                            <th>Jenis Barang</th>
-                                            <th>Brand Barang</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($barang as $brg)
-                                        <tr>
-                                            <td>{{$loop->iteration}}</td>
-                                            <td>{{ !empty($brg->barcode) ? $brg->barcode : 'Belum ada Barcode' }}</td>
-                                            <td><img src="{{ asset('storage/' . $brg->barcode_path) }}" class="barcode-img" alt="Barcode"></td>
-                                            {{-- {{ dd(Storage::url($brg->barcode_path)) }} --}}
-                                            <td>{{$brg->nama_barang}}</td>
-                                            <td>{{$brg->jenis->nama_jenis_barang}}</td>
-                                            <td>{{$brg->brand->nama_brand}}</td>
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Kode Barcode</th>
+                                        <th>Barcode</th>
+                                        <th>Nama Barang</th>
+                                        <th>Jenis Barang</th>
+                                        <th>Brand Barang</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($barang as $brg)
+                                    <tr>
+                                        <td>{{$loop->iteration}}</td>
+                                        <td>{{ !empty($brg->barcode) ? $brg->barcode : 'Belum ada Barcode' }}</td>
+                                        <td><img src="{{ asset('storage/' . $brg->barcode_path) }}" class="barcode-img" alt="Barcode"></td>
+                                        <td>{{$brg->nama_barang}}</td>
+                                        <td>{{$brg->jenis->nama_jenis_barang}}</td>
+                                        <td>{{$brg->brand->nama_brand}}</td>
+                                        <td>
                                             <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="{{ route('master.barang.delete', $brg->id)}}" method="POST">
-                                            <td>
-                                                    <a href="{{ route('master.barang.edit', $brg->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
-                                                    <a href="{{ asset('storage/' . $brg->barcode_path) }}" download class="btn btn-success btn-sm"><i class="fa fa-download"></i></a>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                </td>
+                                                <a href="{{ route('master.barang.edit', $brg->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
+                                                <a href="{{ asset('storage/' . $brg->barcode_path) }}" download class="btn btn-success btn-sm"><i class="fa fa-download"></i></a>
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
                                             </form>
-                                        </tr>
-                                        @empty
-                                        <div class="alert alert-danger">
-                                            Data Barang belum Tersedia.
-                                        </div>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="7">
+                                            <div class="alert alert-danger">
+                                                Data Barang belum Tersedia.
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.

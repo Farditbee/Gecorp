@@ -128,11 +128,11 @@
                         <div class="row">
                             <div class="col-6">
                                 <label for="id_supplier" class="form-control-label">Dari</label>
-                                <input class="form-control" type="date" name="dari" id="dari">
+                                <input class="form-control" type="datetime-local" name="dari" id="dari">
                             </div>
                             <div class="col-6">
                                 <label for="id_supplier" class="form-control-label">Sampai</label>
-                                <input class="form-control" type="date" name="sampai" id="sampai">
+                                <input class="form-control" type="datetime-local" name="sampai" id="sampai">
                             </div>
                         </div><br>
                         <button type="submit" style="float: right" id="save-btn" class="btn btn-primary">
@@ -150,11 +150,11 @@
 <script>
     let typingTimer;
     const doneTypingInterval = 500; // Waktu jeda setelah selesai mengetik (ms)
-    
+
     document.getElementById("jumlah").addEventListener("input", function() {
         clearTimeout(typingTimer);
         const jumlahInput = this;
-        
+
         typingTimer = setTimeout(() => {
             const minimal = parseInt(document.getElementById("minimal").value);
             const jumlah = parseInt(jumlahInput.value);
