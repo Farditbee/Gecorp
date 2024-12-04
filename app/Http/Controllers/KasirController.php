@@ -152,22 +152,22 @@ class KasirController extends Controller
             $kasir->total_nilai = 0;
             $kasir->no_nota = $request->no_nota;
             $kasir->metode = $request->metode;
-            $kasir->jml_bayar = $request->jml_bayar;
-            $kasir->kembalian = $request->kembalian;
+            $kasir->jml_bayar = (float)$request->jml_bayar; // Konversi ke float
+            $kasir->kembalian = (float)$request->kembalian; // Konversi ke float
             $kasir->save();
     
             // Proses barang yang dibeli
-            $idBarangs = $request->input('id_barang', []);
-            $qtys = $request->input('qty', []);
-            $hargaBarangs = $request->input('harga', []);
+            $idBarangs = array_filter($request->input('id_barang', [])); // Hapus elemen kosong
+            $qtys = array_filter($request->input('qty', [])); // Hapus elemen kosong
+            $hargaBarangs = array_filter($request->input('harga', [])); // Hapus elemen kosong
     
             $totalItem = 0;
             $totalNilai = 0;
             $totalDiskon = 0;
     
             foreach ($idBarangs as $index => $id_barang) {
-                $qty = $qtys[$index] ?? null;
-                $harga_barang = $hargaBarangs[$index] ?? null;
+                $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null; // Konversi ke float
+                $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null; // Konversi ke float
     
                 if (is_null($qty) || is_null($harga_barang)) {
                     continue;
@@ -190,23 +190,19 @@ class KasirController extends Controller
                         $totalDiskon += $potongan;
     
                         if ($promo->jumlah) {
-                            // Batas maksimal barang diskon yang bisa dibeli
                             $eligibleQty = min($qty, $promo->jumlah - $promo->terjual);
                             $promo->terjual += $eligibleQty;
     
-                            // Ubah status promo jika kuota habis
                             if ($promo->terjual >= $promo->jumlah) {
                                 $promo->status = 'done';
                             }
                         } else {
-                            // Jika tidak ada batasan, tambahkan semua qty yang mendapat diskon
                             $promo->terjual += $qty;
                         }
     
                         $promo->save();
                     }
                 } else {
-                    // Cek jika ada promo 'ongoing' yang kadaluarsa, ubah status jadi 'done'
                     $expiredPromo = Promo::where('id_barang', $id_barang)
                         ->where('status', 'ongoing')
                         ->where('sampai', '<', $tglTransaksi)
@@ -261,8 +257,8 @@ class KasirController extends Controller
             return redirect()->route('master.kasir.index')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {
             DB::rollback();
-            
-            return redirect()->back()->with('error', 'Failed to save transaction. Please try again.');
+    
+            return redirect()->back()->with('error', 'Failed to save transaction. Please try again. ' . $th->getMessage());
         }
     }
     
