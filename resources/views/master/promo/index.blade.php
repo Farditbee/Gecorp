@@ -46,6 +46,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Nama Barang</th>
+                                        <th>Toko</th>
                                         <th>Diskon</th>
                                         <th>Jumlah</th>
                                         <th>Terjual</th>
@@ -60,6 +61,7 @@
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
                                         <td>{{$prm->barang->nama_barang}}</td>
+                                        <td>{{$prm->toko->nama_toko ?? "Tak Ada Data"}}</td>
                                         <td>{{$prm->diskon}}%</td>
                                         <td>{{$prm->minimal}} Item</td>
                                         <td>{{$prm->terjual}} Item</td>

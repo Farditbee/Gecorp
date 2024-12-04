@@ -32,6 +32,7 @@ class PromoController extends Controller
     {
         $validatedData = $request->validate([
             'barang' => 'required|exists:barang,id', // Validasi barang harus ada di tabel barang
+            'toko' => 'required|exists:toko,id', // Validasi toko harus ada di tabel toko
             'minimal' => 'required|integer|min:0',
             'jumlah' => 'required|integer|min:0',
             'diskon' => 'required|integer|between:0,100',
@@ -41,9 +42,11 @@ class PromoController extends Controller
 
         try {
             $barang = Barang::findOrFail($validatedData['barang']);
+            $toko = Toko::findOrFail($validatedData['toko']);
 
             Promo::create([
                 'id_barang' => $barang->id,
+                'id_toko' => $toko->id,
                 'nama_barang' => $barang->nama_barang,
                 'minimal' => $validatedData['minimal'],
                 'jumlah' => $validatedData['jumlah'],
