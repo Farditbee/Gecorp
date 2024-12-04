@@ -61,7 +61,7 @@
                                     <tr>
                                         <td>{{$loop->iteration}}</td>
                                         <td>{{$prm->barang->nama_barang}}</td>
-                                        <td>{{$prm->toko->nama_toko ?? "Tak Ada Data"}}</td>
+                                        <td>{{$prm->toko->nama_toko ?? "Tak ada Toko"}}</td>
                                         <td>{{$prm->diskon}}%</td>
                                         <td>{{$prm->minimal}} Item</td>
                                         <td>{{$prm->terjual}} Item</td>
@@ -201,7 +201,17 @@
                                             <option value="{{ $brg->id }}" {{ old('id_barang', $prm->id_barang) == $brg->id ? 'selected' : '' }}>
                                                 {{ $brg->nama_barang }}
                                             </option>
-                                            <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="toko" class="form-control-label">Toko
+                                        <select name="toko" id="toko" class="form-control">
+                                            <option value="" selected>Pilih toko</option>
+                                            @foreach ($toko as $tk)
+                                            <option value="{{ $tk->id }}" {{ old('id_toko', $prm->id_toko) == $tk->id ? 'selected' : '' }}>
+                                                {{ $tk->nama_toko }}
+                                            </option>
                                             @endforeach
                                         </select>
                                     </div>

@@ -17,6 +17,7 @@ class PromoController extends Controller
                                         ->toArray();
         $promo = Promo::all();
         $toko = Toko::all();
+        // $barang = Barang::all();
 
         // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
         $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
@@ -32,7 +33,7 @@ class PromoController extends Controller
     {
         $validatedData = $request->validate([
             'barang' => 'required|exists:barang,id', // Validasi barang harus ada di tabel barang
-            'toko' => 'required|exists:toko,id', // Validasi toko harus ada di tabel toko
+            'toko' => 'required|exists:toko,id', // Validasi barang harus ada di tabel toko
             'minimal' => 'required|integer|min:0',
             'jumlah' => 'required|integer|min:0',
             'diskon' => 'required|integer|between:0,100',
