@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tamu' => RedirectIfAuthenticated::class
         ]);
+        
+        $middleware->use([
+            \App\Http\Middleware\LogLastActivity::class,
+            \App\Http\Middleware\LogUserLogout::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

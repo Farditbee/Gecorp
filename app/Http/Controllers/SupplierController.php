@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogger;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,8 @@ class SupplierController extends Controller
 
     public function store(Request $request)
     {
+        $data = $request->all();
+
         $validatedData = $request->validate([
             'nama_supplier' => 'required|max:255',
             'email' => 'required|max:255',
@@ -33,6 +36,7 @@ class SupplierController extends Controller
             'alamat.required' => 'Alamat tidak boleh kosong.',
             'contact.required' => 'Contact tidak boleh kosong.',
         ]);
+
         try {
             Supplier::create([
                 'nama_supplier' => $request->nama_supplier,
@@ -40,6 +44,8 @@ class SupplierController extends Controller
                 'alamat' => $request->alamat,
                 'contact' => $request->contact,
             ]);
+
+            ActivityLogger::log('Tambah Supplier', $data);
 
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
