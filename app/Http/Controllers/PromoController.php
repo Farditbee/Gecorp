@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\Promo;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 
 class PromoController extends Controller
@@ -14,6 +15,8 @@ class PromoController extends Controller
         $ongoingPromoBarangIds = Promo::where('status', 'ongoing')
                                         ->pluck('id_barang')
                                         ->toArray();
+        $promo = Promo::all();
+        $toko = Toko::all();
 
         // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
         $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
@@ -22,7 +25,7 @@ class PromoController extends Controller
                             })
                             ->get();
 
-        return view('master.promo.index', compact('barang'));
+        return view('master.promo.index', compact('barang', 'promo', 'toko'));
     }
 
     public function store(Request $request)
@@ -48,7 +51,7 @@ class PromoController extends Controller
                 'dari' => $validatedData['dari'],
                 'sampai' => $validatedData['sampai'],
             ]);
-    
+
             return redirect()->back()->with('success', 'Promo berhasil disimpan!');
         } catch (\Throwable $th) {
 
