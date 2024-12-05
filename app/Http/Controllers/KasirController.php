@@ -138,7 +138,36 @@ class KasirController extends Controller
     {
         try {
             DB::beginTransaction();
+
+            // Ambil data dari request
+            $idBarangs = $request->input('id_barang', []);
+            $qtys = $request->input('qty', []);
+            $hargaBarangs = $request->input('harga', []);
     
+            // Bersihkan elemen kosong dari array
+            $idBarangs = array_values(array_filter($idBarangs, function ($value) {
+                return $value !== null && $value !== '';
+            }));
+    
+            $qtys = array_values(array_filter($qtys, function ($value) {
+                return $value !== null && $value !== '';
+            }));
+    
+            $hargaBarangs = array_values(array_filter($hargaBarangs, function ($value) {
+                return $value !== null && $value !== '';
+            }));
+    
+            // Sinkronisasi array berdasarkan jumlah elemen
+            $maxCount = max(count($idBarangs), count($qtys), count($hargaBarangs));
+            $idBarangs = $this->fillArrayToMatchCount($idBarangs, $maxCount);
+            $qtys = $this->fillArrayToMatchCount($qtys, $maxCount);
+            $hargaBarangs = $this->fillArrayToMatchCount($hargaBarangs, $maxCount);
+    
+            // Validasi kesesuaian jumlah elemen setelah sinkronisasi
+            if (count($idBarangs) !== count($qtys) || count($idBarangs) !== count($hargaBarangs)) {
+                return redirect()->back()->with('error', 'Data tidak sinkron. Silakan periksa kembali input Anda.');
+            }
+            
             $user = Auth::user();
             $tglTransaksi = now();
     
@@ -155,11 +184,6 @@ class KasirController extends Controller
             $kasir->jml_bayar = (float)$request->jml_bayar; // Konversi ke float
             $kasir->kembalian = (float)$request->kembalian; // Konversi ke float
             $kasir->save();
-    
-            // Proses barang yang dibeli
-            $idBarangs = array_filter($request->input('id_barang', [])); // Hapus elemen kosong
-            $qtys = array_filter($request->input('qty', [])); // Hapus elemen kosong
-            $hargaBarangs = array_filter($request->input('harga', [])); // Hapus elemen kosong
     
             $totalItem = 0;
             $totalNilai = 0;
@@ -262,5 +286,14 @@ class KasirController extends Controller
         }
     }
     
-
+    // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
+    private function fillArrayToMatchCount(array $array, int $count)
+    {
+        while (count($array) < $count) {
+            // Tambahkan elemen terakhir jika array lebih pendek
+            $array[] = end($array) ?: 0;
+        }
+        return $array;
+    }
+    
 }
