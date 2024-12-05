@@ -123,15 +123,22 @@
             <tr>
                 <td>{{$loop->iteration}}</td>
                 <td>{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs) @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
-                <td class="price">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
+                <td class="price">{{ number_format($kasir->total_nilai, 0, '.', '.') }}</td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
+                <td colspan="2" style="text-align:left">Potongan</td>
+                <td class="price">
+                    {{ number_format($kasir->total_diskon, 0, '.', '.') }}</td>
+            </tr>
+            <tr>
+            </tr>
+            <tr>
                 <th scope="col" colspan="2" style="text-align:left">Total</th>
                 <th scope="col" class="price">
-                    {{ number_format($kasir->total_nilai, 0, '.', '.') }}</th>
+                    {{ number_format($dtks->total_harga, 0, '.', '.') }}</th>
             </tr>
             <tr>
                 <td colspan="2" style="text-align:left">Dibayar</td>

@@ -413,8 +413,10 @@
                                                         {{ number_format($ksr->total_nilai, 0, '.', '.') }}</p>
                                                 </div>
                                                 <div class="info-row">
-                                                    <p class="label">Nilai Voucher</p>
-                                                    <p class="value">: 0</p>
+                                                    <p class="label">Total Potongan</p>
+                                                    <p class="value">: Rp.
+                                                        {{ number_format($ksr->total_diskon, 0, '.', '.') }}
+                                                    </p>
                                                 </div>
                                                 <div class="info-row">
                                                     <p class="label">Jumlah Bayar</p>
@@ -515,18 +517,27 @@
                                                             <td class="narrow-column">{{ $loop->iteration }}.</td>
                                                             <td class="wide-column">({{ $dtks->barang->nama_barang }})
                                                                 {{ $dtks->qty }}pcs
-                                                                @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
+                                                                @*{{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td class="price-column">
-                                                                {{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
+                                                                {{ number_format($ksr->total_nilai, 0, '.', '.') }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
+                                                        <td colspan="2" style="text-align:left">Potongan</td>
+                                                        <td class="price-column">
+                                                            {{ number_format($ksr->total_diskon, 0, '.', '.') }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
                                                         <th scope="col" colspan="2" style="text-align:left">Total
                                                         </th>
                                                         <th scope="col" class="price-column">
-                                                            {{ number_format($ksr->total_nilai, 0, '.', '.') }}</th>
+                                                            {{ number_format($dtks->total_harga, 0, '.', '.') }}
+                                                        </th>
                                                     </tr>
                                                     <tr>
                                                         <td colspan="2" style="text-align:left">Dibayar</td>

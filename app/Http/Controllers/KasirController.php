@@ -143,34 +143,34 @@ class KasirController extends Controller
             $idBarangs = $request->input('id_barang', []);
             $qtys = $request->input('qty', []);
             $hargaBarangs = $request->input('harga', []);
-    
+
             // Bersihkan elemen kosong dari array
             $idBarangs = array_values(array_filter($idBarangs, function ($value) {
                 return $value !== null && $value !== '';
             }));
-    
+
             $qtys = array_values(array_filter($qtys, function ($value) {
                 return $value !== null && $value !== '';
             }));
-    
+
             $hargaBarangs = array_values(array_filter($hargaBarangs, function ($value) {
                 return $value !== null && $value !== '';
             }));
-    
+
             // Sinkronisasi array berdasarkan jumlah elemen
             $maxCount = max(count($idBarangs), count($qtys), count($hargaBarangs));
             $idBarangs = $this->fillArrayToMatchCount($idBarangs, $maxCount);
             $qtys = $this->fillArrayToMatchCount($qtys, $maxCount);
             $hargaBarangs = $this->fillArrayToMatchCount($hargaBarangs, $maxCount);
-    
+
             // Validasi kesesuaian jumlah elemen setelah sinkronisasi
             if (count($idBarangs) !== count($qtys) || count($idBarangs) !== count($hargaBarangs)) {
                 return redirect()->back()->with('error', 'Data tidak sinkron. Silakan periksa kembali input Anda.');
             }
-            
+
             $user = Auth::user();
             $tglTransaksi = now();
-    
+
             // Inisialisasi transaksi kasir
             $kasir = new Kasir();
             $kasir->id_member = $request->id_member == 'Guest' ? 0 : $request->id_member;
@@ -184,46 +184,46 @@ class KasirController extends Controller
             $kasir->jml_bayar = (float)$request->jml_bayar; // Konversi ke float
             $kasir->kembalian = (float)$request->kembalian; // Konversi ke float
             $kasir->save();
-    
+
             $totalItem = 0;
             $totalNilai = 0;
             $totalDiskon = 0;
-    
+
             foreach ($idBarangs as $index => $id_barang) {
                 $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null; // Konversi ke float
                 $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null; // Konversi ke float
-    
+
                 if (is_null($qty) || is_null($harga_barang)) {
                     continue;
                 }
-    
+
                 // Cek promo yang berlaku
                 $promo = Promo::where('id_barang', $id_barang)
                     ->where('status', 'ongoing')
                     ->where('dari', '<=', $tglTransaksi)
                     ->where('sampai', '>=', $tglTransaksi)
                     ->first();
-    
+
                 $potongan = 0;
                 if ($promo) {
                     if ($qty >= $promo->minimal) {
                         $diskon = $promo->diskon;
                         $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
-    
+
                         $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
                         $totalDiskon += $potongan;
-    
+
                         if ($promo->jumlah) {
                             $eligibleQty = min($qty, $promo->jumlah - $promo->terjual);
                             $promo->terjual += $eligibleQty;
-    
+
                             if ($promo->terjual >= $promo->jumlah) {
                                 $promo->status = 'done';
                             }
                         } else {
                             $promo->terjual += $qty;
                         }
-    
+
                         $promo->save();
                     }
                 } else {
@@ -231,13 +231,13 @@ class KasirController extends Controller
                         ->where('status', 'ongoing')
                         ->where('sampai', '<', $tglTransaksi)
                         ->first();
-    
+
                     if ($expiredPromo) {
                         $expiredPromo->status = 'done';
                         $expiredPromo->save();
                     }
                 }
-    
+
                 // Simpan detail kasir
                 $detail = DetailKasir::create([
                     'id_kasir' => $kasir->id,
@@ -247,7 +247,7 @@ class KasirController extends Controller
                     'diskon' => $potongan,
                     'total_harga' => ($qty * $harga_barang) - $potongan,
                 ]);
-    
+
                 // Update stok berdasarkan toko
                 if ($user->id_toko == 1) {
                     $stock = StockBarang::where('id_barang', $id_barang)->first();
@@ -264,28 +264,28 @@ class KasirController extends Controller
                         $detailToko->save();
                     }
                 }
-    
+
                 $totalItem += $qty;
-                $totalNilai += ($qty * $harga_barang) - $potongan;
+                $totalNilai += $qty * $harga_barang;
             }
-    
+
             // Update total transaksi di kasir
             $kasir->total_item = $totalItem;
             $kasir->total_nilai = $totalNilai;
             $kasir->total_diskon = $totalDiskon;
-            $kasir->kembalian = $kasir->jml_bayar - $totalNilai; // Hitung kembalian setelah diskon
+            $kasir->kembalian = $kasir->jml_bayar - ($totalNilai - $totalDiskon); // Hitung kembalian setelah diskon
             $kasir->save();
-    
+
             DB::commit();
-    
+
             return redirect()->route('master.kasir.index')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {
             DB::rollback();
-    
+
             return redirect()->back()->with('error', 'Failed to save transaction. Please try again. ' . $th->getMessage());
         }
     }
-    
+
     // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
     private function fillArrayToMatchCount(array $array, int $count)
     {
@@ -295,5 +295,5 @@ class KasirController extends Controller
         }
         return $array;
     }
-    
+
 }
