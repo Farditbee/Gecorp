@@ -88,7 +88,7 @@
         width: 7%; /* atau atur ke lebar sesuai keinginan, misalnya 5% atau 50px */
     }
     .wide-column {
-        width: 60%; /* Lebih luas untuk kolom Nama Barang */
+        width: 40%; /* Lebih luas untuk kolom Nama Barang */
         white-space: nowrap; /* Menjaga agar konten tetap dalam satu baris, jika memungkinkan */
     }
     .price-column {

@@ -62,7 +62,7 @@ class BrandController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+            return redirect()->back()->with(['error' => $e->getMessage()]);
         }
     }
 

@@ -519,33 +519,41 @@
                                                                 {{ $dtks->qty }}pcs
                                                                 @*{{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td class="price-column">
-                                                                {{ number_format($ksr->total_nilai, 0, '.', '.') }}</td>
+                                                                -{{ number_format((float) $dtks->diskon, 0, '.', '.') }}
+                                                            </td>
+                                                            <td class="price-column">
+                                                                {{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
-                                                        <td colspan="2" style="text-align:left">Potongan</td>
+                                                        <td></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3" style="text-align:left">Total Harga</td>
+                                                        <td class="price-column">
+                                                            {{ number_format($ksr->total_nilai, 0, '.', '.') }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td colspan="3" style="text-align:left">Total Potongan</td>
                                                         <td class="price-column">
                                                             {{ number_format($ksr->total_diskon, 0, '.', '.') }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="col" colspan="2" style="text-align:left">Total
+                                                        <th scope="col" colspan="3" style="text-align:left">Total
                                                         </th>
                                                         <th scope="col" class="price-column">
-                                                            {{ number_format($dtks->total_harga, 0, '.', '.') }}
+                                                            {{ number_format(($ksr->total_nilai - $ksr->total_diskon), 0, '.', '.') }}
                                                         </th>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" style="text-align:left">Dibayar</td>
+                                                        <td colspan="3" style="text-align:left">Dibayar</td>
                                                         <td class="price-column">
                                                             {{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td colspan="2" style="text-align:left">Kembalian</td>
+                                                        <td colspan="3" style="text-align:left">Kembalian</td>
                                                         <td class="price-column">
                                                             {{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
                                                     </tr>

@@ -245,8 +245,10 @@ class KasirController extends Controller
                     'qty' => $qty,
                     'harga' => $harga_barang,
                     'diskon' => $potongan,
-                    'total_harga' => ($qty * $harga_barang) - $potongan,
+                    'total_harga' => $qty * $harga_barang,
                 ]);
+
+                // dd($detail);
 
                 // Update stok berdasarkan toko
                 if ($user->id_toko == 1) {
