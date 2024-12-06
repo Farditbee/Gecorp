@@ -16,8 +16,8 @@ class PromoController extends Controller
                                         ->pluck('id_barang')
                                         ->toArray();
         $promo = Promo::all();
-        $toko = Toko::all();
-        // $barang = Barang::all();
+        $toko = Toko::where('id', '!=', 1)->get();
+        $barang = Barang::all();
 
         // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
         $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)

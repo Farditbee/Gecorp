@@ -202,6 +202,7 @@ class KasirController extends Controller
                     ->where('status', 'ongoing')
                     ->where('dari', '<=', $tglTransaksi)
                     ->where('sampai', '>=', $tglTransaksi)
+                    ->where('id_toko', $user->id_toko)
                     ->first();
 
                 $potongan = 0;
