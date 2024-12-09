@@ -32,9 +32,13 @@
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <!-- Tombol Tambah -->
                             <div class="d-flex">
+                                @if (Auth::user()->id_level == 1)
+
+                                @else
                                 <a href="" class="btn btn-primary mr-2" id="btn-tambah" data-toggle="modal" data-target=".bd-example-modal-lg">
                                     <i class="ti-plus menu-icon"></i> Tambah
                                 </a>
+                                @endif
                                 <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
                                     <i class="ti-plus menu-icon"></i> Filter
                                 </a>

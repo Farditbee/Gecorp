@@ -109,12 +109,13 @@
         <p><span class="label">Member</span> : {{ $kasir->id_member == 0 ? 'Guest' : $kasir->member->nama_member }}</p>
         <p><span class="label">Kasir</span> : {{ $kasir->users->nama }}</p>
     </div>
-
+<hr>
     <table class="receipt-table">
         <thead>
             <tr>
                 <th>#</th>
                 <th>Barang</th>
+                <th class="price">Potongan</th>
                 <th class="price">Harga</th>
             </tr>
         </thead>
@@ -123,30 +124,36 @@
             <tr>
                 <td>{{$loop->iteration}}</td>
                 <td>{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs) @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
-                <td class="price">{{ number_format($kasir->total_nilai, 0, '.', '.') }}</td>
+                <td class="price">-{{ number_format((float) $dtks->diskon, 0, '.', '.') }}</td>
+                <td class="price">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
             </tr>
             @endforeach
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="2" style="text-align:left">Potongan</td>
+                <td colspan="3" style="text-align:left">Total Harga</td>
+                <td class="price">
+                    {{ number_format($kasir->total_nilai, 0, '.', '.') }}</td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align:left">Total Potongan</td>
                 <td class="price">
                     {{ number_format($kasir->total_diskon, 0, '.', '.') }}</td>
             </tr>
             <tr>
             </tr>
             <tr>
-                <th scope="col" colspan="2" style="text-align:left">Total</th>
+                <th scope="col" colspan="3" style="text-align:left">Total Bayar</th>
                 <th scope="col" class="price">
-                    {{ number_format($dtks->total_harga, 0, '.', '.') }}</th>
+                    {{ number_format(($kasir->total_nilai - $kasir->total_diskon), 0, '.', '.') }}</th>
             </tr>
             <tr>
-                <td colspan="2" style="text-align:left">Dibayar</td>
+                <td colspan="3" style="text-align:left">Dibayar</td>
                 <td class="price">
                     {{ number_format($kasir->jml_bayar, 0, '.', '.') }}</td>
             </tr>
             <tr>
-                <td colspan="2" style="text-align:left">Kembalian</td>
+                <td colspan="3" style="text-align:left">Kembalian</td>
                 <td class="price">
                     {{ number_format($kasir->kembalian, 0, '.', '.') }}</td>
             </tr>
