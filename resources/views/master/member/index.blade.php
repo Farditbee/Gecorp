@@ -55,7 +55,7 @@
                                     <tr>
                                         <td>{{$no++}}</td>
                                         <td>{{$mbr->nama_member}}</td>
-                                        <td>{{$mbr->toko->nama_toko}}</td>
+                                        <td>{{$mbr->toko->nama_toko ?? "Tak Ada toko"}}</td>
                                         <td>
                                             @if (!empty($mbr->level_data))
                                                 @foreach ($mbr->level_data as $data)
@@ -138,7 +138,7 @@
                                                         <select name="level_harga[{{ $jb->id }}]" id="level_harga_{{ $jb->id }}" class="form-control">
                                                             <option value="" selected>~Silahkan Pilih Toko Dahulu~</option>
                                                             @foreach($levelharga as $lh)
-                                                            
+
                                                             @endforeach
                                                         </select>
                                                     </h6>
@@ -146,7 +146,7 @@
                                                 @endforeach
                                             </ul>
                                         </div>
-                                        
+
                                         <div class="form-group">
                                             <label for="nama_member" class=" form-control-label">Nama Member<span style="color: red">*</span></label>
                                             <input type="text" id="nama_member" name="nama_member" placeholder="Contoh : Member 1" class="form-control">
@@ -228,7 +228,7 @@
                             @endforeach
                         </ul>
                     </div>
-                    
+
                     <!-- Nomor Hp -->
                     <div class="form-group">
                         <label for="no_hp">No HP<span style="color: red">*</span></label>
@@ -278,13 +278,13 @@ document.addEventListener('DOMContentLoaded', function () {
         // Buat request AJAX untuk mendapatkan level_harga
         var xhr = new XMLHttpRequest();
         xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
-        
+
         xhr.onload = function() {
             if (xhr.status === 200) {
                 console.log('Respon dari server:', xhr.responseText);
-                
+
                 var data = JSON.parse(xhr.responseText);
-                
+
                 // Cek apakah data level harga ada
                 if (data.length > 0) {
                     // Loop melalui data level harga yang diterima dan tambahkan opsi ke dropdown
@@ -342,7 +342,7 @@ function editMember(id) {
         method: 'GET',
         success: function(data) {
             console.log('ID Toko yang dipilih:', data.id_toko);  // Log id_toko yang dipilih
-            
+
             // Isi form modal dengan data dari server
             $('#edit_nama_member').val(data.nama_member);
             $('#edit_no_hp').val(data.no_hp);

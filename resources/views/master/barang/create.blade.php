@@ -46,7 +46,7 @@
                                             <label for="nama_barang" class=" form-control-label">Nama Barang<span
                                                     style="color: red">*</span></label>
                                             <input type="text" id="nama_barang" name="nama_barang" value=""
-                                                class="form-control" placeholder="Contoh : Barang Baru">
+                                                class="form-control" placeholder="Contoh : Barang Baru" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -72,7 +72,7 @@
                                     <div class="form-group">
                                         <div class="form-group">
                                             <label class="form-control-label">Gambar Barang</label>
-                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control">
+                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control" required>
                                         </div>
                                     </div>
                                     <br>
