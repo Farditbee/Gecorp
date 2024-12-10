@@ -20295,7 +20295,7 @@ pre[class*=language-]:before {
     height: 56px;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
+    justify-content: left;
     padding: 0 25px;
 }
 

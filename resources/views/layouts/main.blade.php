@@ -18,6 +18,7 @@
     @include('layouts.css.style_css')
 
 </head>
+
 <body>
 
     <!-- [ navigation menu ] start -->
@@ -38,8 +39,11 @@
 
     <!-- Warning Section Ends -->
 
-        <!-- Required Js -->
-        @include('layouts.js.style_js')
-        <!-- Close Js -->
+    <script src="{{ asset('js/axios.js') }}"></script>
+    <script src="{{ asset('js/restAPI.js') }}"></script>
+    <!-- Required Js -->
+    @include('layouts.js.style_js')
+    <!-- Close Js -->
 </body>
+
 </html>
