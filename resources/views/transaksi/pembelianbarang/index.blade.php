@@ -70,13 +70,13 @@
                                                 <tr>
                                                     <td>{{ $loop->iteration }}</td>
                                                     @if ($beli->status == 'progress')
-                                                        <td><span class="badge badge-warning fixed-badge">Progress</span>
+                                                        <td><span class="badge badge-warning fixed-badge">Progres</span>
                                                         </td>
                                                     @elseif ($beli->status == 'success')
-                                                        <td><span class="badge badge-success fixed-badge">Success</span>
+                                                        <td><span class="badge badge-success fixed-badge">Sukses</span>
                                                         </td>
                                                     @elseif ($beli->status == 'failed')
-                                                        <td><span class="badge badge-danger fixed-badge">Failed</span></td>
+                                                        <td><span class="badge badge-danger fixed-badge">Gagal</span></td>
                                                     @else
                                                         <td><span class="badge badge-primary fixed-badge">Mixed</span></td>
                                                     @endif
