@@ -25,13 +25,91 @@
 
             <!-- [ Main Content ] start -->
             <div class="row">
-                <div class="col-xxl-6 col-md-12">
+                <div class="col-xxl-6 col-md-3">
+                    <div class="row">
+                        <div class="col-xxl-12 col-md-12">
+                            <div class="card statistics-card-1" style="position: relative;">
+                                <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
+                                    style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;">
+                                <div class="card-body position-relative">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avtar bg-brand-color-1 text-white me-3">
+                                            <i class="ph-duotone ph-currency-dollar f-26"></i>
+                                        </div>
+                                        <div>
+                                            <p class="font-weight-bold mb-0">Total Pendapatan</p>
+                                            <div class="d-flex align-items-end">
+                                                <h2 class="mb-0" id="total-pendapatan">
+                                                    Rp. 0
+                                                </h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xxl-12 col-md-12">
+                            <div class="card table-card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>Top 5 Penjualan</h5>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <select id="filter-rating" class="form-select form-select-sm w-auto">
+                                            <option value="all">Semua Toko</option>
+                                            @foreach ($toko as $tokoData)
+                                                <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="performance-scroll simplebar-scrollable-y"
+                                    style="height: 350px; position: relative" data-simplebar="init">
+                                    <div class="simplebar-wrapper" style="margin: 0px;">
+                                        <div class="simplebar-height-auto-observer-wrapper">
+                                            <div class="simplebar-height-auto-observer"></div>
+                                        </div>
+                                        <div class="simplebar-mask">
+                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                                <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                                    aria-label="scrollable content"
+                                                    style="height: 100%; overflow: hidden scroll;">
+                                                    <div class="simplebar-content" style="padding: 0px;">
+                                                        <div class="card-body p-0">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover m-b-0 without-header">
+                                                                    <tbody id="listData">
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="simplebar-placeholder" style="width: 471px; height: 443px;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                                    </div>
+                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                        <div class="simplebar-scrollbar"
+                                            style="height: 325px; transform: translate3d(0px, 0px, 0px); display: block;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-md-9">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5>Laporan Penjualan</h5>
                             <div class="d-flex align-items-center gap-2">
                                 <select id="filter-toko" class="form-select form-select-sm w-auto">
                                     <option value="all">Semua Toko</option>
+                                    @foreach ($toko as $tokoData)
+                                        <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
+                                    @endforeach
                                 </select>
                                 <select id="filter-period" class="form-select form-select-sm w-auto">
                                     <option value="daily">Harian</option>
@@ -58,7 +136,7 @@
                         <div class="card-body">
                             <div class="row pb-2 align-items-center">
                                 <div class="col-auto m-b-10">
-                                    <h3 class="mb-1" id="total-penjualan">Rp 0</h3>
+                                    <h3 class="mb-1" id="total-penjualan">Rp. 0</h3>
                                     <span>Data Penjualan</span>
                                 </div>
                                 <div class="col-auto ms-auto">
@@ -578,6 +656,26 @@
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script>
         let customFilter = {};
+        let customFilter2 = {};
+
+        async function getTotalPendapatan() {
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ asset('dummy/pendapatan.json') }}'
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status === 200) {
+                let data = getDataRest.data.data;
+                await $('#total-pendapatan').html(formatRupiah(data));
+            } else {
+                console.error(getDataRest?.data?.message || "Error retrieving data.");
+            }
+        }
 
         async function getLaporanPenjualan() {
             let filterParams = {};
@@ -595,22 +693,22 @@
                 filterParams.year = customFilter['year'];
             }
 
-            try {
-                let getDataRest = await renderAPI(
-                    'GET',
-                    '{{ asset('dummy/laporan.json') }}',
-                    {
-                        ...filterParams
-                    }
-                );
-
-                if (getDataRest && getDataRest.status === 200) {
-                    await setLaporanPenjualan(getDataRest.data.data);
-                } else {
-                    console.error(getDataRest?.data?.message || "Error retrieving data.");
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ asset('dummy/laporan.json') }}', {
+                    ...filterParams
                 }
-            } catch (error) {
-                console.error("Error in API call:", error);
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status === 200) {
+                await setLaporanPenjualan(getDataRest.data.data);
+            } else {
+                console.error(getDataRest?.data?.message || "Error retrieving data.");
             }
         }
 
@@ -647,14 +745,15 @@
                     penjualan = data.yearly?.[year] || [];
                 }
 
-                total.textContent = `Rp ${penjualan.reduce((a, b) => a + b, 0)}`;
+                total.textContent = formatRupiah(penjualan.reduce((a, b) => a + b, 0));
 
                 const categories = {
                     daily: Array.from({
                         length: penjualan.length
                     }, (_, i) => `Day ${i + 1}`),
                     monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'],
+                        'Dec'
+                    ],
                     yearly: [year],
                 };
 
@@ -667,7 +766,10 @@
                         height: 350,
                         type: chartType,
                         toolbar: {
-                            show: false
+                            show: true,
+                            tools: {
+                                download: true,
+                            },
                         },
                     },
                     dataLabels: {
@@ -746,8 +848,96 @@
             });
         }
 
+        async function getListData(customFilter2 = {}) {
+            let filterParams = {};
+
+            if (customFilter2['nama_toko']) {
+                filterParams.nama_toko = customFilter2['nama_toko'];
+            }
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ asset('dummy/rating.json') }}', {
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                let errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                <tr>
+                    <td colspan="${$('.nk-tb-head th').length}"> ${errorMessage} </td>
+                </tr>`;
+                $('#listData').html(errorRow);
+            }
+        }
+
+        async function handleData(data) {
+            let nama_barang = data?.nama_barang ?? '-';
+            let dataJumlah = data?.jumlah ?? '-';
+
+            let fontSize = dataJumlah.toString().length > 3 ?
+                '0.50rem' :
+                dataJumlah.toString().length > 2 ?
+                '0.70rem' :
+                '0.80rem';
+
+            let jumlah = `
+        <span class="badge-success" style="
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 100%;
+            line-height: 2rem;
+            text-align: center;
+            font-size: ${fontSize};
+            font-weight: bold;">
+            ${dataJumlah}
+        </span>
+    `;
+
+            let handleData = {
+                nama_barang: nama_barang === '' ? '-' : nama_barang,
+                jumlah: dataJumlah === '' ? '-' : jumlah,
+            };
+
+            return handleData;
+        }
+
+        async function setListData(dataList) {
+            let getDataTable = '';
+            for (let index = 0; index < dataList.length; index++) {
+                let element = dataList[index];
+
+                getDataTable += `
+                <tr>
+                    <td>
+                        <div class="d-inline-block">
+                            <h5 class="m-b-0 font-weight-bold">${element.nama_barang}</h5>
+                            <p class="m-b-0"><i class="fa fa-shopping-cart"></i> <span style="font-size: 1rem;">Terjual :</span> ${element.jumlah}</p>
+                        </div>
+                    </td>
+                </tr>`;
+            }
+            $('#listData tr').remove();
+            $('#listData').html(getDataTable);
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
+            await getTotalPendapatan();
             await getLaporanPenjualan();
+            await getListData();
         });
     </script>
 @endsection

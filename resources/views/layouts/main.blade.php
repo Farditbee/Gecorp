@@ -41,6 +41,11 @@
 
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>
+    <script>
+        function formatRupiah(amount) {
+            return `Rp. ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replace('Rp', '').trim()}`;
+        }
+    </script>
     <!-- Required Js -->
     @include('layouts.js.style_js')
     <!-- Close Js -->
