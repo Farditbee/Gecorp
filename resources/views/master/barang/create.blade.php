@@ -71,8 +71,15 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
+                                            <label for="barcode" class=" form-control-label">Barcode</label>
+                                            <input type="text" id="barcode" name="barcode" value=""
+                                                class="form-control" placeholder="Kosongkan jika tidak ada barcode">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-group">
                                             <label class="form-control-label">Gambar Barang</label>
-                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control" required>
+                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control">
                                         </div>
                                     </div>
                                     <br>
