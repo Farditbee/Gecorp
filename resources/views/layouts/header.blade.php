@@ -1,14 +1,9 @@
 <header class="navbar pcoded-header navbar-expand-lg navbar-light header-dark">
-    <div class="container">
-        <div class="m-header">
+    <div class="container-fluid">
+        <div class="m-header p-2">
             <a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
             <a href="#!" class="b-brand">
-                <!-- ========   change your logo here   ============ -->
-                <img src="{{ asset('flat-able-lite/dist/assets/images/logo.png') }}" alt="" class="logo">
-                <img src="{{ asset('flat-able-lite/dist/assets/images/logo-icon.png') }}" alt="" class="logo-thumb">
-            </a>
-            <a href="#!" class="mob-toggler">
-                <i class="feather icon-more-vertical"></i>
+                <b class="text-white" style="font-size: 30px">{{ Auth::user()->toko->nama_toko }}</b>
             </a>
         </div>
         <div class="collapse navbar-collapse">
@@ -26,7 +21,6 @@
                             </div>
                             <ul class="pro-body">
                                 <li><a href="{{ route('master.user.edit', Auth::id()) }}" class="dropdown-item"><i class="feather icon-user"></i> Profile</a></li>
-                                {{-- <li><a href="email_inbox.html" class="dropdown-item"><i class="feather icon-mail"></i> My Messages</a></li> --}}
                                 <li>
                                     <a href="" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item">
                                         <i class="feather icon-log-out"></i> Log Out
