@@ -45,6 +45,37 @@
         function formatRupiah(amount) {
             return `Rp. ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replace('Rp', '').trim()}`;
         }
+
+        async function selectList(selectors) {
+            if (!Array.isArray(selectors)) {
+                console.error("Selectors must be an array of element IDs.");
+                return;
+            }
+
+            selectors.forEach(selector => {
+                const element = document.getElementById(selector);
+                if (element) {
+                    if (element.choicesInstance) {
+                        element.choicesInstance.destroy();
+                    }
+
+                    const choicesInstance = new Choices(element, {
+                        removeItemButton: false,
+                        searchEnabled: true,
+                        shouldSort: false,
+                        allowHTML: true,
+                        placeholder: true,
+                        placeholderValue: '',
+                        noResultsText: 'Tidak ada hasil',
+                        itemSelectText: '',
+                    });
+
+                    element.choicesInstance = choicesInstance;
+                } else {
+                    console.warn(`Element with ID "${selector}" not found.`);
+                }
+            });
+        }
     </script>
     <!-- Required Js -->
     @include('layouts.js.style_js')

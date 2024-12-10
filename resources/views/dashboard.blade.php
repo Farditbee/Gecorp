@@ -53,12 +53,14 @@
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 5 Penjualan</h5>
                                     <div class="d-flex align-items-center gap-2">
-                                        <select id="filter-rating" class="form-select form-select-sm w-auto">
-                                            <option value="all">Semua Toko</option>
-                                            @foreach ($toko as $tokoData)
-                                                <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div style="width: 200px;">
+                                            <select id="f-barang-toko" class="form-select form-select-sm w-auto">
+                                                <option value="all">Semua Toko</option>
+                                                @foreach ($toko as $tokoData)
+                                                    <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="performance-scroll simplebar-scrollable-y"
@@ -104,33 +106,41 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5>Laporan Penjualan</h5>
-                            <div class="d-flex align-items-center gap-2">
-                                <select id="filter-toko" class="form-select form-select-sm w-auto">
-                                    <option value="all">Semua Toko</option>
-                                    @foreach ($toko as $tokoData)
-                                        <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
-                                    @endforeach
-                                </select>
-                                <select id="filter-period" class="form-select form-select-sm w-auto">
-                                    <option value="daily">Harian</option>
-                                    <option value="monthly" selected>Bulanan</option>
-                                    <option value="yearly">Tahunan</option>
-                                </select>
-                                <select id="filter-month" class="form-select form-select-sm w-auto" style="display: none;">
-                                    <option value="1">Januari</option>
-                                    <option value="2">Februari</option>
-                                    <option value="3">Maret</option>
-                                    <option value="4">April</option>
-                                    <option value="5">Mei</option>
-                                    <option value="6">Juni</option>
-                                    <option value="7">Juli</option>
-                                    <option value="8">Agustus</option>
-                                    <option value="9">September</option>
-                                    <option value="10">Oktober</option>
-                                    <option value="11">November</option>
-                                    <option value="12">Desember</option>
-                                </select>
-                                <select id="filter-year" class="form-select form-select-sm w-auto"></select>
+                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
+                                <div style="width: 200px;">
+                                    <select id="f-penjualan-toko" class="form-select form-select-sm w-100">
+                                        <option value="all">Semua Toko</option>
+                                        @foreach ($toko as $tokoData)
+                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <select id="filter-period" class="form-select form-select-sm w-100">
+                                        <option value="daily">Harian</option>
+                                        <option value="monthly" selected>Bulanan</option>
+                                        <option value="yearly">Tahunan</option>
+                                    </select>
+                                </div>
+                                <div style="width: 200px; display: none;" id="filter-month-container">
+                                    <select id="filter-month" class="form-select form-select-sm w-100">
+                                        <option value="1">Januari</option>
+                                        <option value="2">Februari</option>
+                                        <option value="3">Maret</option>
+                                        <option value="4">April</option>
+                                        <option value="5">Mei</option>
+                                        <option value="6">Juni</option>
+                                        <option value="7">Juli</option>
+                                        <option value="8">Agustus</option>
+                                        <option value="9">September</option>
+                                        <option value="10">Oktober</option>
+                                        <option value="11">November</option>
+                                        <option value="12">Desember</option>
+                                    </select>
+                                </div>
+                                <div style="width: 200px;">
+                                    <select id="filter-year" class="form-select form-select-sm w-100"></select>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -713,8 +723,9 @@
         }
 
         async function setLaporanPenjualan(data) {
-            const filterToko = document.getElementById('filter-toko');
+            const filterToko = document.getElementById('f-penjualan-toko');
             const filterPeriod = document.getElementById('filter-period');
+            const filterMonthContainer = document.getElementById('filter-month-container');
             const filterMonth = document.getElementById('filter-month');
             const filterYear = document.getElementById('filter-year');
             const total = document.getElementById('total-penjualan');
@@ -818,7 +829,7 @@
             updateChart(filterPeriod.value, filterYear.value, currentChartType);
 
             filterPeriod.addEventListener('change', () => {
-                filterMonth.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
+                filterMonthContainer.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
                 updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
 
@@ -937,6 +948,9 @@
         document.addEventListener('DOMContentLoaded', async function() {
             await getTotalPendapatan();
             await getLaporanPenjualan();
+            await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month',
+                'filter-year'
+            ]);
             await getListData();
         });
     </script>
