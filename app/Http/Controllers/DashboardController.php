@@ -93,16 +93,14 @@ class DashboardController extends Controller
         )
             ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id');
 
-        // Jika ada request untuk id_toko, tambahkan kondisi filter
         if (!empty($selectedTokoIds)) {
             $query->join('kasir', 'detail_kasir.id_kasir', '=', 'kasir.id')
                 ->whereIn('kasir.id_toko', $selectedTokoIds)
-                ->groupBy('kasir.id_toko', 'detail_kasir.id_barang');
+                ->groupBy('kasir.id_toko', 'detail_kasir.id_barang', 'barang.nama_barang'); // Tambahkan semua kolom
         } else {
-            $query->groupBy('detail_kasir.id_barang');
+            $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang'); // Tambahkan nama_barang
         }
 
-        // Urutkan berdasarkan total terjual terbanyak dan ambil 5 barang teratas
         $dataBarang = $query->orderBy('total_terjual', 'desc')->limit(5)->get();
 
         // Format data menjadi array yang sesuai
