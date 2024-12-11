@@ -48,7 +48,6 @@ class BarangController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
             'nama_barang' => 'required|string|max:255',
             'id_jenis_barang' => 'required|exists:jenis_barang,id',
@@ -56,6 +55,7 @@ class BarangController extends Controller
             'barcode' => 'nullable|string|max:255',
             'gambar_barang' => 'nullable|image|max:2048',
         ]);
+
 
         try {
             // Ambil nama jenis dan brand barang
@@ -71,7 +71,7 @@ class BarangController extends Controller
             // Generate barcode as PNG file
             $barcodeFilename = "barcodes/{$barcodeValue}.jpg";
             if (!Storage::exists($barcodeFilename)) {
-                $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
+            $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
 
                 if (!$barcodeImage) {
                     throw new \Exception('Failed to generate barcode PNG as Base64');
@@ -102,7 +102,8 @@ class BarangController extends Controller
 
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
         } catch (\Exception $e) {
-            return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
+
+            return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
 
@@ -134,7 +135,7 @@ class BarangController extends Controller
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
-                'barcode' => $request->barcode,
+                // 'barcode' => $request->barcode,
             ]);
             return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
         } catch (\Throwable $th) {

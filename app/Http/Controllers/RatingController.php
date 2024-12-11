@@ -7,6 +7,7 @@ use App\Models\DetailKasir;
 use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class RatingController extends Controller
 {
@@ -44,4 +45,5 @@ class RatingController extends Controller
                 ->groupBy('id_barang');
         return response()->json($dataBarang);
     }
+
 }

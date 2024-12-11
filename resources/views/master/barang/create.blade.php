@@ -39,19 +39,20 @@
                         <x-adminlte-alerts />
                         <div class="card-body table-border-style">
                             <div class="table-responsive">
-                                <form action="{{ route('master.barang.store') }}" method="post" class="" enctype="multipart/form-data">
+                                <form action="{{ route('master.barang.store') }}" method="post" class=""
+                                    enctype="multipart/form-data">
                                     @csrf
                                     <div class="form-group">
                                         <div class="form-group">
                                             <label for="nama_barang" class=" form-control-label">Nama Barang<span
                                                     style="color: red">*</span></label>
                                             <input type="text" id="nama_barang" name="nama_barang" value=""
-                                                class="form-control" placeholder="Contoh : Barang Baru" required>
+                                                class="form-control" placeholder="Contoh : Barang Baru">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="id_jenis_barang" class=" form-control-label">Jenis Barang<span
-                                            style="color: red">*</span></label>
+                                                style="color: red">*</span></label>
                                         <select name="id_jenis_barang" id="selector" class="form-control">
                                             <option value="" required>~Pilih Jenis Barang~</option>
                                             @foreach ($jenis as $jn)
@@ -61,7 +62,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="id_brand_barang" class=" form-control-label">Brand Barang<span
-                                            style="color: red">*</span></label>
+                                                style="color: red">*</span></label>
                                         <select name="id_brand_barang" id="selectors" class="form-control">
                                             <option value="">~Pilih Brand~</option>
                                             @foreach ($brand as $br)
@@ -71,15 +72,16 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
-                                            <label for="barcode" class=" form-control-label">Barcode</label>
-                                            <input type="text" id="barcode" name="barcode" value=""
-                                                class="form-control" placeholder="Kosongkan jika tidak ada barcode">
+                                            <label class="form-control-label">Gambar Barang<span style="font-size: 11px; color: rgb(193, 79, 79)"> (Ukuran tidak lebih dari 1MB)</span></label>
+                                            <input type="file" id="gambar_barang" name="gambar_barang"
+                                                class="form-control">
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
-                                            <label class="form-control-label">Gambar Barang</label>
-                                            <input type="file" id="gambar_barang" name="gambar_barang" class="form-control">
+                                            <label for="barcode" class=" form-control-label">Barcode</label>
+                                            <input type="text" id="barcode" name="barcode" value=""
+                                                class="form-control" placeholder="Kosongkan jika tidak ada barcode">
                                         </div>
                                     </div>
                                     <br>

@@ -134,10 +134,10 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($barang as $brg)
-                                            <tr data-barang-id="{{ $brg->id }}">
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $brg->nama_barang }}</td>
-                                            </tr>
+                                        <tr data-barang-id="{{ $brg->id }}">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $brg->nama_barang }}</td>
+                                        </tr>
                                         @endforeach
                                     </tbody>
 
