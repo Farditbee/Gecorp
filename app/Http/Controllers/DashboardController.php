@@ -85,7 +85,7 @@ class DashboardController extends Controller
 
     public function getBarangJual(Request $request)
     {
-        $selectedTokoIds = $request->input('toko_select', []); // Ambil toko dari request
+        $selectedTokoIds = $request->input('id_toko', []); // Ambil toko dari request
         $query = DetailKasir::select(
             'detail_kasir.id_barang',
             'barang.nama_barang',
