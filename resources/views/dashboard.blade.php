@@ -387,7 +387,7 @@
             setActiveChartButton('chart-bar', chartTypeMapping);
         }
 
-        async function getListData(customFilter2 = {}) {
+        async function getTopPenjualan(customFilter2 = {}) {
             let filterParams = {};
 
             if (customFilter2['id_toko']) {
@@ -408,9 +408,9 @@
 
             if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
                 let handleDataArray = await Promise.all(
-                    getDataRest.data.data.map(async item => await handleData(item))
+                    getDataRest.data.data.map(async item => await handleTopPenjualan(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setTopPenjualan(handleDataArray, getDataRest.data.pagination);
             } else {
                 let errorMessage = getDataRest?.data?.message;
                 let errorRow = `
@@ -421,7 +421,7 @@
             }
         }
 
-        async function handleData(data) {
+        async function handleTopPenjualan(data) {
             let nama_barang = data?.nama_barang ?? '-';
             let dataJumlah = data?.jumlah ?? '-';
 
@@ -452,7 +452,7 @@
             return handleData;
         }
 
-        async function setListData(dataList) {
+        async function setTopPenjualan(dataList) {
             let getDataTable = '';
             for (let index = 0; index < dataList.length; index++) {
                 let element = dataList[index];
@@ -471,13 +471,28 @@
             $('#listData').html(getDataTable);
         }
 
+        async function filterSelect() {
+            const selectElement = document.getElementById('f-barang-toko');
+
+            selectElement.addEventListener('change', async function() {
+                const id_toko = selectElement.value;
+
+                customFilter2 = {
+                    'id_toko': id_toko,
+                };
+
+                await getTopPenjualan(customFilter2);
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
             await getTotalPendapatan();
             await getLaporanPenjualan();
             await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month',
                 'filter-year'
             ]);
-            await getListData();
+            await getTopPenjualan();
+            await filterSelect();
             $('[data-bs-toggle="tooltip"]').tooltip();
         });
     </script>
