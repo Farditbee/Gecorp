@@ -1,0 +1,101 @@
+.action_button {
+    display: block;
+    width: 90px;
+    height: 30px;
+    line-height: 30px;
+    margin: auto;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, .3);
+    transition: all 0.25s cubic-bezier(0.310, -0.105, 0.430, 1.400);
+}
+
+.action_button span,
+.action_button .icon {
+    font-size: 12px;
+    display: block;
+    text-align: center;
+    position: absolute;
+    top: 0;
+}
+
+.action_button span {
+    width: 65%;
+    line-height: inherit;
+    text-transform: uppercase;
+    left: 0;
+    transition: all 0.25s cubic-bezier(0.310, -0.105, 0.430, 1.400);
+}
+
+.action_button span:after {
+    content: '';
+    background-color: #8b1e14;
+    width: 2px;
+    height: 70%;
+    position: absolute;
+    top: 15%;
+    right: -1px;
+}
+
+.action_button .icon {
+    width: 40%;
+    font-size: 10px;
+    right: 0;
+    transition: all 0.25s cubic-bezier(0.310, -0.105, 0.430, 1.400);
+}
+
+.action_button .icon .fa {
+    font-size: 15px;
+    vertical-align: middle;
+    transition: all 0.25s cubic-bezier(0.310, -0.105, 0.430, 1.400), height 0.25s ease;
+}
+
+.action_button .icon .fa-remove {
+    height: 36px;
+}
+
+.action_button .icon .fa-check {
+    display: none;
+}
+
+.action_button.success span,
+.action_button:hover span {
+    left: -72%;
+    opacity: 0;
+}
+
+.action_button.success .icon,
+.action_button:hover .icon {
+    width: 100%;
+}
+
+.action_button.success .icon .fa,
+.action_button:hover .icon .fa {
+    font-size: 20px;
+}
+
+.action_button.success {
+    background-color: #27ae60;
+}
+
+.action_button.success .icon .fa-remove {
+    display: none;
+}
+
+.action_button.success .icon .fa-check {
+    display: inline-block;
+}
+
+.action_button:hover {
+    opacity: .9;
+}
+
+.action_button:hover .icon .fa-remove {
+    height: 46px;
+}
+
+.action_button:active {
+    opacity: 1;
+}

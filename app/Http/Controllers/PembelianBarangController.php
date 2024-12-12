@@ -21,9 +21,11 @@ class PembelianBarangController extends Controller
 
         $query = new PembelianBarang();
 
+        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('created_at', $meta['orderBy']);
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-            $searchColumns = ['nama', 'no_sert'];
+            $searchColumns = ['no_nota'];
             $query->where(function ($query) use ($searchColumns, $searchTerm) {
                 foreach ($searchColumns as $column) {
                     $query->orWhereRaw("LOWER($column) LIKE ?", ["%$searchTerm%"]);
@@ -38,8 +40,6 @@ class PembelianBarangController extends Controller
             // Lakukan filter berdasarkan tanggal
             $query->whereBetween('tgl_nota', [$startDate, $endDate]);
         }
-
-        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('created_at', $meta['orderBy']);
 
         $data = $query->paginate($meta['limit']);
 
