@@ -19,17 +19,21 @@ class PembelianBarangController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = new PembelianBarang();
+        $query = PembelianBarang::query();
 
-        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('created_at', $meta['orderBy']);
+        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('tgl_nota', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-            $searchColumns = ['no_nota'];
-            $query->where(function ($query) use ($searchColumns, $searchTerm) {
-                foreach ($searchColumns as $column) {
-                    $query->orWhereRaw("LOWER($column) LIKE ?", ["%$searchTerm%"]);
-                }
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi 'supplier->nama_supplier'
+                $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
+                });
             });
         }
 
