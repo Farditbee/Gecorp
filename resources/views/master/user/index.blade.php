@@ -1,4 +1,4 @@
-<title>Pembelian Barang - Gecorp</title>
+<title>Data User - Gecorp</title>
 @extends('layouts.main')
 
 @section('css')
@@ -29,13 +29,15 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                <a href="" class="btn btn-primary mr-2" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
-                                    <i class="ti-plus menu-icon"></i> Tambah
-                                </a>
-                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
-                                    <i class="ti-plus menu-icon"></i> Filter
-                                </a>
+                                @if (Auth::user()->id_level == 1)
+                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary">
+                                        <i class="ti-plus menu-icon"></i> Tambah
+                                    </a>
+                                @else
+                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-secondary disabled">
+                                        <i class="ti-plus menu-icon"></i> Tambah
+                                    </a>
+                                @endif
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -161,7 +163,7 @@
             </div>
         </a>`;
 
-        let delete_button = `
+            let delete_button = `
          <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
             data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
             title="Hapus User: ${data.nama}"
@@ -175,7 +177,7 @@
             return {
                 id: data?.id ?? '-',
                 nama: data?.nama ?? '-',
-                nama_level_user: data?.nama_level_user ?? '-',
+                nama_level: data?.nama_level ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
                 username: data?.username ?? '-',
                 email: data?.email ?? '-',
@@ -194,26 +196,29 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
-            let classCol = 'align-center text-dark';
+            let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
-                            <tr class="text-dark">
-                                <td class="${classCol} text-center">${display_from + index}.</td>
-                                <td class="${classCol}">${element.nama}</td>
-                                <td class="${classCol}">${element.nama_level_user}</td>
-                                <td class="${classCol}">${element.nama_toko}</td>
-                                <td class="${classCol}">${element.username}</td>
-                                <td class="${classCol}">${element.email}</td>
-                                <td class="${classCol}">${element.no_hp}</td>
-                                <td class="${classCol}">${element.alamat}</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="hovering">
-                                            ${element.edit_button}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>`;
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.nama}</td>
+                        <td class="${classCol}">${element.nama_level}</td>
+                        <td class="${classCol}">${element.nama_toko}</td>
+                        <td class="${classCol}">${element.username}</td>
+                        <td class="${classCol}">${element.email}</td>
+                        <td class="${classCol}">${element.no_hp}</td>
+                        <td class="${classCol}">${element.alamat}</td>
+                        <td class="${classCol}">
+                            <div class="d-flex justify-content-center w-100">
+                                <div class="hovering p-1">
+                                    ${element.edit_button}
+                                </div>
+                                <div class="hovering p-1">
+                                    ${element.delete_button}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
             });
 
             $('#listData').html(getDataTable);
