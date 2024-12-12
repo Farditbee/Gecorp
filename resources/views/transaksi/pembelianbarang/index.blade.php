@@ -4,63 +4,7 @@
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
-    <style>
-        .table-scroll-wrapper {
-            max-height: 500px;
-            overflow: auto;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar-thumb {
-            background: #cccccc;
-            border-radius: 4px;
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-            background: #b3b3b3;
-        }
-
-        .table thead th {
-            background-color: #f8f9fa;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            font-size: 1rem;
-        }
-
-        .table td,
-        .table th {
-            padding: 0.3rem;
-            vertical-align: middle;
-        }
-
-        @media (max-width: 768px) {
-            .table-scroll-wrapper {
-                max-height: 450px;
-            }
-
-            .table td,
-            .table th {
-                padding: 0.3rem;
-                font-size: 0.85rem;
-            }
-        }
-
-        .custom-badge {
-            display: inline-block;
-            min-width: 80px;
-            text-align: start;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25rem;
-            font-size: 0.800rem;
-            line-height: 1.5;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
 @endsection
 
 @section('content')

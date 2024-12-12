@@ -19,7 +19,7 @@ class UserController extends Controller
 
         $query = User::query();
 
-        $query->with(['toko', 'level_user',])->orderBy('id', $meta['orderBy']);
+        $query->with(['toko', 'leveluser',])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
