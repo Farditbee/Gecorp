@@ -186,13 +186,6 @@
                                         </tr>
                                     </tfoot>
                                 </table>
-
-                                <!-- Submit Button -->
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fa fa-dot-circle-o"></i> Simpan
-                                    </button>
-                                </div>
                             </div>
                         </div>
                         </form>
