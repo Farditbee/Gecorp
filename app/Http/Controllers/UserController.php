@@ -69,8 +69,10 @@ class UserController extends Controller
             return [
                 'id' => $item['id'],
                 'nama_toko' => $item['toko']->nama_toko,
-                'nama_level_user' => $item['leveluser']->nama_level_user,
+                'nama_level' => $item['leveluser']->nama_level,
                 'nama' => $item->nama,
+                'username' => $item->username,
+                'email' => $item->email,
                 'alamat' => $item->alamat,
                 'no_hp' => $item->no_hp,
             ];
