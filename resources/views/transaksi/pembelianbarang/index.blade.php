@@ -7,16 +7,13 @@
     <style>
         .table-scroll-wrapper {
             max-height: 500px;
-            /* Batasi tinggi kontainer tabel */
             overflow: auto;
-            /* Aktifkan scroll horizontal dan vertical */
             border-top: 1px solid #dee2e6;
         }
 
         .table-scroll-wrapper::-webkit-scrollbar {
             width: 8px;
             height: 8px;
-            /* Tambahkan untuk scrollbar horizontal */
         }
 
         .table-scroll-wrapper::-webkit-scrollbar-thumb {
@@ -33,6 +30,13 @@
             position: sticky;
             top: 0;
             z-index: 2;
+            font-size: 1rem;
+        }
+
+        .table td,
+        .table th {
+            padding: 0.3rem;
+            vertical-align: middle;
         }
 
         @media (max-width: 768px) {
@@ -40,24 +44,11 @@
                 max-height: 450px;
             }
 
-            .table thead th {
-                font-size: 0.85rem;
-            }
-
             .table td,
             .table th {
-                font-size: 0.8rem;
+                padding: 0.3rem;
+                font-size: 0.85rem;
             }
-        }
-
-        .custom-badge {
-            display: inline-block;
-            min-width: 80px;
-            text-align: start;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25rem;
-            font-size: 0.800rem;
-            line-height: 1.5;
         }
 
         .custom-badge {
@@ -115,8 +106,8 @@
                                     <option value="20">20</option>
                                     <option value="30">30</option>
                                 </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search" name="search"
-                                    placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
                             </div>
                         </div>
                         <div class="content">
@@ -524,7 +515,7 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
-            let classCol = 'align-top text-dark';
+            let classCol = 'align-center text-dark';
             dataList.forEach((element, index) => {
                 getDataTable += `
                             <tr class="text-dark">
