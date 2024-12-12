@@ -99,14 +99,14 @@ class UserController extends Controller
         // Jika user memiliki leveluser = 1, tampilkan semua data user
         if ($user->id_level == 1) {
             $users = User::with('leveluser', 'toko')
-                        ->orderBy('id', 'desc')
-                        ->get();
+                ->orderBy('id', 'desc')
+                ->get();
         } else {
             // Jika leveluser selain 1, hanya tampilkan user dari toko yang sama
             $users = User::with('leveluser', 'toko')
-                        ->where('id_toko', $user->id_toko)
-                        ->orderBy('id', 'desc')
-                        ->get();
+                ->where('id_toko', $user->id_toko)
+                ->orderBy('id', 'desc')
+                ->get();
         }
 
         $leveluser = LevelUser::all();
@@ -120,7 +120,7 @@ class UserController extends Controller
         $toko = Toko::all();
         $leveluser = LevelUser::all();
         return view('master.user.create', compact('toko', 'leveluser'), [
-            'leveluser' => LevelUser::all()->pluck('nama_level','id'),
+            'leveluser' => LevelUser::all()->pluck('nama_level', 'id'),
             'toko' => Toko::all()->pluck('nama_toko', 'id'),
         ]);
     }
@@ -128,28 +128,30 @@ class UserController extends Controller
     public function store(Request $request)
     {
         // dd($request);
-        $validatedData = $request->validate([
-            'id_toko' => 'required',
-            'id_level' => 'required',
-            'nama' => 'required|max:255',
-            'username' => 'required|max:255',
-            'password' => 'required|min:8|regex:/([0-9])/',
-            'email' => 'required|max:255',
-            'alamat' => 'required|max:255',
-            'no_hp' => 'required|max:255',
-        ],[
-            'id_toko.required' => 'Nama Toko tidak boleh kosong.',
-            'id_level.required' => 'Nama Level tidak boleh kosong.',
-            'nama.required' => 'Nama tidak boleh kosong.',
-            'username.required' => 'Username tidak boleh kosong.',
-            'password.required' => 'Password tidak boleh kosong.',
-            'password.min' => 'Password minimal 8 karakter.',
-            'password.regex' => 'Password harus mengandung minimal satu angka.',
-            'email.required' => 'Email tidak boleh kosong.',
-            'alamat.required' => 'Alamat tidak boleh kosong.',
-            'no_hp.required' => 'No Hp tidak boleh kosong.',
-        ]
-    );
+        $validatedData = $request->validate(
+            [
+                'id_toko' => 'required',
+                'id_level' => 'required',
+                'nama' => 'required|max:255',
+                'username' => 'required|max:255',
+                'password' => 'required|min:8|regex:/([0-9])/',
+                'email' => 'required|max:255',
+                'alamat' => 'required|max:255',
+                'no_hp' => 'required|max:255',
+            ],
+            [
+                'id_toko.required' => 'Nama Toko tidak boleh kosong.',
+                'id_level.required' => 'Nama Level tidak boleh kosong.',
+                'nama.required' => 'Nama tidak boleh kosong.',
+                'username.required' => 'Username tidak boleh kosong.',
+                'password.required' => 'Password tidak boleh kosong.',
+                'password.min' => 'Password minimal 8 karakter.',
+                'password.regex' => 'Password harus mengandung minimal satu angka.',
+                'email.required' => 'Email tidak boleh kosong.',
+                'alamat.required' => 'Alamat tidak boleh kosong.',
+                'no_hp.required' => 'No Hp tidak boleh kosong.',
+            ]
+        );
         try {
             User::create([
                 'id_toko' => $request->id_toko,
@@ -161,7 +163,7 @@ class UserController extends Controller
                 'alamat' => $request->alamat,
                 'no_hp' => $request->no_hp,
             ]);
-        }catch (\Throwable $th) {
+        } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
         return redirect()->route('master.user.index')->with('success', 'Berhasil menambahkan User Baru');
@@ -203,11 +205,17 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         try {
             $user->delete();
-        DB::commit();
-        return redirect()->route('master.user.index')->with('success', 'Sukses menghapus Data User');
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data User'
+            ]);
         } catch (\Throwable $th) {
-        DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Toko' . $th->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data User: ' . $th->getMessage()
+            ], 500);
         }
     }
 }
