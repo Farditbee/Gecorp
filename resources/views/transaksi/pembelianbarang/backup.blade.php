@@ -1,91 +1,23 @@
 <title>Pembelian Barang - Gecorp</title>
 @extends('layouts.main')
 
-@section('css')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
-    <style>
-        .table-scroll-wrapper {
-            max-height: 500px;
-            /* Batasi tinggi kontainer tabel */
-            overflow: auto;
-            /* Aktifkan scroll horizontal dan vertical */
-            border-top: 1px solid #dee2e6;
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-            /* Tambahkan untuk scrollbar horizontal */
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar-thumb {
-            background: #cccccc;
-            border-radius: 4px;
-        }
-
-        .table-scroll-wrapper::-webkit-scrollbar-thumb:hover {
-            background: #b3b3b3;
-        }
-
-        .table thead th {
-            background-color: #f8f9fa;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-        }
-
-        @media (max-width: 768px) {
-            .table-scroll-wrapper {
-                max-height: 450px;
-            }
-
-            .table thead th {
-                font-size: 0.85rem;
-            }
-
-            .table td,
-            .table th {
-                font-size: 0.8rem;
-            }
-        }
-
-        .custom-badge {
-            display: inline-block;
-            min-width: 80px;
-            text-align: start;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25rem;
-            font-size: 0.800rem;
-            line-height: 1.5;
-        }
-
-        .custom-badge {
-            display: inline-block;
-            min-width: 80px;
-            text-align: start;
-            padding: 0.25em 0.5em;
-            border-radius: 0.25rem;
-            font-size: 0.800rem;
-            line-height: 1.5;
-        }
-    </style>
-@endsection
-
 @section('content')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+
     <div class="pcoded-main-container">
-        <div class="pcoded-content pt-1 mt-1">
+        <div class="pcoded-content">
             <!-- [ breadcrumb ] start -->
             <div class="page-header">
                 <div class="page-block">
                     <div class="row align-items-center">
                         <div class="col-md-12">
-                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
+                            <div class="page-header-title">
+                                <h5 class="m-b-10">Data Pembelian Barang</h5>
+                            </div>
+                            <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="{{ route('master.index') }}"><i
                                             class="feather icon-home"></i></a></li>
-                                <li class="breadcrumb-item">
-                                    <b class="font-weight-bold">Data Pembelian Barang</b>
-                                </li>
+                                <li class="breadcrumb-item"><a>Data Pembelian Barang</a></li>
                             </ul>
                         </div>
                     </div>
@@ -97,8 +29,9 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <!-- Tombol Tambah dan Filter -->
+                            <div class="d-flex">
                                 <a href="" class="btn btn-primary mr-2" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
                                     <i class="ti-plus menu-icon"></i> Tambah
@@ -108,50 +41,85 @@
                                 </a>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search" name="search"
-                                    placeholder="Cari Data" aria-label="search" style="width: 200px;">
-                            </div>
+                            <!-- Input Search -->
+                            <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
+                                <input class="form-control me-2" id="search" type="search" name="search"
+                                    placeholder="Cari Pembelian" aria-label="Search">
+                            </form>
                         </div>
+
                         <div class="content">
                             <x-adminlte-alerts />
-                            <div class="card-body p-0">
-                                <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-hover m-0">
+                            <div class="card-body table-border-style">
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="jsTable">
                                         <thead>
-                                            <tr class="tb-head">
-                                                <th class="text-center">No</th>
+                                            <tr>
+                                                <th>No</th>
                                                 <th>Status</th>
                                                 <th>No. Nota</th>
-                                                <th>Tanggal Nota</th>
+                                                <th>Tgl Nota</th>
                                                 <th>Supplier</th>
                                                 <th>Total Item</th>
                                                 <th>Total Harga</th>
-                                                <th class="text-center">Action</th>
+                                                <th>Action</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="listData">
+                                        <tbody>
+                                            @foreach ($pembelian_dt as $beli)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    @if ($beli->status == 'progress')
+                                                        <td><span class="badge badge-warning fixed-badge">Progres</span>
+                                                        </td>
+                                                    @elseif ($beli->status == 'success')
+                                                        <td><span class="badge badge-success fixed-badge">Sukses</span>
+                                                        </td>
+                                                    @elseif ($beli->status == 'failed')
+                                                        <td><span class="badge badge-danger fixed-badge">Gagal</span></td>
+                                                    @else
+                                                        <td><span class="badge badge-primary fixed-badge">Mixed</span></td>
+                                                    @endif
+                                                    <td>{{ $beli->no_nota }}</td>
+                                                    <td>{{ \DateTime::createFromFormat('Y-m-d H:i:s', $beli->tgl_nota)->format('d-m-Y') }}
+                                                    </td>
+                                                    <td>{{ $beli->supplier->nama_supplier }}</td>
+                                                    <td>{{ $beli->total_item }}</td>
+                                                    <td>Rp. {{ number_format($beli->total_nilai, 0, '.', '.') }} </td>
+                                                    <form onsubmit="return confirm('Ingin menghapus Kostum ini ? ?');"
+                                                        action="{{ route('master.pembelianbarang.delete', $beli->id) }}"
+                                                        method="POST">
+                                                        <td>
+                                                            @if ($beli->status == 'progress')
+                                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}"
+                                                                    class="btn btn-primary btn-sm"><i
+                                                                        class="fa fa-book menu-icon"></i></a>
+                                                            @else
+                                                                <a href="{{ route('master.pembelianbarang.edit', $beli->id) }}"
+                                                                    class="btn btn-warning btn-sm"><i
+                                                                        class="fa fa-edit menu-icon"></i></a>
+                                                            @endif
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"><i
+                                                                    class="fa fa-trash menu-icon"></i></button>
+                                                        </td>
+                                                    </form>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
-                                </div>
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
-                                    <div class="text-center text-md-start mb-2 mb-md-0">
-                                        <div class="pagination">
-                                            <div>Menampilkan <span id="countPage">0</span> dari <span
-                                                    id="totalPage">0</span> data</div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            Menampilkan <span id="current-count">0</span> data dari <span
+                                                id="total-count">0</span> total data.
                                         </div>
+                                        <nav aria-label="Page navigation example">
+                                            <ul class="pagination justify-content-end" id="pagination">
+                                                {{-- isian paginate --}}
+                                            </ul>
+                                        </nav>
                                     </div>
-                                    <nav class="text-center text-md-end">
-                                        <ul class="pagination justify-content-center justify-content-md-end"
-                                            id="pagination-js">
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +127,7 @@
                 </div>
 
                 <!-- Modal untuk Filter Tanggal -->
-                {{-- <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
+                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -341,8 +309,7 @@
                                                             <div class="card border border-primary">
                                                                 <div class="card-body">
                                                                     <p class="card-text">Detail Stock
-                                                                        <strong>(GSS)</strong>
-                                                                    </p>
+                                                                        <strong>(GSS)</strong></p>
                                                                     <p class="card-text">Stock :<strong
                                                                             class="stock">0</strong></p>
                                                                     <p class="card-text">Hpp Awal : <strong
@@ -429,209 +396,14 @@
                         </div>
                     </div>
                     <!-- [ Main Content ] end -->
-                </div> --}}
+                </div>
             </div>
-        </div>
-    </div>
-@endsection
 
-@section('js')
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
-    <script>
-        let defaultLimitPage = 10;
-        let currentPage = 1;
-        let totalPage = 1;
-        let defaultAscending = 0;
-        let defaultSearch = '';
-        let customFilter = {};
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
-        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
-            let filterParams = {};
-
-            let getDataRest = await renderAPI(
-                'GET',
-                '{{ route('master.pembelian.get') }}', {
-                    page: page,
-                    limit: limit,
-                    ascending: ascending,
-                    search: search,
-                    ...filterParams
-                }
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                let resp = error.response;
-                return resp;
-            });
-
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
-                let handleDataArray = await Promise.all(
-                    getDataRest.data.data.map(async item => await handleData(item))
-                );
-                await setListData(handleDataArray, getDataRest.data.pagination);
-            } else {
-                errorMessage = getDataRest?.data?.message;
-                let errorRow = `
-                            <tr class="text-dark">
-                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-                            </tr>`;
-                $('#listData').html(errorRow);
-                $('#countPage').text("0 - 0");
-                $('#totalPage').text("0");
-            }
-        }
-
-        async function handleData(data) {
-            let status = '';
-            if (data?.status === 'Sukses') {
-                status =
-                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
-            } else if (data?.status === 'Gagal') {
-                status =
-                    `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
-            } else {
-                status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
-            }
-
-            let detail_button = `
-        <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Edit Data Nomor Nota: ${data.no_nota}"
-            data-id='${data.id}'>
-            <span class="text-dark">Edit</span>
-            <div class="icon text-warning pt-1">
-                <i class="fa fa-edit"></i>
-            </div>
-        </a>`;
-
-            return {
-                id: data?.id ?? '-',
-                status,
-                nama_supplier: data?.nama_supplier ?? '-',
-                tgl_nota: data?.tgl_nota ?? '-',
-                no_nota: data?.no_nota ?? '-',
-                total_item: data?.total_item ?? '-',
-                total_nilai: data?.total_nilai ?? '-',
-                detail_button
-            };
-        }
-
-
-        async function setListData(dataList, pagination) {
-            totalPage = pagination.total_pages;
-            currentPage = pagination.current_page;
-            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
-            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
-
-            let getDataTable = '';
-            let classCol = 'align-top text-dark';
-            dataList.forEach((element, index) => {
-                getDataTable += `
-                            <tr class="text-dark">
-                                <td class="${classCol} text-center">${display_from + index}.</td>
-                                <td class="${classCol}">${element.status}</td>
-                                <td class="${classCol}">${element.no_nota}</td>
-                                <td class="${classCol}">${element.tgl_nota}</td>
-                                <td class="${classCol}">${element.nama_supplier}</td>
-                                <td class="${classCol}">${element.total_item}</td>
-                                <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="hovering">
-                                            ${element.detail_button}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>`;
-            });
-
-            $('#listData').html(getDataTable);
-            $('#totalPage').text(pagination.total);
-            $('#countPage').text(`${display_from} - ${display_to}`);
-            renderPagination();
-        }
-
-        function renderPagination() {
-            let paginationHtml = '';
-
-            if (currentPage > 1) {
-                paginationHtml +=
-                    `<button class="paginate-btn prev-btn btn btn-sm btn-outline-primary mx-1" data-page="${currentPage - 1}"><i class="fa fa-circle-chevron-left"></i></button>`;
-            }
-
-            let startPage = Math.max(1, currentPage - 2);
-            let endPage = Math.min(totalPage, currentPage + 2);
-
-            if (startPage > 1) {
-                paginationHtml += `<button class="paginate-btn page-btn btn btn-sm btn-primary" data-page="1">1</button>`;
-                if (startPage > 2) {
-                    paginationHtml +=
-                        `<button class="btn btn-sm btn-primary" style="pointer-events: none;"><i class="fa fa-ellipsis"></i></button>`;
-                }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                paginationHtml +=
-                    `<button class="paginate-btn page-btn btn btn-sm btn-primary ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
-            }
-
-            if (endPage < totalPage) {
-                if (endPage < totalPage - 1) {
-                    paginationHtml +=
-                        `<button class="btn btn-sm btn-primary" style="pointer-events: none;"><i class="fa fa-ellipsis"></i></button>`;
-                }
-                paginationHtml +=
-                    `<button class="paginate-btn page-btn btn btn-sm btn-primary" data-page="${totalPage}">${totalPage}</button>`;
-            }
-
-            if (currentPage < totalPage) {
-                paginationHtml +=
-                    `<button class="paginate-btn next-btn btn btn-sm btn-outline-primary mx-1" data-page="${currentPage + 1}"><i class="fa fa-circle-chevron-right"></i></button>`;
-            }
-
-            $('#pagination-js').html(paginationHtml);
-
-            $('#pagination-js').off('click', '.paginate-btn').on('click', '.paginate-btn', async function(e) {
-                const newPage = parseInt($(this).data('page'));
-                if (!isNaN(newPage)) {
-                    currentPage = newPage;
-                    await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                        customFilter);
-                }
-            });
-        }
-
-
-        async function initPageLoad() {
-            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
-            $('#limitPage').on('change', async function() {
-                defaultLimitPage = parseInt($(this).val());
-                currentPage = 1;
-                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                    customFilter);
-            });
-
-            $('.tb-search').on('input', debounce(async () => {
-                defaultSearch = $('.tb-search').val();
-                currentPage = 1;
-                console.log('di klik')
-                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                    customFilter);
-            }, 500));
-        }
-
-        function debounce(func, wait) {
-            let timeout;
-            return function(...args) {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => func.apply(this, args), wait);
-            };
-        }
-    </script>
-@endsection
-
-
-{{-- <script>
+            <script>
                 if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
                     const url = new URL(window.location);
                     url.searchParams.delete('startDate'); // Hapus startDate
@@ -692,6 +464,180 @@
                             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
                         });
                     });
+                });
+
+                // Fungsi Paginate
+                $(document).ready(function() {
+                    var rowsPerPage = 10; // Jumlah baris per halaman
+                    var rows = $('#jsTable tbody tr'); // Mengambil semua baris dari tabel
+                    var rowsCount = rows.length; // Menghitung jumlah total baris
+                    var pageCount = Math.ceil(rowsCount / rowsPerPage); // Menghitung jumlah halaman
+                    var numbers = $('#pagination'); // Elemen untuk tombol pagination
+                    var currentPage = 1; // Halaman aktif saat ini
+
+                    // Fungsi untuk menampilkan baris sesuai halaman
+                    function showPage(page) {
+                        var start = (page - 1) * rowsPerPage;
+                        var end = start + rowsPerPage;
+                        rows.hide(); // Sembunyikan semua baris
+                        rows.slice(start, end).show(); // Tampilkan baris sesuai halaman yang dipilih
+                    }
+
+                    // Fungsi untuk membuat tombol pagination
+                    function createPaginationButtons() {
+                        numbers.empty(); // Hapus semua tombol pagination yang ada
+                        numbers.append(
+                        '<button class="prev-btn btn btn-sm btn-outline-primary mx-1">Previous</button>'); // Tombol Previous
+
+                        for (var i = 1; i <= pageCount; i++) {
+                            numbers.append('<button class="page-btn btn btn-sm btn-primary mx-1" data-page="' + i + '">' +
+                                i + '</button>');
+                        }
+
+                        numbers.append(
+                        '<button class="next-btn btn btn-sm btn-outline-primary mx-1">Next</button>'); // Tombol Next
+
+                        // Menonaktifkan tombol Previous jika berada di halaman pertama
+                        if (currentPage === 1) {
+                            $('.prev-btn').prop('disabled', true);
+                        } else {
+                            $('.prev-btn').prop('disabled', false);
+                        }
+
+                        // Menonaktifkan tombol Next jika berada di halaman terakhir
+                        if (currentPage === pageCount) {
+                            $('.next-btn').prop('disabled', true);
+                        } else {
+                            $('.next-btn').prop('disabled', false);
+                        }
+
+                        // Menyoroti tombol halaman yang aktif
+                        $('.page-btn').removeClass('active');
+                        $('.page-btn[data-page="' + currentPage + '"]').addClass('active');
+                    }
+
+                    // Inisialisasi tampilan halaman pertama
+                    showPage(currentPage);
+                    createPaginationButtons();
+
+                    // Ketika tombol halaman diklik
+                    numbers.on('click', '.page-btn', function() {
+                        currentPage = $(this).data('page');
+                        showPage(currentPage);
+                        createPaginationButtons();
+                    });
+
+                    // Ketika tombol Previous diklik
+                    numbers.on('click', '.prev-btn', function() {
+                        if (currentPage > 1) {
+                            currentPage--;
+                            showPage(currentPage);
+                            createPaginationButtons();
+                        }
+                    });
+
+                    // Ketika tombol Next diklik
+                    numbers.on('click', '.next-btn', function() {
+                        if (currentPage < pageCount) {
+                            currentPage++;
+                            showPage(currentPage);
+                            createPaginationButtons();
+                        }
+                    });
+                });
+
+                // Fungsi Show Data
+                $(document).ready(function() {
+                    // Mengambil semua baris dari tabel
+                    var rows = $('#jsTable tbody tr');
+                    var totalData = rows.length; // Total semua data di tabel
+
+                    // Tampilkan total data di awal
+                    $('#total-count').text(totalData);
+
+                    // Fungsi untuk memperbarui jumlah data yang terlihat
+                    function updateDataCount() {
+                        var visibleRows = rows.filter(':visible').length; // Hitung jumlah baris yang terlihat
+                        $('#current-count').text(visibleRows); // Perbarui jumlah data yang ditampilkan
+                        $('#total-count').text(totalData); // Menampilkan jumlah total data
+                    }
+
+                    // Inisialisasi jumlah data yang tampil di awal
+                    updateDataCount();
+
+                    // Fungsi pencarian
+                    $('#searchInput').on('keyup', function() {
+                        var value = $(this).val().toLowerCase();
+
+                        rows.filter(function() {
+                            // Tampilkan hanya baris yang sesuai dengan input pencarian
+                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                        });
+
+                        // Perbarui jumlah data yang tampil setelah pencarian
+                        updateDataCount();
+                    });
+
+                    // Panggil updateDataCount() ketika melakukan pagination
+                    $('#pagination').on('click', '.page-btn', function() {
+                        // Logika pagination (jika ada)
+                        updateDataCount(); // Perbarui jumlah data yang terlihat
+                    });
+
+                    // Ketika form tambah pembelian disubmit
+                    $('#form-tambah-pembelian').on('submit', function(e) {
+                        e.preventDefault(); // Menghentikan proses form biasa
+
+                        // Ubah tombol menjadi spinner
+                        $('#save-btn-text').hide(); // Sembunyikan teks "Lanjut"
+                        $('#save-btn-spinner').show(); // Tampilkan spinner
+                        $('#save-btn').prop('disabled',
+                        true); // Nonaktifkan tombol submit agar tidak diklik dua kali
+
+                        var formData = $(this).serialize(); // Mengambil data form
+
+                        $.ajax({
+                            url: $(this).attr('action'),
+                            method: $(this).attr('method'),
+                            data: formData,
+                            success: function(response) {
+                                console.log(response);
+
+                                // Pastikan Anda mendapatkan id_pembelian dari respons
+                                var id_pembelian = response.id_pembelian;
+                                // Ganti URL action form untuk update
+                                var updateFormAction =
+                                    "{{ route('master.pembelianbarang.update', ':id') }}";
+                                updateFormAction = updateFormAction.replace(':id', id_pembelian);
+                                $('#form-update-pembelian').attr('action', updateFormAction);
+                                // console.log('URL action untuk update telah diganti menjadi: ', updateFormAction);
+
+                                // Update detail pada tab Detail Pembelian menggunakan ID
+                                $('#no-nota').text(response.no_nota); // No Nota
+                                $('#nama-supplier').text(response.nama_supplier); // Nama Supplier
+                                $('#tgl-nota').text(response.tgl_nota); // Tanggal Nota
+
+                                // Kembalikan tombol ke kondisi semula
+                                $('#save-btn-text').show(); // Tampilkan teks "Lanjut" lagi
+                                $('#save-btn-spinner').hide(); // Sembunyikan spinner
+                                $('#save-btn').prop('disabled',
+                                false); // Aktifkan kembali tombol submit
+
+                                $('#tambah-tab').addClass('disabled');
+                                $('#tambah-tab').removeClass('active');
+                                $('#tambah').removeClass('show active');
+                                $('#detail').addClass('show active');
+                                $('#detail-tab').addClass('active');
+                                $('#detail-tab').removeClass('disabled');
+
+                            },
+                            error: function(xhr) {
+                                // Tangani error di sini
+                                alert('Terjadi kesalahan: ' + xhr.responseText);
+                            }
+                        });
+                    });
+
                 });
             </script>
 
@@ -878,7 +824,7 @@
                                         const inputField = document.querySelectorAll(
                                             'input[name="level_harga[]"]')[index];
                                         const persenElement = document.querySelector(
-                                            `#persen_${index}`);
+                                        `#persen_${index}`);
 
                                         // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
                                         if (data.level_harga.hasOwnProperty(namaLevel)) {
@@ -943,8 +889,7 @@
                     document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
                         input.addEventListener('input', function() {
                             calculateHPP(0,
-                                0
-                            ); // Asumsikan barang baru jika tidak ada total harga atau qty dari database
+                            0); // Asumsikan barang baru jika tidak ada total harga atau qty dari database
                         });
                     });
 
@@ -1046,7 +991,7 @@
 
                         // Kembalikan nilai HPP dan stock dari server
                         document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString(
-                            'id-ID');
+                        'id-ID');
                         document.querySelector('.card-text strong.hpp-awal').textContent =
                             `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
                         document.querySelector('.card-text strong.hpp-baru').textContent =
@@ -1061,7 +1006,7 @@
                             // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
                             if (originalLevelHarga.hasOwnProperty(namaLevel)) {
                                 inputField.value = originalLevelHarga[namaLevel] ||
-                                    ''; // Kembalikan nilai asli jika ada
+                                ''; // Kembalikan nilai asli jika ada
                                 let levelHarga = parseFloat(inputField.value) || 0;
                                 let persen = 0;
                                 if (hppUntukPerhitungan > 0) {
@@ -1093,4 +1038,5 @@
                     });
 
                 });
-            </script> --}}
+            </script>
+        @endsection

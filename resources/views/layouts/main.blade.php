@@ -16,7 +16,17 @@
 
     <!-- prism css -->
     @include('layouts.css.style_css')
-
+    @yield('css')
+    <script>
+        document.onreadystatechange = function() {
+            var state = document.readyState;
+            if (state == 'complete') {
+                if (window.initPageLoad) {
+                    initPageLoad();
+                }
+            }
+        }
+    </script>
 </head>
 
 <body>
@@ -38,7 +48,7 @@
     @include('layouts.footer')
 
     <!-- Warning Section Ends -->
-
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>
     <script>
@@ -79,6 +89,7 @@
     </script>
     <!-- Required Js -->
     @include('layouts.js.style_js')
+    @yield('js')
     <!-- Close Js -->
 </body>
 
