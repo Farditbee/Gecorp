@@ -15,10 +15,10 @@ class PembelianBarang extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_supplier', 
-        'no_nota', 
-        'tgl_nota', 
-        'total_item', 
+        'id_supplier',
+        'no_nota',
+        'tgl_nota',
+        'total_item',
         'total_nilai'
     ];
 
@@ -30,6 +30,16 @@ class PembelianBarang extends Model
     public function supplier()
     {
         return $this->belongsTo(Supplier::class, 'id_supplier');
+    }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'id_barang');
+    }
+
+    public function level_harga()
+    {
+        return $this->belongsTo(LevelHarga::class, 'id_level_harga');
     }
 
 }

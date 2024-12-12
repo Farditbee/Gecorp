@@ -14,35 +14,80 @@ use Illuminate\Support\Facades\DB;
 
 class PembelianBarangController extends Controller
 {
+    public function getpembelianbarang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = new PembelianBarang();
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+            $searchColumns = ['nama', 'no_sert'];
+            $query->where(function ($query) use ($searchColumns, $searchTerm) {
+                foreach ($searchColumns as $column) {
+                    $query->orWhereRaw("LOWER($column) LIKE ?", ["%$searchTerm%"]);
+                }
+            });
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+        }
+
+        $query->with(['barang','supplier','level_harga'])->orderBy('created_at', $meta['orderBy']);
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_supplier' => $item['supplier']->nama_supplier,
+                'status' => $item->status,
+                'tgl_nota' => $item->tgl_nota,
+                'no_nota' => $item->no_nota,
+                'total_item' => $item->total_item,
+                'total_nilai' => $item->total_nilai,
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+ }
+
     public function index(Request $request)
 {
-    // Mulai query untuk mengambil data PembelianBarang
-    $query = PembelianBarang::orderBy('id', 'desc');
-
-    // Cek apakah ada parameter tanggal yang dikirimkan
-    if ($request->has('startDate') && $request->has('endDate')) {
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-
-        // Lakukan filter berdasarkan tanggal
-        $query->whereBetween('tgl_nota', [$startDate, $endDate]);
-
-        // Ambil data pembelian yang sudah difilter
-        $pembelian_dt = $query->get();
-    } else {
-        // Jika tidak ada filter tanggal, ambil semua data
-        $pembelian_dt = $query->get();
-    }
-
-    // Ambil data lainnya
-    $suppliers = Supplier::all();
-    $barang = Barang::all();
-    $LevelHarga = LevelHarga::all();
-
     // Kirim data ke view
-    return view('transaksi.pembelianbarang.index', compact('pembelian_dt', 'suppliers', 'barang', 'LevelHarga'))
-        ->with('startDate', $request->input('startDate'))
-        ->with('endDate', $request->input('endDate'));
+    return view('transaksi.pembelianbarang.index');
 }
 
     public function create()
