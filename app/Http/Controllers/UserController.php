@@ -26,11 +26,16 @@ class UserController extends Controller
 
             $query->where(function ($query) use ($searchTerm) {
                 // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(email) LIKE ?", ["%$searchTerm%"]);
 
                 // Pencarian pada relasi 'supplier->nama_supplier'
-                $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                });
+
+                $query->orWhereHas('leveluser', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_level) LIKE ?", ["%$searchTerm%"]);
                 });
             });
         }
