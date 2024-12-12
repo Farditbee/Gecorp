@@ -4,6 +4,7 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 @endsection
 
 @section('content')
@@ -58,15 +59,15 @@
                                     <table class="table table-hover m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center">No</th>
-                                                <th>Nama User</th>
-                                                <th>Level</th>
-                                                <th>Toko</th>
-                                                <th>Username</th>
-                                                <th>Email</th>
-                                                <th>No. HP</th>
-                                                <th>Alamat</th>
-                                                <th class="text-center">Action</th>
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Nama User</th>
+                                                <th class="text-wrap align-top">Level</th>
+                                                <th class="text-wrap align-top">Toko</th>
+                                                <th class="text-wrap align-top">Username</th>
+                                                <th class="text-wrap align-top">Email</th>
+                                                <th class="text-wrap align-top">No. HP</th>
+                                                <th class="text-wrap align-top">Alamat</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -153,26 +154,27 @@
             }
 
             let edit_button = `
-        <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Edit User: ${data.nama}"
-            data-id='${data.id}'>
-            <span class="text-dark">Edit</span>
-            <div class="icon text-warning pt-1">
-                <i class="fa fa-edit"></i>
-            </div>
-        </a>`;
+            <a href='user/edit/${data.id}' class="p-1 btn edit-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Edit User: ${data.nama}"
+                data-id='${data.id}'>
+                <span class="text-dark">Edit</span>
+                <div class="icon text-warning pt-1">
+                    <i class="fa fa-edit"></i>
+                </div>
+            </a>`;
 
             let delete_button = `
-         <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Hapus User: ${data.nama}"
-            data-id='${data.id}'>
-            <span class="text-dark">Hapus</span>
-            <div class="icon text-danger pt-1">
-                <i class="fa fa-trash"></i>
-            </div>
-        </a>`;
+            <a class="p-1 btn hapus-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Hapus User: ${data.nama}"
+                data-id='${data.id}'
+                data-name='${data.nama}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger pt-1">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
 
             return {
                 id: data?.id ?? '-',
@@ -277,6 +279,46 @@
             });
         }
 
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                isActionForm = "destroy";
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus User ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `user/delete/${id}`
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
@@ -294,6 +336,7 @@
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             }, 500));
+            await deleteData();
         }
 
         function debounce(func, wait) {

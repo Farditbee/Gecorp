@@ -61,14 +61,14 @@
                                     <table class="table table-hover m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center">No</th>
-                                                <th>Status</th>
-                                                <th>No. Nota</th>
-                                                <th>Tanggal Nota</th>
-                                                <th>Supplier</th>
-                                                <th>Total Item</th>
-                                                <th>Total Harga</th>
-                                                <th class="text-center">Action</th>
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Status</th>
+                                                <th class="text-wrap align-top">No. Nota</th>
+                                                <th class="text-wrap align-top">Tanggal Nota</th>
+                                                <th class="text-wrap align-top">Supplier</th>
+                                                <th class="text-wrap align-top">Total Item</th>
+                                                <th class="text-wrap align-top">Total Harga</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -429,13 +429,13 @@
             }
 
             let detail_button = `
-        <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
+        <a href="pembelianbarang/${data.id}/edit" class="p-1 btn edit-data action_button"
             data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Edit Data Nomor Nota: ${data.no_nota}"
+            title="Detail Data Nomor Nota: ${data.no_nota}"
             data-id='${data.id}'>
-            <span class="text-dark">Edit</span>
-            <div class="icon text-warning pt-1">
-                <i class="fa fa-edit"></i>
+            <span class="text-dark">Detail</span>
+            <div class="icon text-info pt-1">
+                <i class="fa fa-eye"></i>
             </div>
         </a>`;
 
@@ -447,7 +447,7 @@
                 no_nota: data?.no_nota ?? '-',
                 total_item: data?.total_item ?? '-',
                 total_nilai: data?.total_nilai ?? '-',
-                detail_button
+                detail_button,
             };
         }
 
@@ -459,7 +459,7 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
-            let classCol = 'align-center text-dark';
+            let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
                             <tr class="text-dark">
@@ -472,7 +472,7 @@
                                 <td class="${classCol}">${element.total_nilai}</td>
                                 <td class="${classCol}">
                                     <div class="d-flex justify-content-center">
-                                        <div class="hovering">
+                                        <div class="hovering p-1">
                                             ${element.detail_button}
                                         </div>
                                     </div>
