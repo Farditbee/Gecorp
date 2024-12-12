@@ -85,20 +85,22 @@ class DashboardController extends Controller
 
     public function getBarangJual(Request $request)
     {
-        $selectedTokoIds = $request->input('id_toko', []); // Ambil toko dari request
+        $selectedTokoIds = $request->input('id_toko'); // Ambil toko dari request
         $query = DetailKasir::select(
             'detail_kasir.id_barang',
             'barang.nama_barang',
             DB::raw('SUM(detail_kasir.qty) as total_terjual')
         )
             ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id');
-
-        if (!empty($selectedTokoIds)) {
+        if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
             $query->join('kasir', 'detail_kasir.id_kasir', '=', 'kasir.id')
-                ->whereIn('kasir.id_toko', $selectedTokoIds)
-                ->groupBy('kasir.id_toko', 'detail_kasir.id_barang', 'barang.nama_barang'); // Tambahkan semua kolom
+                ->where('kasir.id_toko', $selectedTokoIds)
+                ->groupBy('kasir.id_toko', 'detail_kasir.id_barang', 'barang.nama_barang');
+        }
+        elseif ($selectedTokoIds === 'all'){
+            $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         } else {
-            $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang'); // Tambahkan nama_barang
+            $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         }
 
         $dataBarang = $query->orderBy('total_terjual', 'desc')->limit(5)->get();
