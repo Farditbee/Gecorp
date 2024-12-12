@@ -1,114 +1,302 @@
-<title>Data User - Gecorp</title>
+<title>Pembelian Barang - Gecorp</title>
 @extends('layouts.main')
 
-@section('content')
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+@endsection
 
-<div class="pcoded-main-container">
-    <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Data User</h5>
+@section('content')
+    <div class="pcoded-main-container">
+        <div class="pcoded-content pt-1 mt-1">
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
+                                <li class="breadcrumb-item"><a href="{{ route('master.index') }}"><i
+                                            class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item">
+                                    <b class="font-weight-bold">Data User</b>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a>Data User</a></li>
-                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- [ breadcrumb ] end -->
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="d-flex mb-2 mb-lg-0">
+                                <a href="" class="btn btn-primary mr-2" data-toggle="modal"
+                                    data-target=".bd-example-modal-lg">
+                                    <i class="ti-plus menu-icon"></i> Tambah
+                                </a>
+                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
+                                    <i class="ti-plus menu-icon"></i> Filter
+                                </a>
+                            </div>
 
-        <!-- [ Main Content ] start -->
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah -->
-                        @if (Auth::user()->id_level == 1)
-                        <a href="{{ route('master.user.create')}}" class="btn btn-primary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
-                        @else
-                        <a href="{{ route('master.user.create')}}" class="btn btn-secondary disabled">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
-                        @endif
-                        <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.user.index') }}">
-                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari User" aria-label="Search">
-                        </form>
-                    </div>
-                    <x-adminlte-alerts />
-                    <div class="card-body table-border-style">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="jsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama User</th>
-                                        <th>Level</th>
-                                        <th>Toko</th>
-                                        <th>Username</th>
-                                        <th>Email</th>
-                                        <th>No. HP</th>
-                                        <th>Alamat</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no = 1; ?>
-                                    @forelse ($users as $usr)
-                                    <tr>
-                                        <td>{{$no++}}</td>
-                                        <td>{{$usr->nama}}</td>
-                                        <td>{{$usr->leveluser->nama_level}}</td>
-                                        <td class="text-wrap" style="max-width: 150px;">{{$usr->toko->nama_toko}}</td>
-                                        <td>{{$usr->username}}</td>
-                                        <td>{{$usr->email}}</td>
-                                        <td>{{$usr->no_hp}}</td>
-                                        <td>{{$usr->alamat}}</td>
-                                        <form onsubmit="return confirm('Ingin menghapus Data ini ? ?');" action="{{ route('master.user.delete', $usr->id)}}" method="post">
-                                        <td>
-                                            @if (Auth::id() === $usr->id || Auth::user()->id_level == 1)
-                                                <a href="{{ route('master.user.edit', $usr->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit menu-icon"></i></a>
-                                                @else
-                                                <a href="{{ route('master.user.edit', $usr->id)}}" class="btn btn-warning btn-sm disabled"><i class="fa fa-edit menu-icon"></i></a>
-                                                @endif
-                                                @csrf
-                                                @method('DELETE')
-                                                @if (Auth::user()->id_level == 1)
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                @endif
-                                        </td>
-                                        </form>
-                                    </tr>
-                                    @empty
-                                    <td colspan="6">Tidak ada data.</td>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
+                                    style="width: 100px;">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <x-adminlte-alerts />
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-scroll-wrapper">
+                                    <table class="table table-hover m-0">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th class="text-center">No</th>
+                                                <th>Nama User</th>
+                                                <th>Level</th>
+                                                <th>Toko</th>
+                                                <th>Username</th>
+                                                <th>Email</th>
+                                                <th>No. HP</th>
+                                                <th>Alamat</th>
+                                                <th class="text-center">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listData">
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-end" id="pagination">
-                                      {{-- isian paginate --}}
-                                    </ul>
-                                  </nav>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
+                                    <div class="text-center text-md-start mb-2 mb-md-0">
+                                        <div class="pagination">
+                                            <div>Menampilkan <span id="countPage">0</span> dari <span
+                                                    id="totalPage">0</span> data</div>
+                                        </div>
+                                    </div>
+                                    <nav class="text-center text-md-end">
+                                        <ul class="pagination justify-content-center justify-content-md-end"
+                                            id="pagination-js">
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
-</div>
+@endsection
 
+@section('js')
+    <script>
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.getdatauser') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                $('#listData').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
+        }
+
+        async function handleData(data) {
+            let status = '';
+            if (data?.status === 'Sukses') {
+                status =
+                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
+            } else if (data?.status === 'Gagal') {
+                status =
+                    `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
+            } else {
+                status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
+            }
+
+            let edit_button = `
+        <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
+            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+            title="Edit User: ${data.nama}"
+            data-id='${data.id}'>
+            <span class="text-dark">Edit</span>
+            <div class="icon text-warning pt-1">
+                <i class="fa fa-edit"></i>
+            </div>
+        </a>`;
+
+        let delete_button = `
+         <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
+            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+            title="Hapus User: ${data.nama}"
+            data-id='${data.id}'>
+            <span class="text-dark">Hapus</span>
+            <div class="icon text-danger pt-1">
+                <i class="fa fa-trash"></i>
+            </div>
+        </a>`;
+
+            return {
+                id: data?.id ?? '-',
+                nama: data?.nama ?? '-',
+                nama_level_user: data?.nama_level_user ?? '-',
+                nama_toko: data?.nama_toko ?? '-',
+                username: data?.username ?? '-',
+                email: data?.email ?? '-',
+                no_hp: data?.no_hp ?? '-',
+                alamat: data?.alamat ?? '-',
+                edit_button,
+                delete_button,
+            };
+        }
+
+
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                            <tr class="text-dark">
+                                <td class="${classCol} text-center">${display_from + index}.</td>
+                                <td class="${classCol}">${element.nama}</td>
+                                <td class="${classCol}">${element.nama_level_user}</td>
+                                <td class="${classCol}">${element.nama_toko}</td>
+                                <td class="${classCol}">${element.username}</td>
+                                <td class="${classCol}">${element.email}</td>
+                                <td class="${classCol}">${element.no_hp}</td>
+                                <td class="${classCol}">${element.alamat}</td>
+                                <td class="${classCol}">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="hovering">
+                                            ${element.edit_button}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>`;
+            });
+
+            $('#listData').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            renderPagination();
+        }
+
+        function renderPagination() {
+            let paginationHtml = '';
+
+            if (currentPage > 1) {
+                paginationHtml +=
+                    `<button class="paginate-btn prev-btn btn btn-sm btn-outline-primary mx-1" data-page="${currentPage - 1}"><i class="fa fa-circle-chevron-left"></i></button>`;
+            }
+
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPage, currentPage + 2);
+
+            if (startPage > 1) {
+                paginationHtml += `<button class="paginate-btn page-btn btn btn-sm btn-primary" data-page="1">1</button>`;
+                if (startPage > 2) {
+                    paginationHtml +=
+                        `<button class="btn btn-sm btn-primary" style="pointer-events: none;"><i class="fa fa-ellipsis"></i></button>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                paginationHtml +=
+                    `<button class="paginate-btn page-btn btn btn-sm btn-primary ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+
+            if (endPage < totalPage) {
+                if (endPage < totalPage - 1) {
+                    paginationHtml +=
+                        `<button class="btn btn-sm btn-primary" style="pointer-events: none;"><i class="fa fa-ellipsis"></i></button>`;
+                }
+                paginationHtml +=
+                    `<button class="paginate-btn page-btn btn btn-sm btn-primary" data-page="${totalPage}">${totalPage}</button>`;
+            }
+
+            if (currentPage < totalPage) {
+                paginationHtml +=
+                    `<button class="paginate-btn next-btn btn btn-sm btn-outline-primary mx-1" data-page="${currentPage + 1}"><i class="fa fa-circle-chevron-right"></i></button>`;
+            }
+
+            $('#pagination-js').html(paginationHtml);
+
+            $('#pagination-js').off('click', '.paginate-btn').on('click', '.paginate-btn', async function(e) {
+                const newPage = parseInt($(this).data('page'));
+                if (!isNaN(newPage)) {
+                    currentPage = newPage;
+                    await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                        customFilter);
+                }
+            });
+        }
+
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            $('#limitPage').on('change', async function() {
+                defaultLimitPage = parseInt($(this).val());
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+            $('.tb-search').on('input', debounce(async () => {
+                defaultSearch = $('.tb-search').val();
+                currentPage = 1;
+                console.log('di klik')
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            }, 500));
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+    </script>
 @endsection
