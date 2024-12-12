@@ -39,8 +39,8 @@
                                         <div>
                                             <p class="font-weight-bold mb-0">Total Pendapatan</p>
                                             <div class="d-flex align-items-end">
-                                                <h2 class="mb-0" id="total-pendapatan">
-                                                    Rp. 0
+                                                <h2 class="mb-0" id="total-pendapatans">
+                                                        Rp. {{ number_format($totalSemuaNilai, 0, '.','.')}}
                                                 </h2>
                                             </div>
                                         </div>

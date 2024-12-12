@@ -33,6 +33,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin')->group(function () {
         Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('master.index');
+        Route::get('/dashboard', [AuthController::class, 'index'])->name('master.index');
 
         // Brand Controller
         Route::get('/brand', [BrandController::class, 'index'])->name('master.brand.index');
