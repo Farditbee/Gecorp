@@ -39,7 +39,7 @@ class PembelianBarangController extends Controller
             $query->whereBetween('tgl_nota', [$startDate, $endDate]);
         }
 
-        $query->with(['barang','supplier','level_harga'])->orderBy('created_at', $meta['orderBy']);
+        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('created_at', $meta['orderBy']);
 
         $data = $query->paginate($meta['limit']);
 
@@ -67,11 +67,15 @@ class PembelianBarangController extends Controller
             return [
                 'id' => $item['id'],
                 'nama_supplier' => $item['supplier']->nama_supplier,
-                'status' => $item->status,
-                'tgl_nota' => $item->tgl_nota,
+                'status' => match ($item->status) {
+                    'success' => 'Sukses',
+                    'failed' => 'Gagal',
+                    default => $item->status,
+                },
+                'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
                 'no_nota' => $item->no_nota,
                 'total_item' => $item->total_item,
-                'total_nilai' => $item->total_nilai,
+                'total_nilai' => number_format($item->total_nilai, 0, ',', '.'),
             ];
         });
 
@@ -82,13 +86,13 @@ class PembelianBarangController extends Controller
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
- }
+    }
 
     public function index(Request $request)
-{
-    // Kirim data ke view
-    return view('transaksi.pembelianbarang.index');
-}
+    {
+        // Kirim data ke view
+        return view('transaksi.pembelianbarang.index');
+    }
 
     public function create()
     {
@@ -125,7 +129,6 @@ class PembelianBarangController extends Controller
                 'tgl_nota' => $pembelian->tgl_nota,
                 'id_pembelian' => $pembelian->id
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -332,8 +335,8 @@ class PembelianBarangController extends Controller
 
                 if ($existingStock) {
                     $successfulDetails = DetailPembelianBarang::where('id_barang', $detail->id_barang)
-                                                                ->where('status', 'success')
-                                                                ->get();
+                        ->where('status', 'success')
+                        ->get();
 
                     $totalHargaSemua = $successfulDetails->sum('total_harga');
                     $totalQtySemua = $successfulDetails->sum('qty');
@@ -397,12 +400,11 @@ class PembelianBarangController extends Controller
             DB::commit();
 
             return redirect()->route('master.pembelianbarang.index')
-                             ->with('success', 'Pembelian barang deleted successfully.');
+                ->with('success', 'Pembelian barang deleted successfully.');
         } catch (\Exception $e) {
             DB::rollback();
 
             return redirect()->back()->with('error', 'Failed to delete pembelian barang. ' . $e->getMessage());
         }
     }
-
 }
