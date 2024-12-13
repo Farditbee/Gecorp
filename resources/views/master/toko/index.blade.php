@@ -150,10 +150,7 @@
                 data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Lihat Detail Toko: ${data.nama_toko}"
                 data-id='${data.id}'>
-                <div class="icon text-primary pt-1">
-                    <i class="fa fa-edit"></i>
-                </div>
-                <span class="text-white">Cek Detail</span>
+                <span class="text-white"><i class="fa fa-eye mr-1"></i>Cek Detail</span>
             </a>`;
 
             let edit_button = `
