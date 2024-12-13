@@ -29,16 +29,11 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
-                                    <a class="mr-2 btn btn-primary">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @else
-                                    <a class="mr-2 btn btn-secondary disabled">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @endif
+                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
+                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
+                                    data-target=".bd-example-modal-lg">
+                                    <i class="fa fa-plus-circle"></i> Tambah
+                                </a>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -312,7 +307,7 @@
 
         async function handleData(data) {
             let edit_button = `
-            <a href='member/edit/${data.id}' class="p-1 btn edit-data action_button"
+            <a class="p-1 btn edit-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
                 data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
                 title="Edit Member: ${data.nama_member}"
                 data-id='${data.id}'>
@@ -425,7 +420,6 @@
             })
         }
 
-        async function renderOther() {
             document.addEventListener('DOMContentLoaded', function() {
                 const element = document.getElementById('selector');
                 const choices = new Choices(element, {
@@ -496,21 +490,21 @@
                     searchEnabled: true, // Mengaktifkan pencarian
                 });
 
-                document.addEventListener('DOMContentLoaded', function() {
-                    // Ambil semua tombol dengan atribut data-id
-                    var editButtons = document.querySelectorAll('button[data-id]');
+                // document.addEventListener('DOMContentLoaded', function() {
+                //     // Ambil semua tombol dengan atribut data-id
+                //     var editButtons = document.querySelectorAll('button[data-id]');
 
-                    // Tambahkan event listener ke setiap tombol edit
-                    editButtons.forEach(function(button) {
-                        button.addEventListener('click', function() {
-                            // Ambil id_member dari atribut data-id
-                            var idMember = this.getAttribute('data-id');
+                //     // Tambahkan event listener ke setiap tombol edit
+                //     editButtons.forEach(function(button) {
+                //         button.addEventListener('click', function() {
+                //             // Ambil id_member dari atribut data-id
+                //             var idMember = this.getAttribute('data-id');
 
-                            // Tampilkan id_member di console log
-                            console.log('Tombol Edit diklik, ID Member:', idMember);
-                        });
-                    });
-                });
+                //             // Tampilkan id_member di console log
+                //             console.log('Tombol Edit diklik, ID Member:', idMember);
+                //         });
+                //     });
+                // });
 
                 function editMember(id) {
                     console.log('ID Member yang diedit:', id); // Log id_member yang sedang diedit
@@ -541,13 +535,11 @@
                     });
                 }
             });
-        }
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
-            await renderOther();
         }
     </script>
 @endsection
