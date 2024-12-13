@@ -13,6 +13,80 @@ use Illuminate\Support\Facades\DB;
 
 class TokoController extends Controller
 {
+    public function gettoko(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Toko::query();
+
+        $query->with(['levelHarga'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi 'supplier->nama_supplier'
+                // $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
+                //     $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
+                // });
+            });
+        }
+
+        // if ($request->has('startDate') && $request->has('endDate')) {
+        //     $startDate = $request->input('startDate');
+        //     $endDate = $request->input('endDate');
+
+        //     // Lakukan filter berdasarkan tanggal
+        //     $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+        // }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_toko' => $item['nama_toko'],
+                'singkatan' => $item['singkatan'],
+                'nama_level_harga' => $item['levelHarga']->nama_level_harga,
+                'wilayah' => $item->wilayah,
+                'alamat' => $item->alamat,
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
 
     public function index()
 {
