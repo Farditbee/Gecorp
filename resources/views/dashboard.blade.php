@@ -35,7 +35,7 @@
                                             <p class="font-weight-bold mb-0">Total Pendapatan</p>
                                             <div class="d-flex align-items-end">
                                                 <h2 class="mb-0" id="total-pendapatans">
-                                                        Rp. {{ number_format($totalSemuaNilai, 0, '.','.')}}
+                                                    Rp. {{ number_format($totalSemuaNilai, 0, '.', '.') }}
                                                 </h2>
                                             </div>
                                         </div>
@@ -49,7 +49,8 @@
                                     <h5>Top 5 Penjualan</h5>
                                     <div class="d-flex align-items-center gap-2">
                                         <div style="width: 200px;">
-                                            <select id="f-barang-toko" class="form-select form-select-sm w-auto">
+                                            <select id="f-barang-toko"
+                                                class="filter-option form-select form-select-sm w-auto">
                                                 <option value="all">Semua Toko</option>
                                                 @foreach ($toko as $tokoData)
                                                     <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
@@ -103,7 +104,8 @@
                             <h5>Laporan Penjualan</h5>
                             <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
                                 <div style="width: 200px;">
-                                    <select id="f-penjualan-toko" class="form-select form-select-sm w-100">
+                                    <select id="f-penjualan-toko" name="nama_toko"
+                                        class="filter-option form-select form-select-sm w-100">
                                         <option value="all">Semua Toko</option>
                                         @foreach ($toko as $tokoData)
                                             <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
@@ -111,14 +113,16 @@
                                     </select>
                                 </div>
                                 <div style="width: 200px;">
-                                    <select id="filter-period" class="form-select form-select-sm w-100">
+                                    <select id="filter-period" name="period"
+                                        class="filter-option form-select form-select-sm w-100">
                                         <option value="daily">Harian</option>
                                         <option value="monthly" selected>Bulanan</option>
                                         <option value="yearly">Tahunan</option>
                                     </select>
                                 </div>
                                 <div style="width: 200px; display: none;" id="filter-month-container">
-                                    <select id="filter-month" class="form-select form-select-sm w-100">
+                                    <select id="filter-month" name="month"
+                                        class="filter-option form-select form-select-sm w-100">
                                         <option value="1">Januari</option>
                                         <option value="2">Februari</option>
                                         <option value="3">Maret</option>
@@ -134,7 +138,8 @@
                                     </select>
                                 </div>
                                 <div style="width: 200px;">
-                                    <select id="filter-year" class="form-select form-select-sm w-100"></select>
+                                    <select id="filter-year" name="year"
+                                        class="filter-option form-select form-select-sm w-100"></select>
                                 </div>
                             </div>
                         </div>
@@ -227,38 +232,31 @@
             }
         }
 
-        async function setLaporanPenjualan(data) {
-            const filterToko = document.getElementById('f-penjualan-toko');
+        async function setLaporanPenjualan(apiResponse) {
             const filterPeriod = document.getElementById('filter-period');
             const filterMonthContainer = document.getElementById('filter-month-container');
             const filterMonth = document.getElementById('filter-month');
             const filterYear = document.getElementById('filter-year');
             const total = document.getElementById('total-penjualan');
             const chartContainer = document.getElementById('laporan-chart');
-            let currentChartType = 'bar';
 
-            customFilter = {
-                nama_toko: filterToko.value,
-                period: filterPeriod.value,
-                month: filterMonth.value,
-                year: filterYear.value,
-            };
+            let currentChartType = 'bar';
+            const defaultYear = new Date().getFullYear();
 
             const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
             const updateChart = (period, year, chartType) => {
+                const dataSet = apiResponse[0] || {};
                 let penjualan = [];
-                const month = parseInt(filterMonth.value);
+                const month = parseInt(filterMonth.value, 10);
 
                 if (period === 'daily') {
                     const daysInMonth = getDaysInMonth(year, month);
-                    penjualan = data.daily?.[year]?.[month] || Array.from({
-                        length: daysInMonth
-                    }, () => 0);
+                    penjualan = (dataSet.daily?.[year]?.[month] || []).slice(0, daysInMonth);
                 } else if (period === 'monthly') {
-                    penjualan = data.monthly?.[year] || [];
+                    penjualan = dataSet.monthly?.[year] || [];
                 } else if (period === 'yearly') {
-                    penjualan = data.yearly?.[year] || [];
+                    penjualan = dataSet.yearly?.[year] || [];
                 }
 
                 total.textContent = formatRupiah(penjualan.reduce((a, b) => a + b, 0));
@@ -268,14 +266,13 @@
                         length: penjualan.length
                     }, (_, i) => `Day ${i + 1}`),
                     monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'
-                    ],
+                        'Dec'],
                     yearly: [year],
                 };
 
                 const chartOptions = {
                     series: [{
-                        name: 'penjualan',
+                        name: 'Penjualan',
                         data: penjualan,
                     }],
                     chart: {
@@ -289,28 +286,28 @@
                         },
                     },
                     dataLabels: {
-                        enabled: false
+                        enabled: false,
                     },
                     stroke: {
                         curve: chartType === 'line' ? 'smooth' : 'straight',
-                        width: 3,
+                        width: 2,
                         colors: ['#90EE90'],
                     },
                     xaxis: {
-                        categories: categories[period]
+                        categories: categories[period],
                     },
                     colors: ['#90EE90'],
                     legend: {
-                        position: 'top'
+                        position: 'top',
                     },
                     fill: {
                         type: 'solid',
-                        colors: ['#90EE90']
+                        colors: ['#90EE90'],
                     },
                     markers: {
                         size: 5,
                         colors: ['#90EE90'],
-                        strokeWidth: 2
+                        strokeWidth: 2,
                     },
                 };
 
@@ -321,7 +318,8 @@
 
             const populateYearOptions = () => {
                 const currentYear = new Date().getFullYear();
-                for (let year = currentYear; year > currentYear - 10; year--) {
+                filterYear.innerHTML = '';
+                for (let year = currentYear; year >= currentYear - 10; year--) {
                     const option = document.createElement('option');
                     option.value = year;
                     option.textContent = year;
@@ -331,7 +329,7 @@
             };
 
             populateYearOptions();
-            updateChart(filterPeriod.value, filterYear.value, currentChartType);
+            updateChart(filterPeriod.value, defaultYear, currentChartType);
 
             filterPeriod.addEventListener('change', () => {
                 filterMonthContainer.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
@@ -348,38 +346,60 @@
                 updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
 
-            function setActiveChartButton(activeId, chartMapping) {
-                Object.keys(chartMapping).forEach((id) => {
-                    const button = document.getElementById(id);
-                    if (id === activeId) {
-                        button.classList.add('btn-primary');
-                        button.classList.remove('btn-outline-primary');
-                    } else {
-                        button.classList.add('btn-outline-primary');
-                        button.classList.remove('btn-primary');
-                    }
-                });
-            }
-
-            function initializeChartTypeListeners(chartMapping) {
-                Object.keys(chartMapping).forEach((id) => {
-                    document.getElementById(id).addEventListener('click', () => {
-                        const currentChartType = chartMapping[id];
-                        updateChart(filterPeriod.value, filterYear.value, currentChartType);
-                        setActiveChartButton(id, chartMapping);
-                    });
-                });
-            }
-
             const chartTypeMapping = {
                 'chart-area': 'area',
                 'chart-bar': 'bar',
-                'chart-line': 'line'
+                'chart-line': 'line',
             };
 
-            initializeChartTypeListeners(chartTypeMapping);
+            const setActiveChartButton = (activeId) => {
+                Object.keys(chartTypeMapping).forEach((id) => {
+                    const button = document.getElementById(id);
+                    button.classList.toggle('btn-primary', id === activeId);
+                    button.classList.toggle('btn-outline-primary', id !== activeId);
+                });
+            };
 
-            setActiveChartButton('chart-bar', chartTypeMapping);
+            Object.keys(chartTypeMapping).forEach((id) => {
+                document.getElementById(id).addEventListener('click', () => {
+                    currentChartType = chartTypeMapping[id];
+                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                    setActiveChartButton(id);
+                });
+            });
+
+            setActiveChartButton('chart-bar');
+        }
+
+
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
+
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
+                }
+
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
         }
 
         async function getTopPenjualan(customFilter2 = {}) {
@@ -467,16 +487,34 @@
         }
 
         async function filterSelect() {
-            const selectElement = document.getElementById('f-barang-toko');
+            const filterElements = document.querySelectorAll('.filter-option');
 
-            selectElement.addEventListener('change', async function() {
-                const id_toko = selectElement.value;
+            async function updateFilters() {
+                let allSelected = true;
+                filterElements.forEach((select) => {
+                    const value = select.value.trim();
+                    if (!value) {
+                        allSelected = false;
+                    }
+                    customFilter[select.name] = value;
+                });
 
-                customFilter2 = {
-                    'id_toko': id_toko,
-                };
+                if (allSelected) {
+                    await getLaporanPenjualan(customFilter);
+                }
+            }
 
-                await getTopPenjualan(customFilter2);
+            filterElements.forEach((select) => {
+                select.addEventListener('change', async () => {
+                    await updateFilters();
+
+                    if (select.id === 'f-barang-toko' && select.value.trim()) {
+                        customFilter2 = {
+                            id_toko: select.value.trim()
+                        };
+                        await getTopPenjualan(customFilter2);
+                    }
+                });
             });
         }
 
