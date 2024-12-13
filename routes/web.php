@@ -39,17 +39,17 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/brand', [BrandController::class, 'index'])->name('master.brand.index');
         Route::get('/brand/create', [BrandController::class, 'create'])->name('master.brand.create');
         Route::post('/brand/store', [BrandController::class, 'store'])->name('master.brand.store');
-        Route::get('/brand/{id}/edit', [BrandController::class, 'edit'])->name('master.brand.edit');
+        Route::get('/brand/edit/{id}', [BrandController::class, 'edit'])->name('master.brand.edit');
         Route::put('/brand/{id}', [BrandController::class, 'update'])->name('master.brand.update');
-        Route::delete('/brand/{id}', [BrandController::class, 'delete'])->name('master.brand.delete');
+        Route::delete('/brand/delete/{id}', [BrandController::class, 'delete'])->name('master.brand.delete');
 
         // Jenis Barang Controller
         Route::get('/jenis_barang', [JenisBarangController::class, 'index'])->name('master.jenisbarang.index');
         Route::get('/jenis_barang/create', [JenisBarangController::class, 'create'])->name('master.jenisbarang.create');
         Route::post('/jenis_barang/store', [JenisBarangController::class, 'store'])->name('master.jenisbarang.store');
-        Route::get('/jenis_barang{id}/edit', [JenisBarangController::class, 'edit'])->name('master.jenisbarang.edit');
+        Route::get('/jenis_barang/edit/{id}', [JenisBarangController::class, 'edit'])->name('master.jenisbarang.edit');
         Route::put('/jenis_barang{id}/update', [JenisBarangController::class, 'update'])->name('master.jenisbarang.update');
-        Route::delete('/jenis_barang{id}/delete', [JenisBarangController::class, 'delete'])->name('master.jenisbarang.delete');
+        Route::delete('/jenis_barang/delete/{id}', [JenisBarangController::class, 'delete'])->name('master.jenisbarang.delete');
 
         // Pembelian Barang
         Route::get('/pembelianbarang', [PembelianBarangController::class, 'index'])->name('master.pembelianbarang.index');
