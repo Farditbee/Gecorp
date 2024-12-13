@@ -31,11 +31,11 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.member.create') }}" class="mr-2 btn btn-primary">
+                                    <a class="mr-2 btn btn-primary">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @else
-                                    <a href="{{ route('master.member.create') }}" class="mr-2 btn btn-secondary disabled">
+                                    <a class="mr-2 btn btn-secondary disabled">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @endif
@@ -337,8 +337,10 @@
             return {
                 id: data?.id ?? '-',
                 nama_member: data?.nama_member ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
-                level: data?.level ?? '-',
+                nama_toko: data?.nama_toko ?? '<span class="badge badge-danger">Tidak Ada Toko</span>',
+                nama_level_harga: data?.nama_level_harga ?? '-',
+                level_data: data?.level_data ?? '-',
+                selected_levels: data?.selected_levels ?? '-',
                 no_hp: data?.no_hp ?? '-',
                 alamat: data?.alamat ?? '-',
                 edit_button,
@@ -360,7 +362,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_member}</td>
                         <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.level}</td>
+                        <td class="${classCol}">${element.selected_levels[0]} : ${element.selected_levels[1]}</td>
                         <td class="${classCol}">${element.no_hp}</td>
                         <td class="${classCol}">${element.alamat}</td>
                         <td class="${classCol}">
