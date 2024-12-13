@@ -1,9 +1,10 @@
-<title>Pembelian Barang - Gecorp</title>
+<title>Data User - Gecorp</title>
 @extends('layouts.main')
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 @endsection
 
 @section('content')
@@ -29,13 +30,15 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                <a href="" class="btn btn-primary mr-2" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
-                                    <i class="ti-plus menu-icon"></i> Tambah
-                                </a>
-                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
-                                    <i class="ti-plus menu-icon"></i> Filter
-                                </a>
+                                @if (Auth::user()->id_level == 1)
+                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary">
+                                        <i class="ti-plus menu-icon"></i> Tambah
+                                    </a>
+                                @else
+                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-secondary disabled">
+                                        <i class="ti-plus menu-icon"></i> Tambah
+                                    </a>
+                                @endif
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -56,15 +59,15 @@
                                     <table class="table table-hover m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center">No</th>
-                                                <th>Nama User</th>
-                                                <th>Level</th>
-                                                <th>Toko</th>
-                                                <th>Username</th>
-                                                <th>Email</th>
-                                                <th>No. HP</th>
-                                                <th>Alamat</th>
-                                                <th class="text-center">Action</th>
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Nama User</th>
+                                                <th class="text-wrap align-top">Level</th>
+                                                <th class="text-wrap align-top">Toko</th>
+                                                <th class="text-wrap align-top">Username</th>
+                                                <th class="text-wrap align-top">Email</th>
+                                                <th class="text-wrap align-top">No. HP</th>
+                                                <th class="text-wrap align-top">Alamat</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -151,31 +154,32 @@
             }
 
             let edit_button = `
-        <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Edit User: ${data.nama}"
-            data-id='${data.id}'>
-            <span class="text-dark">Edit</span>
-            <div class="icon text-warning pt-1">
-                <i class="fa fa-edit"></i>
-            </div>
-        </a>`;
+            <a href='user/edit/${data.id}' class="p-1 btn edit-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Edit User: ${data.nama}"
+                data-id='${data.id}'>
+                <span class="text-dark">Edit</span>
+                <div class="icon text-warning pt-1">
+                    <i class="fa fa-edit"></i>
+                </div>
+            </a>`;
 
-        let delete_button = `
-         <a href='user/edit/${data.id}' class="p-1 btn detail-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Hapus User: ${data.nama}"
-            data-id='${data.id}'>
-            <span class="text-dark">Hapus</span>
-            <div class="icon text-danger pt-1">
-                <i class="fa fa-trash"></i>
-            </div>
-        </a>`;
+            let delete_button = `
+            <a class="p-1 btn hapus-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Hapus User: ${data.nama}"
+                data-id='${data.id}'
+                data-name='${data.nama}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger pt-1">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
 
             return {
                 id: data?.id ?? '-',
                 nama: data?.nama ?? '-',
-                nama_level_user: data?.nama_level_user ?? '-',
+                nama_level: data?.nama_level ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
                 username: data?.username ?? '-',
                 email: data?.email ?? '-',
@@ -194,26 +198,29 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
-            let classCol = 'align-center text-dark';
+            let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
-                            <tr class="text-dark">
-                                <td class="${classCol} text-center">${display_from + index}.</td>
-                                <td class="${classCol}">${element.nama}</td>
-                                <td class="${classCol}">${element.nama_level_user}</td>
-                                <td class="${classCol}">${element.nama_toko}</td>
-                                <td class="${classCol}">${element.username}</td>
-                                <td class="${classCol}">${element.email}</td>
-                                <td class="${classCol}">${element.no_hp}</td>
-                                <td class="${classCol}">${element.alamat}</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="hovering">
-                                            ${element.edit_button}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>`;
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.nama}</td>
+                        <td class="${classCol}">${element.nama_level}</td>
+                        <td class="${classCol}">${element.nama_toko}</td>
+                        <td class="${classCol}">${element.username}</td>
+                        <td class="${classCol}">${element.email}</td>
+                        <td class="${classCol}">${element.no_hp}</td>
+                        <td class="${classCol}">${element.alamat}</td>
+                        <td class="${classCol}">
+                            <div class="d-flex justify-content-center w-100">
+                                <div class="hovering p-1">
+                                    ${element.edit_button}
+                                </div>
+                                <div class="hovering p-1">
+                                    ${element.delete_button}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
             });
 
             $('#listData').html(getDataTable);
@@ -272,6 +279,46 @@
             });
         }
 
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                isActionForm = "destroy";
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus User ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `user/delete/${id}`
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
@@ -289,6 +336,7 @@
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             }, 500));
+            await deleteData();
         }
 
         function debounce(func, wait) {

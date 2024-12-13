@@ -51,9 +51,20 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>
+    <script src="{{ asset('js/toastr.min.js') }}"></script>
+    <script src="{{ asset('js/notification.js') }}"></script>
+    <script src="{{ asset('js/sweetalert2.js') }}"></script>
     <script>
         function formatRupiah(amount) {
             return `Rp. ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replace('Rp', '').trim()}`;
+        }
+
+        function notificationAlert(tipe, title, message) {
+            swal(
+                title,
+                message,
+                tipe
+            );
         }
 
         async function selectList(selectors) {
