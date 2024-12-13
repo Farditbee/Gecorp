@@ -936,70 +936,34 @@
             await filterList();
             await addData();
         }
-    </script>
-@endsection
-
-
-{{-- <script>
-    if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
-        const url = new URL(window.location);
-        url.searchParams.delete('startDate'); // Hapus startDate
-        url.searchParams.delete('endDate'); // Hapus endDate
-        window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa parameter
-    }
-</script>
-            <script>
-                document.getElementById('tgl_nota').addEventListener('focus', function() {
-                    this.showPicker(); // Membuka picker tanggal saat input difokuskan
+        document.addEventListener('DOMContentLoaded', function() {
+                new TomSelect("#id_supplier", {
+                    placeholder: "Pilih Supplier",
+                    allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
+                    create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
                 });
-                document.getElementById('startDate').addEventListener('focus', function() {
-                    this.showPicker(); // Membuka picker tanggal saat input difokuskan
-                });
-                document.getElementById('endDate').addEventListener('focus', function() {
-                    this.showPicker(); // Membuka picker tanggal saat input difokuskan
-                });
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    new TomSelect("#id_supplier", {
-                        placeholder: "Pilih Supplier",
-                        allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
-                        create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
-                    });
-                });
-
-                document.addEventListener('DOMContentLoaded', function() {
-                    new TomSelect("#id_barang", {
-                        placeholder: "Pilih Barang",
-                        allowClear: true,
-                        create: false,
-                        valueField: "value", // ID barang akan menjadi nilai yang dipilih
-                        labelField: "text", // Nama barang akan ditampilkan di daftar
-                        searchField: ["text", "barcode"], // Cari berdasarkan nama barang atau barcode
-                        plugins: ['clear_button'], // Opsi tambahan, misalnya tombol clear
-                        onInitialize: function() {
-                            const options = [];
-                            document.querySelectorAll("#id_barang option").forEach(opt => {
-                                options.push({
-                                    value: opt.value,
-                                    text: opt.textContent.trim(),
-                                    barcode: opt.getAttribute("data-barcode")
-                                });
-                            });
-                            this.addOptions(options);
-                        }
-                    });
-                });
-            </script>
-            <script>
-                // Fungsi Search
-                $(document).ready(function() {
-                    $("#search").on("keyup", function() {
-                        console.log('kons');
-                        var value = $(this).val().toLowerCase(); // Ambil nilai input
-                        $("#jsTable tbody tr").filter(function() {
-                            // Show/hide baris berdasarkan pencarian pada kolom yang ada
-                            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        document.addEventListener('DOMContentLoaded', function() {
+            new TomSelect("#id_barang", {
+                placeholder: "Pilih Barang",
+                allowClear: true,
+                create: false,
+                valueField: "value", // ID barang akan menjadi nilai yang dipilih
+                labelField: "text", // Nama barang akan ditampilkan di daftar
+                searchField: ["text", "barcode"], // Cari berdasarkan nama barang atau barcode
+                plugins: ['clear_button'], // Opsi tambahan, misalnya tombol clear
+                onInitialize: function() {
+                    const options = [];
+                    document.querySelectorAll("#id_barang option").forEach(opt => {
+                        options.push({
+                            value: opt.value,
+                            text: opt.textContent.trim(),
+                            barcode: opt.getAttribute("data-barcode")
                         });
                     });
-                });
-            </script>
+                    this.addOptions(options);
+                }
+            });
+        });
+    </script>
+@endsection
