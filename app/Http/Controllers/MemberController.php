@@ -91,7 +91,7 @@ class MemberController extends Controller
             return [
                 'id' => $item['id'],
                 'nama_member' => $item['nama_member'],
-                'nama_toko' => $item['toko']->nama_toko,
+                'nama_toko' => $item['toko']->nama_toko ?? null,
                 'nama_level_harga' => !empty($levelData)
                     ? implode(', ', array_column($levelData, 'level_harga'))
                     : 'Tidak Ada Level',
