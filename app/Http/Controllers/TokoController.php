@@ -30,21 +30,8 @@ class TokoController extends Controller
                 $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
-
-                // Pencarian pada relasi 'supplier->nama_supplier'
-                // $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
-                //     $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
-                // });
             });
         }
-
-        // if ($request->has('startDate') && $request->has('endDate')) {
-        //     $startDate = $request->input('startDate');
-        //     $endDate = $request->input('endDate');
-
-        //     // Lakukan filter berdasarkan tanggal
-        //     $query->whereBetween('tgl_nota', [$startDate, $endDate]);
-        // }
 
         $data = $query->paginate($meta['limit']);
 
@@ -69,11 +56,24 @@ class TokoController extends Controller
         }
 
         $mappedData = collect($data['data'])->map(function ($item) {
+            // Decode id_level_harga ke array
+            $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
+
+            // Pastikan idLevelHarga adalah array
+            if (!is_array($idLevelHarga)) {
+                $idLevelHarga = [];
+            }
+
+            // Ambil nama_level_harga berdasarkan id_level_harga
+            $levelHargaNames = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
+                ->pluck('nama_level_harga')
+                ->toArray();
+
             return [
                 'id' => $item['id'],
                 'nama_toko' => $item['nama_toko'],
                 'singkatan' => $item['singkatan'],
-                'nama_level_harga' => $item['levelHarga']->nama_level_harga,
+                'nama_level_harga' => !empty($levelHargaNames) ? implode(', ', $levelHargaNames) : 'Tidak Ada Level',
                 'wilayah' => $item->wilayah,
                 'alamat' => $item->alamat,
             ];

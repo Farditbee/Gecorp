@@ -22,7 +22,6 @@ class Toko extends Model
 
     public $primaryKey = 'id';
 
-
     public function detail_toko()
     {
         return $this->hasMany(DetailToko::class, 'id_toko', 'id');
@@ -54,7 +53,7 @@ class Toko extends Model
     // }
     public function levelHarga()
     {
-        return $this->belongsTo(LevelHarga::class, 'id_toko');
+        return $this->belongsTo(LevelHarga::class, 'id_level_harga', 'id');
     }
 
     public function kasir()
