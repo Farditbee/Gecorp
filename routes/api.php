@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
@@ -26,3 +27,4 @@ Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');
 Route::get('/getmember', [MemberController::class, 'getmember'])->name('master.getmember');
 Route::get('/getsupplier', [SupplierController::class, 'getsupplier'])->name('master.getsupplier');
+Route::get('/getjenisbarang', [JenisBarangController::class, 'getjenisbarang'])->name('master.getjenisbarang');
