@@ -206,10 +206,10 @@
             if (customFilter['period']) {
                 filterParams.period = customFilter['period'];
             }
-            if (customFilter['month']) {
+            if (customFilter['month'] && customFilter['period'] !== 'monthly') {
                 filterParams.month = customFilter['month'];
             }
-            if (customFilter['year']) {
+            if (customFilter['year'] && customFilter['period'] !== 'yearly') {
                 filterParams.year = customFilter['year'];
             }
 
@@ -226,16 +226,17 @@
             });
 
             if (getDataRest && getDataRest.status === 200) {
-                await setLaporanPenjualan(getDataRest.data.data);
+                await setLaporanPenjualan(getDataRest.data.data, filterParams.period);
             } else {
                 console.error(getDataRest?.data?.message || "Error retrieving data.");
             }
         }
 
-        async function setLaporanPenjualan(apiResponse) {
+        async function setLaporanPenjualan(apiResponse, period) {
             const filterPeriod = document.getElementById('filter-period');
             const filterMonthContainer = document.getElementById('filter-month-container');
             const filterMonth = document.getElementById('filter-month');
+            const filterYearContainer = document.getElementById('filter-year-container');
             const filterYear = document.getElementById('filter-year');
             const total = document.getElementById('total-penjualan');
             const chartContainer = document.getElementById('laporan-chart');
@@ -246,17 +247,18 @@
             const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
             const updateChart = (period, year, chartType) => {
-                const dataSet = apiResponse[0] || {};
                 let penjualan = [];
                 const month = parseInt(filterMonth.value, 10);
 
                 if (period === 'daily') {
                     const daysInMonth = getDaysInMonth(year, month);
-                    penjualan = (dataSet.daily?.[year]?.[month] || []).slice(0, daysInMonth);
+                    const dailyData = apiResponse.daily?.[year]?.[month];
+                    penjualan = Array.isArray(dailyData) ? dailyData.slice(0, daysInMonth) : [];
                 } else if (period === 'monthly') {
-                    penjualan = dataSet.monthly?.[year] || [];
+                    penjualan = Array.isArray(apiResponse.monthly?.[year]) ? apiResponse.monthly[year] : [];
                 } else if (period === 'yearly') {
-                    penjualan = dataSet.yearly?.[year] || [];
+                    penjualan = Array.isArray(Object.values(apiResponse.yearly || {})) ? Object.values(apiResponse
+                        .yearly) : [];
                 }
 
                 total.textContent = formatRupiah(penjualan.reduce((a, b) => a + b, 0));
@@ -266,9 +268,8 @@
                         length: penjualan.length
                     }, (_, i) => `Day ${i + 1}`),
                     monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'
-                    ],
-                    yearly: [year],
+                        'Dec'],
+                    yearly: Object.keys(apiResponse.yearly || {}),
                 };
 
                 const chartOptions = {
@@ -319,7 +320,7 @@
 
             const populateYearOptions = () => {
                 const currentYear = new Date().getFullYear();
-                const selectedYear = filterYear.value;
+                const selectedYear = filterYear.value || currentYear; // Pastikan default tahun diatur
                 filterYear.innerHTML = '';
 
                 for (let year = currentYear; year >= currentYear - 10; year--) {
@@ -329,14 +330,15 @@
                     filterYear.appendChild(option);
                 }
 
-                filterYear.value = selectedYear || currentYear;
+                filterYear.value = selectedYear; // Set nilai default
             };
 
             populateYearOptions();
-            updateChart(filterPeriod.value, defaultYear, currentChartType);
+            updateChart(period, defaultYear, currentChartType);
 
             filterPeriod.addEventListener('change', () => {
                 filterMonthContainer.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
+                filterYearContainer.style.display = filterPeriod.value === 'yearly' ? 'none' : 'block';
                 updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
 
@@ -347,10 +349,10 @@
             });
 
             filterYear.addEventListener('change', () => {
-                console.log(`Year selected: ${filterYear.value}`);
-                updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                if (filterPeriod.value !== 'yearly') {
+                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                }
             });
-
 
             const chartTypeMapping = {
                 'chart-area': 'area',
@@ -376,7 +378,6 @@
 
             setActiveChartButton('chart-bar');
         }
-
 
         async function filterList() {
             let dateRangePickerList = initializeDateRangePicker();
