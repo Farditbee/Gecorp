@@ -266,7 +266,8 @@
                         length: penjualan.length
                     }, (_, i) => `Day ${i + 1}`),
                     monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'],
+                        'Dec'
+                    ],
                     yearly: [year],
                 };
 
@@ -318,14 +319,17 @@
 
             const populateYearOptions = () => {
                 const currentYear = new Date().getFullYear();
+                const selectedYear = filterYear.value;
                 filterYear.innerHTML = '';
+
                 for (let year = currentYear; year >= currentYear - 10; year--) {
                     const option = document.createElement('option');
                     option.value = year;
                     option.textContent = year;
                     filterYear.appendChild(option);
                 }
-                filterYear.value = currentYear;
+
+                filterYear.value = selectedYear || currentYear;
             };
 
             populateYearOptions();
@@ -343,8 +347,10 @@
             });
 
             filterYear.addEventListener('change', () => {
+                console.log(`Year selected: ${filterYear.value}`);
                 updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
+
 
             const chartTypeMapping = {
                 'chart-area': 'area',

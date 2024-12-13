@@ -1,128 +1,279 @@
 <title>Data Toko - Gecorp</title>
 @extends('layouts.main')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+@endsection
+
 @section('content')
-
-
-<div class="pcoded-main-container">
-    <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Data Toko</h5>
+    <div class="pcoded-main-container">
+        <div class="pcoded-content pt-1 mt-1">
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
+                                <li class="breadcrumb-item"><a href="{{ route('master.index') }}"><i
+                                            class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item">
+                                    <b class="font-weight-bold">Data Toko</b>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a>Data Toko</a></li>
-                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- [ breadcrumb ] end -->
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="d-flex mb-2 mb-lg-0">
+                                @if (Auth::user()->id_level == 1)
+                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-primary">
+                                        <i class="fa fa-circle-plus"></i> Tambah
+                                    </a>
+                                @else
+                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-secondary disabled">
+                                        <i class="fa fa-circle-plus"></i> Tambah
+                                    </a>
+                                @endif
+                            </div>
 
-        <!-- [ Main Content ] start -->
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah -->
-                        @if (Auth::user()->id_level == 1)
-                        <a href="{{ route('master.toko.create')}}" class="btn btn-primary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
-                        @else
-                        <a href="{{ route('master.toko.create')}}" class="disabled btn btn-secondary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
-                        @endif
-                        <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.toko.index') }}">
-                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Toko" aria-label="Search">
-                        </form>
-                    </div>
-                    <x-adminlte-alerts />
-                    <div class="card-body table-border-style">
-                        <div class="table-responsive">
-                            <table class="table table-striped table-sm" id="jsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nama Toko</th>
-                                        <th>Singkatan</th>
-                                        <th>Level Harga</th>
-                                        <th>Wilayah</th>
-                                        <th>Alamat</th>
-                                        <th>List Barang</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($toko as $tk)
-                                    <tr data-id="{{ $tk->id }}">
-                                        <td>{{$loop->iteration}}</td>
-                                        <td>{{$tk->nama_toko}}</td>
-                                        <td>{{$tk->singkatan}}</td>
-                                        <td>
-                                            @php
-                                                $levelHargaArray = json_decode($tk->id_level_harga, true) ?? [];
-                                                if (is_int($levelHargaArray)) {
-                                                    $levelHargaArray = [$levelHargaArray];
-                                                }
-                                            @endphp
-                                            @if(!empty($levelHargaArray) && is_array($levelHargaArray))
-                                                @foreach($levelHargaArray as $levelHargaId)
-                                                    @php
-                                                        $levelHarga = \App\Models\LevelHarga::find($levelHargaId);
-                                                    @endphp
-                                                    {{ $levelHarga ? $levelHarga->nama_level_harga : 'N/A' }}
-                                                    @if (!$loop->last), @endif
-                                                @endforeach
-                                            @else
-                                                Tidak Ada Level
-                                            @endif
-                                        </td>
-                                        <td>{{$tk->wilayah}}</td>
-                                        <td>{{$tk->alamat}}</td>
-                                        <td><a href="{{ route('master.toko.detail', $tk->id)}}" class="btn btn-primary btn-sm" style="font-size: 12px"><strong>Cek Detail</strong></a></td>
-                                        <form onsubmit="return confirm('Ingin menghapus Data ini ?');" action="{{ route('master.toko.delete', $tk->id)}}" method="post">
-                                        <td style="">
-                                            <a href="{{ route('master.toko.edit', $tk->id)}}" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a>
-                                                @csrf
-                                                @method('DELETE')
-                                                @if (Auth::user()->id_level == 1)
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                @endif
-                                            </td>
-                                        </form>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="6">Tidak ada data.</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
+                                    style="width: 100px;">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <x-adminlte-alerts />
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-scroll-wrapper">
+                                    <table class="table table-hover m-0">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Nama Toko</th>
+                                                <th class="text-wrap align-top">Singkatan</th>
+                                                <th class="text-wrap align-top">Level Harga</th>
+                                                <th class="text-wrap align-top">Wilayah</th>
+                                                <th class="text-wrap align-top">Alamat</th>
+                                                <th class="text-wrap align-top">List Barang</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listData">
+                                        </tbody>
+                                    </table>
                                 </div>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-end" id="pagination">
-                                      {{-- isian paginate --}}
-                                    </ul>
-                                  </nav>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
+                                    <div class="text-center text-md-start mb-2 mb-md-0">
+                                        <div class="pagination">
+                                            <div>Menampilkan <span id="countPage">0</span> dari <span
+                                                    id="totalPage">0</span> data</div>
+                                        </div>
+                                    </div>
+                                    <nav class="text-center text-md-end">
+                                        <ul class="pagination justify-content-center justify-content-md-end"
+                                            id="pagination-js">
+                                        </ul>
+                                    </nav>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
-</div>
+@endsection
 
+@section('asset_js')
+    <script src="{{ asset('js/pagination.js') }}"></script>
+@endsection
+
+@section('js')
+    <script>
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.gettoko') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                $('#listData').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
+        }
+
+        async function handleData(data) {
+            let detail_button = `
+            <a href='toko/detail/${data.id}' class="p-1 btn detail-data btn btn-primary"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Lihat Detail Toko: ${data.nama_toko}"
+                data-id='${data.id}'>
+                <div class="icon text-primary pt-1">
+                    <i class="fa fa-edit"></i>
+                </div>
+                <span class="text-white">Cek Detail</span>
+            </a>`;
+
+            let edit_button = `
+            <a href='toko/edit/${data.id}' class="p-1 btn edit-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Edit Toko: ${data.nama_toko}"
+                data-id='${data.id}'>
+                <span class="text-dark">Edit</span>
+                <div class="icon text-warning pt-1">
+                    <i class="fa fa-edit"></i>
+                </div>
+            </a>`;
+
+            let delete_button = `
+            <a class="p-1 btn hapus-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Hapus Toko: ${data.nama_toko}"
+                data-id='${data.id}'
+                data-name='${data.nama_toko}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger pt-1">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
+
+            return {
+                id: data?.id ?? '-',
+                nama_toko: data?.nama_toko ?? '-',
+                singkatan: data?.singkatan ?? '-',
+                nama_level_harga: data?.nama_level_harga ?? '-',
+                wilayah: data?.wilayah ?? '-',
+                alamat: data?.alamat ?? '-',
+                detail_button,
+                edit_button,
+                delete_button,
+            };
+        }
+
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.nama_toko}</td>
+                        <td class="${classCol}">${element.singkatan}</td>
+                        <td class="${classCol}">${element.nama_level_harga}</td>
+                        <td class="${classCol}">${element.wilayah}</td>
+                        <td class="${classCol}">${element.alamat}</td>
+                        <td class="${classCol}">${element.detail_button}</td>
+                        <td class="${classCol}">
+                            <div class="d-flex justify-content-center w-100">
+                                <div class="hovering p-1">
+                                    ${element.edit_button}
+                                </div>
+                                <div class="hovering p-1">
+                                    ${element.delete_button}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
+
+            $('#listData').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            renderPagination();
+        }
+
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                isActionForm = "destroy";
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus Toko ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `toko/delete/${id}`
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+            await deleteData();
+        }
+    </script>
 @endsection
