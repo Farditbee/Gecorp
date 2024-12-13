@@ -16,70 +16,91 @@ class DashboardController extends Controller
 
     public function laporan_kasir(Request $request)
     {
-        $nama_toko = $request->input('nama_toko');
+        $idToko = $request->input('nama_toko'); // Bisa berupa ID toko spesifik atau 'all'
         $period = $request->input('period'); // ex: 'daily', 'monthly', 'yearly'
-        $month = $request->input('month');
-        $year = $request->input('year');
-
-        $query = Kasir::query()->with('toko');
-
-        if ($nama_toko && $nama_toko !== 'all') {
-            $query->whereHas('toko', function ($q) use ($nama_toko) {
-                $q->where('nama_toko', $nama_toko);
-            });
+        $month = $request->input('month'); // Filter untuk bulan (opsional)
+        $year = $request->input('year'); // Filter untuk tahun (opsional)
+    
+        // Ambil data kasir berdasarkan filter toko
+        $query = Kasir::with('toko:id,nama_toko');
+        if ($idToko !== 'all') {
+            $query->where('id_toko', $idToko);
         }
-
+    
+        // Filter berdasarkan tahun (jika disediakan)
         if ($year) {
-            $query->whereYear('tgl_transaksi', $year);
+            $query->whereYear('created_at', $year);
         }
-
-        if ($month && $period === 'daily') {
-            $query->whereMonth('tgl_transaksi', $month);
+    
+        // Filter berdasarkan bulan (hanya untuk period 'daily' atau 'monthly')
+        if ($month && ($period === 'daily' || $period === 'monthly')) {
+            $query->whereMonth('created_at', $month);
         }
-
-        $data = $query->get()->groupBy(function ($item) use ($period) {
-            if ($period === 'daily') {
-                return $item->tgl_transaksi->format('Y-m-d');
-            } elseif ($period === 'monthly') {
-                return $item->tgl_transaksi->format('Y-m');
-            } elseif ($period === 'yearly') {
-                return $item->tgl_transaksi->format('Y');
-            }
-        });
-
-        // Formatkan data untuk JSON response
-        $formattedData = [
+    
+        $kasirData = $query->select('id', 'id_toko', 'created_at')->get();
+    
+        // Struktur laporan
+        $laporan = [
+            'nama_toko' => $idToko === 'all' ? 'All' : ($kasirData->first()->toko->nama_toko ?? 'Unknown'),
             'daily' => [],
             'monthly' => [],
             'yearly' => [],
         ];
-
-        if ($period === 'daily') {
-            foreach ($data as $date => $items) {
-                $year = (int) substr($date, 0, 4);
-                $month = (int) substr($date, 5, 2);
-                $day = (int) substr($date, 8, 2);
-
-                $formattedData['daily'][$year][$month][$day] = $items->count();
+    
+        // Grupkan data berdasarkan tahun, bulan, dan hari
+        $groupedByYear = $kasirData->groupBy(function ($item) {
+            return $item->created_at->year;
+        });
+    
+        foreach ($groupedByYear as $year => $yearData) {
+            $laporan['daily'][$year] = [];
+            $laporan['monthly'][$year] = array_fill(1, 12, 0);
+            $laporan['yearly'][$year] = 0;
+    
+            $groupedByMonth = $yearData->groupBy(function ($item) {
+                return $item->created_at->month;
+            });
+    
+            foreach (range(1, 12) as $month) {
+                $laporan['daily'][$year][$month] = array_fill(1, 31, 0);
+    
+                if (isset($groupedByMonth[$month])) {
+                    $groupedByDay = $groupedByMonth[$month]->groupBy(function ($item) {
+                        return $item->created_at->day;
+                    });
+    
+                    foreach ($groupedByDay as $day => $transactions) {
+                        $laporan['daily'][$year][$month][$day] += $transactions->count();
+                    }
+    
+                    $laporan['monthly'][$year][$month - 1] += $groupedByMonth[$month]->count();
+                }
             }
-        } elseif ($period === 'monthly') {
-            foreach ($data as $monthYear => $items) {
-                $year = (int) substr($monthYear, 0, 4);
-                $month = (int) substr($monthYear, 5, 2);
-
-                $formattedData['monthly'][$year][$month] = $items->count();
-            }
-        } elseif ($period === 'yearly') {
-            foreach ($data as $year => $items) {
-                $formattedData['yearly'][$year] = $items->count();
-            }
+    
+            $laporan['yearly'][$year] = array_sum($laporan['monthly'][$year]);
         }
-
+    
+        // Format ulang array daily dan monthly agar sesuai dengan output JSON
+        $laporan['daily'] = collect($laporan['daily'])->map(function ($months) {
+            return collect($months)->map(function ($days) {
+                return array_values($days);
+            })->toArray();
+        })->toArray();
+    
+        $laporan['monthly'] = collect($laporan['monthly'])->map(function ($months) {
+            return array_values($months);
+        })->toArray();
+    
+        $laporan['yearly'] = collect($laporan['yearly'])->map(function ($total) {
+            return [$total];
+        })->toArray();
+    
+        // Return JSON response
         return response()->json([
             'error' => false,
             'message' => 'Successfully',
             'status_code' => 200,
-            'data' => $formattedData,
+            'data' => [$laporan],
         ]);
     }
 

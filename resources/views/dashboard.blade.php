@@ -210,7 +210,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ asset('dummy/laporan.json') }}', {
+                '{{ route('master.index.kasir') }}', {
                     ...filterParams
                 }
             ).then(function(response) {
