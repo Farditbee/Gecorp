@@ -79,7 +79,7 @@ class PembelianBarangController extends Controller
                 'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
                 'no_nota' => $item->no_nota,
                 'total_item' => $item->total_item,
-                'total_nilai' => 'Rp. '. number_format($item->total_nilai, 0, ',', '.'),
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
             ];
         });
 
@@ -94,8 +94,10 @@ class PembelianBarangController extends Controller
 
     public function index(Request $request)
     {
-        // Kirim data ke view
-        return view('transaksi.pembelianbarang.index');
+        $suppliers = Supplier::all();       // Kirim data ke view
+        $barang = Barang::all();       // Kirim data ke view
+        $LevelHarga = LevelHarga::all();       // Kirim data ke view
+        return view('transaksi.pembelianbarang.index', compact('suppliers', 'barang', 'LevelHarga'));
     }
 
     public function create()

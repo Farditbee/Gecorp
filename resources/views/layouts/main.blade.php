@@ -15,6 +15,7 @@
     <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
 
     <!-- prism css -->
+    <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     @include('layouts.css.style_css')
     @yield('css')
     <script>
@@ -48,12 +49,13 @@
     @include('layouts.footer')
 
     <!-- Warning Section Ends -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @include('layouts.js.style_js')
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>
     <script src="{{ asset('js/toastr.min.js') }}"></script>
     <script src="{{ asset('js/notification.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.js') }}"></script>
+    @yield('asset_js')
     <script>
         function formatRupiah(amount) {
             return `Rp. ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replace('Rp', '').trim()}`;
@@ -99,7 +101,6 @@
         }
     </script>
     <!-- Required Js -->
-    @include('layouts.js.style_js')
     @yield('js')
     <!-- Close Js -->
 </body>
