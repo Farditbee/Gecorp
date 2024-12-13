@@ -14,9 +14,103 @@ use Throwable;
 
 class MemberController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function getmember(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Member::query();
+
+        $query->with(['toko', 'levelHarga', 'jenis_barang'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
+            });
+
+            $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            // Decode id_level_harga ke array
+            $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
+
+            // Pastikan idLevelHarga adalah array dan tidak kosong
+            if (!is_array($idLevelHarga) || empty($idLevelHarga)) {
+                $idLevelHarga = [];
+            }
+
+            // Ambil nama_level_harga dan jenis_barang berdasarkan id_level_harga jika idLevelHarga tidak kosong
+            $levelData = [];
+            if (!empty($idLevelHarga)) {
+                $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
+                    ->get(['jenis_barang', 'nama_level_harga as level_harga'])
+                    ->toArray();
+            }
+
+            // Menangani level_info dengan preg_match
+            $selectedLevels = [];
+            if (!empty($item->level_info)) {
+                foreach (json_decode($item->level_info, true) as $info) {
+                    preg_match('/(\d+) : (\d+)/', $info, $matches);
+                    if (!empty($matches)) {
+                        $selectedLevels[$matches[1]] = $matches[2]; // $matches[1] adalah id_jenis_barang, $matches[2] adalah id_level_harga
+                    }
+                }
+            }
+
+            return [
+                'id' => $item['id'],
+                'nama_member' => $item['nama_member'],
+                'nama_toko' => $item['toko']->nama_toko,
+                'nama_level_harga' => !empty($levelData)
+                    ? implode(', ', array_column($levelData, 'level_harga'))
+                    : 'Tidak Ada Level',
+                'level_data' => !empty($levelData) ? $levelData : [['jenis_barang' => 'N/A', 'level_harga' => 'N/A']],
+                'selected_levels' => $selectedLevels, // Menambahkan selected_levels ke data
+                'no_hp' => $item->no_hp,
+                'alamat' => $item->alamat,
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
     public function index()
     {
         $user = Auth::user();
