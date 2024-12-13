@@ -84,7 +84,6 @@
                                             <th scope="col">Qty</th>
                                             <th scope="col">Harga</th>
                                             <th scope="col">Total Harga</th>
-                                            <th scope="col">Level Harga</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -114,18 +113,6 @@
                                             <td>{{ $detail->qty }}</td>
                                             <td>Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
                                             <td>Rp {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}</td>
-                                            <td>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-primary mb-1 atur-harga-btn"
-                                                    data-toggle="modal"
-                                                    data-target="#mediumModal-{{ $detail->id }}"
-                                                    data-id_barang="{{ $detail->id_barang }}"
-                                                    data-id="{{ $detail->id }}"
-                                                    {{ $detail->status == 'success' ? 'disabled' : '' }}>
-                                                    Atur Harga
-                                                </button>
-                                            </td>
                                         </tr>
                                         <!-- Modal for each item -->
                                         <div class="modal fade" id="mediumModal-{{ $detail->id }}" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel-{{ $detail->id }}" aria-hidden="true">
