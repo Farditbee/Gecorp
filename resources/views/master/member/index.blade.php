@@ -307,35 +307,33 @@
 
         async function handleData(data) {
             let edit_button = `
-            <a class="p-1 btn edit-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Edit Member: ${data.nama_member}"
-                data-id='${data.id}'>
-                <span class="text-dark">Edit</span>
-                <div class="icon text-warning pt-1">
-                    <i class="fa fa-edit"></i>
-                </div>
-            </a>`;
+                <a class="p-1 btn edit-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
+                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Edit Member: ${data.nama_member}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning pt-1">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
 
             let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Hapus Member: ${data.nama_member}"
-                data-id='${data.id}'
-                data-name='${data.nama_member}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger pt-1">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
+                <a class="p-1 btn hapus-data action_button"
+                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                    title="Hapus Member: ${data.nama_member}"
+                    data-id='${data.id}'
+                    data-name='${data.nama_member}'>
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger pt-1">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
 
             return {
                 id: data?.id ?? '-',
                 nama_member: data?.nama_member ?? '-',
                 nama_toko: data?.nama_toko ?? '<span class="badge badge-danger">Tidak Ada Toko</span>',
-                nama_level_harga: data?.nama_level_harga ?? '-',
-                level_data: data?.level_data ?? '-',
-                selected_levels: data?.selected_levels ?? '-',
+                level: data?.level ?? [],
                 no_hp: data?.no_hp ?? '-',
                 alamat: data?.alamat ?? '-',
                 edit_button,
@@ -352,12 +350,24 @@
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
+                let levelList = '';
+                if (Array.isArray(element.level) && element.level.length > 0) {
+                    levelList = '<div class="mb-0">';
+                    element.level.forEach(levelItem => {
+                        levelList +=
+                            `<div>${levelItem.nama_jenis_barang} : ${levelItem.nama_level_harga}</div>`;
+                    });
+                    levelList += '</div>';
+                } else {
+                    levelList = '<span class="badge badge-danger">Tidak Ada Level</span>';
+                }
+
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_member}</td>
                         <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.selected_levels[0]} : ${element.selected_levels[1]}</td>
+                        <td class="${classCol}">${levelList}</td>
                         <td class="${classCol}">${element.no_hp}</td>
                         <td class="${classCol}">${element.alamat}</td>
                         <td class="${classCol}">
@@ -420,121 +430,121 @@
             })
         }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const element = document.getElementById('selector');
-                const choices = new Choices(element, {
-                    removeItemButton: true, // Memungkinkan penghapusan item
-                    searchEnabled: true, // Mengaktifkan pencarian
-                });
+        document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('selector');
+            const choices = new Choices(element, {
+                removeItemButton: true, // Memungkinkan penghapusan item
+                searchEnabled: true, // Mengaktifkan pencarian
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            document.getElementById('id_toko').addEventListener('change', function() {
+                var idToko = this.value; // Ambil nilai id_toko yang dipilih
+
+                // Loop melalui semua jenis barang
+                @foreach ($jenis_barang as $jb)
+                    (function(jbId) {
+                        var levelHargaDropdown = document.getElementById('level_harga_' +
+                            jbId); // Ambil elemen dropdown level_harga untuk jenis barang ini
+
+                        // Reset isi dropdown level_harga
+                        levelHargaDropdown.innerHTML =
+                            '<option value="">~Silahkan Pilih~</option>';
+
+                        if (idToko) { // Pastikan ada id_toko yang dipilih
+                            // Buat request AJAX untuk mendapatkan level_harga
+                            var xhr = new XMLHttpRequest();
+                            xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
+
+                            xhr.onload = function() {
+                                if (xhr.status === 200) {
+                                    console.log('Respon dari server:', xhr.responseText);
+
+                                    var data = JSON.parse(xhr.responseText);
+
+                                    // Cek apakah data level harga ada
+                                    if (data.length > 0) {
+                                        // Loop melalui data level harga yang diterima dan tambahkan opsi ke dropdown
+                                        data.forEach(function(level) {
+                                            var option = document.createElement(
+                                                'option');
+                                            option.value = level
+                                                .id; // ID dari level harga
+                                            option.text = level
+                                                .nama_level_harga; // Nama dari level harga
+                                            levelHargaDropdown.appendChild(option);
+                                        });
+                                    } else {
+                                        // Jika tidak ada level harga, tambahkan opsi "Tidak ada Level"
+                                        var option = document.createElement('option');
+                                        option.value = ""; // Value kosong
+                                        option.text = "Tidak ada Level"; // Teks untuk opsi
+                                        levelHargaDropdown.appendChild(option);
+                                    }
+                                } else {
+                                    console.error('Error mendapatkan data dari server');
+                                }
+                            };
+
+                            xhr.send(); // Kirim request
+                        }
+                    })({{ $jb->id }});
+                @endforeach
             });
 
-            document.addEventListener('DOMContentLoaded', function() {
+            const element = document.getElementById('selectors');
+            const choices = new Choices(element, {
+                removeItemButton: true, // Memungkinkan penghapusan item
+                searchEnabled: true, // Mengaktifkan pencarian
+            });
 
-                document.getElementById('id_toko').addEventListener('change', function() {
-                    var idToko = this.value; // Ambil nilai id_toko yang dipilih
+            // document.addEventListener('DOMContentLoaded', function() {
+            //     // Ambil semua tombol dengan atribut data-id
+            //     var editButtons = document.querySelectorAll('button[data-id]');
 
-                    // Loop melalui semua jenis barang
-                    @foreach ($jenis_barang as $jb)
-                        (function(jbId) {
-                            var levelHargaDropdown = document.getElementById('level_harga_' +
-                                jbId); // Ambil elemen dropdown level_harga untuk jenis barang ini
+            //     // Tambahkan event listener ke setiap tombol edit
+            //     editButtons.forEach(function(button) {
+            //         button.addEventListener('click', function() {
+            //             // Ambil id_member dari atribut data-id
+            //             var idMember = this.getAttribute('data-id');
 
-                            // Reset isi dropdown level_harga
-                            levelHargaDropdown.innerHTML =
-                                '<option value="">~Silahkan Pilih~</option>';
+            //             // Tampilkan id_member di console log
+            //             console.log('Tombol Edit diklik, ID Member:', idMember);
+            //         });
+            //     });
+            // });
 
-                            if (idToko) { // Pastikan ada id_toko yang dipilih
-                                // Buat request AJAX untuk mendapatkan level_harga
-                                var xhr = new XMLHttpRequest();
-                                xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
+            function editMember(id) {
+                console.log('ID Member yang diedit:', id); // Log id_member yang sedang diedit
 
-                                xhr.onload = function() {
-                                    if (xhr.status === 200) {
-                                        console.log('Respon dari server:', xhr.responseText);
-
-                                        var data = JSON.parse(xhr.responseText);
-
-                                        // Cek apakah data level harga ada
-                                        if (data.length > 0) {
-                                            // Loop melalui data level harga yang diterima dan tambahkan opsi ke dropdown
-                                            data.forEach(function(level) {
-                                                var option = document.createElement(
-                                                    'option');
-                                                option.value = level
-                                                .id; // ID dari level harga
-                                                option.text = level
-                                                    .nama_level_harga; // Nama dari level harga
-                                                levelHargaDropdown.appendChild(option);
-                                            });
-                                        } else {
-                                            // Jika tidak ada level harga, tambahkan opsi "Tidak ada Level"
-                                            var option = document.createElement('option');
-                                            option.value = ""; // Value kosong
-                                            option.text = "Tidak ada Level"; // Teks untuk opsi
-                                            levelHargaDropdown.appendChild(option);
-                                        }
-                                    } else {
-                                        console.error('Error mendapatkan data dari server');
-                                    }
-                                };
-
-                                xhr.send(); // Kirim request
-                            }
-                        })({{ $jb->id }});
-                    @endforeach
-                });
-
-                const element = document.getElementById('selectors');
-                const choices = new Choices(element, {
-                    removeItemButton: true, // Memungkinkan penghapusan item
-                    searchEnabled: true, // Mengaktifkan pencarian
-                });
-
-                // document.addEventListener('DOMContentLoaded', function() {
-                //     // Ambil semua tombol dengan atribut data-id
-                //     var editButtons = document.querySelectorAll('button[data-id]');
-
-                //     // Tambahkan event listener ke setiap tombol edit
-                //     editButtons.forEach(function(button) {
-                //         button.addEventListener('click', function() {
-                //             // Ambil id_member dari atribut data-id
-                //             var idMember = this.getAttribute('data-id');
-
-                //             // Tampilkan id_member di console log
-                //             console.log('Tombol Edit diklik, ID Member:', idMember);
-                //         });
-                //     });
-                // });
-
-                function editMember(id) {
-                    console.log('ID Member yang diedit:', id); // Log id_member yang sedang diedit
-
-                    $.ajax({
-                        url: '/member/' + id + '/edit', // URL menuju method edit
-                        method: 'GET',
-                        success: function(data) {
-                            console.log('ID Toko yang dipilih:', data
+                $.ajax({
+                    url: '/member/' + id + '/edit', // URL menuju method edit
+                    method: 'GET',
+                    success: function(data) {
+                        console.log('ID Toko yang dipilih:', data
                             .id_toko); // Log id_toko yang dipilih
 
-                            // Isi form modal dengan data dari server
-                            $('#edit_nama_member').val(data.nama_member);
-                            $('#edit_no_hp').val(data.no_hp);
-                            $('#edit_alamat').val(data.alamat);
-                            $('#edit_toko').val(data.id_toko);
+                        // Isi form modal dengan data dari server
+                        $('#edit_nama_member').val(data.nama_member);
+                        $('#edit_no_hp').val(data.no_hp);
+                        $('#edit_alamat').val(data.alamat);
+                        $('#edit_toko').val(data.id_toko);
 
-                            // Muat level harga berdasarkan id_toko yang sudah dipilih tanpa reset
-                            loadLevelHargaEditWithoutReset(data.id_toko, data.level_info);
+                        // Muat level harga berdasarkan id_toko yang sudah dipilih tanpa reset
+                        loadLevelHargaEditWithoutReset(data.id_toko, data.level_info);
 
-                            // Tampilkan modal
-                            $('#editMemberModal').modal(
+                        // Tampilkan modal
+                        $('#editMemberModal').modal(
                             'show'); // Tampilkan modal jika belum otomatis
-                        },
-                        error: function(xhr) {
-                            console.log('Error:', xhr);
-                        }
-                    });
-                }
-            });
+                    },
+                    error: function(xhr) {
+                        console.log('Error:', xhr);
+                    }
+                });
+            }
+        });
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);

@@ -27,7 +27,6 @@ class MemberController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
@@ -61,15 +60,12 @@ class MemberController extends Controller
         }
 
         $mappedData = collect($data['data'])->map(function ($item) {
-            // Decode id_level_harga ke array
             $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
 
-            // Pastikan idLevelHarga adalah array dan tidak kosong
             if (!is_array($idLevelHarga) || empty($idLevelHarga)) {
                 $idLevelHarga = [];
             }
 
-            // Ambil nama_level_harga dan jenis_barang berdasarkan id_level_harga jika idLevelHarga tidak kosong
             $levelData = [];
             if (!empty($idLevelHarga)) {
                 $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
@@ -77,13 +73,20 @@ class MemberController extends Controller
                     ->toArray();
             }
 
-            // Menangani level_info dengan preg_match
             $selectedLevels = [];
             if (!empty($item->level_info)) {
                 foreach (json_decode($item->level_info, true) as $info) {
                     preg_match('/(\d+) : (\d+)/', $info, $matches);
                     if (!empty($matches)) {
-                        $selectedLevels[$matches[1]] = $matches[2]; // $matches[1] adalah id_jenis_barang, $matches[2] adalah id_level_harga
+                        $jenisBarang = \App\Models\JenisBarang::find($matches[1]);
+                        $levelHarga = \App\Models\LevelHarga::find($matches[2]);
+
+                        if ($jenisBarang && $levelHarga) {
+                            $selectedLevels[] = [
+                                'nama_jenis_barang' => $jenisBarang->nama_jenis_barang,
+                                'nama_level_harga' => $levelHarga->nama_level_harga,
+                            ];
+                        }
                     }
                 }
             }
@@ -92,11 +95,7 @@ class MemberController extends Controller
                 'id' => $item['id'],
                 'nama_member' => $item['nama_member'],
                 'nama_toko' => $item['toko']->nama_toko ?? null,
-                'nama_level_harga' => !empty($levelData)
-                    ? implode(', ', array_column($levelData, 'level_harga'))
-                    : 'Tidak Ada Level',
-                'level_data' => !empty($levelData) ? $levelData : [['jenis_barang' => 'N/A', 'level_harga' => 'N/A']],
-                'selected_levels' => $selectedLevels, // Menambahkan selected_levels ke data
+                'level' => $selectedLevels,
                 'no_hp' => $item->no_hp,
                 'alamat' => $item->alamat,
             ];
@@ -105,11 +104,12 @@ class MemberController extends Controller
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
-            'errors' => true,
+            'errors' => false,
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
     }
+
 
     public function index()
     {
@@ -118,14 +118,14 @@ class MemberController extends Controller
         // Jika user memiliki id_level = 1, tampilkan semua data member
         if ($user->id_level == 1) {
             $member = Member::orderBy('id', 'desc')
-                            ->with(['levelharga', 'toko', 'jenis_barang'])
-                            ->get();
+                ->with(['levelharga', 'toko', 'jenis_barang'])
+                ->get();
         } else {
             // Jika id_level selain 1, hanya tampilkan member dari toko yang sama dengan user yang login
             $member = Member::where('id_toko', $user->id_toko)
-                            ->orderBy('id', 'desc')
-                            ->with(['levelharga', 'toko', 'jenis_barang'])
-                            ->get();
+                ->orderBy('id', 'desc')
+                ->with(['levelharga', 'toko', 'jenis_barang'])
+                ->get();
         }
         $jenis_barang = JenisBarang::all();
         $toko = Toko::all();
@@ -196,21 +196,21 @@ class MemberController extends Controller
                 'alamat.required' => 'Alamat Wajib diisi',
             ]
         );
-            $level_harga = $request->input('level_harga');
+        $level_harga = $request->input('level_harga');
 
-            foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
-                if (!empty($level_harga_id)) {
-                    $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
-                }
+        foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
+            if (!empty($level_harga_id)) {
+                $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
             }
+        }
 
         try {
             Member::create([
-            'id_toko' => $request->id_toko,
-            'nama_member' => $request->nama_member,
-            'no_hp' => $request->no_hp,
-            'alamat' => $request->alamat,
-            'level_info' => json_encode($levelInfo),
+                'id_toko' => $request->id_toko,
+                'nama_member' => $request->nama_member,
+                'no_hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+                'level_info' => json_encode($levelInfo),
             ]);
         } catch (\Throwable $th) {
             return redirect()->route('master.member.index')->with('error', $th->getMessage())->withInput();
@@ -248,51 +248,51 @@ class MemberController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, $id)
-{
-    // Validasi input
-    $validatedData = $request->validate(
-        [
-            'id_toko' => 'required',
-            'nama_member' => 'required',
-            'no_hp' => 'required',
-            'alamat' => 'required'
-        ],
-        [
-            'id_toko.required' => 'Toko Wajib diisi.',
-            'nama_member.required' => 'Nama Member tidak boleh kosong',
-            'no_hp.required' => 'No Hp Wajib diisi',
-            'alamat.required' => 'Alamat Wajib diisi',
-        ]
-    );
+    {
+        // Validasi input
+        $validatedData = $request->validate(
+            [
+                'id_toko' => 'required',
+                'nama_member' => 'required',
+                'no_hp' => 'required',
+                'alamat' => 'required'
+            ],
+            [
+                'id_toko.required' => 'Toko Wajib diisi.',
+                'nama_member.required' => 'Nama Member tidak boleh kosong',
+                'no_hp.required' => 'No Hp Wajib diisi',
+                'alamat.required' => 'Alamat Wajib diisi',
+            ]
+        );
 
-    $level_harga = $request->input('level_harga');
+        $level_harga = $request->input('level_harga');
 
-    // Persiapkan level_info untuk disimpan
-    $levelInfo = []; // Pastikan array ini diinisialisasi
-    foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
-        if (!empty($level_harga_id)) {
-            $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
+        // Persiapkan level_info untuk disimpan
+        $levelInfo = []; // Pastikan array ini diinisialisasi
+        foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
+            if (!empty($level_harga_id)) {
+                $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
+            }
         }
+
+        try {
+            // Temukan Member yang akan diupdate
+            $member = Member::findOrFail($id);
+
+            // Update data member
+            $member->update([
+                'id_toko' => $request->id_toko,
+                'nama_member' => $request->nama_member,
+                'no_hp' => $request->no_hp,
+                'alamat' => $request->alamat,
+                'level_info' => json_encode($levelInfo),
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->route('master.member.index')->with('error', $th->getMessage())->withInput();
+        }
+
+        return redirect()->route('master.member.index')->with('success', 'Sukses memperbarui Member');
     }
-
-    try {
-        // Temukan Member yang akan diupdate
-        $member = Member::findOrFail($id);
-
-        // Update data member
-        $member->update([
-            'id_toko' => $request->id_toko,
-            'nama_member' => $request->nama_member,
-            'no_hp' => $request->no_hp,
-            'alamat' => $request->alamat,
-            'level_info' => json_encode($levelInfo),
-        ]);
-    } catch (\Throwable $th) {
-        return redirect()->route('master.member.index')->with('error', $th->getMessage())->withInput();
-    }
-
-    return redirect()->route('master.member.index')->with('success', 'Sukses memperbarui Member');
-}
 
 
     /**
@@ -304,11 +304,11 @@ class MemberController extends Controller
         $member = Member::findOrFail($id);
         try {
             $member->delete();
-        DB::commit();
+            DB::commit();
 
-        return redirect()->route('master.member.index')->with('success', 'Berhasil menghapus Data Member');
+            return redirect()->route('master.member.index')->with('success', 'Berhasil menghapus Data Member');
         } catch (\Throwable $th) {
-        DB::rollBack();
+            DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menghapus Data Member ' . $th->getMessage());
         }
     }
