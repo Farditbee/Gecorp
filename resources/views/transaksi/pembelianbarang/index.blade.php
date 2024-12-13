@@ -5,6 +5,7 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
 @endsection
 
 @section('content')
@@ -33,17 +34,23 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                <a href="" class="btn btn-primary mr-2" data-toggle="modal"
+                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
+                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
-                                    <i class="ti-plus menu-icon"></i> Tambah
+                                    <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
-                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
-                                    <i class="ti-plus menu-icon"></i> Filter
-                                </a>
+
+                                <form id="custom-filter"
+                                    class="d-flex justify-content-between align-items-center mx-2 mt-3">
+                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
+                                        name="daterange" placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                </form>
                             </div>
 
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 100px;">
                                     <option value="10">10</option>
@@ -94,7 +101,7 @@
                 </div>
 
                 <!-- Modal untuk Filter Tanggal -->
-                {{-- <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
+                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
                     aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -364,14 +371,20 @@
                         </div>
                     </div>
                     <!-- [ Main Content ] end -->
-                </div> --}}
+                </div>
             </div>
         </div>
     </div>
 @endsection
 
-@section('js')
+@section('asset_js')
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+    <script src="{{ asset('js/daterange-custom.js') }}"></script>
+@endsection
+
+@section('js')
     <script>
         let defaultLimitPage = 10;
         let currentPage = 1;
@@ -382,6 +395,11 @@
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             let filterParams = {};
+
+            if (customFilter['startDate'] && customFilter['endDate']) {
+                filterParams.startDate = customFilter['startDate'];
+                filterParams.endDate = customFilter['endDate'];
+            }
 
             let getDataRest = await renderAPI(
                 'GET',
@@ -429,15 +447,15 @@
             }
 
             let detail_button = `
-        <a href="pembelianbarang/${data.id}/edit" class="p-1 btn edit-data action_button"
-            data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-            title="Detail Data Nomor Nota: ${data.no_nota}"
-            data-id='${data.id}'>
-            <span class="text-dark">Detail</span>
-            <div class="icon text-info pt-1">
-                <i class="fa fa-eye"></i>
-            </div>
-        </a>`;
+            <a href="pembelianbarang/${data.id}/edit" class="p-1 btn edit-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Detail Data Nomor Nota: ${data.no_nota}"
+                data-id='${data.id}'>
+                <span class="text-dark">Detail</span>
+                <div class="icon text-info pt-1">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </a>`;
 
             return {
                 id: data?.id ?? '-',
@@ -450,7 +468,6 @@
                 detail_button,
             };
         }
-
 
         async function setListData(dataList, pagination) {
             totalPage = pagination.total_pages;
@@ -536,9 +553,37 @@
             });
         }
 
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
 
-        async function initPageLoad() {
-            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
+                }
+
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
+        async function searchList() {
             $('#limitPage').on('change', async function() {
                 defaultLimitPage = parseInt($(this).val());
                 currentPage = 1;
@@ -549,10 +594,412 @@
             $('.tb-search').on('input', debounce(async () => {
                 defaultSearch = $('.tb-search').val();
                 currentPage = 1;
-                console.log('di klik')
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             }, 500));
+        }
+
+        async function addData() {
+            let subtotal = 0;
+            let addedItems = new Set();
+
+            let initialHppBaru = 0;
+            let initialStock = 0;
+            let initialHppAwal = 0;
+
+            function toggleInputFields(disabled) {
+                document.getElementById('jml_item').disabled = disabled;
+                document.getElementById('harga_barang').disabled = disabled;
+                if (disabled) {
+                    document.getElementById('jml_item').value = '';
+                    document.getElementById('harga_barang').value = '';
+                }
+            }
+
+            function checkInputFields() {
+                let idBarang = document.getElementById('id_barang').value;
+                let isItemAdded = addedItems.has(idBarang);
+                toggleInputFields(isItemAdded);
+            }
+
+            document.getElementById('add-item-detail').addEventListener('click', function() {
+                let idBarang = document.getElementById('id_barang').value;
+                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
+                let qty = parseInt(document.getElementById('jml_item').value);
+                let harga = parseInt(document.getElementById('harga_barang').value);
+
+                if (!idBarang) {
+                    alert('Silakan pilih barang terlebih dahulu.');
+                    return;
+                }
+
+                if (addedItems.has(idBarang)) {
+                    alert('Barang ini sudah ditambahkan sebelumnya.');
+                    return;
+                }
+
+                if (!qty || !harga) {
+                    alert('Jumlah dan harga barang harus diisi.');
+                    return;
+                }
+
+                let allLevelsFilled = true;
+                document.querySelectorAll('.level-harga').forEach((input) => {
+                    if (!input.value) {
+                        allLevelsFilled = false;
+                    }
+                });
+
+                if (!allLevelsFilled) {
+                    alert('Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
+                    return;
+                }
+
+                addedItems.add(idBarang);
+
+                // Menyembunyikan pilihan barang yang sudah ditambahkan
+                document.querySelector(`#id_barang option[value="${idBarang}"]`).setAttribute('hidden',
+                    true);
+
+                let totalHarga = qty * harga;
+                subtotal += totalHarga;
+
+                // Generate hidden input fields for level prices
+                let levelHargaInputs = '';
+                document.querySelectorAll('.level-harga').forEach((input, index) => {
+                    const levelHarga = input.value;
+                    levelHargaInputs +=
+                        `<input type="hidden" name="level_harga[${idBarang}][]" value="${levelHarga}">`;
+                });
+
+                let row = `
+                        <tr>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
+                            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+                            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+                            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                            ${levelHargaInputs}
+                        </tr>
+                    `;
+
+                document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
+
+                document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
+                    `Rp ${subtotal.toLocaleString('id-ID')}`;
+
+                // Disable input fields after adding
+                toggleInputFields(true);
+
+                document.getElementById('id_barang').value = '';
+
+                resetFields();
+
+                updateNumbers();
+            });
+
+            document.querySelector('.table-bordered tbody').addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-item')) {
+                    let row = e.target.closest('tr');
+                    let idBarang = row.querySelector('input[name="id_barang[]"]').value;
+                    let qty = row.querySelector('input[name="qty[]"]').value;
+                    let harga = row.querySelector('input[name="harga_barang[]"]').value;
+                    let totalHarga = parseInt(row.querySelector('td:nth-child(6)').textContent.replace(
+                        /\D/g, ''));
+
+                    // Update subtotal by subtracting the total price of the removed item
+                    subtotal -= totalHarga;
+                    row.remove();
+
+                    addedItems.delete(idBarang);
+
+                    let optionElement = document.querySelector(`#id_barang option[value="${idBarang}"]`);
+                    if (optionElement) {
+                        optionElement.removeAttribute('hidden');
+                    } else {
+                        console.log(`Opsi dengan id ${idBarang} tidak ditemukan di dropdown.`);
+                    }
+
+                    // Update subtotal display
+                    document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
+                        `Rp ${subtotal.toLocaleString('id-ID')}`;
+
+                    updateNumbers();
+
+                    // Enable input fields if no items are added
+                    if (!addedItems.size) {
+                        toggleInputFields(false);
+                    } else {
+                        // Recheck if the currently selected item is in the added items
+                        checkInputFields();
+                    }
+                }
+            });
+
+            document.getElementById('id_barang').addEventListener('change', function() {
+                checkInputFields();
+                document.getElementById('jml_item').value = '';
+                document.getElementById('harga_barang').value = '';
+
+                let idBarang = this.value;
+
+                if (idBarang) {
+
+                    fetch(`/admin/get-stock-details/${idBarang}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            // Simpan nilai awal yang diterima dari server
+                            initialHppBaru = data.hpp_baru || 0;
+                            initialStock = data.stock || 0;
+                            initialHppAwal = data.hpp_awal || 0;
+
+                            // Tampilkan nilai dari server
+                            document.querySelector('.card-text strong.stock').textContent = initialStock
+                                .toLocaleString('id-ID');
+                            document.querySelector('.card-text strong.hpp-awal').textContent =
+                                `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
+                            document.querySelector('.card-text strong.hpp-baru').textContent =
+                                `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
+
+                            // Set data-hpp-baru di input level harga
+                            document.querySelectorAll('.level-harga').forEach(function(input) {
+                                input.setAttribute('data-hpp-baru', initialHppBaru);
+                            });
+
+                            // Simpan nilai level harga asli dari server
+                            originalLevelHarga = {
+                                ...data.level_harga
+                            }; // Simpan salinan level harga asli
+
+                            // Mengisi nilai level harga dari server dan menghitung persentase
+                            document.querySelectorAll('input[name="level_nama[]"]').forEach(function(
+                                namaLevelInput, index) {
+                                const namaLevel = namaLevelInput.value;
+                                const inputField = document.querySelectorAll(
+                                    'input[name="level_harga[]"]')[index];
+                                const persenElement = document.querySelector(
+                                    `#persen_${index}`);
+
+                                // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
+                                if (data.level_harga.hasOwnProperty(namaLevel)) {
+                                    inputField.value = data.level_harga[namaLevel];
+                                    let levelHarga = parseFloat(inputField.value) || 0;
+                                    let persen = 0;
+                                    if (initialHppAwal > 0) {
+                                        persen = ((levelHarga - initialHppAwal) /
+                                            initialHppAwal) * 100;
+                                    }
+                                    persenElement.textContent = `${persen.toFixed(2)}%`;
+                                } else {
+                                    inputField.value = ''; // Biarkan kosong jika tidak ada data
+                                    persenElement.textContent = '0%';
+                                }
+                            });
+
+                            setupInputListeners(data.total_harga_success, data.total_qty_success);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                } else {
+                    // Reset tampilan jika tidak ada barang yang dipilih
+                    resetFields();
+                }
+            });
+
+            document.querySelectorAll('.level-harga').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    let hppAwal = initialHppAwal || 0;
+                    let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
+                    let levelHarga = parseFloat(this.value) || 0;
+
+                    let persen = 0;
+
+                    // Jika harga barang belum diisi, gunakan hpp_awal
+                    if (hppBaru === 0 && hppAwal > 0) {
+                        persen = ((levelHarga - hppAwal) / hppAwal) * 100;
+                    } else if (hppBaru > 0) {
+                        // Jika harga barang sudah diisi, gunakan hpp_baru
+                        persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+                    }
+
+                    const index = this.getAttribute('data-index');
+                    const persenElement = document.getElementById(`persen_${index}`);
+                    if (persenElement) {
+                        persenElement.textContent = `${persen.toFixed(2)}%`;
+                    }
+                });
+            });
+
+            // Fungsi untuk mendengarkan perubahan input jumlah dan harga
+            function setupInputListeners(totalHarga, totalQty) {
+                document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
+                    input.addEventListener('input', function() {
+                        calculateHPP(totalHarga, totalQty);
+                    });
+                });
+            }
+
+            document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    calculateHPP(0,
+                        0
+                    ); // Asumsikan barang baru jika tidak ada total harga atau qty dari database
+                });
+            });
+
+            function calculateHPP(totalHarga, totalQty) {
+                let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
+                let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
+
+                let hppAwal = initialHppAwal || 0; // Ambil HPP awal dari server
+
+                if (jumlah > 0 && harga > 0) {
+                    let totalHargaBaru = jumlah * harga;
+
+                    // Hitung total keseluruhan harga dan total qty
+                    let totalKeseluruhanHarga = totalHargaBaru + totalHarga;
+                    let totalKeseluruhanQty = jumlah + totalQty;
+
+                    // Hitung HPP baru
+                    let finalHpp = totalKeseluruhanHarga / totalKeseluruhanQty;
+
+                    // Tampilkan hasil HPP baru
+                    document.querySelector('.card-text strong.hpp-baru').textContent =
+                        `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
+
+                    // Set nilai HPP baru di setiap input level harga
+                    document.querySelectorAll('.level-harga').forEach(function(input) {
+                        input.setAttribute('data-hpp-baru', finalHpp);
+                    });
+
+                    // Hitung ulang persentase menggunakan HPP baru
+                    updatePercentages(finalHpp);
+
+                } else {
+                    // Jika input jumlah atau harga dikosongkan, gunakan HPP awal dari server
+                    document.querySelector('.card-text strong.hpp-baru').textContent =
+                        `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
+
+                    // Set HPP awal dari server di setiap input level harga
+                    document.querySelectorAll('.level-harga').forEach(function(input) {
+                        input.setAttribute('data-hpp-baru', initialHppAwal);
+                    });
+
+                    // Hitung ulang persentase menggunakan HPP awal
+                    updatePercentages(initialHppAwal);
+                }
+            }
+
+            // Fungsi untuk memperbarui persentase
+            function updatePercentages(hpp) {
+                document.querySelectorAll('.level-harga').forEach(function(input) {
+                    let levelHarga = parseFloat(input.value) || 0;
+                    let persen = 0;
+                    if (hpp > 0) {
+                        persen = ((levelHarga - hpp) / hpp) * 100;
+                    }
+
+                    const persenElement = document.getElementById(
+                        `persen_${input.getAttribute('data-index')}`);
+                    if (persenElement) {
+                        persenElement.textContent = `${persen.toFixed(2)}%`;
+                    }
+                });
+            }
+
+            function updateNumbers() {
+                document.querySelectorAll('.table-bordered tbody tr .numbered').forEach((element, index) => {
+                    element.textContent = index + 1;
+                });
+            }
+
+            function resetFields() {
+                // Kosongkan tampilan HPP, stock, dan level harga
+                document.querySelector('.card-text strong.stock').textContent = '0';
+                document.querySelector('.card-text strong.hpp-awal').textContent = 'Rp 0';
+                document.querySelector('.card-text strong.hpp-baru').textContent = 'Rp 0';
+
+                // Kosongkan nilai level harga
+                document.querySelectorAll('.level-harga').forEach(function(input) {
+                    input.value = '';
+                    const persenElement = document.getElementById(
+                        `persen_${input.getAttribute('data-index')}`);
+                    if (persenElement) {
+                        persenElement.textContent = '0%';
+                    }
+                });
+            }
+
+            // Fungsi untuk mereset nilai ke nilai asli dari server
+            function resetFieldsToOriginal() {
+                // Cek apakah sudah ada HPP baru
+                let currentHppBaru = parseFloat(document.querySelector('.card-text strong.hpp-baru').textContent
+                    .replace(/\D/g, ''));
+
+                let hppUntukPerhitungan = initialHppAwal; // Default gunakan HPP awal
+
+                // Jika HPP baru sudah dihitung, gunakan HPP baru
+                if (currentHppBaru && currentHppBaru > 0) {
+                    hppUntukPerhitungan = currentHppBaru;
+                }
+
+                // Kembalikan nilai HPP dan stock dari server
+                document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString(
+                    'id-ID');
+                document.querySelector('.card-text strong.hpp-awal').textContent =
+                    `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
+                document.querySelector('.card-text strong.hpp-baru').textContent =
+                    `Rp ${hppUntukPerhitungan.toLocaleString('id-ID')}`;
+
+                // Kembalikan nilai level harga ke nilai asli dari server
+                document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
+                    const namaLevel = namaLevelInput.value;
+                    const inputField = document.querySelectorAll('input[name="level_harga[]"]')[index];
+                    const persenElement = document.querySelector(`#persen_${index}`);
+
+                    // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
+                    if (originalLevelHarga.hasOwnProperty(namaLevel)) {
+                        inputField.value = originalLevelHarga[namaLevel] ||
+                            ''; // Kembalikan nilai asli jika ada
+                        let levelHarga = parseFloat(inputField.value) || 0;
+                        let persen = 0;
+                        if (hppUntukPerhitungan > 0) {
+                            persen = ((levelHarga - hppUntukPerhitungan) / hppUntukPerhitungan) * 100;
+                        }
+                        persenElement.textContent = `${persen.toFixed(2)}%`;
+                    } else {
+                        inputField.value = ''; // Kosongkan jika tidak ada data
+                        persenElement.textContent = '0%';
+                    }
+                });
+            }
+
+            // Tambahkan event listener pada tombol reset
+            document.getElementById('reset').addEventListener('click', function() {
+                let idBarang = document.getElementById('id_barang').value;
+                if (idBarang) {
+                    // Jika ada barang yang dipilih, kembalikan nilai asli dari server
+                    resetFieldsToOriginal();
+                } else {
+                    // Jika tidak ada barang yang dipilih, reset semua field menjadi kosong
+                    resetFields();
+                }
+            });
+
+            document.getElementById('cancel-button').addEventListener('click', function(event) {
+                event.preventDefault(); // Mencegah event default jika ada
+                location.reload(); // Reload halaman
+            });
+
+        }
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+            await filterList();
+            await addData();
         }
 
         function debounce(func, wait) {
@@ -567,13 +1014,13 @@
 
 
 {{-- <script>
-                if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
-                    const url = new URL(window.location);
-                    url.searchParams.delete('startDate'); // Hapus startDate
-                    url.searchParams.delete('endDate'); // Hapus endDate
-                    window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa parameter
-                }
-            </script>
+    if (window.location.search.includes('startDate') || window.location.search.includes('endDate')) {
+        const url = new URL(window.location);
+        url.searchParams.delete('startDate'); // Hapus startDate
+        url.searchParams.delete('endDate'); // Hapus endDate
+        window.history.replaceState({}, document.title, url.toString()); // Update URL tanpa parameter
+    }
+</script>
             <script>
                 document.getElementById('tgl_nota').addEventListener('focus', function() {
                     this.showPicker(); // Membuka picker tanggal saat input difokuskan
@@ -629,403 +1076,3 @@
                     });
                 });
             </script>
-
-            <script>
-                document.addEventListener('DOMContentLoaded', function() {
-                    let subtotal = 0;
-                    let addedItems = new Set();
-
-                    // Variabel untuk menyimpan nilai awal dari server
-                    let initialHppBaru = 0;
-                    let initialStock = 0;
-                    let initialHppAwal = 0;
-
-                    function toggleInputFields(disabled) {
-                        document.getElementById('jml_item').disabled = disabled;
-                        document.getElementById('harga_barang').disabled = disabled;
-                        if (disabled) {
-                            document.getElementById('jml_item').value = '';
-                            document.getElementById('harga_barang').value = '';
-                        }
-                    }
-
-                    function checkInputFields() {
-                        let idBarang = document.getElementById('id_barang').value;
-                        let isItemAdded = addedItems.has(idBarang);
-                        toggleInputFields(isItemAdded);
-                    }
-
-                    document.getElementById('add-item-detail').addEventListener('click', function() {
-                        let idBarang = document.getElementById('id_barang').value;
-                        let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
-                        let qty = parseInt(document.getElementById('jml_item').value);
-                        let harga = parseInt(document.getElementById('harga_barang').value);
-
-                        if (!idBarang) {
-                            alert('Silakan pilih barang terlebih dahulu.');
-                            return;
-                        }
-
-                        if (addedItems.has(idBarang)) {
-                            alert('Barang ini sudah ditambahkan sebelumnya.');
-                            return;
-                        }
-
-                        if (!qty || !harga) {
-                            alert('Jumlah dan harga barang harus diisi.');
-                            return;
-                        }
-
-                        let allLevelsFilled = true;
-                        document.querySelectorAll('.level-harga').forEach((input) => {
-                            if (!input.value) {
-                                allLevelsFilled = false;
-                            }
-                        });
-
-                        if (!allLevelsFilled) {
-                            alert('Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
-                            return;
-                        }
-
-                        addedItems.add(idBarang);
-
-                        // Menyembunyikan pilihan barang yang sudah ditambahkan
-                        document.querySelector(`#id_barang option[value="${idBarang}"]`).setAttribute('hidden',
-                            true);
-
-                        let totalHarga = qty * harga;
-                        subtotal += totalHarga;
-
-                        // Generate hidden input fields for level prices
-                        let levelHargaInputs = '';
-                        document.querySelectorAll('.level-harga').forEach((input, index) => {
-                            const levelHarga = input.value;
-                            levelHargaInputs +=
-                                `<input type="hidden" name="level_harga[${idBarang}][]" value="${levelHarga}">`;
-                        });
-
-                        let row = `
-                <tr>
-                    <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
-                    <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
-                    <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                    <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                    <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                    <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                    ${levelHargaInputs}
-                </tr>
-            `;
-
-                        document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
-
-                        document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
-                            `Rp ${subtotal.toLocaleString('id-ID')}`;
-
-                        // Disable input fields after adding
-                        toggleInputFields(true);
-
-                        document.getElementById('id_barang').value = '';
-
-                        resetFields();
-
-                        updateNumbers();
-                    });
-
-                    document.querySelector('.table-bordered tbody').addEventListener('click', function(e) {
-                        if (e.target.classList.contains('remove-item')) {
-                            let row = e.target.closest('tr');
-                            let idBarang = row.querySelector('input[name="id_barang[]"]').value;
-                            let qty = row.querySelector('input[name="qty[]"]').value;
-                            let harga = row.querySelector('input[name="harga_barang[]"]').value;
-                            let totalHarga = parseInt(row.querySelector('td:nth-child(6)').textContent.replace(
-                                /\D/g, ''));
-
-                            // Update subtotal by subtracting the total price of the removed item
-                            subtotal -= totalHarga;
-                            row.remove();
-
-                            addedItems.delete(idBarang);
-
-                            let optionElement = document.querySelector(`#id_barang option[value="${idBarang}"]`);
-                            if (optionElement) {
-                                optionElement.removeAttribute('hidden');
-                            } else {
-                                console.log(`Opsi dengan id ${idBarang} tidak ditemukan di dropdown.`);
-                            }
-
-                            // Update subtotal display
-                            document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
-                                `Rp ${subtotal.toLocaleString('id-ID')}`;
-
-                            updateNumbers();
-
-                            // Enable input fields if no items are added
-                            if (!addedItems.size) {
-                                toggleInputFields(false);
-                            } else {
-                                // Recheck if the currently selected item is in the added items
-                                checkInputFields();
-                            }
-                        }
-                    });
-
-                    document.getElementById('id_barang').addEventListener('change', function() {
-                        checkInputFields();
-                        document.getElementById('jml_item').value = '';
-                        document.getElementById('harga_barang').value = '';
-
-                        let idBarang = this.value;
-
-                        if (idBarang) {
-
-                            fetch(`/admin/get-stock-details/${idBarang}`)
-                                .then(response => response.json())
-                                .then(data => {
-                                    console.log(data);
-                                    // Simpan nilai awal yang diterima dari server
-                                    initialHppBaru = data.hpp_baru || 0;
-                                    initialStock = data.stock || 0;
-                                    initialHppAwal = data.hpp_awal || 0;
-
-                                    // Tampilkan nilai dari server
-                                    document.querySelector('.card-text strong.stock').textContent = initialStock
-                                        .toLocaleString('id-ID');
-                                    document.querySelector('.card-text strong.hpp-awal').textContent =
-                                        `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
-                                    document.querySelector('.card-text strong.hpp-baru').textContent =
-                                        `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
-
-                                    // Set data-hpp-baru di input level harga
-                                    document.querySelectorAll('.level-harga').forEach(function(input) {
-                                        input.setAttribute('data-hpp-baru', initialHppBaru);
-                                    });
-
-                                    // Simpan nilai level harga asli dari server
-                                    originalLevelHarga = {
-                                        ...data.level_harga
-                                    }; // Simpan salinan level harga asli
-
-                                    // Mengisi nilai level harga dari server dan menghitung persentase
-                                    document.querySelectorAll('input[name="level_nama[]"]').forEach(function(
-                                        namaLevelInput, index) {
-                                        const namaLevel = namaLevelInput.value;
-                                        const inputField = document.querySelectorAll(
-                                            'input[name="level_harga[]"]')[index];
-                                        const persenElement = document.querySelector(
-                                            `#persen_${index}`);
-
-                                        // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
-                                        if (data.level_harga.hasOwnProperty(namaLevel)) {
-                                            inputField.value = data.level_harga[namaLevel];
-                                            let levelHarga = parseFloat(inputField.value) || 0;
-                                            let persen = 0;
-                                            if (initialHppAwal > 0) {
-                                                persen = ((levelHarga - initialHppAwal) /
-                                                    initialHppAwal) * 100;
-                                            }
-                                            persenElement.textContent = `${persen.toFixed(2)}%`;
-                                        } else {
-                                            inputField.value = ''; // Biarkan kosong jika tidak ada data
-                                            persenElement.textContent = '0%';
-                                        }
-                                    });
-
-                                    setupInputListeners(data.total_harga_success, data.total_qty_success);
-                                })
-                                .catch(error => {
-                                    console.error('Error:', error);
-                                });
-                        } else {
-                            // Reset tampilan jika tidak ada barang yang dipilih
-                            resetFields();
-                        }
-                    });
-
-                    document.querySelectorAll('.level-harga').forEach(function(input) {
-                        input.addEventListener('input', function() {
-                            let hppAwal = initialHppAwal || 0;
-                            let hppBaru = parseFloat(input.getAttribute('data-hpp-baru')) || 0;
-                            let levelHarga = parseFloat(this.value) || 0;
-
-                            let persen = 0;
-
-                            // Jika harga barang belum diisi, gunakan hpp_awal
-                            if (hppBaru === 0 && hppAwal > 0) {
-                                persen = ((levelHarga - hppAwal) / hppAwal) * 100;
-                            } else if (hppBaru > 0) {
-                                // Jika harga barang sudah diisi, gunakan hpp_baru
-                                persen = ((levelHarga - hppBaru) / hppBaru) * 100;
-                            }
-
-                            const index = this.getAttribute('data-index');
-                            const persenElement = document.getElementById(`persen_${index}`);
-                            if (persenElement) {
-                                persenElement.textContent = `${persen.toFixed(2)}%`;
-                            }
-                        });
-                    });
-
-                    // Fungsi untuk mendengarkan perubahan input jumlah dan harga
-                    function setupInputListeners(totalHarga, totalQty) {
-                        document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
-                            input.addEventListener('input', function() {
-                                calculateHPP(totalHarga, totalQty);
-                            });
-                        });
-                    }
-
-                    document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
-                        input.addEventListener('input', function() {
-                            calculateHPP(0,
-                                0
-                            ); // Asumsikan barang baru jika tidak ada total harga atau qty dari database
-                        });
-                    });
-
-                    function calculateHPP(totalHarga, totalQty) {
-                        let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
-                        let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
-
-                        let hppAwal = initialHppAwal || 0; // Ambil HPP awal dari server
-
-                        if (jumlah > 0 && harga > 0) {
-                            let totalHargaBaru = jumlah * harga;
-
-                            // Hitung total keseluruhan harga dan total qty
-                            let totalKeseluruhanHarga = totalHargaBaru + totalHarga;
-                            let totalKeseluruhanQty = jumlah + totalQty;
-
-                            // Hitung HPP baru
-                            let finalHpp = totalKeseluruhanHarga / totalKeseluruhanQty;
-
-                            // Tampilkan hasil HPP baru
-                            document.querySelector('.card-text strong.hpp-baru').textContent =
-                                `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
-
-                            // Set nilai HPP baru di setiap input level harga
-                            document.querySelectorAll('.level-harga').forEach(function(input) {
-                                input.setAttribute('data-hpp-baru', finalHpp);
-                            });
-
-                            // Hitung ulang persentase menggunakan HPP baru
-                            updatePercentages(finalHpp);
-
-                        } else {
-                            // Jika input jumlah atau harga dikosongkan, gunakan HPP awal dari server
-                            document.querySelector('.card-text strong.hpp-baru').textContent =
-                                `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
-
-                            // Set HPP awal dari server di setiap input level harga
-                            document.querySelectorAll('.level-harga').forEach(function(input) {
-                                input.setAttribute('data-hpp-baru', initialHppAwal);
-                            });
-
-                            // Hitung ulang persentase menggunakan HPP awal
-                            updatePercentages(initialHppAwal);
-                        }
-                    }
-
-                    // Fungsi untuk memperbarui persentase
-                    function updatePercentages(hpp) {
-                        document.querySelectorAll('.level-harga').forEach(function(input) {
-                            let levelHarga = parseFloat(input.value) || 0;
-                            let persen = 0;
-                            if (hpp > 0) {
-                                persen = ((levelHarga - hpp) / hpp) * 100;
-                            }
-
-                            const persenElement = document.getElementById(
-                                `persen_${input.getAttribute('data-index')}`);
-                            if (persenElement) {
-                                persenElement.textContent = `${persen.toFixed(2)}%`;
-                            }
-                        });
-                    }
-
-                    function updateNumbers() {
-                        document.querySelectorAll('.table-bordered tbody tr .numbered').forEach((element, index) => {
-                            element.textContent = index + 1;
-                        });
-                    }
-
-                    function resetFields() {
-                        // Kosongkan tampilan HPP, stock, dan level harga
-                        document.querySelector('.card-text strong.stock').textContent = '0';
-                        document.querySelector('.card-text strong.hpp-awal').textContent = 'Rp 0';
-                        document.querySelector('.card-text strong.hpp-baru').textContent = 'Rp 0';
-
-                        // Kosongkan nilai level harga
-                        document.querySelectorAll('.level-harga').forEach(function(input) {
-                            input.value = '';
-                            const persenElement = document.getElementById(
-                                `persen_${input.getAttribute('data-index')}`);
-                            if (persenElement) {
-                                persenElement.textContent = '0%';
-                            }
-                        });
-                    }
-
-                    // Fungsi untuk mereset nilai ke nilai asli dari server
-                    function resetFieldsToOriginal() {
-                        // Cek apakah sudah ada HPP baru
-                        let currentHppBaru = parseFloat(document.querySelector('.card-text strong.hpp-baru').textContent
-                            .replace(/\D/g, ''));
-
-                        let hppUntukPerhitungan = initialHppAwal; // Default gunakan HPP awal
-
-                        // Jika HPP baru sudah dihitung, gunakan HPP baru
-                        if (currentHppBaru && currentHppBaru > 0) {
-                            hppUntukPerhitungan = currentHppBaru;
-                        }
-
-                        // Kembalikan nilai HPP dan stock dari server
-                        document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString(
-                            'id-ID');
-                        document.querySelector('.card-text strong.hpp-awal').textContent =
-                            `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
-                        document.querySelector('.card-text strong.hpp-baru').textContent =
-                            `Rp ${hppUntukPerhitungan.toLocaleString('id-ID')}`;
-
-                        // Kembalikan nilai level harga ke nilai asli dari server
-                        document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
-                            const namaLevel = namaLevelInput.value;
-                            const inputField = document.querySelectorAll('input[name="level_harga[]"]')[index];
-                            const persenElement = document.querySelector(`#persen_${index}`);
-
-                            // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
-                            if (originalLevelHarga.hasOwnProperty(namaLevel)) {
-                                inputField.value = originalLevelHarga[namaLevel] ||
-                                    ''; // Kembalikan nilai asli jika ada
-                                let levelHarga = parseFloat(inputField.value) || 0;
-                                let persen = 0;
-                                if (hppUntukPerhitungan > 0) {
-                                    persen = ((levelHarga - hppUntukPerhitungan) / hppUntukPerhitungan) * 100;
-                                }
-                                persenElement.textContent = `${persen.toFixed(2)}%`;
-                            } else {
-                                inputField.value = ''; // Kosongkan jika tidak ada data
-                                persenElement.textContent = '0%';
-                            }
-                        });
-                    }
-
-                    // Tambahkan event listener pada tombol reset
-                    document.getElementById('reset').addEventListener('click', function() {
-                        let idBarang = document.getElementById('id_barang').value;
-                        if (idBarang) {
-                            // Jika ada barang yang dipilih, kembalikan nilai asli dari server
-                            resetFieldsToOriginal();
-                        } else {
-                            // Jika tidak ada barang yang dipilih, reset semua field menjadi kosong
-                            resetFields();
-                        }
-                    });
-
-                    document.getElementById('cancel-button').addEventListener('click', function(event) {
-                        event.preventDefault(); // Mencegah event default jika ada
-                        location.reload(); // Reload halaman
-                    });
-
-                });
-            </script> --}}
