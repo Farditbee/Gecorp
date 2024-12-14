@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailKasir;
 use App\Models\Kasir;
+use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,93 +17,113 @@ class DashboardController extends Controller
 
     public function laporan_kasir(Request $request)
     {
-        // Default idToko ke 'all' jika tidak ada dalam request
+        // Ambil parameter request dengan nilai default
         $idToko = $request->input('nama_toko', 'all'); // Default ke 'all'
-
-        // Ambil data kasir berdasarkan filter toko
-        $query = Kasir::with('toko:id,nama_toko');
-        if ($idToko !== 'all') {
-            $query->where('id_toko', $idToko);
-        }
-
-        $kasirData = $query->select('id', 'id_toko', 'created_at')->get();
-
-        // Tentukan rentang tahun (5 tahun ke belakang hingga tahun sekarang)
-        $currentYear = now()->year;
-        $startYear = $currentYear - 4;
-
-        // Struktur laporan
-        $laporan = [
-            'nama_toko' => $idToko === 'all' ? 'All' : ($kasirData->first()->toko->nama_toko ?? 'Unknown'),
-            'daily' => [],
-            'monthly' => [],
-            'yearly' => [],
-        ];
-
-        // Inisialisasi struktur data untuk semua tahun dalam rentang
-        foreach (range($startYear, $currentYear) as $year) {
-            $laporan['daily'][$year] = [];
-            $laporan['monthly'][$year] = array_fill(1, 12, 0);
-            $laporan['yearly'][$year] = 0;
-
-            foreach (range(1, 12) as $month) {
-                $laporan['daily'][$year][$month] = array_fill(1, 31, 0);
+        $period = $request->input('period', 'daily'); // Default ke 'daily'
+        $month = $request->input('month', now()->month); // Default ke bulan sekarang
+        $year = $request->input('year', now()->year); // Default ke tahun sekarang
+    
+        try {
+            // Query nama toko jika idToko tidak 'all'
+            $namaToko = 'All';
+            if ($idToko !== 'all') {
+                $toko = Toko::find($idToko);
+                $namaToko = $toko ? $toko->nama_toko : 'Unknown';
             }
-        }
-
-        // Grupkan data berdasarkan tahun, bulan, dan hari
-        $groupedByYear = $kasirData->groupBy(function ($item) {
-            return $item->created_at->year;
-        });
-
-        foreach ($groupedByYear as $year => $yearData) {
-            if ($year < $startYear || $year > $currentYear) {
-                continue; // Abaikan data di luar rentang tahun yang diinginkan
+    
+            // Query data kasir berdasarkan filter toko
+            $query = Kasir::with('toko:id,nama_toko');
+            if ($idToko !== 'all') {
+                $query->where('id_toko', $idToko);
             }
-
-            $groupedByMonth = $yearData->groupBy(function ($item) {
-                return $item->created_at->month;
-            });
-
-            foreach ($groupedByMonth as $month => $monthData) {
-                $groupedByDay = $monthData->groupBy(function ($item) {
-                    return $item->created_at->day;
-                });
-
-                foreach ($groupedByDay as $day => $transactions) {
-                    $laporan['daily'][$year][$month][$day] += $transactions->count();
+    
+            // Filter berdasarkan tahun (dan bulan jika period = daily)
+            if ($year) {
+                $query->whereYear('created_at', $year);
+            }
+            if ($period === 'daily' && $month) {
+                $query->whereMonth('created_at', $month);
+            }
+    
+            $kasirData = $query->select('id', 'id_toko', 'created_at', 'total_nilai', 'total_diskon')->get();
+    
+            // Struktur laporan
+            $laporan = [
+                'nama_toko' => $namaToko,
+                $period => [],
+                'totals' => 0,
+            ];
+    
+            if ($period === 'daily') {
+                // Hitung data harian
+                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+                $dailyCounts = array_fill(1, $daysInMonth, 0);
+                $dailyTotals = array_fill(1, $daysInMonth, 0);
+    
+                foreach ($kasirData as $data) {
+                    $day = (int)$data->created_at->format('j');
+                    $dailyCounts[$day]++;
+                    $dailyTotals[$day] += $data->total_nilai - $data->total_diskon;
                 }
-
-                $laporan['monthly'][$year][$month - 1] += $monthData->count();
+    
+                $laporan['daily'] = [
+                    $year => [
+                        $month => array_values($dailyCounts),
+                    ],
+                ];
+                $laporan['totals'] = array_sum($dailyTotals);
+            } elseif ($period === 'monthly') {
+                // Hitung data bulanan
+                $monthlyCounts = array_fill(1, 12, 0);
+                $monthlyTotals = array_fill(1, 12, 0);
+    
+                foreach ($kasirData as $data) {
+                    $month = (int)$data->created_at->format('n');
+                    $monthlyCounts[$month]++;
+                    $monthlyTotals[$month] += $data->total_nilai - $data->total_diskon;
+                }
+    
+                $laporan['monthly'] = [
+                    $year => array_values($monthlyCounts),
+                ];
+                $laporan['totals'] = array_sum($monthlyTotals);
+            } elseif ($period === 'yearly') {
+                // Hitung data tahunan
+                $yearlyCounts = [];
+                $yearlyTotals = [];
+    
+                foreach ($kasirData as $data) {
+                    $year = (int)$data->created_at->format('Y');
+                    if (!isset($yearlyCounts[$year])) {
+                        $yearlyCounts[$year] = 0;
+                        $yearlyTotals[$year] = 0;
+                    }
+                    $yearlyCounts[$year]++;
+                    $yearlyTotals[$year] += $data->total_nilai - $data->total_diskon;
+                }
+    
+                $laporan['yearly'] = $yearlyCounts;
+                $laporan['totals'] = array_sum($yearlyTotals);
             }
-
-            $laporan['yearly'][$year] = array_sum($laporan['monthly'][$year]);
+    
+            // Return JSON response
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => [$laporan],
+            ]);
+    
+        } catch (\Throwable $th) {
+            // Return JSON response untuk error
+            return response()->json([
+                'error' => true,
+                'message' => 'Error',
+                'status_code' => 500,
+                'data' => $th->getMessage(),
+            ]);
         }
-
-        // Format ulang array daily dan monthly agar sesuai dengan output JSON
-        $laporan['daily'] = collect($laporan['daily'])->map(function ($months) {
-            return collect($months)->map(function ($days) {
-                return array_values($days);
-            })->toArray();
-        })->toArray();
-
-        $laporan['monthly'] = collect($laporan['monthly'])->map(function ($months) {
-            return array_values($months);
-        })->toArray();
-
-        $laporan['yearly'] = collect($laporan['yearly'])->map(function ($total) {
-            return [$total];
-        })->toArray();
-
-        // Return JSON response
-        return response()->json([
-            'error' => false,
-            'message' => 'Successfully',
-            'status_code' => 200,
-            'data' => [$laporan],
-        ]);
     }
-
     
     public function getBarangJual(Request $request)
     {
