@@ -1,6 +1,10 @@
 <title>Dashboard - Gecorp</title>
 @extends('layouts.main')
 
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+@endsection
+
 @section('content')
     <div class="pcoded-main-container">
         <div class="pcoded-content">
@@ -101,69 +105,80 @@
                 <div class="col-xxl-6 col-md-9">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5>Laporan Penjualan</h5>
-                            <div class="d-flex flex-column flex-md-row align-items-md-center gap-2">
-                                <div style="width: 200px;">
-                                    <select id="f-penjualan-toko" name="nama_toko"
-                                        class="filter-option form-select form-select-sm w-100">
-                                        <option value="all">Semua Toko</option>
-                                        @foreach ($toko as $tokoData)
-                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div style="width: 200px;">
-                                    <select id="filter-period" name="period"
-                                        class="filter-option form-select form-select-sm w-100">
-                                        <option value="daily">Harian</option>
-                                        <option value="monthly" selected>Bulanan</option>
-                                        <option value="yearly">Tahunan</option>
-                                    </select>
-                                </div>
-                                <div style="width: 200px; display: none;" id="filter-month-container">
-                                    <select id="filter-month" name="month"
-                                        class="filter-option form-select form-select-sm w-100">
-                                        <option value="1">Januari</option>
-                                        <option value="2">Februari</option>
-                                        <option value="3">Maret</option>
-                                        <option value="4">April</option>
-                                        <option value="5">Mei</option>
-                                        <option value="6">Juni</option>
-                                        <option value="7">Juli</option>
-                                        <option value="8">Agustus</option>
-                                        <option value="9">September</option>
-                                        <option value="10">Oktober</option>
-                                        <option value="11">November</option>
-                                        <option value="12">Desember</option>
-                                    </select>
-                                </div>
-                                <div style="width: 200px;">
-                                    <select id="filter-year" name="year"
-                                        class="filter-option form-select form-select-sm w-100"></select>
+                            <div>
+                                <h5 class="mb-2">Laporan Penjualan</h5>
+                                <div class="row align-items-center">
+                                    <div class="col-auto ms-auto">
+                                        <span class="text-muted me-1">
+                                            <i class="fa fa-cogs mr-1"></i>Atur Grafik :
+                                        </span>
+                                        <button class="btn btn-outline-primary btn-sm" id="chart-area" title="Area Grafik">
+                                            <i class="fa fa-chart-area"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" id="chart-bar" title="Bar Grafik">
+                                            <i class="fa fa-chart-bar"></i>
+                                        </button>
+                                        <button class="btn btn-outline-primary btn-sm" id="chart-line" title="Line Grafik">
+                                            <i class="fa fa-chart-line"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
+                            <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                                <i class="fa fa-filter"></i> Filter
+                            </button>
                         </div>
                         <div class="card-body">
-                            <div class="row pb-2 align-items-center">
-                                <div class="col-auto m-b-10">
-                                    <h3 class="mb-1" id="total-penjualan">Rp. 0</h3>
+                            <div class="row pb-2 align-items-center justify-content-between">
+                                <div class="mb-2 col-12 col-md-auto">
+                                    <h4 class="mb-1" id="total-penjualan">Rp. 0</h4>
                                     <span>Data Penjualan</span>
                                 </div>
-                            </div>
-                            <div class="row pb-2 align-items-center">
-                                <div class="col-auto ms-auto">
-                                    <span class="text-muted me-1">
-                                        <i class="fa fa-filter me-1"></i>Pengaturan Grafik :
-                                    </span>
-                                    <button class="btn btn-outline-primary btn-sm" id="chart-area" title="Area Chart">
-                                        <i class="fa fa-chart-area"></i>
-                                    </button>
-                                    <button class="btn btn-outline-primary btn-sm" id="chart-bar" title="Bar Chart">
-                                        <i class="fa fa-chart-bar"></i>
-                                    </button>
-                                    <button class="btn btn-outline-primary btn-sm" id="chart-line" title="Line Chart">
-                                        <i class="fa fa-chart-line"></i>
-                                    </button>
+                                <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                    <div class="collapse" id="filter-collapse">
+                                        <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                            <div style="width: 200px; display: none;" id="filter-month-container">
+                                                <select id="filter-month" name="month"
+                                                    class="filter-option form-select form-select-sm w-100">
+                                                    <option value="1">Januari</option>
+                                                    <option value="2">Februari</option>
+                                                    <option value="3">Maret</option>
+                                                    <option value="4">April</option>
+                                                    <option value="5">Mei</option>
+                                                    <option value="6">Juni</option>
+                                                    <option value="7">Juli</option>
+                                                    <option value="8">Agustus</option>
+                                                    <option value="9">September</option>
+                                                    <option value="10">Oktober</option>
+                                                    <option value="11">November</option>
+                                                    <option value="12">Desember</option>
+                                                </select>
+                                            </div>
+                                            <div style="width: 200px;" id="filter-year-container">
+                                                <select id="filter-year" name="year"
+                                                    class="filter-option form-select form-select-sm w-100"></select>
+                                            </div>
+                                            <div style="width: 200px;">
+                                                <select id="filter-period" name="period"
+                                                    class="filter-option form-select form-select-sm w-100">
+                                                    <option value="daily">Harian</option>
+                                                    <option value="monthly" selected>Bulanan</option>
+                                                    <option value="yearly">Tahunan</option>
+                                                </select>
+                                            </div>
+                                            <div style="width: 200px;">
+                                                <select id="f-penjualan-toko" name="nama_toko"
+                                                    class="filter-option form-select form-select-sm w-100">
+                                                    <option value="all">Semua Toko</option>
+                                                    @foreach ($toko as $tokoData)
+                                                        <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div id="laporan-chart"></div>
@@ -173,7 +188,14 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('asset_js')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+@endsection
+
+@section('js')
     <script>
         let customFilter = {};
         let customFilter2 = {};
@@ -206,10 +228,10 @@
             if (customFilter['period']) {
                 filterParams.period = customFilter['period'];
             }
-            if (customFilter['month'] && customFilter['period'] !== 'monthly') {
+            if (customFilter['month'] && customFilter['period'] === 'daily') {
                 filterParams.month = customFilter['month'];
             }
-            if (customFilter['year'] && customFilter['period'] !== 'yearly') {
+            if (customFilter['year']) {
                 filterParams.year = customFilter['year'];
             }
 
@@ -226,7 +248,14 @@
             });
 
             if (getDataRest && getDataRest.status === 200) {
-                await setLaporanPenjualan(getDataRest.data.data, filterParams.period);
+                const responseData = getDataRest.data?.data?.[0] || {
+                    nama_toko: "All",
+                    daily: {},
+                    monthly: {},
+                    yearly: {},
+                    totals: 0
+                };
+                await setLaporanPenjualan(responseData, filterParams.period || 'monthly');
             } else {
                 console.error(getDataRest?.data?.message || "Error retrieving data.");
             }
@@ -242,7 +271,7 @@
             const chartContainer = document.getElementById('laporan-chart');
 
             let currentChartType = 'bar';
-            const defaultYear = new Date().getFullYear();
+            const defaultYear = filterYear.value || new Date().getFullYear();
 
             const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
@@ -252,24 +281,29 @@
 
                 if (period === 'daily') {
                     const daysInMonth = getDaysInMonth(year, month);
-                    const dailyData = apiResponse.daily?.[year]?.[month];
-                    penjualan = Array.isArray(dailyData) ? dailyData.slice(0, daysInMonth) : [];
+                    const dailyData = apiResponse.daily?.[year]?.[month] || Array(daysInMonth).fill(0);
+                    penjualan = dailyData;
                 } else if (period === 'monthly') {
-                    penjualan = Array.isArray(apiResponse.monthly?.[year]) ? apiResponse.monthly[year] : [];
+                    penjualan = apiResponse.monthly?.[year] || Array(12).fill(0);
                 } else if (period === 'yearly') {
-                    penjualan = Array.isArray(Object.values(apiResponse.yearly || {})) ? Object.values(apiResponse
-                        .yearly) : [];
+                    penjualan = Object.values(apiResponse.yearly || {});
                 }
 
-                total.textContent = formatRupiah(penjualan.reduce((a, b) => a + b, 0));
+                if (penjualan.length === 0) {
+                    chartContainer.innerHTML = "<p>Data tidak tersedia untuk tahun ini.</p>";
+                    return;
+                }
+
+                total.textContent = formatRupiah(apiResponse.totals || 0);
 
                 const categories = {
                     daily: Array.from({
                         length: penjualan.length
                     }, (_, i) => `Day ${i + 1}`),
-                    monthly: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov',
-                        'Dec'],
-                    yearly: Object.keys(apiResponse.yearly || {}),
+                    monthly: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
+                        'September', 'Oktober', 'November', 'Desember'
+                    ],
+                    yearly: Object.keys(apiResponse.yearly || {}).map(year => year),
                 };
 
                 const chartOptions = {
@@ -318,40 +352,23 @@
                 chart.render();
             };
 
-            const populateYearOptions = () => {
-                const currentYear = new Date().getFullYear();
-                const selectedYear = filterYear.value || currentYear; // Pastikan default tahun diatur
-                filterYear.innerHTML = '';
-
-                for (let year = currentYear; year >= currentYear - 10; year--) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    filterYear.appendChild(option);
-                }
-
-                filterYear.value = selectedYear; // Set nilai default
-            };
-
             populateYearOptions();
             updateChart(period, defaultYear, currentChartType);
 
             filterPeriod.addEventListener('change', () => {
                 filterMonthContainer.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
-                filterYearContainer.style.display = filterPeriod.value === 'yearly' ? 'none' : 'block';
                 updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
 
             filterMonth.addEventListener('change', () => {
                 if (filterPeriod.value === 'daily') {
-                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                    const selectedYear = filterYear.value;
+                    updateChart(filterPeriod.value, selectedYear, currentChartType);
                 }
             });
 
             filterYear.addEventListener('change', () => {
-                if (filterPeriod.value !== 'yearly') {
-                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
-                }
+                updateChart(filterPeriod.value, filterYear.value, currentChartType);
             });
 
             const chartTypeMapping = {
@@ -377,6 +394,30 @@
             });
 
             setActiveChartButton('chart-bar');
+        }
+
+        function populateYearOptions() {
+            const filterYear = document.getElementById('filter-year');
+            const currentYear = new Date().getFullYear();
+            const startYear = currentYear - 10;
+
+            let selectedYear = filterYear.value;
+
+            if (!selectedYear) {
+                selectedYear = currentYear;
+            }
+
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+
+                if (year == selectedYear) {
+                    option.selected = true;
+                }
+
+                filterYear.appendChild(option);
+            }
         }
 
         async function filterList() {
@@ -525,15 +566,14 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', async function() {
-            await getTotalPendapatan();
+        async function initPageLoad() {
+            await setDynamicButton();
             await getLaporanPenjualan();
             await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month',
                 'filter-year'
             ]);
             await getTopPenjualan();
             await filterSelect();
-            $('[data-bs-toggle="tooltip"]').tooltip();
-        });
+        }
     </script>
 @endsection

@@ -19,10 +19,10 @@ class DashboardController extends Controller
     {
         // Ambil parameter request dengan nilai default
         $idToko = $request->input('nama_toko', 'all'); // Default ke 'all'
-        $period = $request->input('period', 'daily'); // Default ke 'daily'
-        $month = $request->input('month', now()->month); // Default ke bulan sekarang
-        $year = $request->input('year', now()->year); // Default ke tahun sekarang
-    
+        $period = $request->input('period', 'monthly'); // Default ke 'monthly'
+        $month = $period === 'daily' ? $request->input('month', now()->month) : null;
+        $year =$request->input('year', now()->year); // Default ke 'all' jika period yearly
+
         try {
             // Query nama toko jika idToko tidak 'all'
             $namaToko = 'All';
@@ -30,42 +30,42 @@ class DashboardController extends Controller
                 $toko = Toko::find($idToko);
                 $namaToko = $toko ? $toko->nama_toko : 'Unknown';
             }
-    
+
             // Query data kasir berdasarkan filter toko
             $query = Kasir::with('toko:id,nama_toko');
             if ($idToko !== 'all') {
                 $query->where('id_toko', $idToko);
             }
-    
+
             // Filter berdasarkan tahun (dan bulan jika period = daily)
-            if ($year) {
+            if ($year !== 'all') {
                 $query->whereYear('created_at', $year);
             }
             if ($period === 'daily' && $month) {
                 $query->whereMonth('created_at', $month);
             }
-    
+
             $kasirData = $query->select('id', 'id_toko', 'created_at', 'total_nilai', 'total_diskon')->get();
-    
+
             // Struktur laporan
             $laporan = [
                 'nama_toko' => $namaToko,
                 $period => [],
                 'totals' => 0,
             ];
-    
+
             if ($period === 'daily') {
                 // Hitung data harian
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
                 $dailyCounts = array_fill(1, $daysInMonth, 0);
                 $dailyTotals = array_fill(1, $daysInMonth, 0);
-    
+
                 foreach ($kasirData as $data) {
                     $day = (int)$data->created_at->format('j');
                     $dailyCounts[$day]++;
                     $dailyTotals[$day] += $data->total_nilai - $data->total_diskon;
                 }
-    
+
                 $laporan['daily'] = [
                     $year => [
                         $month => array_values($dailyCounts),
@@ -76,36 +76,37 @@ class DashboardController extends Controller
                 // Hitung data bulanan
                 $monthlyCounts = array_fill(1, 12, 0);
                 $monthlyTotals = array_fill(1, 12, 0);
-    
+
                 foreach ($kasirData as $data) {
                     $month = (int)$data->created_at->format('n');
                     $monthlyCounts[$month]++;
                     $monthlyTotals[$month] += $data->total_nilai - $data->total_diskon;
                 }
-    
+
                 $laporan['monthly'] = [
                     $year => array_values($monthlyCounts),
                 ];
                 $laporan['totals'] = array_sum($monthlyTotals);
             } elseif ($period === 'yearly') {
-                // Hitung data tahunan
                 $yearlyCounts = [];
                 $yearlyTotals = [];
-    
+
                 foreach ($kasirData as $data) {
-                    $year = (int)$data->created_at->format('Y');
-                    if (!isset($yearlyCounts[$year])) {
-                        $yearlyCounts[$year] = 0;
-                        $yearlyTotals[$year] = 0;
+                    $dataYear = (int)$data->created_at->format('Y');
+                    if ($year === 'all' || $dataYear == $year) {
+                        if (!isset($yearlyCounts[$dataYear])) {
+                            $yearlyCounts[$dataYear] = 0;
+                            $yearlyTotals[$dataYear] = 0;
+                        }
+                        $yearlyCounts[$dataYear]++;
+                        $yearlyTotals[$dataYear] += $data->total_nilai - $data->total_diskon;
                     }
-                    $yearlyCounts[$year]++;
-                    $yearlyTotals[$year] += $data->total_nilai - $data->total_diskon;
                 }
-    
+
                 $laporan['yearly'] = $yearlyCounts;
                 $laporan['totals'] = array_sum($yearlyTotals);
             }
-    
+
             // Return JSON response
             return response()->json([
                 'error' => false,
@@ -113,7 +114,6 @@ class DashboardController extends Controller
                 'status_code' => 200,
                 'data' => [$laporan],
             ]);
-    
         } catch (\Throwable $th) {
             // Return JSON response untuk error
             return response()->json([
@@ -124,7 +124,9 @@ class DashboardController extends Controller
             ]);
         }
     }
-    
+
+
+
     public function getBarangJual(Request $request)
     {
         $selectedTokoIds = $request->input('id_toko'); // Ambil toko dari request
@@ -138,8 +140,7 @@ class DashboardController extends Controller
             $query->join('kasir', 'detail_kasir.id_kasir', '=', 'kasir.id')
                 ->where('kasir.id_toko', $selectedTokoIds)
                 ->groupBy('kasir.id_toko', 'detail_kasir.id_barang', 'barang.nama_barang');
-        }
-        elseif ($selectedTokoIds === 'all'){
+        } elseif ($selectedTokoIds === 'all') {
             $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         } else {
             $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');

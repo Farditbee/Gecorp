@@ -99,6 +99,22 @@
                 }
             });
         }
+
+        async function setDynamicButton() {
+            const buttons = document.querySelectorAll('.btn-dynamic');
+
+            buttons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (button.classList.contains('btn-primary')) {
+                        button.classList.remove('btn-primary');
+                        button.classList.add('btn-outline-primary');
+                    } else {
+                        button.classList.remove('btn-outline-primary');
+                        button.classList.add('btn-primary');
+                    }
+                });
+            });
+        }
     </script>
     <!-- Required Js -->
     @yield('js')
