@@ -61,9 +61,7 @@
                                         <thead>
                                             <tr class="tb-head atur-harga-btn">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Barcode</th>
                                                 <th class="text-wrap align-top">Nama Barang</th>
-                                                <th class="text-wrap align-top">Jenis Barang</th>
                                                 @if (Auth::user()->id_level == 1)
                                                     <th class="text-wrap align-top">Stock</th>
                                                     <th class="text-wrap align-top">Harga Satuan (Hpp Baru)</th>
@@ -357,10 +355,8 @@
             return {
                 id: data?.id ?? '-',
                 nama_barang: data?.nama_barang ?? '-',
-                barcode: data?.barcode ?? '-',
-                jenis_nama_barang: data?.jenis_nama_barang ?? '-',
                 stock: data?.stock ?? '-',
-                harga_satuan: data?.harga_satuan ?? '-',
+                hpp_baru: data?.hpp_baru ?? '-',
                 detail_button,
                 delete_button,
             };
@@ -378,11 +374,11 @@
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.barcode}</td>
                         <td class="${classCol}">${element.nama_barang}</td>
-                        <td class="${classCol}">${element.jenis_nama_barang}</td>
+                        @if (Auth::user()->id_level == 1)
                         <td class="${classCol}">${element.stock}</td>
-                        <td class="${classCol}">${element.harga_satuan}</td>
+                        <td class="${classCol}">${element.hpp_baru}</td>
+                        @endif
                         <td class="${classCol}">${element.detail_button}</td>
                         <td class="${classCol}">
                             <div class="d-flex justify-content-center w-100">

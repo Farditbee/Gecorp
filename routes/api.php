@@ -11,6 +11,7 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TokoController;
 use App\Http\Controllers\UserController;
@@ -39,3 +40,4 @@ Route::get('/getleveluser', [LevelUserController::class, 'getleveluser'])->name(
 Route::get('/getlevelharga', [LevelHargaController::class, 'getlevelharga'])->name('master.getlevelharga');
 Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getpromo');
 Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master.getbarangs');
+Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');
