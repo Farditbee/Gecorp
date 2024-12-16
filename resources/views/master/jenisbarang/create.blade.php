@@ -1,5 +1,8 @@
-<title>Tambah Data Jenis Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data Jenis Barang
+@endsection
 
 @section('content')
 

@@ -1,5 +1,8 @@
-<title>Tambah Pembelian Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Pembelian Barang
+@endsection
 
 @section('content')
 

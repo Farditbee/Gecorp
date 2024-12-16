@@ -1,5 +1,8 @@
-<title>Edit Data Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Data Barang
+@endsection
 
 @section('content')
 

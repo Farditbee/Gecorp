@@ -1,5 +1,8 @@
-<title>Tambah Data Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data Barang
+@endsection
 
 @section('content')
     <div class="pcoded-main-container">

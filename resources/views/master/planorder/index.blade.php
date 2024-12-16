@@ -1,5 +1,9 @@
-<title>Plan Order All Toko - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Plan Order All Toko
+@endsection
+
 @section('content')
 
 <div class="breadcrumbs">

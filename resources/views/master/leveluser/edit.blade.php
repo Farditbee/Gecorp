@@ -1,5 +1,8 @@
-<title>Edit Data Level User - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Data Level User
+@endsection
 
 @section('content')
 

@@ -1,5 +1,8 @@
-<title>Edit Status Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Pengiriman Barang
+@endsection
 
 @section('content')
 

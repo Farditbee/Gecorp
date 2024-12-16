@@ -1,5 +1,8 @@
-<title>Data Promo - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Data Promo
+@endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
@@ -322,7 +325,7 @@
                     title="Edit ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
                     <span class="text-dark">Edit</span>
-                    <div class="icon text-warning pt-1">
+                    <div class="icon text-warning">
                         <i class="fa fa-edit"></i>
                     </div>
                 </button>`;

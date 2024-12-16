@@ -1,5 +1,8 @@
-<title>Pembelian Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Pembelian Barang
+@endsection
 
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
@@ -453,7 +456,7 @@
                 title="Detail Data Nomor Nota: ${data.no_nota}"
                 data-id='${data.id}'>
                 <span class="text-dark">Detail</span>
-                <div class="icon text-info pt-1">
+                <div class="icon text-info">
                     <i class="fa fa-eye"></i>
                 </div>
             </a>`;

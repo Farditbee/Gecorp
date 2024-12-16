@@ -1,5 +1,8 @@
-<title>Tambah Level Harga - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Level Harga
+@endsection
 
 @section('content')
 

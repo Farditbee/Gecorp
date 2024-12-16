@@ -1,4 +1,8 @@
-<title>Data Stock Barang - Gecorp</title>
+@extends('layouts.main')
+
+@section('title')
+    Data Stock Barang
+@endsection
 
 @extends('layouts.main')
 

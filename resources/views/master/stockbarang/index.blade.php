@@ -1,5 +1,8 @@
-<title>Data Stock Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Data Stock Barang
+@endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
@@ -347,7 +350,7 @@
                 data-id='${data.id}'
                 data-name='${data.nama_barang}'>
                 <span class="text-dark">Hapus</span>
-                <div class="icon text-danger pt-1">
+                <div class="icon text-danger">
                     <i class="fa fa-trash"></i>
                 </div>
             </button>`;

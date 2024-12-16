@@ -1,5 +1,8 @@
-<title>Data Toko - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Data Toko
+@endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
@@ -159,7 +162,7 @@
                 title="Edit Toko: ${data.nama_toko}"
                 data-id='${data.id}'>
                 <span class="text-dark">Edit</span>
-                <div class="icon text-warning pt-1">
+                <div class="icon text-warning">
                     <i class="fa fa-edit"></i>
                 </div>
             </a>`;
@@ -171,7 +174,7 @@
                 data-id='${data.id}'
                 data-name='${data.nama_toko}'>
                 <span class="text-dark">Hapus</span>
-                <div class="icon text-danger pt-1">
+                <div class="icon text-danger">
                     <i class="fa fa-trash"></i>
                 </div>
             </a>`;

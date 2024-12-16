@@ -1,6 +1,8 @@
-<title>Tambah Data Supplier - Gecorp</title>
-
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data Supplier
+@endsection
 
 @section('content')
 

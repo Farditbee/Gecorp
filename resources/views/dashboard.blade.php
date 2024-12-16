@@ -1,5 +1,8 @@
-<title>Dashboard - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Dashboard
+@endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">

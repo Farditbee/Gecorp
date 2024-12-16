@@ -1,5 +1,8 @@
-<title>Tambah Data User - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data User
+@endsection
 
 @section('content')
 
