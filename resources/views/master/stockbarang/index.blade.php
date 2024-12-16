@@ -397,6 +397,7 @@
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
             renderPagination();
+            detailPage();
         }
 
         async function deleteData() {
@@ -546,7 +547,6 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
-            await detailPage();
         }
     </script>
 @endsection
