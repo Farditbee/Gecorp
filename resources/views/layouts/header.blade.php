@@ -39,19 +39,3 @@
         </div>
     </div>
 </header>
-
-<style>
-    /* CSS untuk animasi dropdown */
-    .dropdown .dropdown-menu {
-        display: none; /* Hanya muncul saat di-hover */
-        opacity: 0;
-        transform: translateY(-10px);
-        transition: opacity 0.3s ease, transform 0.3s ease;
-    }
-
-    .dropdown:hover .dropdown-menu {
-        display: block;
-        opacity: 1;
-        transform: translateY(0);
-    }
-</style>
