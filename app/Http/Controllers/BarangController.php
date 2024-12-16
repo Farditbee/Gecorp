@@ -19,7 +19,7 @@ class BarangController extends Controller
 
         $query = Barang::query();
 
-        $query->with(['jenis', 'brand',])->orderBy('created_at', $meta['orderBy']);
+        $query->with(['jenis', 'brand',])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
