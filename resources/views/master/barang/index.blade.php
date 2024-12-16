@@ -145,57 +145,62 @@
         }
 
         async function handleData(data) {
-            let gambar_barcode = `
-            <img src="{{ asset('storage') }}/${data.barcode_path}" class="barcode-img" alt="Barcode">`;
+            let gambar_barcode = data?.barcode_path && data.barcode_path !== "" ?
+                `<img src="{{ asset('storage') }}/${data.barcode_path}" width="200" class="barcode-img" alt="Barcode">` :
+                `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
 
             let edit_button = `
-            <a href='barang/edit/${data.id}' class="p-1 btn edit-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Edit ${title}: ${data.nama_barang}"
-                data-id='${data.id}'>
-                <span class="text-dark">Edit</span>
-                <div class="icon text-warning pt-1">
-                    <i class="fa fa-edit"></i>
-                </div>
-            </a>`;
+                <a href='barang/edit/${data.id}' class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit ${title}: ${data.nama_barang}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning pt-1">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
 
-            let download_button = `
-            <a href="{{ asset('storage') }}/${data.barcode_path}" download class="p-1 btn download-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Edit ${title}: ${data.nama_barang}"
-                data-id='${data.id}'>
-                <span class="text-dark">Download</span>
-                <div class="icon text-warning pt-1">
-                    <i class="fa fa-download"></i>
-                </div>
-            </a>
-            `;
+            let download_button = data?.barcode_path && data.barcode_path !== "" ?
+                `<a href="{{ asset('storage') }}/${data.barcode_path}" download class="p-1 btn download-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Unduh ${title}: ${data.nama_barang}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Unduh</span>
+                    <div class="icon text-success pt-1">
+                        <i class="fa fa-download"></i>
+                    </div>
+                </a>` :
+                ``;
 
             let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama_barang}"
-                data-id='${data.id}'
-                data-name='${data.nama_barang}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger pt-1">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
+                <a class="p-1 btn hapus-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title}: ${data.nama_barang}"
+                    data-id='${data.id}'
+                    data-name='${data.nama_barang}'>
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger pt-1">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
 
             return {
                 id: data?.id ?? '-',
-                nama_barang: data?.nama_barang ?? '-',
-                barcode: data?.barcode ?? '-',
-                nama_jenis_barang: data?.nama_jenis_barang ?? '-',
-                nama_brand: data?.nama_brand ?? '-',
-                nama_barang: data?.nama_barang ?? '-',
+                nama_barang: data?.nama_barang && data.nama_barang !== "" ? data.nama_barang :
+                    '<span class="badge badge-danger">Tidak Ada Data</span>',
+                barcode: data?.barcode && data.barcode !== "" ? data.barcode :
+                    '<span class="badge badge-danger">Tidak Ada Data</span>',
+                nama_jenis_barang: data?.nama_jenis_barang && data.nama_jenis_barang !== "" ? data.nama_jenis_barang :
+                    '<span class="badge badge-danger">Tidak Ada Data</span>',
+                nama_brand: data?.nama_brand && data.nama_brand !== "" ? data.nama_brand :
+                    '<span class="badge badge-danger">Tidak Ada Data</span>',
                 gambar_barcode,
                 edit_button,
                 download_button,
                 delete_button,
             };
         }
+
 
         async function setListData(dataList, pagination) {
             totalPage = pagination.total_pages;
