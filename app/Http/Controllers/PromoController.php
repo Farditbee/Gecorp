@@ -63,7 +63,7 @@ class PromoController extends Controller
             return [
                 'id' => $item['id'],
                 'nama_barang' => $item['barang']->nama_barang,
-                'nama_toko' => $item['toko']->nama_toko,
+                'nama_toko' => $item['toko']->nama_toko ?? "Tak Ada Toko",
                 'minimal' => $item->minimal,
                 'diskon' => $item->diskon,
                 'jumlah' => $item->jumlah,
