@@ -66,10 +66,10 @@ class BarangController extends Controller
             $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
 
             // Generate barcode value
-            $barcodeValue = $request->barcode ?: $initials . '-' . random_int(100000, 999999);
+            $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
 
             // Generate barcode as PNG file
-            $barcodeFilename = "barcodes/{$barcodeValue}.jpg";
+            $barcodeFilename = "barcodes/{$barcodeValue}.png";
             if (!Storage::exists($barcodeFilename)) {
             $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
 
@@ -116,7 +116,7 @@ class BarangController extends Controller
             return Storage::download($barang->barcode_path, $filename);
         }
 
-        return redirect()->back()->with('error', 'QR Code tidak ditemukan.');
+        return redirect()->back()->with('error', 'Barcode tidak ditemukan.');
     }
 
     public function edit(string $id)

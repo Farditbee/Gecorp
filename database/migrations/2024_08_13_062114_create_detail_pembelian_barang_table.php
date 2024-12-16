@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('detail_pembelian_barang', function (Blueprint $table) {
             $table->id('id');
+            $table->string('qrcode')->nullable();
+            $table->string('qrcode_path')->nullable();
             $table->string('id_pembelian_barang')->nullable();
             $table->string('id_barang')->nullable();
             $table->string('nama_barang')->nullable();

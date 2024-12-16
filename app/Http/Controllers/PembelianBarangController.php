@@ -11,6 +11,7 @@ use App\Models\StockBarang;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PembelianBarangController extends Controller
 {
@@ -189,7 +190,6 @@ class PembelianBarangController extends Controller
         ]);
     }
 
-    // Test buat pembelian
     public function update(Request $request, $id)
     {
         $idBarangs = $request->input('id_barang', []);
@@ -207,6 +207,8 @@ class PembelianBarangController extends Controller
             $totalItem = 0;
             $totalNilai = 0;
 
+            $counter = 1; // Nomor urut barang dalam pembelian
+
             foreach ($idBarangs as $index => $id_barang) {
                 $qty = $qtys[$index] ?? null;
                 $harga_barang = $hargaBarangs[$index] ?? null;
@@ -219,6 +221,24 @@ class PembelianBarangController extends Controller
                 if ($id_barang && $qty > 0 && $harga_barang > 0) {
                     $barang = Barang::findOrFail($id_barang);
 
+                    // Generate QR Code Value
+                    $tglNota = \Carbon\Carbon::parse($pembelian->tgl_nota)->format('dmY');
+                    $idSupplier = $pembelian->id_supplier;         // ID Supplier
+                    $idPembelian = $pembelian->id;                // ID Pembelian
+                    $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
+            
+                    // Path QR code for this barang
+                    $qrCodePath = 'qrcodes/pembelian/' . $barang->barcode . "-{$counter}.png";
+                    $fullPath = storage_path('app/public/' . $qrCodePath);
+
+                    // Buat folder jika belum ada
+                    if (!file_exists(dirname($fullPath))) {
+                        mkdir(dirname($fullPath), 0755, true);
+                    }
+                    
+                    // Generate QR Code
+                    QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
+                    
                     $detail = DetailPembelianBarang::updateOrCreate(
                         [
                             'id_pembelian_barang' => $pembelian->id,
@@ -229,6 +249,8 @@ class PembelianBarangController extends Controller
                             'qty' => $qty,
                             'harga_barang' => $harga_barang,
                             'total_harga' => $qty * $harga_barang,
+                            'qrcode' => $qrCodeValue, // Simpan QR Code Value
+                            'qrcode_path' => $qrCodePath, // Simpan Path QR Code
                         ]
                     );
 
@@ -278,6 +300,8 @@ class PembelianBarangController extends Controller
                     $stockBarang->nilai_total = $hpp_baru * $stockBarang->stock;
                     $stockBarang->nama_barang = $barang->nama_barang;
                     $stockBarang->save();
+
+                    $counter++;
                 }
             }
 

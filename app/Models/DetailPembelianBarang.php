@@ -19,7 +19,9 @@ class DetailPembelianBarang extends Model
         'nama_barang', 
         'qty', 
         'harga_barang', 
-        'total_harga'
+        'total_harga',
+        'qrcode',
+        'qrcode_path',
     ];
 
     public function pembelian()

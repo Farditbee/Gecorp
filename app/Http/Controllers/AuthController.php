@@ -28,6 +28,8 @@ class AuthController extends Controller
         try {
             $credentials = $request->only('username', 'password');
 
+            ActivityLogger::log('Login', []);
+
             if (Auth::attempt($credentials)) {
                 $request->session()->regenerate();
                 $user = Auth::user();
