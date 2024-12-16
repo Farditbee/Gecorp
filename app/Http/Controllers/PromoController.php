@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class PromoController extends Controller
 {
-    public function getlevelharga(Request $request)
+    public function getpromo(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
