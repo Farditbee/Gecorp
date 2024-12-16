@@ -26,12 +26,10 @@ class BarangController extends Controller
 
             $query->where(function ($query) use ($searchTerm) {
                 // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(kode_barcode) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(barcode) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
-
-                // Pencarian pada relasi 'supplier->nama_supplier'
                 $query->orWhereHas('jenis', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
+                    $subquery->whereRaw("LOWER(nama_jenis_barang) LIKE ?", ["%$searchTerm%"]);
                 });
                 $query->orWhereHas('brand', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_brand) LIKE ?", ["%$searchTerm%"]);
