@@ -20,7 +20,6 @@ class StockBarangController extends Controller
     $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
     $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-    // Periksa apakah toko ID tersedia di request
     $idToko = $request->input('id_toko');
 
         // Ambil data stok barang dari tabel 'stock_barang'
