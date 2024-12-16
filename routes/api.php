@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisBarangController;
@@ -37,3 +38,4 @@ Route::get('/getbrand', [BrandController::class, 'getbrand'])->name('master.getb
 Route::get('/getleveluser', [LevelUserController::class, 'getleveluser'])->name('master.getleveluser');
 Route::get('/getlevelharga', [LevelHargaController::class, 'getlevelharga'])->name('master.getlevelharga');
 Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getpromo');
+Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master.getbarangs');
