@@ -466,7 +466,7 @@
         async function handleTopPenjualan(data) {
             let nama_barang = data?.nama_barang ?? '-';
             let dataJumlah = data?.jumlah ?? '-';
-            let total_penjualan = data?.total_penjualan ?? 0;
+            let total_nilai = data?.total_nilai ?? 0;
 
             let fontSize = dataJumlah.toString().length > 3 ?
                 '0.50rem' :
@@ -490,7 +490,7 @@
             let handleData = {
                 nama_barang: nama_barang === '' ? '-' : nama_barang,
                 jumlah: dataJumlah === '' ? '-' : jumlah,
-                total_penjualan: total_penjualan === '' ? '-' : formatRupiah(total_penjualan),
+                total_nilai: total_nilai === '' ? '-' : formatRupiah(total_nilai),
             };
 
             return handleData;
@@ -512,7 +512,7 @@
                                 </p>
                                 <div class="text-right">
                                     <p class="m-b-0 font-weight-bold">Total</p>
-                                    <p class="m-b-0"><span>${element.total_penjualan}</span></p>
+                                    <p class="m-b-0"><span>${element.total_nilai}</span></p>
                                 </div>
                             </div>
                         </div>

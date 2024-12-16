@@ -23,16 +23,9 @@ class StockBarangController extends Controller
     // Periksa apakah toko ID tersedia di request
     $idToko = $request->input('id_toko');
 
-    if ($idToko == 1) {
         // Ambil data stok barang dari tabel 'stock_barang'
         $query = StockBarang::with(['barang', 'toko'])
                             ->orderBy('id', $meta['orderBy']);
-    } else {
-        // Ambil stok barang dari tabel 'detail_toko' untuk toko selain ID = 1
-        $query = DetailToko::with(['barang', 'toko'])
-                           ->where('id_toko', '!=', 1)
-                           ->orderBy('id', $meta['orderBy']);
-    }
 
     // Tambahkan filter pencarian jika ada
     if (!empty($request['search'])) {
@@ -66,6 +59,7 @@ class StockBarangController extends Controller
     $mappedData = collect($data->items())->map(function ($item) {
         return [
             'id' => $item->id,
+            'id_barang' => $item->barang->id ?? null,
             'nama_barang' => $item->barang->nama_barang ?? null,
             'hpp_baru' => $item->hpp_baru,
             'stock' => $item->stock,
