@@ -1,444 +1,550 @@
 <title>Data Stock Barang - Gecorp</title>
 @extends('layouts.main')
 
-@section('content')
-<style>
-    .highlight-row {
-    background-color: #87fc87 !important; /* Gunakan !important jika perlu */
-}
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+@endsection
 
-</style>
-<div class="pcoded-main-container">
-    <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Data Stock Barang</h5>
+@section('content')
+    <div class="pcoded-main-container">
+        <div class="pcoded-content pt-1 mt-1">
+            <div class="page-header">
+                <div class="page-block">
+                    <div class="row align-items-center">
+                        <div class="col-md-12">
+                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
+                                <li class="breadcrumb-item"><a href="{{ route('master.index') }}"><i
+                                            class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item">
+                                    <b class="font-weight-bold">Data Stock Barang</b>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a>Data Stock Barang</a></li>
-                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- [ breadcrumb ] end -->
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="d-flex mb-2 mb-lg-0">
+                                @if (Auth::user()->id_level == 1)
+                                    <a href="{{ route('master.pembelianbarang.index') }}" class="mr-2 btn btn-primary">
+                                        <i class="fa fa-circle-plus"></i> Tambah
+                                    </a>
+                                @else
+                                    <a href="{{ route('master.pembelianbarang.index') }}"
+                                        class="mr-2 btn btn-secondary disabled">
+                                        <i class="fa fa-circle-plus"></i> Tambah
+                                    </a>
+                                @endif
+                            </div>
 
-        <!-- [ Main Content ] start -->
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah -->
-                        <a href="{{ route('master.pembelianbarang.index') }}" class="btn btn-primary">
-                            <i class="ti-plus menu-icon"></i> Tambah
-                        </a>
-                        <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.stockbarang.index') }}">
-                            <input class="form-control me-2" id="search" type="search" name="search"
-                                placeholder="Cari Barang" aria-label="Search">
-                        </form>
-                    </div>
-                    <x-adminlte-alerts />
-                    <div class="card-body table-border-style">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="jsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th class="barcode-column">Barcode</th>
-                                        <th>Nama Barang</th>
-                                        <th>Jenis Barang</th>
-                                        @if  (Auth::user()->id_level == 1)
-                                            <th>Stock</th>
-                                            <th>Harga Satuan (Hpp Baru)</th>
-                                        @endif
-                                        <th>Detail</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $no = 1; ?>
-                                    @foreach ($stock as $stk)
-                                        <tr data-toggle="modal" class="atur-harga-btn" data-target="#mediumModal-{{ $stk->id }}" data-id_barang="{{ $stk->id_barang }}" data-id="{{ $stk->id }}">
-                                            <td>{{ $no++ }}</td>
-                                            <td class="barcode-column">{{ $stk->barang->barcode }}</td>
-                                            <td>{{ $stk->nama_barang }}</td>
-                                            <td>{{ $stk->barang->jenis->nama_jenis_barang }}</td>
-                                            @if  (Auth::user()->id_level == 1)
-                                                <td>{{ $stk->stock }}</td>
-                                                <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
-                                            @endif
-                                            <td>
-                                                <button type="button" class="btn btn-primary btn-sm atur-harga-btn" data-toggle="modal" data-target="#mediumModal-{{ $stk->id }}" data-id_barang="{{ $stk->id_barang }}" data-id="{{ $stk->id }}" style="font-size: 12px;">
-                                                    Cek Detail
-                                                </button>
-                                            </td>
-                                            <form onsubmit="return confirm('Ingin menghapus Data ini ?');" action="#" method="POST">
-                                                <td>
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                </td>
-                                            </form>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-
-                            @foreach ($stock as $stk)
-                                <div class="modal fade" id="mediumModal-{{ $stk->id }}" tabindex="-1"
-                                    role="dialog" aria-labelledby="mediumModalLabel-{{ $stk->id }}"
-                                    aria-hidden="true">
-                                    <div class="modal-dialog modal-lg" role="document">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title"
-                                                    id="mediumModalLabel-{{ $stk->id }}">
-                                                    {{ $stk->barang->nama_barang }} : @php
-                                                    $stokBarang = $stock->where('id_barang', $stk->id_barang)->first();
-                                                @endphp
-                                                Rp. {{ number_format($stokBarang->hpp_baru, 0, ',', '.') }}</h5>
-                                                <button type="button" class="close" data-dismiss="modal"
-                                                    aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <ul class="nav nav-tabs mb-3" id="myTab-{{ $stk->id }}"
-                                                    role="tablist">
-                                                    <li class="nav-item">
-                                                        <a class="nav-link active text-uppercase"
-                                                            id="home-tab-{{ $stk->id }}" data-toggle="tab"
-                                                            href="#home-{{ $stk->id }}" role="tab"
-                                                            aria-controls="home-{{ $stk->id }}"
-                                                            aria-selected="true">Barang Di Toko</a>
-                                                    </li>
-
-                                                    @if  (Auth::user()->id_level == 1)
-                                                    <li class="nav-item">
-                                                        <a class="nav-link text-uppercase"
-                                                            id="atur-harga-tab-{{ $stk->id }}"
-                                                            data-toggle="tab"
-                                                            href="#atur-harga-{{ $stk->id }}"
-                                                            role="tab"
-                                                            aria-controls="atur-harga-{{ $stk->id }}"
-                                                            aria-selected="false">Atur Harga</a>
-                                                    </li>
-                                                    @endif
-                                                </ul>
-                                                <div class="tab-content" id="myTabContent-{{ $stk->id }}">
-                                                    <div class="tab-pane fade show active"
-                                                        id="home-{{ $stk->id }}" role="tabpanel"
-                                                        aria-labelledby="home-tab-{{ $stk->id }}">
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-striped"
-                                                                        id="jsTable-{{ $stk->id }}">
-                                                                        <thead>
-                                                                            <tr>
-                                                                                <th>Nama Toko</th>
-                                                                                <th>Stock</th>
-                                                                                @if  (Auth::user()->id_level == 1)
-                                                                                <th>Level Harga</th>
-                                                                                @endif
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            @php
-                                                                                $idTokoLogin = auth()->user()->id_toko;
-                                                                                $toko = $toko->sortByDesc(function($tk) use ($idTokoLogin) {
-                                                                                    return $tk->id == $idTokoLogin ? 1 : 0;
-                                                                                });
-                                                                            @endphp
-                                                                            @foreach ($toko as $index => $tk)
-                                                                            <tr class="{{ $tk->id == $idTokoLogin ? 'highlight-row' : '' }}">
-                                                                                <td>{{ $tk->nama_toko }}</td>
-                                                                                    @if ($tk->id == 1)
-                                                                                        {{-- Tampilkan stok dari tabel stock_barang untuk toko dengan id = 1 --}}
-                                                                                        @php
-                                                                                            // Ambil stok dari tabel stock_barang hanya untuk barang yang sedang diklik
-                                                                                            $stokBarangTokoUtama = $stock
-                                                                                                ->where('id_barang',$stk->id_barang,)
-                                                                                                ->first();
-                                                                                        @endphp
-
-                                                                                        @if ($stokBarangTokoUtama)
-                                                                                            <td>{{ $stokBarangTokoUtama->stock }}
-                                                                                            </td>
-                                                                                        @else
-                                                                                            <td>0</td>
-                                                                                        @endif
-                                                                                    @else
-                                                                                        {{-- Tampilkan stok dari tabel detail_toko untuk toko selain id = 1 --}}
-                                                                                        @php
-                                                                                            // Ambil stok dari tabel detail_toko hanya untuk barang yang sedang diklik
-                                                                                            $stokBarangLain = $stokTokoLain
-                                                                                                ->where(
-                                                                                                    'id_barang',
-                                                                                                    $stk->id_barang,
-                                                                                                )
-                                                                                                ->where(
-                                                                                                    'id_toko',
-                                                                                                    $tk->id,
-                                                                                                )
-                                                                                                ->first();
-                                                                                        @endphp
-                                                                                        @if ($stokBarangLain)
-                                                                                            <td>{{ $stokBarangLain->qty }}
-                                                                                            </td>
-                                                                                        @else
-                                                                                            <td>0</td>
-                                                                                        @endif
-                                                                                    @endif
-                                                                                    @if  (Auth::user()->id_level == 1)
-                                                                                    <td>
-                                                                                        @php
-                                                                                            $levelHargaArray =
-                                                                                                json_decode(
-                                                                                                    $tk->id_level_harga,
-                                                                                                    true,
-                                                                                                ) ?? [];
-                                                                                            if (
-                                                                                                is_int(
-                                                                                                    $levelHargaArray,
-                                                                                                )
-                                                                                            ) {
-                                                                                                $levelHargaArray = [
-                                                                                                    $levelHargaArray,
-                                                                                                ];
-                                                                                            }
-                                                                                        @endphp
-                                                                                        @if (!empty($levelHargaArray) && is_array($levelHargaArray))
-                                                                                            @foreach ($levelHargaArray as $levelHargaId)
-                                                                                                @php
-                                                                                                    $levelHarga = \App\Models\LevelHarga::find(
-                                                                                                        $levelHargaId,
-                                                                                                    );
-                                                                                                @endphp
-                                                                                                {{ $levelHarga ? $levelHarga->nama_level_harga : 'N/A' }}
-                                                                                                @if (!$loop->last)
-                                                                                                    ,
-                                                                                                @endif
-                                                                                            @endforeach
-                                                                                        @else
-                                                                                            Tidak Ada Level
-                                                                                            Harga
-                                                                                        @endif
-                                                                                    </td>
-                                                                                    @endif
-                                                                                </tr>
-                                                                            @endforeach
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="tab-pane fade" id="atur-harga-{{ $stk->id }}" role="tabpanel" aria-labelledby="atur-harga-tab-{{ $stk->id }}">
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <div class="harga-form" id="harga-form-{{ $stk->id_barang }}">
-                                                                    <form method="POST" action="{{ route('updateLevelHarga') }}" class="level-harga-form">
-                                                                        @csrf
-                                                                        <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
-
-                                                                        @foreach ($levelharga as $index => $lh)
-                                                                        <div class="input-group mb-3">
-                                                                            <div class="input-group-prepend">
-                                                                                <span class="input-group-text">{{ $lh->nama_level_harga }}</span>
-                                                                            </div>
-                                                                            <!-- Input visible untuk harga level -->
-                                                                            <input type="text" name="level_harga[]"
-                                                                                id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
-                                                                                class="form-control level-harga"
-                                                                                placeholder="Atur harga baru"
-                                                                                value="{{ isset($lh->harga) }}"
-                                                                                oninput="formatCurrency(this)"
-                                                                                onblur="updateRawValue(this, {{ $index }})">
-
-                                                                            <!-- Hidden input untuk menyimpan raw value -->
-                                                                            <input type="hidden"
-                                                                                id="level_harga_raw_{{ $index }}"
-                                                                                name="harga_level_{{ str_replace(' ', '_', $lh->nama_level_harga) }}_barang_{{ $stk->id_barang }}"
-                                                                                value="{{ isset($lh->harga) ? $lh->harga : '' }}"> <!-- Pastikan hidden input menyimpan nilai awal -->
-                                                                            <input type="hidden" name="level_nama[]" value="{{ $lh->nama_level_harga}}">
-
-                                                                            <div class="input-group-append">
-                                                                                <span class="input-group-text" id="persen-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}">0%</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        @endforeach
-                                                                        <button type="submit" class="btn btn-primary">Update</button>
-                                                                        <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}" value="{{ $stokBarang->hpp_baru }}">
-                                                                    </form>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="tab-pane fade"
-                                                        id="contact-{{ $stk->id }}" role="tabpanel"
-                                                        aria-labelledby="contact-tab-{{ $stk->id }}">
-                                                        Another Tab
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-dismiss="modal">Tutup</button>
-                                            </div>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap">
+                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
+                                    style="width: 100px;">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            </div>
+                        </div>
+                        <div class="content">
+                            <x-adminlte-alerts />
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-scroll-wrapper">
+                                    <table class="table table-hover m-0">
+                                        <thead>
+                                            <tr class="tb-head atur-harga-btn">
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Barcode</th>
+                                                <th class="text-wrap align-top">Nama Barang</th>
+                                                <th class="text-wrap align-top">Jenis Barang</th>
+                                                @if (Auth::user()->id_level == 1)
+                                                    <th class="text-wrap align-top">Stock</th>
+                                                    <th class="text-wrap align-top">Harga Satuan (Hpp Baru)</th>
+                                                @endif
+                                                <th class="text-wrap align-top">Detail</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listData">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
+                                    <div class="text-center text-md-start mb-2 mb-md-0">
+                                        <div class="pagination">
+                                            <div>Menampilkan <span id="countPage">0</span> dari <span
+                                                    id="totalPage">0</span> data</div>
                                         </div>
                                     </div>
+                                    <nav class="text-center text-md-end">
+                                        <ul class="pagination justify-content-center justify-content-md-end"
+                                            id="pagination-js">
+                                        </ul>
+                                    </nav>
                                 </div>
-                            @endforeach
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    Menampilkan <span id="current-count">0</span> data dari <span
-                                        id="total-count">0</span> total data.
-                                </div>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-end" id="pagination">
-                                        {{-- isian paginate --}}
-                                    </ul>
-                                </nav>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    @foreach ($stock as $stk)
+        <div class="modal fade" id="mediumModal-{{ $stk->id }}" tabindex="-1" role="dialog"
+            aria-labelledby="mediumModalLabel-{{ $stk->id }}" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="mediumModalLabel-{{ $stk->id }}">
+                            {{ $stk->barang->nama_barang }} : @php
+                                $stokBarang = $stock->where('id_barang', $stk->id_barang)->first();
+                            @endphp
+                            Rp. {{ number_format($stokBarang->hpp_baru, 0, ',', '.') }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="nav nav-tabs mb-3" id="myTab-{{ $stk->id }}" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active text-uppercase" id="home-tab-{{ $stk->id }}"
+                                    data-toggle="tab" href="#home-{{ $stk->id }}" role="tab"
+                                    aria-controls="home-{{ $stk->id }}" aria-selected="true">Barang Di Toko</a>
+                            </li>
 
-<script>
-    $(document).ready(function() {
-    // Menyembunyikan kolom barcode
-    $(".barcode-column").hide();
-});
-</script>
+                            @if (Auth::user()->id_level == 1)
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase" id="atur-harga-tab-{{ $stk->id }}"
+                                        data-toggle="tab" href="#atur-harga-{{ $stk->id }}" role="tab"
+                                        aria-controls="atur-harga-{{ $stk->id }}" aria-selected="false">Atur
+                                        Harga</a>
+                                </li>
+                            @endif
+                        </ul>
+                        <div class="tab-content" id="myTabContent-{{ $stk->id }}">
+                            <div class="tab-pane fade show active" id="home-{{ $stk->id }}" role="tabpanel"
+                                aria-labelledby="home-tab-{{ $stk->id }}">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped" id="jsTable-{{ $stk->id }}">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Nama Toko</th>
+                                                        <th>Stock</th>
+                                                        @if (Auth::user()->id_level == 1)
+                                                            <th>Level Harga</th>
+                                                        @endif
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @php
+                                                        $idTokoLogin = auth()->user()->id_toko;
+                                                        $toko = $toko->sortByDesc(function ($tk) use ($idTokoLogin) {
+                                                            return $tk->id == $idTokoLogin ? 1 : 0;
+                                                        });
+                                                    @endphp
+                                                    @foreach ($toko as $index => $tk)
+                                                        <tr class="{{ $tk->id == $idTokoLogin ? 'highlight-row' : '' }}">
+                                                            <td>{{ $tk->nama_toko }}</td>
+                                                            @if ($tk->id == 1)
+                                                                {{-- Tampilkan stok dari tabel stock_barang untuk toko dengan id = 1 --}}
+                                                                @php
+                                                                    // Ambil stok dari tabel stock_barang hanya untuk barang yang sedang diklik
+                                                                    $stokBarangTokoUtama = $stock
+                                                                        ->where('id_barang', $stk->id_barang)
+                                                                        ->first();
+                                                                @endphp
 
-<script>
-    // Simpan ID tab aktif saat user klik submit
-    document.querySelectorAll('.level-harga-form').forEach(form => {
-        form.addEventListener('submit', function() {
-            const activeTabId = document.querySelector('.tab-pane.active').id; // Ambil ID tab aktif
-            localStorage.setItem('activeTab', activeTabId); // Simpan di local storage
-        });
-    });
+                                                                @if ($stokBarangTokoUtama)
+                                                                    <td>{{ $stokBarangTokoUtama->stock }}
+                                                                    </td>
+                                                                @else
+                                                                    <td>0</td>
+                                                                @endif
+                                                            @else
+                                                                {{-- Tampilkan stok dari tabel detail_toko untuk toko selain id = 1 --}}
+                                                                @php
+                                                                    // Ambil stok dari tabel detail_toko hanya untuk barang yang sedang diklik
+                                                                    $stokBarangLain = $stokTokoLain
+                                                                        ->where('id_barang', $stk->id_barang)
+                                                                        ->where('id_toko', $tk->id)
+                                                                        ->first();
+                                                                @endphp
+                                                                @if ($stokBarangLain)
+                                                                    <td>{{ $stokBarangLain->qty }}
+                                                                    </td>
+                                                                @else
+                                                                    <td>0</td>
+                                                                @endif
+                                                            @endif
+                                                            @if (Auth::user()->id_level == 1)
+                                                                <td>
+                                                                    @php
+                                                                        $levelHargaArray =
+                                                                            json_decode($tk->id_level_harga, true) ??
+                                                                            [];
+                                                                        if (is_int($levelHargaArray)) {
+                                                                            $levelHargaArray = [$levelHargaArray];
+                                                                        }
+                                                                    @endphp
+                                                                    @if (!empty($levelHargaArray) && is_array($levelHargaArray))
+                                                                        @foreach ($levelHargaArray as $levelHargaId)
+                                                                            @php
+                                                                                $levelHarga = \App\Models\LevelHarga::find(
+                                                                                    $levelHargaId,
+                                                                                );
+                                                                            @endphp
+                                                                            {{ $levelHarga ? $levelHarga->nama_level_harga : 'N/A' }}
+                                                                            @if (!$loop->last)
+                                                                                ,
+                                                                            @endif
+                                                                        @endforeach
+                                                                    @else
+                                                                        Tidak Ada Level
+                                                                        Harga
+                                                                    @endif
+                                                                </td>
+                                                            @endif
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="atur-harga-{{ $stk->id }}" role="tabpanel"
+                                aria-labelledby="atur-harga-tab-{{ $stk->id }}">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="harga-form" id="harga-form-{{ $stk->id_barang }}">
+                                            <form method="POST" action="{{ route('updateLevelHarga') }}"
+                                                class="level-harga-form">
+                                                @csrf
+                                                <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
 
-    // Cek apakah ada tab aktif yang disimpan di Local Storage
-    document.addEventListener('DOMContentLoaded', function () {
-        // Cek apakah ada fragment di URL
-        let fragment = window.location.hash;
-        if (fragment) {
-            // Temukan tab yang sesuai dengan fragment
-            let activeTab = document.querySelector(`a[href="${fragment}"]`);
-            if (activeTab) {
-                // Aktifkan tab yang sesuai
-                new bootstrap.Tab(activeTab).show();
+                                                @foreach ($levelharga as $index => $lh)
+                                                    <div class="input-group mb-3">
+                                                        <div class="input-group-prepend">
+                                                            <span
+                                                                class="input-group-text">{{ $lh->nama_level_harga }}</span>
+                                                        </div>
+                                                        <!-- Input visible untuk harga level -->
+                                                        <input type="text" name="level_harga[]"
+                                                            id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
+                                                            class="form-control level-harga" placeholder="Atur harga baru"
+                                                            value="{{ isset($lh->harga) }}"
+                                                            oninput="formatCurrency(this)"
+                                                            onblur="updateRawValue(this, {{ $index }})">
+
+                                                        <!-- Hidden input untuk menyimpan raw value -->
+                                                        <input type="hidden" id="level_harga_raw_{{ $index }}"
+                                                            name="harga_level_{{ str_replace(' ', '_', $lh->nama_level_harga) }}_barang_{{ $stk->id_barang }}"
+                                                            value="{{ isset($lh->harga) ? $lh->harga : '' }}">
+                                                        <!-- Pastikan hidden input menyimpan nilai awal -->
+                                                        <input type="hidden" name="level_nama[]"
+                                                            value="{{ $lh->nama_level_harga }}">
+
+                                                        <div class="input-group-append">
+                                                            <span class="input-group-text"
+                                                                id="persen-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}">0%</span>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                                <button type="submit" class="btn btn-primary">Update</button>
+                                                <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}"
+                                                    value="{{ $stokBarang->hpp_baru }}">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane fade" id="contact-{{ $stk->id }}" role="tabpanel"
+                                aria-labelledby="contact-tab-{{ $stk->id }}">
+                                Another Tab
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+@endsection
+
+@section('asset_js')
+    <script src="{{ asset('js/pagination.js') }}"></script>
+@endsection
+
+@section('js')
+    <script>
+        let title = 'Stock Barang';
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.getstockbarang') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                $('#listData').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
             }
         }
-    });
-</script>
 
-<script>
-    const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
-    aturHargaButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
-            const id_barang = button.getAttribute('data-id_barang');
-            const id_modal = button.getAttribute('data-id');
-            const modalId = `#atur-harga-${id_modal}`;
+        async function handleData(data) {
+            let detail_button = `
+            <button class="p-1 btn detail-data btn-primary"
+                data-toggle="modal" data-target="#mediumModal-${data.id}"
+                title="Detail ${title}: ${data.nama_barang}"
+                data-id='${data.id}'>
+                <span class="text-white"><i class="fa fa-eye mr-1"></i>Detail</span>
+            </button>`;
 
-            fetch(`/admin/get-stock-details/${id_barang}`)
-                .then(response => response.json())
-                .then(data => {
-                    const modal = document.querySelector(modalId);
-                    if (modal) {
-                        let hppBaru = parseFloat(document.querySelector(`#hpp-baru-${id_barang}`).value) || 0;
-                        console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
+            let delete_button = `
+            <button class="p-1 btn hapus-data action_button"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Hapus ${title}: ${data.nama_barang}"
+                data-id='${data.id}'
+                data-name='${data.nama_barang}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger pt-1">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </button>`;
 
-                        modal.querySelectorAll('.level-harga').forEach(function(input) {
-                            input.setAttribute('data-hpp-baru', hppBaru);
-                        });
+            return {
+                id: data?.id ?? '-',
+                nama_barang: data?.nama_barang ?? '-',
+                barcode: data?.barcode ?? '-',
+                jenis_nama_barang: data?.jenis_nama_barang ?? '-',
+                stock: data?.stock ?? '-',
+                harga_satuan: data?.harga_satuan ?? '-',
+                detail_button,
+                delete_button,
+            };
+        }
 
-                        Object.keys(data.level_harga).forEach(function(level_name) {
-                            const inputField = modal.querySelector(`#harga-${id_barang}-${level_name.replace(' ', '-')}`);
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
-                            if (inputField) {
-                                let levelHarga = parseFloat(data.level_harga[level_name].replace(/,/g, ''));
-                                inputField.setAttribute('data-raw-value', levelHarga); // Simpan nilai asli
-                                inputField.value = levelHarga.toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.barcode}</td>
+                        <td class="${classCol}">${element.nama_barang}</td>
+                        <td class="${classCol}">${element.jenis_nama_barang}</td>
+                        <td class="${classCol}">${element.stock}</td>
+                        <td class="${classCol}">${element.harga_satuan}</td>
+                        <td class="${classCol}">${element.detail_button}</td>
+                        <td class="${classCol}">
+                            <div class="d-flex justify-content-center w-100">
+                                <div class="hovering p-1">
+                                    ${element.delete_button}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>`;
+            });
 
-                                calculatePercentage(inputField, hppBaru);
+            $('#listData').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            renderPagination();
+        }
 
-                                inputField.addEventListener('input', function() {
-                                    let rawValue = this.value.replace(/[^0-9]/g, '');
-                                    this.setAttribute('data-raw-value', rawValue);
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                isActionForm = "destroy";
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
 
-                                    if (rawValue) {
-                                        this.value = parseInt(rawValue).toLocaleString();
-                                    } else {
-                                        this.value = '';
-                                    }
+                swal({
+                    title: `Hapus ${title} ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `stock_barang/delete/${id}`
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
 
-                                    calculatePercentage(inputField, hppBaru);
-                                });
-                            }
-                        });
-                    } else {
-                        console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
+                }).catch(swal.noop);
+            })
+        }
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+            await deleteData();
+
+            const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
+            aturHargaButtons.forEach(button => {
+                button.addEventListener('click', function(event) {
+                    const id_barang = button.getAttribute('data-id_barang');
+                    const id_modal = button.getAttribute('data-id');
+                    const modalId = `#atur-harga-${id_modal}`;
+
+                    fetch(`/admin/get-stock-details/${id_barang}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const modal = document.querySelector(modalId);
+                            if (modal) {
+                                let hppBaru = parseFloat(document.querySelector(
+                                    `#hpp-baru-${id_barang}`).value) || 0;
+                                console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
+
+                                modal.querySelectorAll('.level-harga').forEach(function(input) {
+                                    input.setAttribute('data-hpp-baru', hppBaru);
+                                });
+
+                                Object.keys(data.level_harga).forEach(function(level_name) {
+                                    const inputField = modal.querySelector(
+                                        `#harga-${id_barang}-${level_name.replace(' ', '-')}`
+                                        );
+
+                                    if (inputField) {
+                                        let levelHarga = parseFloat(data.level_harga[
+                                            level_name].replace(/,/g, ''));
+                                        inputField.setAttribute('data-raw-value',
+                                            levelHarga); // Simpan nilai asli
+                                        inputField.value = levelHarga
+                                    .toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
+
+                                        calculatePercentage(inputField, hppBaru);
+
+                                        inputField.addEventListener('input', function() {
+                                            let rawValue = this.value.replace(
+                                                /[^0-9]/g, '');
+                                            this.setAttribute('data-raw-value',
+                                                rawValue);
+
+                                            if (rawValue) {
+                                                this.value = parseInt(rawValue)
+                                                    .toLocaleString();
+                                            } else {
+                                                this.value = '';
+                                            }
+
+                                            calculatePercentage(inputField,
+                                            hppBaru);
+                                        });
+                                    }
+                                });
+                            } else {
+                                console.error(`Modal dengan ID ${modalId} tidak ditemukan.`);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching data:', error);
+                        });
                 });
-        });
-    });
+            });
 
-    function calculatePercentage(inputField, hppBaru) {
-        let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0;
-        let persen = 0;
-        if (hppBaru > 0) {
-            persen = ((levelHarga - hppBaru) / hppBaru) * 100;
-        }
+            function calculatePercentage(inputField, hppBaru) {
+                let levelHarga = parseFloat(inputField.getAttribute('data-raw-value')) || 0;
+                let persen = 0;
+                if (hppBaru > 0) {
+                    persen = ((levelHarga - hppBaru) / hppBaru) * 100;
+                }
 
-        const levelName = inputField.id.split('-').slice(2).join('-');
-        const persenElement = inputField.closest('.input-group').querySelector(`#persen-${inputField.id.split('-')[1]}-${levelName}`);
-        if (persenElement) {
-            persenElement.textContent = `${persen.toFixed(2)}%`;
-            console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`);
-        }
-    }
-
-    function prepareFormData(event) {
-        event.preventDefault();
-
-        const form = event.target;
-        const levelHargaInputs = form.querySelectorAll('.level-harga');
-
-        levelHargaInputs.forEach(input => {
-            const rawValue = input.getAttribute('data-raw-value') || input.value.replace(/[^0-9]/g, '');
-
-            const hiddenInput = form.querySelector(`#${input.id}-hidden`);
-            if (hiddenInput) {
-                hiddenInput.value = rawValue;
+                const levelName = inputField.id.split('-').slice(2).join('-');
+                const persenElement = inputField.closest('.input-group').querySelector(
+                    `#persen-${inputField.id.split('-')[1]}-${levelName}`);
+                if (persenElement) {
+                    persenElement.textContent = `${persen.toFixed(2)}%`;
+                    console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`);
+                }
             }
-        });
 
-        form.submit();
-    }
+            function prepareFormData(event) {
+                event.preventDefault();
 
-    // Tambahkan event listener untuk submit form
-    document.querySelector('form').addEventListener('submit', prepareFormData);
-</script>
+                const form = event.target;
+                const levelHargaInputs = form.querySelectorAll('.level-harga');
 
+                levelHargaInputs.forEach(input => {
+                    const rawValue = input.getAttribute('data-raw-value') || input.value.replace(/[^0-9]/g, '');
 
+                    const hiddenInput = form.querySelector(`#${input.id}-hidden`);
+                    if (hiddenInput) {
+                        hiddenInput.value = rawValue;
+                    }
+                });
+
+                form.submit();
+            }
+
+            // Tambahkan event listener untuk submit form
+            document.querySelector('form').addEventListener('submit', prepareFormData);
+        }
+    </script>
 @endsection
