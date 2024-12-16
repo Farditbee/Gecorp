@@ -336,7 +336,7 @@
 
         async function handleData(data) {
             let detail_button = `
-            <button class="p-1 btn detail-data btn-primary"
+            <button class="p-1 btn detail-data btn-primary atur-harga-btn"
                 data-toggle="modal" data-target="#mediumModal-${data.id}"
                 title="Detail ${title}: ${data.nama_barang}"
                 data-id='${data.id}'>
@@ -448,7 +448,7 @@
             const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
             aturHargaButtons.forEach(button => {
                 button.addEventListener('click', function(event) {
-                    const id_barang = button.getAttribute('data-id_barang');
+                    const id_barang = button.getAttribute('data-id');
                     const id_modal = button.getAttribute('data-id');
                     const modalId = `#atur-harga-${id_modal}`;
 

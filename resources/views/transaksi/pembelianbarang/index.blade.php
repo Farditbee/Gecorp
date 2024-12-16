@@ -37,14 +37,14 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
+                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
 
                                 <form id="custom-filter"
-                                    class="d-flex justify-content-between align-items-center mx-2 mt-3">
+                                    class="d-flex justify-content-between align-items-center mx-2">
                                     <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
                                     <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
