@@ -62,7 +62,7 @@
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-hover m-0">
                                         <thead>
-                                            <tr class="tb-head atur-harga-btn">
+                                            <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama Barang</th>
                                                 @if (Auth::user()->id_level == 1)
@@ -336,10 +336,10 @@
 
         async function handleData(data) {
             let detail_button = `
-            <button class="p-1 btn detail-data btn-primary atur-harga-btn"
+            <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
                 data-toggle="modal" data-target="#mediumModal-${data.id}"
                 title="Detail ${title}: ${data.nama_barang}"
-                data-id='${data.id}'>
+                data-id='${data.id}' data-id-barang='${data.id_barang}'>
                 <span class="text-white"><i class="fa fa-eye mr-1"></i>Detail</span>
             </button>`;
 
@@ -440,15 +440,11 @@
             })
         }
 
-        async function initPageLoad() {
-            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
-            await searchList();
-            await deleteData();
-
+        async function detailPage() {
             const aturHargaButtons = document.querySelectorAll('.atur-harga-btn');
             aturHargaButtons.forEach(button => {
                 button.addEventListener('click', function(event) {
-                    const id_barang = button.getAttribute('data-id');
+                    const id_barang = button.getAttribute('data-id-barang');
                     const id_modal = button.getAttribute('data-id');
                     const modalId = `#atur-harga-${id_modal}`;
 
@@ -468,7 +464,7 @@
                                 Object.keys(data.level_harga).forEach(function(level_name) {
                                     const inputField = modal.querySelector(
                                         `#harga-${id_barang}-${level_name.replace(' ', '-')}`
-                                        );
+                                    );
 
                                     if (inputField) {
                                         let levelHarga = parseFloat(data.level_harga[
@@ -476,7 +472,7 @@
                                         inputField.setAttribute('data-raw-value',
                                             levelHarga); // Simpan nilai asli
                                         inputField.value = levelHarga
-                                    .toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
+                                            .toLocaleString(); // Tampilkan nilai dengan pemisah ribuan
 
                                         calculatePercentage(inputField, hppBaru);
 
@@ -494,7 +490,7 @@
                                             }
 
                                             calculatePercentage(inputField,
-                                            hppBaru);
+                                                hppBaru);
                                         });
                                     }
                                 });
@@ -544,6 +540,13 @@
 
             // Tambahkan event listener untuk submit form
             document.querySelector('form').addEventListener('submit', prepareFormData);
+        }
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+            await deleteData();
+            await detailPage();
         }
     </script>
 @endsection
