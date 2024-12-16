@@ -305,11 +305,16 @@ class MemberController extends Controller
         try {
             $member->delete();
             DB::commit();
-
-            return redirect()->route('master.member.index')->with('success', 'Berhasil menghapus Data Member');
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Member'
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Member ' . $th->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Member: ' . $th->getMessage()
+            ], 500);
         }
     }
 }

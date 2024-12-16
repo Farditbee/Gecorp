@@ -87,7 +87,7 @@ class JenisBarangController extends Controller
     {
         $validatedData = $request->validate([
             'nama_jenis_barang' => 'required|max:255',
-        ],[
+        ], [
             'nama_jenis_barang.required' => 'Jenis Barang tidak boleh kosong.',
         ]);
         try {
@@ -95,7 +95,6 @@ class JenisBarangController extends Controller
             JenisBarang::create([
                 'nama_jenis_barang' => $request->nama_jenis_barang,
             ]);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -107,7 +106,7 @@ class JenisBarangController extends Controller
         //
     }
 
-    public function edit(string $id )
+    public function edit(string $id)
     {
         $jenisbarang = JenisBarang::findOrFail($id);
         return view('master.jenisbarang.edit', compact('jenisbarang'));
@@ -117,10 +116,10 @@ class JenisBarangController extends Controller
     {
         $jenisbarang = JenisBarang::findOrFail($id);
         try {
-           $jenisbarang->update([
-            'nama_jenis_barang'=> $request->nama_jenis_barang,
-           ]);
-           return redirect()->route('master.jenisbarang.index')->with('success', 'Sukses Mengubah Data Jenis Barang');
+            $jenisbarang->update([
+                'nama_jenis_barang' => $request->nama_jenis_barang,
+            ]);
+            return redirect()->route('master.jenisbarang.index')->with('success', 'Sukses Mengubah Data Jenis Barang');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -132,12 +131,17 @@ class JenisBarangController extends Controller
         $jenisbarang = JenisBarang::findOrFail($id);
         try {
             $jenisbarang->delete();
-        DB::commit();
-
-        return redirect()->route('master.jenisbarang.index')->with('success', 'Sukses menghapus Data Jenis Barang');
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Jenis Barang'
+            ]);
         } catch (\Throwable $th) {
-        DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Jenis Barang ' . $th->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Jenis Barang: ' . $th->getMessage()
+            ], 500);
         }
     }
 }

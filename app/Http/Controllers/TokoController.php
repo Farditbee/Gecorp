@@ -89,21 +89,21 @@ class TokoController extends Controller
     }
 
     public function index()
-{
-    $user = Auth::user(); // Mendapatkan user yang sedang login
+    {
+        $user = Auth::user(); // Mendapatkan user yang sedang login
 
-    // Jika level_user = 1, tampilkan semua data toko
-    if ($user->id_level == 1) {
-        $toko = Toko::orderBy('id', 'desc')->get();
-    } else {
-        // Jika level_user selain 1, tampilkan hanya toko yang sesuai dengan id_toko user yang login
-        $toko = Toko::where('id', $user->id_toko)->orderBy('id', 'desc')->get();
+        // Jika level_user = 1, tampilkan semua data toko
+        if ($user->id_level == 1) {
+            $toko = Toko::orderBy('id', 'desc')->get();
+        } else {
+            // Jika level_user selain 1, tampilkan hanya toko yang sesuai dengan id_toko user yang login
+            $toko = Toko::where('id', $user->id_toko)->orderBy('id', 'desc')->get();
+        }
+
+        $levelharga = LevelHarga::all();
+
+        return view('master.toko.index', compact('toko', 'levelharga'));
     }
-
-    $levelharga = LevelHarga::all();
-
-    return view('master.toko.index', compact('toko', 'levelharga'));
-}
 
     public function create()
     {
@@ -120,7 +120,7 @@ class TokoController extends Controller
             'id_level_harga' => 'required|array', // Validasi sebagai array
             'wilayah' => 'required|max:255',
             'alamat' => 'required|max:255',
-        ],[
+        ], [
             'nama_toko.required' => 'Nama Toko tidak boleh kosong.',
             'singkatan' => 'Singkatan Sudah Digunakan',
             'singkatan.required' => 'Singkatan Wajib di Isi.',
@@ -166,9 +166,9 @@ class TokoController extends Controller
         // dd($toko->levelharga());
 
         $detail_toko = DetailToko::where('id_toko', $id)
-                   ->with('barang')
-                   ->orderBy('id', 'desc')
-                   ->get();
+            ->with('barang')
+            ->orderBy('id', 'desc')
+            ->get();
 
         $stock = StockBarang::orderBy('id', 'desc')->get();
 
@@ -189,7 +189,7 @@ class TokoController extends Controller
             'id_barang' => 'required|max:255',
             'stock' => 'required|max:225', // Validasi sebagai array
             'harga' => 'required|max:255',
-        ],[
+        ], [
             'id_barang.required' => 'Nama Barang tidak boleh kosong.',
             'stock.required' => 'Stock Barang tidak boleh kosong.',
             'harga.required' => 'Harga tidak boleh kosong.',
@@ -224,52 +224,53 @@ class TokoController extends Controller
     {
         $toko = Toko::findOrFail($id_toko);
         $detail_toko = DetailToko::where('id', $id)
-                                ->where('id_toko', $id_toko)
-                                ->where('id_barang', $id_barang)
-                                ->firstOrFail(); // Ambil data toko berdasarkan ID
+            ->where('id_toko', $id_toko)
+            ->where('id_barang', $id_barang)
+            ->firstOrFail(); // Ambil data toko berdasarkan ID
         $barang = Barang::all(); // Cari barang berdasarkan ID dan ID toko
         // dd($detail_toko);
         return view('master.toko.edit_detail', compact('toko', 'barang', 'detail_toko'));
     }
 
     public function update(Request $request, string $id)
-{
-    $toko = Toko::findOrFail($id);
+    {
+        $toko = Toko::findOrFail($id);
 
-    // Validasi input
-    $request->validate([
-        'nama_toko' => 'required',
-        'singkatan' => 'required|max:4|unique:toko,singkatan,' . $id, // Abaikan validasi untuk data saat ini
-        'wilayah'   => 'required',
-        'alamat'    => 'required',
-    ], [
-        'singkatan.unique' => 'Singkatan sudah digunakan.', // Custom error message
-    ]);
-
-    try {
-        // Update data
-        $toko->update([
-            'nama_toko'     => $request->nama_toko,
-            'singkatan'     => $request->singkatan,
-            'wilayah'       => $request->wilayah,
-            'alamat'        => $request->alamat,
-            'id_level_harga'=> json_encode($request->id_level_harga),
+        // Validasi input
+        $request->validate([
+            'nama_toko' => 'required',
+            'singkatan' => 'required|max:4|unique:toko,singkatan,' . $id, // Abaikan validasi untuk data saat ini
+            'wilayah'   => 'required',
+            'alamat'    => 'required',
+        ], [
+            'singkatan.unique' => 'Singkatan sudah digunakan.', // Custom error message
         ]);
-    } catch (\Throwable $th) {
-        // Kembalikan dengan pesan error jika gagal
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
+
+        try {
+            // Update data
+            $toko->update([
+                'nama_toko'     => $request->nama_toko,
+                'singkatan'     => $request->singkatan,
+                'wilayah'       => $request->wilayah,
+                'alamat'        => $request->alamat,
+                'id_level_harga' => json_encode($request->id_level_harga),
+            ]);
+        } catch (\Throwable $th) {
+            // Kembalikan dengan pesan error jika gagal
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
+        }
+
+        // Redirect jika berhasil
+        return redirect()->route('master.toko.index')->with('success', 'Sukses Mengubah Data Toko');
     }
 
-    // Redirect jika berhasil
-    return redirect()->route('master.toko.index')->with('success', 'Sukses Mengubah Data Toko');
-}
-
-    public function update_detail(Request $request, string $id_toko, string $id_barang){
+    public function update_detail(Request $request, string $id_toko, string $id_barang)
+    {
         $validatedData = $request->validate([
             'id_barang' => 'required|max:255',
             'stock' => 'required|numeric', // Validasi sebagai array
             'harga' => 'required|max:255',
-        ],[
+        ], [
             'id_barang.required' => 'Nama Barang tidak boleh kosong.',
             'stock.required' => 'Stock Barang tidak boleh kosong.',
             'harga.required' => 'Harga tidak boleh kosong.',
@@ -279,8 +280,8 @@ class TokoController extends Controller
             $toko = Toko::findOrFail($id_toko);
             $harga = str_replace(',', '', $request->harga);
             $detail_toko = DetailToko::where('id_toko', $id_toko)
-            ->where('id_barang', $id_barang)
-            ->firstOrFail();
+                ->where('id_barang', $id_barang)
+                ->firstOrFail();
             // Update data Toko
             $detail_toko->update([
                 'id_toko' => $id_toko,
@@ -300,8 +301,8 @@ class TokoController extends Controller
         try {
             $toko = Toko::findOrFail($id_toko);
             $detail_toko = DetailToko::where('id_toko', $id_toko)
-            ->where('id_barang', $id_barang)
-            ->firstOrFail();
+                ->where('id_barang', $id_barang)
+                ->firstOrFail();
             // Hapus data Barang
             $detail_toko->delete();
 
@@ -317,12 +318,18 @@ class TokoController extends Controller
         $toko = Toko::findOrFail($id);
         try {
             $toko->delete();
-        DB::commit();
+            DB::commit();
 
-        return redirect()->route('master.toko.index')->with('success', 'Berhasil menghapus Data Toko');
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Toko'
+            ]);
         } catch (\Throwable $th) {
-        DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Toko' . $th->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Toko: ' . $th->getMessage()
+            ], 500);
         }
     }
 }

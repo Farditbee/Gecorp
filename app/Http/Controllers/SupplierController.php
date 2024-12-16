@@ -99,7 +99,7 @@ class SupplierController extends Controller
             'email' => 'required|max:255',
             'alamat' => 'required|max:255',
             'contact' => 'required|max:255',
-        ],[
+        ], [
             'nama_supplier.required' => 'Nama Supplier tidak boleh kosong.',
             'email.required' => 'Email tidak boleh kosong.',
             'alamat.required' => 'Alamat tidak boleh kosong.',
@@ -115,7 +115,6 @@ class SupplierController extends Controller
             ]);
 
             ActivityLogger::log('Tambah Supplier', $data);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -128,7 +127,7 @@ class SupplierController extends Controller
         //
     }
 
-    public function edit(string $id )
+    public function edit(string $id)
     {
         $supplier = Supplier::findOrFail($id);
         return view('master.supplier.edit', compact('supplier'));
@@ -139,16 +138,16 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::findOrFail($id);
         try {
-           $supplier->update([
-            'nama_supplier'=> $request->nama_supplier,
-            'email'=> $request->email,
-            'alamat'=> $request->alamat,
-            'contact'=> $request->contact,
-           ]);
-     } catch (\Throwable $th) {
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
-    }
-    return redirect()->route('master.supplier.index')->with('success', 'Sukses Mengubah Data Supplier');
+            $supplier->update([
+                'nama_supplier' => $request->nama_supplier,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'contact' => $request->contact,
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
+        }
+        return redirect()->route('master.supplier.index')->with('success', 'Sukses Mengubah Data Supplier');
     }
 
     public function delete(String $id)
@@ -157,13 +156,18 @@ class SupplierController extends Controller
         $supplier = Supplier::findOrFail($id);
         try {
             $supplier->delete();
-        DB::commit();
+            DB::commit();
 
-        return redirect()->route('master.supplier.index')->with('success', 'Berhasil menghapus Data Supplier');
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Supplier'
+            ]);
         } catch (\Throwable $th) {
-        DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Supplier ' . $th->getMessage());
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Supplier: ' . $th->getMessage()
+            ], 500);
         }
-
     }
 }

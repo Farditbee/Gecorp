@@ -135,11 +135,16 @@ class LevelUserController extends Controller
         try {
         $leveluser->delete();
         DB::commit();
-
-        return redirect()->route('master.leveluser.index')->with('success', 'Sukses menghapus Data Level User');
-        } catch (\Throwable $th) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Sukses menghapus Data Level User'
+        ]);
+    } catch (\Throwable $th) {
         DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Level User ' . $th->getMessage());
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus Data Level User: ' . $th->getMessage()
+        ], 500);
     }
+}
 }

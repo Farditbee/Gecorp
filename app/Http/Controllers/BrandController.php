@@ -166,11 +166,16 @@ class BrandController extends Controller
             $brand->delete();
 
             DB::commit();
-
-            return redirect()->route('master.brand.index')->with('success', 'Data berhasil dihapus!');
-        } catch (\Exception $e) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Brand'
+            ]);
+        } catch (\Throwable $th) {
             DB::rollBack();
-            return redirect()->route('master.brand.index')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Brand: ' . $th->getMessage()
+            ], 500);
         }
     }
 }

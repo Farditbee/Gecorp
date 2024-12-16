@@ -131,11 +131,16 @@ class LevelHargaController extends Controller
         try {
             $levelharga->delete();
         DB::commit();
-
-        return redirect()->route('master.levelharga.index')->with('success', 'Berhasil menghapus Data Level Harga');
-        } catch (\Throwable $th) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Sukses menghapus Data Level Harga'
+        ]);
+    } catch (\Throwable $th) {
         DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menghapus Data Level Harga ' . $th->getMessage());
-        }
+        return response()->json([
+            'success' => false,
+            'message' => 'Gagal menghapus Data Level Harga: ' . $th->getMessage()
+        ], 500);
     }
+}
 }
