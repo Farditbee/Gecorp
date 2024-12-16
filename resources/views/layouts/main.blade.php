@@ -13,10 +13,11 @@
     <title>@yield('title') | {{ env('APP_NAME') ?? 'GSS' }}</title>
     <!-- Favicon icon -->
     <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
-
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     @include('layouts.css.style_css')
+
     @yield('css')
     <script>
         document.onreadystatechange = function() {
