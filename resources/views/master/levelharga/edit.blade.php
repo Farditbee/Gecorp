@@ -1,5 +1,8 @@
-<title>Edit Level Harga - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Level Harga
+@endsection
 
 @section('content')
 

@@ -1,6 +1,8 @@
-<title>Edit Detail Toko - Gecorp</title>
-
 @extends('layouts.main')
+
+@section('title')
+    Edit Detail Toko
+@endsection
 
 @section('content')
 

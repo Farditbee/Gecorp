@@ -1,5 +1,8 @@
-<title>Edit Data Brand - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Data Brand
+@endsection
 
 @section('content')
 

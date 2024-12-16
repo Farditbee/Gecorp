@@ -1,7 +1,5 @@
     <link rel="icon" href="{{ asset('flat-able-lite/dist/assets/images/favicon.ico') }}" type="image/x-icon">
-    <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/plugins/prism-coy.css') }}">
-    <!-- vendor css -->
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
@@ -9,91 +7,146 @@
     {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
 
     <style>
-       /* Mengurangi padding dan mengatur jarak antar baris */
-#jsTable thead th {
-    font-weight: bold; /* Font tebal untuk penekanan */
-    text-transform: uppercase; /* (Opsional) Semua huruf kapital */
-    padding: 5px; /* Sedikit padding untuk thead */
-    vertical-align: middle;
-    line-height: 3;
-    font-size: 15px;
-}
+        .b-brand b {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 30px;
+            color: white;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(5, 5, 5, 0.5);
+        }
+        .dropdown .dropdown-menu {
+            display: none;
+            /* Hanya muncul saat di-hover */
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
 
-#jsTable tbody td {
-    padding: 5px; /* Sesuaikan padding untuk jarak antar sel */
-    line-height: 1.2; /* Sesuaikan tinggi baris agar cukup untuk teks panjang */
-    vertical-align: middle;
-    font-size: 14px;
-    word-wrap: break-word; /* Pecah kata panjang */
-    word-break: break-word; /* Tambahkan dukungan pemecahan kata */
-    white-space: normal; /* Izinkan teks membuat baris baru */
-    overflow-wrap: break-word; /* Pecah teks jika terlalu panjang */
-    max-width: 150px; /* Atur lebar maksimum kolom */
-}
+        .dropdown:hover .dropdown-menu {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-/* Efek hover untuk baris */
-.table.table-striped tbody tr:hover {
-    background-color: #c3d6e6d3; /* Warna background seluruh baris saat di-hover */
-    transition: background-color 0.3s ease;
-    transform: scale(1.01);
-    transform-origin: center;
-}
+        /* Mengurangi padding dan mengatur jarak antar baris */
+        #jsTable thead th {
+            font-weight: bold;
+            /* Font tebal untuk penekanan */
+            text-transform: uppercase;
+            /* (Opsional) Semua huruf kapital */
+            padding: 5px;
+            /* Sedikit padding untuk thead */
+            vertical-align: middle;
+            line-height: 3;
+            font-size: 15px;
+        }
 
-/* Informasi tambahan di luar tabel */
-.info-wrapper {
-    max-width: 100%; /* Lebar fleksibel untuk kolom */
-    margin-bottom: 15px; /* Spasi antara informasi dan tabel */
-}
+        #jsTable tbody td {
+            padding: 5px;
+            /* Sesuaikan padding untuk jarak antar sel */
+            line-height: 1.2;
+            /* Sesuaikan tinggi baris agar cukup untuk teks panjang */
+            vertical-align: middle;
+            font-size: 14px;
+            word-wrap: break-word;
+            /* Pecah kata panjang */
+            word-break: break-word;
+            /* Tambahkan dukungan pemecahan kata */
+            white-space: normal;
+            /* Izinkan teks membuat baris baru */
+            overflow-wrap: break-word;
+            /* Pecah teks jika terlalu panjang */
+            max-width: 150px;
+            /* Atur lebar maksimum kolom */
+        }
 
-.info-row {
-    display: flex;
-    padding: 4px 0; /* Spasi antar baris */
-}
+        /* Efek hover untuk baris */
+        .table.table-striped tbody tr:hover {
+            background-color: #c3d6e6d3;
+            /* Warna background seluruh baris saat di-hover */
+            transition: background-color 0.3s ease;
+            transform: scale(1.01);
+            transform-origin: center;
+        }
 
-.label {
-    width: 150px; /* Atur lebar label tetap untuk meratakan titik dua */
-    margin: 0;
-    font-weight: bold; /* Opsional: untuk membedakan label dari nilai */
-}
+        /* Informasi tambahan di luar tabel */
+        .info-wrapper {
+            max-width: 100%;
+            /* Lebar fleksibel untuk kolom */
+            margin-bottom: 15px;
+            /* Spasi antara informasi dan tabel */
+        }
 
-.value {
-    margin: 0;
-    text-align: left; /* Pastikan teks rata kiri */
-}
+        .info-row {
+            display: flex;
+            padding: 4px 0;
+            /* Spasi antar baris */
+        }
 
-/* Atur lebar khusus untuk kolom tertentu */
-.table-responsive th:nth-child(2), .table-responsive td:nth-child(2) { /* Nama Barang */
-    max-width: 150px;
-}
+        .label {
+            width: 150px;
+            /* Atur lebar label tetap untuk meratakan titik dua */
+            margin: 0;
+            font-weight: bold;
+            /* Opsional: untuk membedakan label dari nilai */
+        }
 
-.table-responsive th:nth-child(4), .table-responsive td:nth-child(4) { /* Harga */
-    max-width: 100px;
-}
+        .value {
+            margin: 0;
+            text-align: left;
+            /* Pastikan teks rata kiri */
+        }
 
-.table-responsive-js table {
-    table-layout: fixed; /* Pastikan tabel memiliki lebar tetap */
-    width: 100%;
-}
+        /* Atur lebar khusus untuk kolom tertentu */
+        .table-responsive th:nth-child(2),
+        .table-responsive td:nth-child(2) {
+            /* Nama Barang */
+            max-width: 150px;
+        }
 
-/* Atur lebar kolom agar otomatis sesuai konten */
-.table-responsive-js th, .table-responsive-js td {
-    word-wrap: break-word; /* Izinkan teks panjang dipotong */
-    white-space: normal; /* Izinkan teks membuat baris baru */
-    padding: 5px; /* Mengurangi jarak antar kolom */
-    overflow-wrap: break-word; /* Tambahan untuk browser modern */
-}
+        .table-responsive th:nth-child(4),
+        .table-responsive td:nth-child(4) {
+            /* Harga */
+            max-width: 100px;
+        }
 
-    .narrow-column {
-        width: 7%; /* atau atur ke lebar sesuai keinginan, misalnya 5% atau 50px */
-    }
-    .wide-column {
-        width: 40%; /* Lebih luas untuk kolom Nama Barang */
-        white-space: nowrap; /* Menjaga agar konten tetap dalam satu baris, jika memungkinkan */
-    }
-    .price-column {
-        width: auto; /* Biarkan kolom harga mengikuti ukuran kontennya */
-        text-align: right; /* Mengatur teks di sisi kanan untuk tampilan harga */
-    }
+        .table-responsive-js table {
+            table-layout: fixed;
+            /* Pastikan tabel memiliki lebar tetap */
+            width: 100%;
+        }
+
+        /* Atur lebar kolom agar otomatis sesuai konten */
+        .table-responsive-js th,
+        .table-responsive-js td {
+            word-wrap: break-word;
+            /* Izinkan teks panjang dipotong */
+            white-space: normal;
+            /* Izinkan teks membuat baris baru */
+            padding: 5px;
+            /* Mengurangi jarak antar kolom */
+            overflow-wrap: break-word;
+            /* Tambahan untuk browser modern */
+        }
+
+        .narrow-column {
+            width: 7%;
+            /* atau atur ke lebar sesuai keinginan, misalnya 5% atau 50px */
+        }
+
+        .wide-column {
+            width: 40%;
+            /* Lebih luas untuk kolom Nama Barang */
+            white-space: nowrap;
+            /* Menjaga agar konten tetap dalam satu baris, jika memungkinkan */
+        }
+
+        .price-column {
+            width: auto;
+            /* Biarkan kolom harga mengikuti ukuran kontennya */
+            text-align: right;
+            /* Mengatur teks di sisi kanan untuk tampilan harga */
+        }
     </style>
 
 

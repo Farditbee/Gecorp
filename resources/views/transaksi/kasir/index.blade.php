@@ -1,5 +1,9 @@
-<title>Data Transaksi Kasir - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Data Transaksi Kasir
+@endsection
+
 @section('content')
 
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">

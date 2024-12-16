@@ -1,5 +1,8 @@
-<title>Tambah Tambah Data Toko - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data Toko
+@endsection
 
 @section('content')
 

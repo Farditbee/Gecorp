@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisBarangController;
@@ -9,6 +10,8 @@ use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TokoController;
 use App\Http\Controllers\UserController;
@@ -35,3 +38,5 @@ Route::get('/getbrand', [BrandController::class, 'getbrand'])->name('master.getb
 Route::get('/getleveluser', [LevelUserController::class, 'getleveluser'])->name('master.getleveluser');
 Route::get('/getlevelharga', [LevelHargaController::class, 'getlevelharga'])->name('master.getlevelharga');
 Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getpromo');
+Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master.getbarangs');
+Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');

@@ -1,5 +1,8 @@
-<title>Tambah Pengiriman Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Tambah Pengiriman Barang
+@endsection
 
 @section('content')
 
@@ -366,23 +369,23 @@
         document.getElementById('tgl_kirim').addEventListener('focus', function() {
             this.showPicker(); // Membuka picker tanggal saat input difokuskan
         });
-    
+
         document.addEventListener('DOMContentLoaded', function() {
             // Inisialisasi Tom Select untuk #toko_pengirim dan #toko_penerima sekali saja
             new TomSelect("#toko_pengirim", {
                 allowClear: true,
                 create: false
             });
-    
+
             var tokoPenerimaSelect = new TomSelect("#toko_penerima", {
                 placeholder: "Pilih Toko Penerima",
                 allowClear: true
             });
-    
+
             // Event saat toko pengirim dipilih
             $('#toko_pengirim').change(function() {
                 var idToko = $(this).val();
-    
+
                 if (idToko) {
                     $.ajax({
                         url: '/admin/get-users-by-toko/' + idToko,
@@ -405,20 +408,20 @@
                             }
                         }
                     });
-    
+
                     // Hapus semua opsi dari #toko_penerima dan tambahkan kembali kecuali yang sama dengan idToko
                     tokoPenerimaSelect.clearOptions();
-    
+
                     // Tambahkan opsi yang tersedia di toko penerima, kecuali yang sama dengan toko pengirim
                     $('#toko_penerima option').each(function() {
                         if ($(this).val() != idToko) {
                             tokoPenerimaSelect.addOption({ value: $(this).val(), text: $(this).text() });
                         }
                     });
-    
+
                     // Refresh opsi di Tom Select
                     tokoPenerimaSelect.refreshOptions();
-    
+
                 } else {
                     $('#nama_pengirim').empty();
                     $('#nama_pengirim').append('<option value="">~Nama Pengirim Tidak Ditemukan~</option>');
@@ -426,7 +429,7 @@
             });
         });
     </script>
-    
+
     <script>
         new TomSelect("#id_barang", {
                 allowClear: true,

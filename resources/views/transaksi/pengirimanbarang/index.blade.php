@@ -1,5 +1,8 @@
-<title>Pengiriman Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Pengiriman Barang
+@endsection
 
 @section('content')
 

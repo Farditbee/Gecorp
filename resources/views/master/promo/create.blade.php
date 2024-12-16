@@ -1,6 +1,8 @@
-<title>Tambah Data Promo   - Gecorp</title>
-
 @extends('layouts.main')
+
+@section('title')
+    Tambah Data Promo
+@endsection
 
 @section('content')
 

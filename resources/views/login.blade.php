@@ -3,7 +3,7 @@
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js" lang=""> <!--<![endif]-->
-<title>Login - Gecorp</title>
+<title>Login | {{ env('APP_NAME') ?? 'GSS' }}</title>
 
 @include('layouts.css.style_css')
 

@@ -1,5 +1,9 @@
-<title>Stock Opname - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Stock Opname
+@endsection
+
 @section('content')
 
 <div class="breadcrumbs">

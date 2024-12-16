@@ -21,7 +21,7 @@ class DashboardController extends Controller
         $idToko = $request->input('nama_toko', 'all'); // Default ke 'all'
         $period = $request->input('period', 'monthly'); // Default ke 'monthly'
         $month = $period === 'daily' ? $request->input('month', now()->month) : null;
-        $year =$request->input('year', now()->year); // Default ke 'all' jika period yearly
+        $year = $request->input('year', now()->year); // Default ke 'all' jika period yearly
 
         try {
             // Query nama toko jika idToko tidak 'all'
@@ -125,17 +125,17 @@ class DashboardController extends Controller
         }
     }
 
-
-
     public function getBarangJual(Request $request)
     {
         $selectedTokoIds = $request->input('id_toko'); // Ambil toko dari request
         $query = DetailKasir::select(
             'detail_kasir.id_barang',
             'barang.nama_barang',
-            DB::raw('SUM(detail_kasir.qty) as total_terjual')
+            DB::raw('SUM(detail_kasir.qty) as total_terjual'),
+            DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_nilai') // Hitung total nilai
         )
             ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id');
+
         if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
             $query->join('kasir', 'detail_kasir.id_kasir', '=', 'kasir.id')
                 ->where('kasir.id_toko', $selectedTokoIds)
@@ -152,7 +152,8 @@ class DashboardController extends Controller
         $data = $dataBarang->map(function ($item) {
             return [
                 'nama_barang' => $item->nama_barang,
-                'jumlah' => $item->total_terjual
+                'jumlah' => $item->total_terjual,
+                'total_nilai' => $item->total_nilai, // Tambahkan total nilai ke hasil
             ];
         });
 

@@ -1,5 +1,8 @@
-<title>Edit Data User - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Edit Data User
+@endsection
 
 @section('content')
 

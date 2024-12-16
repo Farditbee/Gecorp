@@ -1,5 +1,8 @@
-<title>Dashboard - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Dashboard
+@endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
@@ -7,22 +10,23 @@
 
 @section('content')
     <div class="pcoded-main-container">
-        <div class="pcoded-content">
-            <!-- [ breadcrumb ] start -->
+        <div class="pcoded-content pt-1 mt-1">
             <div class="page-header">
                 <div class="page-block">
                     <div class="row align-items-center">
                         <div class="col-md-12">
-                            <div class="page-header-title">
-                                <h5>Dashboard</h5>
-                            </div>
+                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
+                                <li class="breadcrumb-item"><a><i
+                                            class="feather icon-home"></i></a></li>
+                                <li class="breadcrumb-item">
+                                    <b class="font-weight-bold">Dashboard</b>
+                                </li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- [ breadcrumb ] end -->
 
-            <!-- [ Main Content ] start -->
             <div class="row">
                 <div class="col-xxl-6 col-md-3">
                     <div class="row">
@@ -63,38 +67,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="performance-scroll simplebar-scrollable-y"
-                                    style="height: 350px; position: relative" data-simplebar="init">
-                                    <div class="simplebar-wrapper" style="margin: 0px;">
-                                        <div class="simplebar-height-auto-observer-wrapper">
-                                            <div class="simplebar-height-auto-observer"></div>
-                                        </div>
-                                        <div class="simplebar-mask">
-                                            <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                                                <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                                                    aria-label="scrollable content"
-                                                    style="height: 100%; overflow: hidden scroll;">
-                                                    <div class="simplebar-content" style="padding: 0px;">
-                                                        <div class="card-body p-0">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-hover m-b-0 without-header">
-                                                                    <tbody id="listData">
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="simplebar-placeholder" style="width: 471px; height: 443px;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                                        <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-                                    </div>
-                                    <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-                                        <div class="simplebar-scrollbar"
-                                            style="height: 325px; transform: translate3d(0px, 0px, 0px); display: block;">
+                                <div class="performance-scroll overflow-auto" style="height: 350px; position: relative;">
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover m-b-0 without-header">
+                                                <tbody id="listData">
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -487,6 +466,7 @@
         async function handleTopPenjualan(data) {
             let nama_barang = data?.nama_barang ?? '-';
             let dataJumlah = data?.jumlah ?? '-';
+            let total_nilai = data?.total_nilai ?? 0;
 
             let fontSize = dataJumlah.toString().length > 3 ?
                 '0.50rem' :
@@ -510,6 +490,7 @@
             let handleData = {
                 nama_barang: nama_barang === '' ? '-' : nama_barang,
                 jumlah: dataJumlah === '' ? '-' : jumlah,
+                total_nilai: total_nilai === '' ? '-' : formatRupiah(total_nilai),
             };
 
             return handleData;
@@ -523,9 +504,17 @@
                 getDataTable += `
                 <tr>
                     <td>
-                        <div class="d-inline-block">
+                        <div class="d-inline-block w-100">
                             <h5 class="m-b-0 font-weight-bold">${element.nama_barang}</h5>
-                            <p class="m-b-0"><i class="fa fa-shopping-cart"></i> <span style="font-size: 1rem;">Terjual :</span> ${element.jumlah}</p>
+                            <div class="d-flex justify-content-between align-items-start">
+                                <p class="m-b-0" style="font-size: 0.9rem;">
+                                    <i class="fa fa-shopping-cart"></i> <span>Terjual :</span> ${element.jumlah}
+                                </p>
+                                <div class="text-right">
+                                    <p class="m-b-0 font-weight-bold">Total</p>
+                                    <p class="m-b-0"><span>${element.total_nilai}</span></p>
+                                </div>
+                            </div>
                         </div>
                     </td>
                 </tr>`;
