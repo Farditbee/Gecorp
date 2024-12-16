@@ -9,6 +9,85 @@ use Illuminate\Http\Request;
 
 class PromoController extends Controller
 {
+    public function getlevelharga(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Promo::query();
+
+        $query->with([])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->orWhereHas('barang', function ($subquery) use ($searchTerm) {
+                $subquery->whereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+            });
+            $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_barang' => $item['barang']->nama_barang,
+                'nama_toko' => $item['toko']->nama_toko,
+                'minimal' => $item->minimal,
+                'diskon' => $item->diskon,
+                'jumlah' => $item->jumlah,
+                'terjual' => $item->terjual,
+                'dari' => $item->dari,
+                'sampai' => $item->sampai,
+                'status' => match ($item->status) {
+                    'done' => 'Sukses',
+                    'ongoing' => 'On Going',
+                    'queue' => 'Antrean',
+                    default => $item->status,
+                },
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
     public function index()
     {
         // Ambil ID barang yang memiliki promo dengan status "ongoing"

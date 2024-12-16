@@ -4,8 +4,11 @@ use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\LevelHargaController;
+use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
+use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TokoController;
@@ -31,3 +34,6 @@ Route::get('/getmember', [MemberController::class, 'getmember'])->name('master.g
 Route::get('/getsupplier', [SupplierController::class, 'getsupplier'])->name('master.getsupplier');
 Route::get('/getjenisbarang', [JenisBarangController::class, 'getjenisbarang'])->name('master.getjenisbarang');
 Route::get('/getbrand', [BrandController::class, 'getbrand'])->name('master.getbrand');
+Route::get('/getleveluser', [LevelUserController::class, 'getleveluser'])->name('master.getleveluser');
+Route::get('/getlevelharga', [LevelHargaController::class, 'getlevelharga'])->name('master.getlevelharga');
+Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getpromo');
