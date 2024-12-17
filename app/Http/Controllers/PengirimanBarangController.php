@@ -19,6 +19,93 @@ use Illuminate\Support\Facades\Log;
 
 class PengirimanBarangController extends Controller
 {
+    public function getpengirimanbarang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = PengirimanBarang::query();
+
+        $query->with(['toko', 'user'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(no_resi) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(ekspedisi) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi 'supplier->nama_supplier'
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(toko_pengirim) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(toko_penerima) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('user', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_pengirim) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'no_resi' => $item->no_resi,
+                'toko_pengirim' => $item['toko']->toko_pengirim->nama_toko ?? null,
+                'status' => match ($item->status) {
+                    'success' => 'Sukses',
+                    'progress' => 'Progress',
+                    'failed' => 'Gagal',
+                    default => $item->status,
+                },
+                'tgl_kirim' => \Carbon\Carbon::parse($item->tgl_kirim)->format('d-m-Y'),
+                'tgl_terima' => \Carbon\Carbon::parse($item->tgl_terima)->format('d-m-Y'),
+                'total_item' => $item->total_item,
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
     public function index(Request $request)
     {
         $toko = Toko::all();
