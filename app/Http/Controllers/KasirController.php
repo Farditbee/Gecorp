@@ -30,6 +30,90 @@ class KasirController extends Controller
         ];
     }
 
+    public function getkasirs(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Kasir::query();
+
+        $query->with(['meber', 'toko', 'user'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi lain
+                $query->orWhereHas('member', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('user', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_supplier' => $item['supplier']->nama_supplier,
+                'status' => match ($item->status) {
+                    'success' => 'Sukses',
+                    'failed' => 'Gagal',
+                    default => $item->status,
+                },
+                'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
+                'no_nota' => $item->no_nota,
+                'total_item' => $item->total_item,
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
     public function cetakStruk($id_kasir)
     {
         $kasir = Kasir::with('toko', 'member', 'users')->findOrFail($id_kasir); // Pastikan relasi 'toko', 'member', dan 'users' termuat
