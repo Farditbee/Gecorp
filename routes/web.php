@@ -151,7 +151,7 @@ Route::middleware(['auth'])->group(function () {
         // Pengiriman Barang
         Route::get('/pengirimanbarang', [PengirimanBarangController::class, 'index'])->name('master.pengirimanbarang.index');
         Route::get('/pengirimanbarang/create', [PengirimanBarangController::class, 'create'])->name('master.pengirimanbarang.create');
-        Route::get('/pengirimanbarang/detail{id}', [PengirimanBarangController::class, 'detail'])->name('master.pengirimanbarang.detail');
+        Route::get('/pengirimanbarang/detail/{id}', [PengirimanBarangController::class, 'detail'])->name('master.pengirimanbarang.detail');
         Route::get('/get-users-by-toko/{id_toko}', [PengirimanBarangController::class, 'getUsersByToko']);
         Route::get('/get-barang-stock/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getBarangStock']);
         Route::get('/get-harga-barang/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getHargaBarang']);

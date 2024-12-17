@@ -321,35 +321,46 @@
         }
 
         async function handleData(data) {
+            const rupiah = (value) => {
+                let number = parseFloat(value) || 0;
+                let roundedNumber = Math.round(number);
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 2,
+                }).format(roundedNumber);
+            };
+
             let detail_button = `
-            <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
-                data-toggle="modal" data-target="#mediumModal-${data.id}"
-                title="Detail ${title}: ${data.nama_barang}"
-                data-id='${data.id}' data-id-barang='${data.id_barang}'>
-                <span class="text-white"><i class="fa fa-eye mr-1"></i>Detail</span>
-            </button>`;
+                <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
+                    data-toggle="modal" data-target="#mediumModal-${data.id}"
+                    title="Detail ${title}: ${data.nama_barang}"
+                    data-id='${data.id}' data-id-barang='${data.id_barang}'>
+                    <span class="text-white"><i class="fa fa-eye mr-1"></i>Detail</span>
+                </button>`;
 
             let delete_button = `
-            <button class="p-1 btn hapus-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama_barang}"
-                data-id='${data.id}'
-                data-name='${data.nama_barang}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </button>`;
+                <button class="p-1 btn hapus-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title}: ${data.nama_barang}"
+                    data-id='${data.id}'
+                    data-name='${data.nama_barang}'>
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </button>`;
 
             return {
                 id: data?.id ?? '-',
                 nama_barang: data?.nama_barang ?? '-',
                 stock: data?.stock ?? '-',
-                hpp_baru: data?.hpp_baru ?? '-',
+                hpp_baru: rupiah(data?.hpp_baru),
                 detail_button,
                 delete_button,
             };
         }
+
 
         async function setListData(dataList, pagination) {
             totalPage = pagination.total_pages;
