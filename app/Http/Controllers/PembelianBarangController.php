@@ -15,6 +15,16 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PembelianBarangController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Pembelian Barang',
+            'Detail Data'
+        ];
+    }
     public function getpembelianbarang(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -95,19 +105,21 @@ class PembelianBarangController extends Controller
 
     public function index(Request $request)
     {
+        $menu = [$this->title[0], $this->label[1]];
         $suppliers = Supplier::all();       // Kirim data ke view
         $barang = Barang::all();       // Kirim data ke view
         $LevelHarga = LevelHarga::all();       // Kirim data ke view
-        return view('transaksi.pembelianbarang.index', compact('suppliers', 'barang', 'LevelHarga'));
+        return view('transaksi.pembelianbarang.index', compact('menu', 'suppliers', 'barang', 'LevelHarga'));
     }
 
     public function create()
     {
+        $menu = [$this->title[0], $this->label[1], $this->title[1]];
         $barang = Barang::all();
         $suppliers = Supplier::all();
         $LevelHarga = LevelHarga::all();
 
-        return view('transaksi.pembelianbarang.create', compact('suppliers', 'barang', 'LevelHarga'));
+        return view('transaksi.pembelianbarang.create', compact('menu', 'suppliers', 'barang', 'LevelHarga'));
     }
 
     public function store(Request $request)
@@ -149,10 +161,11 @@ class PembelianBarangController extends Controller
 
     public function edit($id)
     {
+        $menu = [$this->title[0], $this->label[1], $this->title[1]];
         $pembelian = PembelianBarang::with('detail')->findOrFail($id);
         $LevelHarga = LevelHarga::all();
 
-        return view('transaksi.pembelianbarang.edit', compact('pembelian', 'LevelHarga'));
+        return view('transaksi.pembelianbarang.edit', compact('menu', 'pembelian', 'LevelHarga'));
     }
 
     public function getStock($id_barang)
@@ -226,7 +239,7 @@ class PembelianBarangController extends Controller
                     $idSupplier = $pembelian->id_supplier;         // ID Supplier
                     $idPembelian = $pembelian->id;                // ID Pembelian
                     $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
-            
+
                     // Path QR code for this barang
                     $qrCodePath = 'qrcodes/pembelian/' . $barang->barcode . "-{$counter}.png";
                     $fullPath = storage_path('app/public/' . $qrCodePath);
@@ -235,10 +248,10 @@ class PembelianBarangController extends Controller
                     if (!file_exists(dirname($fullPath))) {
                         mkdir(dirname($fullPath), 0755, true);
                     }
-                    
+
                     // Generate QR Code
                     QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
-                    
+
                     $detail = DetailPembelianBarang::updateOrCreate(
                         [
                             'id_pembelian_barang' => $pembelian->id,

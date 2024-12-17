@@ -14,6 +14,16 @@ use Throwable;
 
 class MemberController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Member',
+        ];
+    }
+
     public function getmember(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -110,9 +120,9 @@ class MemberController extends Controller
         ], 200);
     }
 
-
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user();
 
         // Jika user memiliki id_level = 1, tampilkan semua data member
@@ -142,7 +152,7 @@ class MemberController extends Controller
             }
         }
 
-        return view('master.member.index', compact('member', 'toko', 'jenis_barang', 'levelharga', 'jenis_barang', 'selected_levels'));
+        return view('master.member.index', compact('menu', 'member', 'toko', 'jenis_barang', 'levelharga', 'jenis_barang', 'selected_levels'));
     }
 
     public function getLevelHarga($id_toko)

@@ -12,7 +12,8 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('master.index');
+        $title = 'Dashboard';
+        return view('master.index', compact('title'));
     }
 
     public function laporan_kasir(Request $request)

@@ -8,10 +8,21 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PhpParser\Node\Expr\FuncCall;
 
 class UserController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data User',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getdatauser(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -94,6 +105,7 @@ class UserController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Jika user memiliki leveluser = 1, tampilkan semua data user
@@ -111,15 +123,16 @@ class UserController extends Controller
 
         $leveluser = LevelUser::all();
 
-        return view('master.user.index', compact('users', 'leveluser'));
+        return view('master.user.index', compact('menu', 'users', 'leveluser'));
     }
 
 
     public function create()
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $toko = Toko::all();
         $leveluser = LevelUser::all();
-        return view('master.user.create', compact('toko', 'leveluser'), [
+        return view('master.user.create', compact('menu', 'toko', 'leveluser'), [
             'leveluser' => LevelUser::all()->pluck('nama_level', 'id'),
             'toko' => Toko::all()->pluck('nama_toko', 'id'),
         ]);
@@ -171,12 +184,13 @@ class UserController extends Controller
 
     public function edit(String $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $user = User::with(['leveluser', 'toko'])->findOrFail($id);
 
         // dd($user);
         $toko = Toko::all();
         $leveluser = LevelUser::all();
-        return view('master.user.edit', compact('user', 'toko', 'leveluser'));
+        return view('master.user.edit', compact('menu', 'user', 'toko', 'leveluser'));
     }
 
     public function update(Request $request, String $id)

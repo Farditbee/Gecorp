@@ -15,94 +15,105 @@ use Illuminate\Support\Facades\DB;
 
 class StockBarangController extends Controller
 {
-    public function getstockbarang(Request $request)
-{
-    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+    private array $menu = [];
 
-    $idToko = $request->input('id_toko');
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Stock Barang',
+        ];
+    }
+
+    public function getstockbarang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $idToko = $request->input('id_toko');
 
         // Ambil data stok barang dari tabel 'stock_barang'
         $query = StockBarang::with(['barang', 'toko'])
-                            ->orderBy('id', $meta['orderBy']);
+            ->orderBy('id', $meta['orderBy']);
 
-    // Tambahkan filter pencarian jika ada
-    if (!empty($request['search'])) {
-        $searchTerm = trim(strtolower($request['search']));
+        // Tambahkan filter pencarian jika ada
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
 
-        $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereHas('barang', function ($subquery) use ($searchTerm) {
-                $subquery->whereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereHas('barang', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+                });
             });
-        });
-    }
+        }
 
-    // Filter berdasarkan tanggal
-    if ($request->has('startDate') && $request->has('endDate')) {
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-        $query->whereBetween('created_at', [$startDate, $endDate]);
-    }
+        // Filter berdasarkan tanggal
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
 
-    // Ambil data dengan pagination
-    $data = $query->paginate($meta['limit']);
+        // Ambil data dengan pagination
+        $data = $query->paginate($meta['limit']);
 
-    $paginationMeta = [
-        'total'        => $data->total(),
-        'per_page'     => $data->perPage(),
-        'current_page' => $data->currentPage(),
-        'total_pages'  => $data->lastPage()
-    ];
-
-    // Format data untuk respons
-    $mappedData = collect($data->items())->map(function ($item) {
-        return [
-            'id' => $item->id,
-            'id_barang' => $item->barang->id ?? null,
-            'nama_barang' => $item->barang->nama_barang ?? null,
-            'hpp_baru' => $item->hpp_baru,
-            'stock' => $item->stock,
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
         ];
-    });
 
-    // Jika tidak ada data, kembalikan respons error
-    if ($mappedData->isEmpty()) {
+        // Format data untuk respons
+        $mappedData = collect($data->items())->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'id_barang' => $item->barang->id ?? null,
+                'nama_barang' => $item->barang->nama_barang ?? null,
+                'hpp_baru' => $item->hpp_baru,
+                'stock' => $item->stock,
+            ];
+        });
+
+        // Jika tidak ada data, kembalikan respons error
+        if ($mappedData->isEmpty()) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        // Respons JSON
         return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'Tidak ada data'
-        ], 400);
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+            'pagination' => $paginationMeta
+        ], 200);
     }
-
-    // Respons JSON
-    return response()->json([
-        'data' => $mappedData,
-        'status_code' => 200,
-        'errors' => false,
-        'message' => 'Sukses',
-        'pagination' => $paginationMeta
-    ], 200);
-}
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
         // Mengambil stock barang beserta relasi ke barang dan toko
         $stock = StockBarang::with(['barang', 'toko'])
-                            ->orderBy('id', 'desc')
-                            ->get();
+            ->orderBy('id', 'desc')
+            ->get();
 
-                            // Ambil stok barang dari tabel 'detail_toko' untuk semua toko kecuali id = 1
+        // Ambil stok barang dari tabel 'detail_toko' untuk semua toko kecuali id = 1
         $stokTokoLain = DetailToko::with('barang', 'toko')
-                            ->where('id_toko', '!=', 1)
-                            ->get();
+            ->where('id_toko', '!=', 1)
+            ->get();
 
         // Ambil semua toko
         $toko = Toko::all();
         $levelharga = LevelHarga::all();
         $barang = Barang::all();
 
-        return view('master.stockbarang.index', compact('stock', 'stokTokoLain', 'toko', 'levelharga', 'barang'));
+        return view('master.stockbarang.index', compact('menu', 'stock', 'stokTokoLain', 'toko', 'levelharga', 'barang'));
     }
 
     public function getItem($id_barang)
@@ -180,45 +191,44 @@ class StockBarangController extends Controller
     }
 
     public function updateLevelHarga(Request $request)
-{
-    $id_barang = $request->input('id_barang'); // Mengambil ID barang dari request
+    {
+        $id_barang = $request->input('id_barang'); // Mengambil ID barang dari request
 
-    try {
-        DB::beginTransaction();
+        try {
+            DB::beginTransaction();
 
-        // Ambil data barang berdasarkan ID
-        $barang = Barang::findOrFail($id_barang);
+            // Ambil data barang berdasarkan ID
+            $barang = Barang::findOrFail($id_barang);
 
-        // Ambil semua level harga yang dikirim dari form
-        $levelNamas = $request->input('level_nama', []);
-        $levelHargas = $request->input('level_harga', []);
+            // Ambil semua level harga yang dikirim dari form
+            $levelNamas = $request->input('level_nama', []);
+            $levelHargas = $request->input('level_harga', []);
 
-        $levelHargaBarang = [];
+            $levelHargaBarang = [];
 
-        // Loop untuk memperbarui level harga berdasarkan input dari form
-        foreach ($levelHargas as $index => $hargaLevel) {
-            $levelNama = $levelNamas[$index] ?? 'Level ' . ($index + 1);
+            // Loop untuk memperbarui level harga berdasarkan input dari form
+            foreach ($levelHargas as $index => $hargaLevel) {
+                $levelNama = $levelNamas[$index] ?? 'Level ' . ($index + 1);
 
-            // Jika harga level tidak kosong, hapus pemisah ribuan dan masukkan ke array level harga
-            if (!is_null($hargaLevel)) {
-                // Hapus pemisah ribuan dari hargaLevel
-                $hargaLevel = str_replace(',', '', $hargaLevel);
+                // Jika harga level tidak kosong, hapus pemisah ribuan dan masukkan ke array level harga
+                if (!is_null($hargaLevel)) {
+                    // Hapus pemisah ribuan dari hargaLevel
+                    $hargaLevel = str_replace(',', '', $hargaLevel);
 
-                $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
+                    $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
+                }
             }
+
+            // Simpan level harga yang baru dalam format JSON
+            $barang->level_harga = json_encode($levelHargaBarang);
+            $barang->save(); // Simpan perubahan ke database
+
+            DB::commit(); // Commit transaksi jika semuanya berhasil
+
+            return redirect()->back()->with('success', 'Level harga berhasil diperbarui');
+        } catch (\Exception $e) {
+            DB::rollback(); // Rollback jika ada error
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
-
-        // Simpan level harga yang baru dalam format JSON
-        $barang->level_harga = json_encode($levelHargaBarang);
-        $barang->save(); // Simpan perubahan ke database
-
-        DB::commit(); // Commit transaksi jika semuanya berhasil
-
-        return redirect()->back()->with('success', 'Level harga berhasil diperbarui');
-    } catch (\Exception $e) {
-        DB::rollback(); // Rollback jika ada error
-        return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
-}
-
 }

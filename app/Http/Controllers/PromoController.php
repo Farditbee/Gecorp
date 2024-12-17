@@ -9,6 +9,16 @@ use Illuminate\Http\Request;
 
 class PromoController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Promo',
+        ];
+    }
+
     public function getpromo(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -90,22 +100,23 @@ class PromoController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         // Ambil ID barang yang memiliki promo dengan status "ongoing"
         $ongoingPromoBarangIds = Promo::where('status', 'ongoing')
-                                        ->pluck('id_barang')
-                                        ->toArray();
+            ->pluck('id_barang')
+            ->toArray();
         $promo = Promo::all();
         $toko = Toko::where('id', '!=', 1)->get();
         $barang = Barang::all();
 
         // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
         $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
-                            ->orWhereHas('promo', function ($query) {
-                                $query->where('status', '!=', 'ongoing');
-                            })
-                            ->get();
+            ->orWhereHas('promo', function ($query) {
+                $query->where('status', '!=', 'ongoing');
+            })
+            ->get();
 
-        return view('master.promo.index', compact('barang', 'promo', 'toko'));
+        return view('master.promo.index', compact('menu', 'barang', 'promo', 'toko'));
     }
 
     public function store(Request $request)
@@ -140,6 +151,5 @@ class PromoController extends Controller
 
             return redirect()->back()->with('error', 'Something gone wrong. ' . $th->getMessage());
         }
-
     }
 }

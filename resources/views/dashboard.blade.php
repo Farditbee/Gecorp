@@ -11,22 +11,7 @@
 @section('content')
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
-            <div class="page-header">
-                <div class="page-block">
-                    <div class="row align-items-center">
-                        <div class="col-md-12">
-                            <ul class="breadcrumb p-0 m-0" style="font-size: 18px">
-                                <li class="breadcrumb-item"><a><i
-                                            class="feather icon-home"></i></a></li>
-                                <li class="breadcrumb-item">
-                                    <b class="font-weight-bold">Dashboard</b>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            @include('components.breadcrumbs')
             <div class="row">
                 <div class="col-xxl-6 col-md-3">
                     <div class="row">

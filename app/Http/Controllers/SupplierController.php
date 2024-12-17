@@ -9,6 +9,18 @@ use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Supplier',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getsupplier(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -81,13 +93,15 @@ class SupplierController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $supplier = Supplier::orderBy('id', 'desc')->get();
-        return view('master.supplier.index', compact('supplier'));
+        return view('master.supplier.index', compact('menu', 'supplier'));
     }
 
     public function create()
     {
-        return view('master.supplier.create');
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
+        return view('master.supplier.create', compact('menu'));
     }
 
     public function store(Request $request)
@@ -129,8 +143,9 @@ class SupplierController extends Controller
 
     public function edit(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $supplier = Supplier::findOrFail($id);
-        return view('master.supplier.edit', compact('supplier'));
+        return view('master.supplier.edit', compact('menu', 'supplier'));
     }
 
 

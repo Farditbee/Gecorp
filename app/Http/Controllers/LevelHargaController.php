@@ -8,6 +8,18 @@ use Illuminate\Support\Facades\DB;
 
 class LevelHargaController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Level Harga',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getlevelharga(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -74,20 +86,22 @@ class LevelHargaController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $levelharga = LevelHarga::orderBy('id', 'desc')->get();
-        return view('master.levelharga.index', compact('levelharga'));
+        return view('master.levelharga.index', compact('menu', 'levelharga'));
     }
 
     public function create()
     {
-        return view('master.levelharga.create');
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
+        return view('master.levelharga.create', compact('menu'));
     }
 
     public function store(Request $request)
     {
         $validatedData = $request->validate([
             'nama_level_harga' => 'required|max:255',
-        ],[
+        ], [
             'nama_level_harga.required' => 'Nama level harga tidak boleh kosong.',
         ]);
         try {
@@ -107,21 +121,22 @@ class LevelHargaController extends Controller
 
     public function edit(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $levelharga = LevelHarga::findOrFail($id);
-        return view('master.levelharga.edit', compact('levelharga'));
+        return view('master.levelharga.edit', compact('menu', 'levelharga'));
     }
 
     public function update(Request $request, string $id)
     {
         $levelharga = LevelHarga::findOrFail($id);
         try {
-           $levelharga->update([
-            'nama_level_harga'=> $request->nama_level_harga,
-           ]);
-     } catch (\Throwable $th) {
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
-    }
-    return redirect()->route('master.levelharga.index')->with('success', 'Sukses Mengubah Data Level Harga');
+            $levelharga->update([
+                'nama_level_harga' => $request->nama_level_harga,
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
+        }
+        return redirect()->route('master.levelharga.index')->with('success', 'Sukses Mengubah Data Level Harga');
     }
 
     public function delete(string $id)
@@ -130,17 +145,17 @@ class LevelHargaController extends Controller
         $levelharga = LevelHarga::findOrFail($id);
         try {
             $levelharga->delete();
-        DB::commit();
-        return response()->json([
-            'success' => true,
-            'message' => 'Sukses menghapus Data Level Harga'
-        ]);
-    } catch (\Throwable $th) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal menghapus Data Level Harga: ' . $th->getMessage()
-        ], 500);
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Level Harga'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Level Harga: ' . $th->getMessage()
+            ], 500);
+        }
     }
-}
 }

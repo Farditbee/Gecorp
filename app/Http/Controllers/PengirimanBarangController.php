@@ -19,6 +19,16 @@ use Illuminate\Support\Facades\Log;
 
 class PengirimanBarangController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Pengiriman Barang',
+        ];
+    }
+
     public function getpengirimanbarang(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -108,6 +118,7 @@ class PengirimanBarangController extends Controller
 
     public function index(Request $request)
     {
+        $menu = [$this->title[0], $this->label[1]];
         $toko = Toko::all();
         $barang = Barang::all();
         $user = User::all();
@@ -122,8 +133,8 @@ class PengirimanBarangController extends Controller
         } else {
             // Jika level user bukan 1, hanya tampilkan data toko terkait
             $query = $query->where('toko_penerima', $users->id_toko)
-                           ->orWhere('toko_pengirim', $users->id_toko)
-                           ->orderBy('id', 'desc');
+                ->orWhere('toko_pengirim', $users->id_toko)
+                ->orderBy('id', 'desc');
         }
 
         // Menerapkan filter tanggal jika parameter `start_date` dan `end_date` ada
@@ -136,7 +147,7 @@ class PengirimanBarangController extends Controller
 
         $pengiriman_barang = $query->get();
 
-        return view('transaksi.pengirimanbarang.index', compact('toko', 'barang', 'user', 'pengiriman_barang', 'users'));
+        return view('transaksi.pengirimanbarang.index', compact('menu', 'toko', 'barang', 'user', 'pengiriman_barang', 'users'));
     }
 
 
