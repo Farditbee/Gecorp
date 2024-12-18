@@ -24,6 +24,10 @@ class PengirimanBarang extends Model
 
     public $timestamps = false;
 
+    public function tokof()
+    {
+        return $this->belongsTo(Toko::class, 'id_toko', 'id');
+    }
     public function toko()
     {
         return $this->belongsTo(Toko::class, 'toko_pengirim', 'id');

@@ -224,11 +224,14 @@
                 id: data?.id ?? '-',
                 status,
                 no_resi: data?.no_resi ?? '-',
+                ekspedisi: data?.ekspedisi ?? '-',
                 toko_pengirim: data?.toko_pengirim ?? '-',
+                nama_pengirim: data?.nama_pengirim ?? '-',
                 tgl_kirim: data?.tgl_kirim ?? '-',
                 tgl_terima: data?.tgl_terima ?? '-',
                 total_item: data?.total_item ?? '-',
                 total_nilai: data?.total_nilai ?? '-',
+                toko_penerima: data?.toko_penerima ?? '-',
                 detail_button,
                 delete_button,
             };
@@ -258,11 +261,11 @@
                                 <td class="${classCol}">${element.tgl_terima}</td>
                                 <td class="${classCol}">${element.no_resi}</td>
                                 <td class="${classCol}">${element.toko_pengirim}</td>
+                                <td class="${classCol}">${element.nama_pengirim}</td>
+                                <td class="${classCol}">${element.ekspedisi}</td>
                                 <td class="${classCol}">${element.total_item}</td>
                                 <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">${element.total_item}</td>
-                                <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">${element.total_item}</td>
+                                <td class="${classCol}">${element.toko_penerima}</td>
                                 <td class="${classCol}">
                                     <div class="d-flex justify-content-center">
                                         <div class="hovering p-1">

@@ -36,7 +36,7 @@ class PengirimanBarangController extends Controller
 
         $query = PengirimanBarang::query();
 
-        $query->with(['toko', 'user'])->orderBy('id', $meta['orderBy']);
+        $query->with(['toko', 'tokos', 'user'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -93,7 +93,10 @@ class PengirimanBarangController extends Controller
             return [
                 'id' => $item['id'],
                 'no_resi' => $item->no_resi,
-                'toko_pengirim' => $item['toko']->toko_pengirim->nama_toko ?? null,
+                'ekspedisi' => $item->ekspedisi,
+                'toko_pengirim' => $item->toko->nama_toko ?? null, // Mengambil nama toko pengirim
+                'nama_pengirim' => $item->user->nama ?? null, // Mengambil nama pengirim dari relasi user
+                'toko_penerima' => $item->tokos->nama_toko ?? null, // Mengambil nama toko penerima
                 'status' => match ($item->status) {
                     'success' => 'Sukses',
                     'progress' => 'Progress',
