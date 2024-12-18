@@ -34,7 +34,7 @@ class PengirimanBarangController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = PengirimanBarang::query();
+        $query = PengirimanBarang::where('toko_pengirim', Auth::user()->id_toko)->orWhere('toko_penerima', Auth::user()->id_toko);
 
         $query->with(['toko', 'tokos', 'user'])->orderBy('id', $meta['orderBy']);
 
@@ -97,6 +97,7 @@ class PengirimanBarangController extends Controller
                 'toko_pengirim' => $item->toko->nama_toko ?? null, // Mengambil nama toko pengirim
                 'nama_pengirim' => $item->user->nama ?? null, // Mengambil nama pengirim dari relasi user
                 'toko_penerima' => $item->tokos->nama_toko ?? null, // Mengambil nama toko penerima
+                'id_toko_penerima' => $item->tokos->id ?? null, // Mengambil nama toko penerima
                 'status' => match ($item->status) {
                     'success' => 'Sukses',
                     'progress' => 'Progress',
