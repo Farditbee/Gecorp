@@ -38,7 +38,7 @@ class KasirController extends Controller
 
         $query = Kasir::query();
 
-        $query->with(['member', 'toko', 'users',])->orderBy('id', $meta['orderBy']);
+        $query->with(['member', 'toko', 'usess',])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
