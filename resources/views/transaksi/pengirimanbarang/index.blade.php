@@ -211,14 +211,14 @@
             </a>`;
 
             let edit_button = '';
-            if (id_toko == data?.id_toko_penerima) {
+            if (id_toko === data?.id_toko_penerima) {
                 edit_button = `
                 <a href="pengirimanbarang/edit/${data.id}" class="p-1 btn edit-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Edit Data Nomor Resi: ${data.no_resi}"
                     data-id='${data.id}'>
                     <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
+                    <div class="icon text-info">
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>`;
@@ -239,6 +239,18 @@
                 </a>`;
             }
 
+            let action_buttons = '';
+            if (edit_button || delete_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-start">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 status,
@@ -252,8 +264,7 @@
                 total_nilai: data?.total_nilai ?? '-',
                 toko_penerima: data?.toko_penerima ?? '-',
                 detail_button,
-                edit_button,
-                delete_button,
+                action_buttons,
             };
         }
 
@@ -287,17 +298,11 @@
                     <td class="${classCol}">${element.total_nilai}</td>
                     <td class="${classCol}">${element.toko_penerima}</td>
                     <td class="${classCol}">
-                        <div class="d-flex justify-content-start">
-                            <div class="hovering p-1">
-                                ${element.edit_button}
-                            </div>
-                            <div class="hovering p-1">
-                                ${element.delete_button}
-                            </div>
-                        </div>
+                        ${element.action_buttons}
                     </td>
                 </tr>`;
             });
+
 
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
