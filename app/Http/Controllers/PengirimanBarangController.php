@@ -61,13 +61,13 @@ class PengirimanBarangController extends Controller
 
                 // Pencarian pada relasi 'supplier->nama_supplier'
                 $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(toko_pengirim) LIKE ?", ["%$searchTerm%"]);
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 });
-                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(toko_penerima) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereHas('tokos', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 });
                 $query->orWhereHas('user', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_pengirim) LIKE ?", ["%$searchTerm%"]);
+                    $subquery->whereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
                 });
             });
         }
