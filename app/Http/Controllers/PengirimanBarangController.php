@@ -58,6 +58,7 @@ class PengirimanBarangController extends Controller
                 // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(no_resi) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(ekspedisi) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(status) LIKE ?", ["%$searchTerm%"]);
 
                 // Pencarian pada relasi 'supplier->nama_supplier'
                 $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
