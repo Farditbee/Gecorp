@@ -26,6 +26,9 @@ class PengirimanBarangController extends Controller
         $this->menu;
         $this->title = [
             'Pengiriman Barang',
+            'Tambah Data',
+            'Detail Data',
+            'Edit Data'
         ];
     }
 
@@ -158,16 +161,18 @@ class PengirimanBarangController extends Controller
 
     public function detail(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $detail_pengiriman = DetailPengirimanBarang::where('id_pengiriman_barang', $id)->get();  // Ambil data pengiriman dari database
         // $selectedTokoId = $detail_pengiriman->toko_pengirim;  // Asumsikan kamu menyimpan id toko pengirim di dalam pengiriman
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
         // $pengiriman_barang = PengirimanBarang::all();
 
-        return view('transaksi.pengirimanbarang.detail', compact('detail_pengiriman', 'pengiriman_barang'));
+        return view('transaksi.pengirimanbarang.detail', compact('menu', 'detail_pengiriman', 'pengiriman_barang'));
     }
 
     public function create(Request $request)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $toko = Toko::all();
         // $user = User::all();
         $detail_toko = DetailToko::all();
@@ -177,7 +182,7 @@ class PengirimanBarangController extends Controller
 
         // $pengiriman = PengirimanBarang::where('id', $id)->first();
 
-        return view('transaksi.pengirimanbarang.create', compact('toko', 'stock', 'detail_toko'));
+        return view('transaksi.pengirimanbarang.create', compact('menu', 'toko', 'stock', 'detail_toko'));
     }
 
     public function store(Request $request)
@@ -410,9 +415,10 @@ class PengirimanBarangController extends Controller
 
     public function edit($id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[3]];
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
 
-        return view('transaksi.pengirimanbarang.edit', compact('pengiriman_barang',));
+        return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
     }
 
     public function updateStatus(Request $request, $id)

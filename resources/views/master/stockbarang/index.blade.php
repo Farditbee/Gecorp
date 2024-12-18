@@ -321,16 +321,6 @@
         }
 
         async function handleData(data) {
-            const rupiah = (value) => {
-                let number = parseFloat(value) || 0;
-                let roundedNumber = Math.round(number);
-                return new Intl.NumberFormat('id-ID', {
-                    style: 'currency',
-                    currency: 'IDR',
-                    minimumFractionDigits: 2,
-                }).format(roundedNumber);
-            };
-
             let detail_button = `
                 <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
                     data-toggle="modal" data-target="#mediumModal-${data.id}"
@@ -355,7 +345,7 @@
                 id: data?.id ?? '-',
                 nama_barang: data?.nama_barang ?? '-',
                 stock: data?.stock ?? '-',
-                hpp_baru: rupiah(data?.hpp_baru),
+                hpp_baru: formatRupiah(data?.hpp_baru),
                 detail_button,
                 delete_button,
             };

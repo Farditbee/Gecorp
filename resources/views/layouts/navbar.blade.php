@@ -1,4 +1,4 @@
-<nav class="pcoded-navbar theme-horizontal menu-light">
+<nav class="pcoded-navbar theme-horizontal menu-light nav-svg">
     <div class="navbar-wrapper">
         <div class="navbar-content sidenav-horizontal" id="layout-sidenav">
             <ul class="nav pcoded-inner-navbar p-1">

@@ -253,11 +253,6 @@
                     penjualan = Object.values(apiResponse.yearly || {});
                 }
 
-                if (penjualan.length === 0) {
-                    chartContainer.innerHTML = "<p>Data tidak tersedia untuk tahun ini.</p>";
-                    return;
-                }
-
                 total.textContent = formatRupiah(apiResponse.totals || 0);
 
                 const categories = {

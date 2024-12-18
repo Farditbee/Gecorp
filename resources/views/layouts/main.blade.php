@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -18,7 +17,13 @@
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     @include('layouts.css.style_css')
     <style>
-        /* Elegant Finance-Themed Header */
+        body {
+            /* background-image: url('{{ asset('images/dashboard-atas.svg') }}'); */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
         .header-corp {
             background: linear-gradient(135deg, #1A2E40 0%, #1D4E89 50%, #A69364 100%);
             color: white;
@@ -83,7 +88,6 @@
 </head>
 
 <body>
-
     <!-- [ navigation menu ] start -->
     @include('layouts.navbar')
     <!-- [ navigation menu ] end -->
@@ -109,8 +113,14 @@
     <script src="{{ asset('js/sweetalert2.js') }}"></script>
     @yield('asset_js')
     <script>
-        function formatRupiah(amount) {
-            return `Rp. ${amount.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' }).replace('Rp', '').trim()}`;
+        function formatRupiah(value) {
+            let number = parseFloat(value) || 0;
+            let roundedNumber = Math.round(number);
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 2,
+            }).format(roundedNumber);
         }
 
         function notificationAlert(tipe, title, message) {

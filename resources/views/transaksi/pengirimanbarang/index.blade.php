@@ -20,8 +20,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
+                                <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary mb-2 mb-lg-0 text-white">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
 
@@ -156,6 +155,7 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {
