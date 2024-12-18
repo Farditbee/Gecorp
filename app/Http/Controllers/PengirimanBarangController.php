@@ -118,7 +118,7 @@ class PengirimanBarangController extends Controller
                     default => $item->status,
                 },
                 'tgl_kirim' => \Carbon\Carbon::parse($item->tgl_kirim)->format('d-m-Y'),
-                'tgl_terima' => \Carbon\Carbon::parse($item->tgl_terima)->format('d-m-Y'),
+                'tgl_terima' => $item->tgl_terima ? \Carbon\Carbon::parse($item->tgl_terima)->format('d-m-Y') : null,
                 'total_item' => $item->total_item,
                 'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
             ];
