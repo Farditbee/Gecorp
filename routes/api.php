@@ -29,6 +29,7 @@ Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->n
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
+Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');

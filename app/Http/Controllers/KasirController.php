@@ -38,7 +38,7 @@ class KasirController extends Controller
 
         $query = Kasir::query();
 
-        $query->with(['meber', 'toko', 'user'])->orderBy('id', $meta['orderBy']);
+        $query->with(['member', 'toko', 'users',])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -93,7 +93,7 @@ class KasirController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'nama_supplier' => $item['supplier']->nama_supplier,
+                'nama_member' => $item['member']->nama_member ?? null,
                 'status' => match ($item->status) {
                     'success' => 'Sukses',
                     'failed' => 'Gagal',
@@ -338,18 +338,18 @@ class KasirController extends Controller
                 $idToko = $user->id_toko;
                 $idMember = $kasir->id_member;
                 $idKasir = $kasir->id;
-    
+
                 $qrCodeValue = "{$tglTransaksiFormat}TK{$idToko}MM{$idMember}ID{$idKasir}-{$counter}";
-    
+
                 // Path untuk menyimpan QR Code
                 $qrCodePath = "qrcodes/trx_kasir/{$idKasir}-{$counter}.png";
                 $fullPath = storage_path('app/public/' . $qrCodePath);
-    
+
                 // Buat folder jika belum ada
                 if (!file_exists(dirname($fullPath))) {
                     mkdir(dirname($fullPath), 0755, true);
                 }
-    
+
                 // Generate QR Code
                 QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
 
@@ -364,7 +364,7 @@ class KasirController extends Controller
                     'qrcode' => $qrCodeValue,
                     'qrcode_path' => $qrCodePath,
                 ]);
-                
+
                 // Update stok berdasarkan toko
                 if ($user->id_toko == 1) {
                     $stock = StockBarang::where('id_barang', $id_barang)->first();
