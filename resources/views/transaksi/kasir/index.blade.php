@@ -640,7 +640,7 @@
                 total_item: data?.total_item ?? '-',
                 total_nilai: data?.total_nilai ?? '-',
                 metode: data?.metode ?? '-',
-                nama_kasir: data?.nama_kasir ?? '-',
+                nama: data?.nama ?? '-',
                 action_buttons,
             };
         }
@@ -664,7 +664,7 @@
                                 <td class="${classCol}">${element.total_item}</td>
                                 <td class="${classCol}">${element.total_nilai}</td>
                                 <td class="${classCol}">${element.metode}</td>
-                                <td class="${classCol}">${element.nama_kasir}</td>
+                                <td class="${classCol}">${element.nama}</td>
                                 <td class="${classCol}">${element.action_buttons}</td>
                             </tr>`;
             });
