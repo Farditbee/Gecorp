@@ -620,10 +620,10 @@
                 </a>`;
 
             let action_buttons = '';
-            if (edit_button || delete_button) {
+            if (detail_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
