@@ -37,7 +37,17 @@ class PengirimanBarangController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = PengirimanBarang::where('toko_pengirim', Auth::user()->id_toko)->orWhere('toko_penerima', Auth::user()->id_toko);
+        // Ambil id_toko dari request
+        $id_toko = $request->input('id_toko');
+
+        // Inisialisasi query
+        $query = PengirimanBarang::query();
+
+        // Jika id_toko bukan 1, filter berdasarkan toko_pengirim atau toko_penerima
+        if ($id_toko != 1) {
+            $query->where('toko_pengirim', $id_toko)
+                ->orWhere('toko_penerima', $id_toko);
+        }
 
         $query->with(['toko', 'tokos', 'user'])->orderBy('id', $meta['orderBy']);
 
