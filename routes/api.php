@@ -10,7 +10,6 @@ use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PromoController;
-use App\Http\Controllers\RatingController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TokoController;

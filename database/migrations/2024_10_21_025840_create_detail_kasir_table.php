@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id('id');
             $table->string('id_kasir');
             $table->string('id_barang');
+            $table->string('qrcode')->nullable();
+            $table->string('qrcode_path')->nullable();
             $table->integer('qty');
             $table->double('harga');
             $table->integer('diskon')->nullable();

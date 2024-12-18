@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class KasirController extends Controller
 {
@@ -188,6 +189,7 @@ class KasirController extends Controller
             $totalItem = 0;
             $totalNilai = 0;
             $totalDiskon = 0;
+            $counter = 1;
 
             foreach ($idBarangs as $index => $id_barang) {
                 $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null; // Konversi ke float
@@ -239,6 +241,26 @@ class KasirController extends Controller
                     }
                 }
 
+                // Generate QR Code Value
+                $tglTransaksiFormat = $tglTransaksi->format('dmY'); // Format tanggal DDMMYYYY
+                $idToko = $user->id_toko;
+                $idMember = $kasir->id_member;
+                $idKasir = $kasir->id;
+    
+                $qrCodeValue = "{$tglTransaksiFormat}TK{$idToko}MM{$idMember}ID{$idKasir}-{$counter}";
+    
+                // Path untuk menyimpan QR Code
+                $qrCodePath = "qrcodes/trx_kasir/{$idKasir}-{$counter}.png";
+                $fullPath = storage_path('app/public/' . $qrCodePath);
+    
+                // Buat folder jika belum ada
+                if (!file_exists(dirname($fullPath))) {
+                    mkdir(dirname($fullPath), 0755, true);
+                }
+    
+                // Generate QR Code
+                QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
+
                 // Simpan detail kasir
                 $detail = DetailKasir::create([
                     'id_kasir' => $kasir->id,
@@ -247,10 +269,10 @@ class KasirController extends Controller
                     'harga' => $harga_barang,
                     'diskon' => $potongan,
                     'total_harga' => $qty * $harga_barang,
+                    'qrcode' => $qrCodeValue,
+                    'qrcode_path' => $qrCodePath,
                 ]);
-
-                // dd($detail);
-
+                
                 // Update stok berdasarkan toko
                 if ($user->id_toko == 1) {
                     $stock = StockBarang::where('id_barang', $id_barang)->first();
@@ -270,6 +292,8 @@ class KasirController extends Controller
 
                 $totalItem += $qty;
                 $totalNilai += $qty * $harga_barang;
+
+                $counter++;
             }
 
             // Update total transaksi di kasir

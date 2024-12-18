@@ -228,7 +228,7 @@ class PembelianBarangController extends Controller
                     $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
             
                     // Path QR code for this barang
-                    $qrCodePath = 'qrcodes/pembelian/' . $barang->barcode . "-{$counter}.png";
+                    $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
                     $fullPath = storage_path('app/public/' . $qrCodePath);
 
                     // Buat folder jika belum ada

@@ -144,6 +144,14 @@ class BarangController extends Controller
             // Generate barcode value
             $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
 
+            // Path folder barcode
+            $barcodeFolder = storage_path('app/public/barcodes');
+    
+            // Buat folder barcode jika belum ada
+            if (!file_exists($barcodeFolder)) {
+                mkdir($barcodeFolder, 0755, true);
+            }
+            
             // Generate barcode as PNG file
             $barcodeFilename = "barcodes/{$barcodeValue}.png";
             if (!Storage::exists($barcodeFilename)) {
@@ -159,6 +167,14 @@ class BarangController extends Controller
                 }
             }
 
+            // Path folder gambar_barang
+            $gambarFolder = storage_path('app/public/gambar_barang');
+    
+            // Buat folder gambar_barang jika belum ada
+            if (!file_exists($gambarFolder)) {
+                mkdir($gambarFolder, 0755, true);
+            }
+            
             // Simpan gambar barang jika diunggah
             $gambarPath = null; // Default null jika gambar tidak diunggah
             if ($request->hasFile('gambar_barang')) {
