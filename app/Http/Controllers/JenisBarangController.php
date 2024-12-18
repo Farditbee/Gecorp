@@ -8,6 +8,18 @@ use Illuminate\Support\Facades\DB;
 
 class JenisBarangController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Jenis Barang',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getjenisbarang(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -74,13 +86,15 @@ class JenisBarangController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $jenisbarang = JenisBarang::orderBy('id', 'desc')->get();
-        return view('master.jenisbarang.index', compact('jenisbarang'));
+        return view('master.jenisbarang.index', compact('menu', 'jenisbarang'));
     }
 
     public function create()
     {
-        return view('master.jenisbarang.create');
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
+        return view('master.jenisbarang.create', compact('menu'));
     }
 
     public function store(Request $request)
@@ -108,8 +122,9 @@ class JenisBarangController extends Controller
 
     public function edit(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $jenisbarang = JenisBarang::findOrFail($id);
-        return view('master.jenisbarang.edit', compact('jenisbarang'));
+        return view('master.jenisbarang.edit', compact('menu', 'jenisbarang'));
     }
 
     public function update(Request $request, string $id)

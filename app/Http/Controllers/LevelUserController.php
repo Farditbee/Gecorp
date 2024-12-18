@@ -9,6 +9,18 @@ use PhpParser\Node\Expr\Cast\String_;
 
 class LevelUserController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Level User',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getleveluser(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -77,13 +89,15 @@ class LevelUserController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $leveluser = LevelUser::orderBy('id', 'desc')->get();
-        return view ('master.leveluser.index', compact('leveluser'));
+        return view('master.leveluser.index', compact('menu', 'leveluser'));
     }
 
     public function create()
     {
-        return view('master.leveluser.create');
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
+        return view('master.leveluser.create', compact('menu'));
     }
 
     public function store(Request $request)
@@ -91,7 +105,7 @@ class LevelUserController extends Controller
         $validatedData = $request->validate([
             'nama_level' => 'required|max:255',
             'informasi' => 'required|max:255',
-        ],[
+        ], [
             'nama_level.required' => 'Nama Level User tidak boleh kosong.',
             'informasi.required' => 'Informasi tidak boleh kosong.',
         ]);
@@ -101,7 +115,6 @@ class LevelUserController extends Controller
                 'nama_level' => $request->nama_level,
                 'informasi' => $request->informasi,
             ]);
-
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -110,22 +123,23 @@ class LevelUserController extends Controller
 
     public function edit(String $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $leveluser = LevelUser::findOrFail($id);
-        return view('master.leveluser.edit', compact('leveluser'));
+        return view('master.leveluser.edit', compact('menu', 'leveluser'));
     }
 
     public function update(Request $request, string $id)
     {
         $leveluser = LevelUser::findOrFail($id);
         try {
-           $leveluser->update([
-            'nama_level'=> $request->nama_level,
-            'informasi'=> $request->informasi,
-           ]);
-     } catch (\Throwable $th) {
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
-    }
-    return redirect()->route('master.leveluser.index')->with('success', 'Sukses Mengubah Data Level User');
+            $leveluser->update([
+                'nama_level' => $request->nama_level,
+                'informasi' => $request->informasi,
+            ]);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
+        }
+        return redirect()->route('master.leveluser.index')->with('success', 'Sukses Mengubah Data Level User');
     }
 
     public function delete(String $id)
@@ -133,18 +147,18 @@ class LevelUserController extends Controller
         DB::beginTransaction();
         $leveluser = LevelUser::findOrFail($id);
         try {
-        $leveluser->delete();
-        DB::commit();
-        return response()->json([
-            'success' => true,
-            'message' => 'Sukses menghapus Data Level User'
-        ]);
-    } catch (\Throwable $th) {
-        DB::rollBack();
-        return response()->json([
-            'success' => false,
-            'message' => 'Gagal menghapus Data Level User: ' . $th->getMessage()
-        ], 500);
+            $leveluser->delete();
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data Level User'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data Level User: ' . $th->getMessage()
+            ], 500);
+        }
     }
-}
 }

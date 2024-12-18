@@ -12,6 +12,18 @@ use Milon\Barcode\Facades\DNS1DFacade;
 
 class BarangController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Barang',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getbarangs(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -90,19 +102,21 @@ class BarangController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $barang = Barang::with('brand', 'jenis')
-                        ->orderBy('id', 'desc')
-                        ->get();
-        return view('master.barang.index', compact('barang'));
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('master.barang.index', compact('menu', 'barang'));
     }
 
     public function create()
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $jenis = JenisBarang::all();
         $brand = Brand::all();
         // Mengirim data ke view
-        return view('master.barang.create', compact('brand', 'jenis'), [
-            'brand' => Brand::all()->pluck('nama_brand','id'),
+        return view('master.barang.create', compact('menu', 'brand', 'jenis'), [
+            'brand' => Brand::all()->pluck('nama_brand', 'id'),
             'jenis' => JenisBarang::all()->pluck('nama_jenis_barang', 'id'),
         ]);
     }
@@ -155,7 +169,7 @@ class BarangController extends Controller
             // Generate barcode as PNG file
             $barcodeFilename = "barcodes/{$barcodeValue}.png";
             if (!Storage::exists($barcodeFilename)) {
-            $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
+                $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
 
                 if (!$barcodeImage) {
                     throw new \Exception('Failed to generate barcode PNG as Base64');
@@ -213,10 +227,11 @@ class BarangController extends Controller
 
     public function edit(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $barang = Barang::with('brand', 'jenis')->findOrFail($id);
         $brand = Brand::all();
         $jenis = JenisBarang::all();
-        return view('master.barang.edit', compact('barang', 'brand', 'jenis'));
+        return view('master.barang.edit', compact('menu', 'barang', 'brand', 'jenis'));
     }
 
     public function update(Request $request, string $id)

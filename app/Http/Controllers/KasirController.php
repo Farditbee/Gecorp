@@ -21,53 +21,145 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class KasirController extends Controller
 {
-    public function cetakStruk($id_kasir)
-    {
-        {
-            $kasir = Kasir::with('toko', 'member', 'users')->findOrFail($id_kasir); // Pastikan relasi 'toko', 'member', dan 'users' termuat
-            $detail_kasir = DetailKasir::where('id_kasir', $id_kasir)->get(); // Hanya ambil detail kasir yang sesuai
+    private array $menu = [];
 
-            return view('transaksi.kasir.cetak_struk', compact('kasir', 'detail_kasir'));
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Transaksi Kasir',
+        ];
+    }
+
+    public function getkasirs(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Kasir::query();
+
+        $query->with(['meber', 'toko', 'user'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi lain
+                $query->orWhereHas('member', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('user', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
         }
 
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_supplier' => $item['supplier']->nama_supplier,
+                'status' => match ($item->status) {
+                    'success' => 'Sukses',
+                    'failed' => 'Gagal',
+                    default => $item->status,
+                },
+                'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
+                'no_nota' => $item->no_nota,
+                'total_item' => $item->total_item,
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
+    public function cetakStruk($id_kasir)
+    {
+        $kasir = Kasir::with('toko', 'member', 'users')->findOrFail($id_kasir); // Pastikan relasi 'toko', 'member', dan 'users' termuat
+        $detail_kasir = DetailKasir::where('id_kasir', $id_kasir)->get(); // Hanya ambil detail kasir yang sesuai
+
+        return view('transaksi.kasir.cetak_struk', compact('kasir', 'detail_kasir'));
     }
 
     public function index(Request $request)
-{
-    $user = Auth::user();
-    $users = User::all();
-    $detail_kasir = DetailKasir::all();
-    $toko = Toko::all();
+    {
+        $menu = [$this->title[0], $this->label[1]];
+        $user = Auth::user();
+        $users = User::all();
+        $detail_kasir = DetailKasir::all();
+        $toko = Toko::all();
 
-    // Mengambil data berdasarkan level user
-    if ($user->id_level == 1) {
-        $kasirQuery = Kasir::orderBy('id', 'desc');
-    } else {
-        $kasirQuery = Kasir::where('id_toko', $user->id_toko)
-                           ->orderBy('id', 'desc');
+        // Mengambil data berdasarkan level user
+        if ($user->id_level == 1) {
+            $kasirQuery = Kasir::orderBy('id', 'desc');
+        } else {
+            $kasirQuery = Kasir::where('id_toko', $user->id_toko)
+                ->orderBy('id', 'desc');
+        }
+
+        // Filter berdasarkan tgl_transaksi
+        if ($request->has(['start_date', 'end_date'])) {
+            $startDate = $request->input('start_date');
+            $endDate = $request->input('end_date');
+
+            $kasirQuery->whereBetween('tgl_transaksi', [$startDate, $endDate]);
+        }
+
+        $kasir = $kasirQuery->get();
+
+        // Ambil data barang dan member berdasarkan level user
+        if ($user->id_level == 1) {
+            $barang = StockBarang::all();
+            $member = Member::all();
+        } else {
+            $barang = DetailToko::where('id_toko', $user->id_toko)->get();
+            $member = Member::where('id_toko', $user->id_toko)->get();
+        }
+
+        return view('transaksi.kasir.index', compact('menu', 'barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
     }
-
-    // Filter berdasarkan tgl_transaksi
-    if ($request->has(['start_date', 'end_date'])) {
-        $startDate = $request->input('start_date');
-        $endDate = $request->input('end_date');
-
-        $kasirQuery->whereBetween('tgl_transaksi', [$startDate, $endDate]);
-    }
-
-    $kasir = $kasirQuery->get();
-
-    // Ambil data barang dan member berdasarkan level user
-    if ($user->id_level == 1) {
-        $barang = StockBarang::all();
-        $member = Member::all();
-    } else {
-        $barang = DetailToko::where('id_toko', $user->id_toko)->get();
-        $member = Member::where('id_toko', $user->id_toko)->get();
-    }
-
-    return view('transaksi.kasir.index', compact('barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
-}
 
     public function getFilteredHarga(Request $request)
     {
@@ -322,5 +414,4 @@ class KasirController extends Controller
         }
         return $array;
     }
-
 }

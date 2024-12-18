@@ -10,6 +10,18 @@ use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Brand',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
     public function getbrand(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -76,17 +88,19 @@ class BrandController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $brand = Brand::with('jenis')
             ->orderBy('id', 'desc')
             ->get();
         // $jenis = JenisBarang::all();
-        return view('master.brand.index', compact('brand'));
+        return view('master.brand.index', compact('menu', 'brand'));
     }
 
     public function create()
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $jenis = JenisBarang::all();
-        return view('master.brand.create', compact('jenis'), [
+        return view('master.brand.create', compact('menu', 'jenis'), [
             'jenis' => JenisBarang::all()->pluck('id', 'nama_jenis_barang'),
         ]);
     }
@@ -131,11 +145,11 @@ class BrandController extends Controller
 
     public function edit(string $id)
     {
-
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $brand = Brand::with('jenis')->findOrFail($id);
 
         $jenis = JenisBarang::all();
-        return view('master.brand.edit', compact('brand', 'jenis'));
+        return view('master.brand.edit', compact('menu', 'brand', 'jenis'));
     }
 
     public function update(Request $request, string $id)

@@ -17,7 +17,58 @@
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     @include('layouts.css.style_css')
+    <style>
+        /* Elegant Finance-Themed Header */
+        .header-corp {
+            background: linear-gradient(135deg, #1A2E40 0%, #1D4E89 50%, #A69364 100%);
+            color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid #A69364;
+        }
 
+        .header-corp .b-brand b {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            letter-spacing: 1px;
+            color: #FFD700;
+            /* Gold color for brand name */
+        }
+
+        .header-corp .navbar-nav .dropdown-toggle,
+        .header-corp .navbar-nav .dropdown-item {
+            color: #FFF;
+            font-weight: 500;
+        }
+
+        .header-corp .navbar-nav .dropdown-item:hover {
+            background-color: rgba(255, 215, 0, 0.2);
+            /* Gold with transparency */
+            color: #FFD700;
+        }
+
+        .pro-head {
+            background-color: #1D4E89;
+            /* Navy Blue */
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #A69364;
+        }
+
+        .pro-head h5,
+        .pro-head p {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .pro-body .dropdown-item {
+            color: #1A2E40;
+        }
+
+        .pro-body .dropdown-item:hover {
+            background-color: #A69364;
+            color: #FFF;
+        }
+    </style>
     @yield('css')
     <script>
         document.onreadystatechange = function() {

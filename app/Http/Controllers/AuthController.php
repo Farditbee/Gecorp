@@ -59,7 +59,9 @@ class AuthController extends Controller
     public function dashboard()
     {
         $toko = Toko::all();
-        return view('dashboard', compact('toko'));
+        $title = 'Dashboard';
+
+        return view('dashboard', compact('title', 'toko'));
     }
 
     public function logout(Request $request)
@@ -76,6 +78,7 @@ class AuthController extends Controller
 
     public function index(Request $request)
     {
+        $menu = ['Dashboard'];
         $user = Auth::user();
         $users = User::all();
         $detail_kasir = DetailKasir::all();
@@ -112,6 +115,6 @@ class AuthController extends Controller
 
         // dd($totalSemuaNilai);
 
-        return view('dashboard', compact('barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko', 'totalSemuaNilai'));
+        return view('dashboard', compact('menu', 'barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko', 'totalSemuaNilai'));
     }
 }

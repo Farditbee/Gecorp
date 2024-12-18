@@ -1,337 +1,363 @@
 @extends('layouts.main')
 
 @section('title')
-    Pengiriman Barang
+    Pembelian Barang
+@endsection
+
+@section('css')
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
 @endsection
 
 @section('content')
+    <div class="pcoded-main-container">
+        <div class="pcoded-content pt-1 mt-1">
+            @include('components.breadcrumbs')
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
+                                    data-target=".bd-example-modal-lg">
+                                    <i class="fa fa-plus-circle"></i> Tambah
+                                </a>
 
-<div class="pcoded-main-container">
-    <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Data Pengiriman Barang</h5>
+                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
+                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
+                                        name="daterange" placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                </form>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
+                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
+                                    style="width: 100px;">
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                </select>
+                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            </div>
                         </div>
-                        <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a>Data Pengiriman Barang</a></li>
-                        </ul>
+                        <div class="content">
+                            <x-adminlte-alerts />
+                            <div class="card-body p-0">
+                                <div class="table-responsive table-scroll-wrapper">
+                                    <table class="table table-hover m-0">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Detail</th>
+                                                <th class="text-wrap align-top">Status</th>
+                                                <th class="text-wrap align-top">Tgl Kirim</th>
+                                                <th class="text-wrap align-top">Tgl Terima</th>
+                                                <th class="text-wrap align-top">No. Resi</th>
+                                                <th class="text-wrap align-top">Toko Pengirim</th>
+                                                <th class="text-wrap align-top">Nama Pengirim</th>
+                                                <th class="text-wrap align-top">Ekspedisi</th>
+                                                <th class="text-wrap align-top">Jumlah Qty</th>
+                                                <th class="text-wrap align-top">Total Harga</th>
+                                                <th class="text-wrap align-top">Toko Penerima</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="listData">
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
+                                    <div class="text-center text-md-start mb-2 mb-md-0">
+                                        <div class="pagination">
+                                            <div>Menampilkan <span id="countPage">0</span> dari <span
+                                                    id="totalPage">0</span> data</div>
+                                        </div>
+                                    </div>
+                                    <nav class="text-center text-md-end">
+                                        <ul class="pagination justify-content-center justify-content-md-end"
+                                            id="pagination-js">
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <!-- [ breadcrumb ] end -->
 
-        <!-- [ Main Content ] start -->
-        <div class="row">
-            <div class="col-xl-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <!-- Tombol Tambah dan Filter -->
-                        <div class="d-flex">
-                            <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary mr-2">
-                                <i class="ti-plus menu-icon"></i> Tambah
-                            </a>
-                            <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
-                                <i class="ti-plus menu-icon"></i> Filter
-                            </a>
-                        </div>
-
-                        <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.pembelianbarang.index') }}">
-                            <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Pembelian" aria-label="Search">
-                        </form>
-                    </div>
-                    <x-adminlte-alerts />
-                    <div class="card-body table-border-style">
-                        <div class="table-responsive">
-                            <table class="table table-striped" id="jsTable">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Detail</th>
-                                        <th>Status</th>
-                                        <th>Tgl Kirim</th>
-                                        <th>Tgl Terima</th>
-                                        <th>No. Resi</th>
-                                        <th>Toko Pengirim</th>
-                                        <th>Nama Pengirim</th>
-                                        <th>Ekspedisi</th>
-                                        <th>Jumlah Qty</th>
-                                        <th>Total Harga</th>
-                                        <th>Toko Penerima</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($pengiriman_barang as $prbr)
-                                    <tr>
-                                        <td>{{ $loop->iteration}}</td>
-                                        <td>
-                                            <a href="{{ route('master.pengirimanbarang.detail', $prbr->id)}}" class="btn btn-primary btn-sm" style="font-size: 12px;">Cek Detail</i></a>
-                                        </td>
-                                        @if ($prbr->status == 'failed')
-                                        <td><span class="badge badge-danger fixed-badge">Failed</span></td>
-                                        @elseif ($prbr->status == 'progress')
-                                        <td><span style="color: black" class="badge badge-warning fixed-badge">Progress</span></td>
-                                        @else
-                                        <td><span class="badge badge-success fixed-badge">Success</span></td>
-                                        @endif
-                                        <td>{{ \DateTime::createFromFormat('Y-m-d', $prbr->tgl_kirim)->format('d-m-Y') }}</td>
-                                        <td>
-                                            {{ $prbr->tgl_terima ? \DateTime::createFromFormat('Y-m-d', $prbr->tgl_terima)->format('d-m-Y') : '' }}
-                                        </td>
-
-                                        <td>{{ $prbr->no_resi}}</td>
-                                        <td>{{ $prbr->toko->nama_toko}}</td>
-                                        <td>{{ $prbr->user->nama}}</td>
-                                        <td>{{ $prbr->ekspedisi}}</td>
-                                        <td>{{ $prbr->total_item}}</td>
-                                        <td>Rp. {{ number_format($prbr->total_nilai, 0, '.', '.') }}</td>
-                                        <td>{{ $prbr->tokos->nama_toko}}</td>
-                                        <form onsubmit="return confirm('Ingin menghapus Kostum ini ?');" action="#">
-                                            <td>
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash menu-icon"></i></button>
-                                                @if(auth()->user()->id_toko === $prbr->toko_penerima)
-                                                    <a href="{{ route('master.pengirimanbarang.edit', $prbr->id) }}" class="btn btn-warning btn-sm">
-                                                        <i class="fa fa-edit menu-icon"></i>
-                                                    </a>
-                                                @endif
-                                            </td>
-                                        </form>
-
-                                    </tr>
-                                    @empty
-
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <div>
-                                    Menampilkan <span id="current-count">0</span> data dari <span id="total-count">0</span> total data.
-                                </div>
-                                <nav aria-label="Page navigation example">
-                                    <ul class="pagination justify-content-end" id="pagination">
-                                      {{-- isian paginate --}}
-                                    </ul>
-                                  </nav>
+                <!-- Modal untuk Filter Tanggal -->
+                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('master.pengirimanbarang.index') }}" method="GET">
+                                    <div class="form-group">
+                                        <label for="startDate">Tanggal Mulai</label>
+                                        <input type="date" name="startDate" id="startDate" class="form-control"
+                                            value="{{ request('startDate') }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endDate">Tanggal Selesai</label>
+                                        <input type="date" name="endDate" id="endDate" class="form-control"
+                                            value="{{ request('endDate') }}">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- [ Main Content ] end -->
     </div>
-</div>
+@endsection
 
-<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <!-- Form Filter Tanggal -->
-                <form id="filterForm" method="GET" action="{{ route('master.pengirimanbarang.index') }}">
-                    <div class="form-group">
-                    <label for="startDate">Dari Tanggal:</label>
-                    <input type="date" class="form-control" id="startDate" name="start_date" value="{{ request('start_date') }}">
-                    </div>
-                    <div class="form-group">
-                    <label for="endDate">Hingga Tanggal:</label>
-                    <input type="date" class="form-control" id="endDate" name="end_date" value="{{ request('end_date') }}">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+@section('asset_js')
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+    <script src="{{ asset('js/daterange-custom.js') }}"></script>
+    <script src="{{ asset('js/pagination.js') }}"></script>
+@endsection
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    // Simpan status filter ke localStorage ketika form filter disubmit
-    document.getElementById('filterForm').addEventListener('submit', function(event) {
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
+@section('js')
+    <script>
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
 
-        // Cek apakah tanggal diisi
-        if (startDate && endDate) {
-            localStorage.setItem('filterApplied', 'true'); // Tandai filter sebagai "terapkan"
-            return true; // Kirim form jika tanggal dipilih
-        } else {
-            alert('Pilih rentang tanggal untuk filter.');
-            event.preventDefault(); // Cegah submit jika tanggal belum dipilih
-        }
-    });
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            let filterParams = {};
 
-    // Menghapus filter dari URL saat halaman di-refresh
-    $(document).ready(function() {
-        // Periksa apakah filter sudah diterapkan dan halaman di-refresh
-        if (localStorage.getItem('filterApplied') === 'true') {
-            const url = new URL(window.location);
-
-            // Hapus parameter start_date dan end_date dari URL jika ada
-            if (url.searchParams.has('start_date') || url.searchParams.has('end_date')) {
-                url.searchParams.delete('start_date');
-                url.searchParams.delete('end_date');
-                window.history.replaceState({}, document.title, url.toString()); // Perbarui URL
+            if (customFilter['startDate'] && customFilter['endDate']) {
+                filterParams.startDate = customFilter['startDate'];
+                filterParams.endDate = customFilter['endDate'];
             }
 
-            // Hapus status filter dari localStorage setelah halaman di-refresh
-            localStorage.removeItem('filterApplied');
-        }
-    });
-
-    // Event listener untuk membuka picker tanggal saat input difokuskan
-    document.getElementById('startDate').addEventListener('focus', function() {
-        this.showPicker();
-    });
-    document.getElementById('endDate').addEventListener('focus', function() {
-        this.showPicker();
-    });
-</script>
-
-<script>
-    // Fungsi Search
-    $(document).ready(function() {
-        $("#search").on("keyup", function() {
-            console.log('kons');
-            var value = $(this).val().toLowerCase();  // Ambil nilai input
-            $("#jsTable tbody tr").filter(function() {
-                // Show/hide baris berdasarkan pencarian pada kolom yang ada
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.pengiriman.get') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
             });
-        });
-    });
 
-    // Fungsi Paginate
-    $(document).ready(function(){
-    var rowsPerPage = 10; // Jumlah baris per halaman
-    var rows = $('#jsTable tbody tr'); // Mengambil semua baris dari tabel
-    var rowsCount = rows.length; // Menghitung jumlah total baris
-    var pageCount = Math.ceil(rowsCount / rowsPerPage); // Menghitung jumlah halaman
-    var numbers = $('#pagination'); // Elemen untuk tombol pagination
-    var currentPage = 1; // Halaman aktif saat ini
-
-    // Fungsi untuk menampilkan baris sesuai halaman
-    function showPage(page) {
-        var start = (page - 1) * rowsPerPage;
-        var end = start + rowsPerPage;
-        rows.hide(); // Sembunyikan semua baris
-        rows.slice(start, end).show(); // Tampilkan baris sesuai halaman yang dipilih
-    }
-
-    // Fungsi untuk membuat tombol pagination
-    function createPaginationButtons() {
-        numbers.empty(); // Hapus semua tombol pagination yang ada
-        numbers.append('<button class="prev-btn btn btn-sm btn-outline-primary mx-1">Previous</button>'); // Tombol Previous
-
-        for (var i = 1; i <= pageCount; i++) {
-            numbers.append('<button class="page-btn btn btn-sm btn-primary mx-1" data-page="' + i + '">' + i + '</button>');
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                $('#listData').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
         }
 
-        numbers.append('<button class="next-btn btn btn-sm btn-outline-primary mx-1">Next</button>'); // Tombol Next
+        async function handleData(data) {
+            let status = '';
+            if (data?.status === 'Sukses') {
+                status =
+                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
+            } else if (data?.status === 'Progress') {
+                status =
+                    `<span class="badge badge-warning custom-badge"><i class="mx-1 fa fa-spinner"></i>Progress</span>`;
+            } else if (data?.status === 'Gagal') {
+                status =
+                    `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
+            } else {
+                status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
+            }
 
-        // Menonaktifkan tombol Previous jika berada di halaman pertama
-        if (currentPage === 1) {
-            $('.prev-btn').prop('disabled', true);
-        } else {
-            $('.prev-btn').prop('disabled', false);
+            let detail_button = `
+            <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn edit-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Detail Data Nomor Resi: ${data.no_resi}"
+                data-id='${data.id}'>
+                <span class="text-dark">Detail</span>
+                <div class="icon text-info">
+                    <i class="fa fa-eye"></i>
+                </div>
+            </a>`;
+
+            let delete_button = `
+            <a class="p-1 btn hapus-data action_button"
+                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                title="Hapus No. Resi: ${data.no_resi}"
+                data-id='${data.id}'
+                data-name='${data.no_resi}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
+
+            return {
+                id: data?.id ?? '-',
+                status,
+                no_resi: data?.no_resi ?? '-',
+                ekspedisi: data?.ekspedisi ?? '-',
+                toko_pengirim: data?.toko_pengirim ?? '-',
+                nama_pengirim: data?.nama_pengirim ?? '-',
+                tgl_kirim: data?.tgl_kirim ?? '-',
+                tgl_terima: data?.tgl_terima ?? '-',
+                total_item: data?.total_item ?? '-',
+                total_nilai: data?.total_nilai ?? '-',
+                toko_penerima: data?.toko_penerima ?? '-',
+                detail_button,
+                delete_button,
+            };
         }
 
-        // Menonaktifkan tombol Next jika berada di halaman terakhir
-        if (currentPage === pageCount) {
-            $('.next-btn').prop('disabled', true);
-        } else {
-            $('.next-btn').prop('disabled', false);
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                            <tr class="text-dark">
+                                <td class="${classCol} text-center">${display_from + index}.</td>
+                                <td class="${classCol}">
+                                    <div class="d-flex justify-content-start">
+                                        <div class="hovering p-1">
+                                            ${element.detail_button}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="${classCol}">${element.status}</td>
+                                <td class="${classCol}">${element.tgl_kirim}</td>
+                                <td class="${classCol}">${element.tgl_terima}</td>
+                                <td class="${classCol}">${element.no_resi}</td>
+                                <td class="${classCol}">${element.toko_pengirim}</td>
+                                <td class="${classCol}">${element.nama_pengirim}</td>
+                                <td class="${classCol}">${element.ekspedisi}</td>
+                                <td class="${classCol}">${element.total_item}</td>
+                                <td class="${classCol}">${element.total_nilai}</td>
+                                <td class="${classCol}">${element.toko_penerima}</td>
+                                <td class="${classCol}">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="hovering p-1">
+                                            ${element.delete_button}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>`;
+            });
+
+            $('#listData').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            renderPagination();
         }
 
-        // Menyoroti tombol halaman yang aktif
-        $('.page-btn').removeClass('active');
-        $('.page-btn[data-page="' + currentPage + '"]').addClass('active');
-    }
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
 
-    // Inisialisasi tampilan halaman pertama
-    showPage(currentPage);
-    createPaginationButtons();
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
 
-    // Ketika tombol halaman diklik
-    numbers.on('click', '.page-btn', function(){
-        currentPage = $(this).data('page');
-        showPage(currentPage);
-        createPaginationButtons();
-    });
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
+                }
 
-    // Ketika tombol Previous diklik
-    numbers.on('click', '.prev-btn', function(){
-        if (currentPage > 1) {
-            currentPage--;
-            showPage(currentPage);
-            createPaginationButtons();
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
         }
-    });
 
-    // Ketika tombol Next diklik
-    numbers.on('click', '.next-btn', function(){
-        if (currentPage < pageCount) {
-            currentPage++;
-            showPage(currentPage);
-            createPaginationButtons();
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                isActionForm = "destroy";
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus User ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `pengirimanbarang/delete/${id}`
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
         }
-    });
-});
 
-// Fungsi Show Data
-$(document).ready(function(){
-    // Mengambil semua baris dari tabel
-    var rows = $('#jsTable tbody tr');
-    var totalData = rows.length; // Total semua data di tabel
-
-    // Tampilkan total data di awal
-    $('#total-count').text(totalData);
-
-    // Fungsi untuk memperbarui jumlah data yang terlihat
-    function updateDataCount() {
-        var visibleRows = rows.filter(':visible').length; // Hitung jumlah baris yang terlihat
-        $('#current-count').text(visibleRows); // Perbarui jumlah data yang ditampilkan
-        $('#total-count').text(totalData); // Menampilkan jumlah total data
-    }
-
-    // Inisialisasi jumlah data yang tampil di awal
-    updateDataCount();
-
-    // Fungsi pencarian
-    $('#searchInput').on('keyup', function(){
-        var value = $(this).val().toLowerCase();
-
-        rows.filter(function(){
-            // Tampilkan hanya baris yang sesuai dengan input pencarian
-            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
-        });
-
-        // Perbarui jumlah data yang tampil setelah pencarian
-        updateDataCount();
-    });
-
-    // Panggil updateDataCount() ketika melakukan pagination
-    $('#pagination').on('click', '.page-btn', function(){
-        // Logika pagination (jika ada)
-        updateDataCount(); // Perbarui jumlah data yang terlihat
-    });
-});
-
-</script>
-
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+            await filterList();
+            await deleteData();
+        }
+    </script>
 @endsection

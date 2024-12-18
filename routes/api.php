@@ -9,6 +9,7 @@ use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
+use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
@@ -27,6 +28,7 @@ Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->n
 Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->name('dashboard.rating');
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
+Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
 
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');

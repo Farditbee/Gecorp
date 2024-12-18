@@ -13,6 +13,19 @@ use Illuminate\Support\Facades\DB;
 
 class TokoController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Data Toko',
+            'Tambah Data',
+            'Detail Data',
+            'Edit Data'
+        ];
+    }
+
     public function gettoko(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -90,6 +103,7 @@ class TokoController extends Controller
 
     public function index()
     {
+        $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Jika level_user = 1, tampilkan semua data toko
@@ -102,13 +116,14 @@ class TokoController extends Controller
 
         $levelharga = LevelHarga::all();
 
-        return view('master.toko.index', compact('toko', 'levelharga'));
+        return view('master.toko.index', compact('menu', 'toko', 'levelharga'));
     }
 
     public function create()
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $levelharga = LevelHarga::orderBy('id', 'desc')->get();
-        return view('master.toko.create', compact('levelharga'));
+        return view('master.toko.create', compact('menu', 'levelharga'));
     }
 
     public function store(Request $request)
@@ -148,6 +163,7 @@ class TokoController extends Controller
 
     public function detail(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $toko = Toko::findOrFail($id);
 
         $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
@@ -172,7 +188,7 @@ class TokoController extends Controller
 
         $stock = StockBarang::orderBy('id', 'desc')->get();
 
-        return view('master.toko.detail', compact('toko', 'detail_toko', 'stock', 'levelhargas'));
+        return view('master.toko.detail', compact('menu', 'toko', 'detail_toko', 'stock', 'levelhargas'));
     }
 
     public function create_detail(string $id)
@@ -215,9 +231,10 @@ class TokoController extends Controller
 
     public function edit(string $id)
     {
+        $menu = [$this->title[0], $this->label[0], $this->title[3]];
         $levelharga = LevelHarga::all();
         $toko = Toko::findOrFail($id);
-        return view('master.toko.edit', compact('toko', 'levelharga'));
+        return view('master.toko.edit', compact('menu', 'toko', 'levelharga'));
     }
 
     public function edit_detail(string $id_toko, $id_barang, $id)

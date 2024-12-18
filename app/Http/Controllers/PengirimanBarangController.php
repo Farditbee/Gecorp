@@ -19,8 +19,110 @@ use Illuminate\Support\Facades\Log;
 
 class PengirimanBarangController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Pengiriman Barang',
+        ];
+    }
+
+    public function getpengirimanbarang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = PengirimanBarang::where('toko_pengirim', Auth::user()->id_toko)->orWhere('toko_penerima', Auth::user()->id_toko);
+
+        $query->with(['toko', 'tokos', 'user'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(no_resi) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(ekspedisi) LIKE ?", ["%$searchTerm%"]);
+
+                // Pencarian pada relasi 'supplier->nama_supplier'
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(toko_pengirim) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(toko_penerima) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('user', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_pengirim) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'no_resi' => $item->no_resi,
+                'ekspedisi' => $item->ekspedisi,
+                'toko_pengirim' => $item->toko->nama_toko ?? null, // Mengambil nama toko pengirim
+                'nama_pengirim' => $item->user->nama ?? null, // Mengambil nama pengirim dari relasi user
+                'toko_penerima' => $item->tokos->nama_toko ?? null, // Mengambil nama toko penerima
+                'id_toko_penerima' => $item->tokos->id ?? null, // Mengambil nama toko penerima
+                'status' => match ($item->status) {
+                    'success' => 'Sukses',
+                    'progress' => 'Progress',
+                    'failed' => 'Gagal',
+                    default => $item->status,
+                },
+                'tgl_kirim' => \Carbon\Carbon::parse($item->tgl_kirim)->format('d-m-Y'),
+                'tgl_terima' => \Carbon\Carbon::parse($item->tgl_terima)->format('d-m-Y'),
+                'total_item' => $item->total_item,
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
     public function index(Request $request)
     {
+        $menu = [$this->title[0], $this->label[1]];
         $toko = Toko::all();
         $barang = Barang::all();
         $user = User::all();
@@ -35,8 +137,8 @@ class PengirimanBarangController extends Controller
         } else {
             // Jika level user bukan 1, hanya tampilkan data toko terkait
             $query = $query->where('toko_penerima', $users->id_toko)
-                           ->orWhere('toko_pengirim', $users->id_toko)
-                           ->orderBy('id', 'desc');
+                ->orWhere('toko_pengirim', $users->id_toko)
+                ->orderBy('id', 'desc');
         }
 
         // Menerapkan filter tanggal jika parameter `start_date` dan `end_date` ada
@@ -49,7 +151,7 @@ class PengirimanBarangController extends Controller
 
         $pengiriman_barang = $query->get();
 
-        return view('transaksi.pengirimanbarang.index', compact('toko', 'barang', 'user', 'pengiriman_barang', 'users'));
+        return view('transaksi.pengirimanbarang.index', compact('menu', 'toko', 'barang', 'user', 'pengiriman_barang', 'users'));
     }
 
 
