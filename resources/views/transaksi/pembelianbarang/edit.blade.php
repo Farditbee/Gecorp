@@ -98,8 +98,7 @@
                                             <td>{{ $detail->qty }}</td>
                                             <td>Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
                                             <td>Rp {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}</td>
-                                            <td>Rp {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}</td>
-                                            <td><a href="{{ asset('storage/'. $detail->qrcode_path)}}" download class="btn btn-success"><i class="fa fa-download">Download</i></a></td>
+                                            <td><a href="{{ asset('storage/'. $detail->qrcode_path)}}" download class="btn btn-success"><i class="fa fa-download"> Unduh</i></a></td>
                                         </tr>
                                         <!-- Modal for each item -->
                                         <div class="modal fade" id="mediumModal-{{ $detail->id }}" tabindex="-1" role="dialog" aria-labelledby="mediumModalLabel-{{ $detail->id }}" aria-hidden="true">
