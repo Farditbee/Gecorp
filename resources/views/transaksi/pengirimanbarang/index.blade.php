@@ -20,7 +20,8 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a href="{{ route('master.pengirimanbarang.create')}}" class="btn btn-primary mb-2 mb-lg-0 text-white">
+                                <a href="{{ route('master.pengirimanbarang.create') }}"
+                                    class="btn btn-primary mb-2 mb-lg-0 text-white">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
 
@@ -183,6 +184,7 @@
         }
 
         async function handleData(data) {
+            let id_toko = '{{ auth()->user()->id_toko }}';
             let status = '';
             if (data?.status === 'Sukses') {
                 status =
@@ -198,8 +200,8 @@
             }
 
             let detail_button = `
-            <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn edit-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+            <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                data-container="body" data-toggle="tooltip" data-placement="top"
                 title="Detail Data Nomor Resi: ${data.no_resi}"
                 data-id='${data.id}'>
                 <span class="text-dark">Detail</span>
@@ -208,17 +210,34 @@
                 </div>
             </a>`;
 
-            let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Hapus No. Resi: ${data.no_resi}"
-                data-id='${data.id}'
-                data-name='${data.no_resi}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
+            let edit_button = '';
+            if (id_toko == data?.id_toko_penerima) {
+                edit_button = `
+                <a href="pengirimanbarang/edit/${data.id}" class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
+            }
+
+            let delete_button = '';
+            if (data?.status !== 'Progress') {
+                delete_button = `
+                <a class="p-1 btn hapus-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus No. Resi: ${data.no_resi}"
+                    data-id='${data.id}'
+                    data-name='${data.no_resi}'>
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
+            }
 
             return {
                 id: data?.id ?? '-',
@@ -233,6 +252,7 @@
                 total_nilai: data?.total_nilai ?? '-',
                 toko_penerima: data?.toko_penerima ?? '-',
                 detail_button,
+                edit_button,
                 delete_button,
             };
         }
@@ -247,33 +267,36 @@
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
-                            <tr class="text-dark">
-                                <td class="${classCol} text-center">${display_from + index}.</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-start">
-                                        <div class="hovering p-1">
-                                            ${element.detail_button}
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="${classCol}">${element.status}</td>
-                                <td class="${classCol}">${element.tgl_kirim}</td>
-                                <td class="${classCol}">${element.tgl_terima}</td>
-                                <td class="${classCol}">${element.no_resi}</td>
-                                <td class="${classCol}">${element.toko_pengirim}</td>
-                                <td class="${classCol}">${element.nama_pengirim}</td>
-                                <td class="${classCol}">${element.ekspedisi}</td>
-                                <td class="${classCol}">${element.total_item}</td>
-                                <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">${element.toko_penerima}</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="hovering p-1">
-                                            ${element.delete_button}
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>`;
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">
+                        <div class="d-flex justify-content-start">
+                            <div class="hovering p-1">
+                                ${element.detail_button}
+                            </div>
+                        </div>
+                    </td>
+                    <td class="${classCol}">${element.status}</td>
+                    <td class="${classCol}">${element.tgl_kirim}</td>
+                    <td class="${classCol}">${element.tgl_terima}</td>
+                    <td class="${classCol}">${element.no_resi}</td>
+                    <td class="${classCol}">${element.toko_pengirim}</td>
+                    <td class="${classCol}">${element.nama_pengirim}</td>
+                    <td class="${classCol}">${element.ekspedisi}</td>
+                    <td class="${classCol}">${element.total_item}</td>
+                    <td class="${classCol}">${element.total_nilai}</td>
+                    <td class="${classCol}">${element.toko_penerima}</td>
+                    <td class="${classCol}">
+                        <div class="d-flex justify-content-start">
+                            <div class="hovering p-1">
+                                ${element.edit_button}
+                            </div>
+                            <div class="hovering p-1">
+                                ${element.delete_button}
+                            </div>
+                        </div>
+                    </td>
+                </tr>`;
             });
 
             $('#listData').html(getDataTable);
