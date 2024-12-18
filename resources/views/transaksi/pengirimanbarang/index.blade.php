@@ -211,21 +211,21 @@
             </a>`;
 
             let edit_button = '';
-            if (id_toko === data?.id_toko_penerima) {
+            if (id_toko == data?.id_toko_penerima && data?.status == 'Progress') {
                 edit_button = `
                 <a href="pengirimanbarang/edit/${data.id}" class="p-1 btn edit-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Edit Data Nomor Resi: ${data.no_resi}"
                     data-id='${data.id}'>
                     <span class="text-dark">Edit</span>
-                    <div class="icon text-info">
+                    <div class="icon text-warning">
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>`;
             }
 
             let delete_button = '';
-            if (data?.status !== 'Progress') {
+            if (data?.status == 'Sukses') {
                 delete_button = `
                 <a class="p-1 btn hapus-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
