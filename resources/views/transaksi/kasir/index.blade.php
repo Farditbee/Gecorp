@@ -456,7 +456,7 @@
                                                             <td>{{ $dtks->qty }}</td>
                                                             <td>{{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td>0</td>
-                                                            <td></td>
+                                                            <td><a href="{{ asset('storage/'. $dtks->qrcode_path)}}" download class="btn btn-success"><i class="fa fa-download">Download</i></a></td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
