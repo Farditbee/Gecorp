@@ -54,7 +54,9 @@
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
-                                            <label class="form-control-label">Gambar Barang<span style="font-size: 11px; color: rgb(193, 79, 79)"> (Ukuran tidak lebih dari 1MB)</span></label>
+                                            <label class="form-control-label">Gambar Barang<span
+                                                    style="font-size: 11px; color: rgb(193, 79, 79)"> (Ukuran tidak lebih
+                                                    dari 1MB)</span></label>
                                             <input type="file" id="gambar_barang" name="gambar_barang"
                                                 class="form-control">
                                         </div>
@@ -66,6 +68,16 @@
                                                 class="form-control" placeholder="Kosongkan jika tidak ada barcode">
                                         </div>
                                     </div>
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label for="flexSwitchCheckDefault" class=" form-control-label">Garansi</label>
+                                            <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" name="garansi">
+                                            <span id="switchStatus">Tidak Ada</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     <br>
                                     <div class="form-group">
                                         <button type="submit" class="btn btn-primary">
@@ -81,7 +93,21 @@
             <!-- [ Main Content ] end -->
         </div>
     </div>
+    <script>
+        const switchInput = document.getElementById("flexSwitchCheckDefault");
+        const switchStatusDisplay = document.getElementById("switchStatus");
 
+        // Event listener to update text and value
+        switchInput.addEventListener("change", function () {
+            if (switchInput.checked) {
+                switchInput.value = "Yes"; // Value tetap "Yes"
+                switchStatusDisplay.textContent = "Ada"; // Teks untuk pengguna
+            } else {
+                switchInput.value = "No"; // Value tetap "No"
+                switchStatusDisplay.textContent = "Tidak Ada"; // Teks untuk pengguna
+            }
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const element = document.getElementById('selector');

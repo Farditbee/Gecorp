@@ -51,6 +51,24 @@
                                         @endforeach
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="flexSwitchCheckDefault" class="form-control-label">Garansi</label>
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            role="switch"
+                                            id="flexSwitchCheckDefault"
+                                            name="garansi"
+                                            {{ $item['garansi'] === 'Yes' ? 'checked' : '' }}
+                                            onchange="updateSwitchStatus(this)"
+                                        >
+                                        <span id="switchStatus">
+                                            {{ $item['garansi'] === 'Yes' ? 'Ada' : 'Tidak Ada' }}
+                                        </span>
+                                    </div>
+                                </div>
+
                                 <div class="form-actions form-group">
                                     <button type="submit" class="btn btn-primary">Simpan</button>
                                 </div>
@@ -63,6 +81,16 @@
         <!-- [ Main Content ] end -->
     </div>
 </div>
+<script>
+    function updateSwitchStatus(checkbox) {
+        const statusSpan = document.getElementById('switchStatus');
+        if (checkbox.checked) {
+            statusSpan.textContent = 'Ada';
+        } else {
+            statusSpan.textContent = 'Tidak Ada';
+        }
+    }
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

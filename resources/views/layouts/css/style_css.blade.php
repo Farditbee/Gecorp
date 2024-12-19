@@ -5,6 +5,48 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
+    Switch Toggle
+    <style>
+.form-check-input {
+    width: 50px;
+    height: 25px;
+    position: relative;
+    appearance: none;
+    background-color: #c33939;
+    border-radius: 25px;
+    outline: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-check-input::before {
+    content: '';
+    position: absolute;
+    width: 21px;
+    height: 21px;
+    top: 2px;
+    left: 2px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.form-check-input:checked {
+    background-color: #47c339;
+}
+
+.form-check-input:checked::before {
+    transform: translateX(25px);
+}
+
+.form-check-label {
+    margin-left: 10px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+    </style>
 
     <style>
         .b-brand b {

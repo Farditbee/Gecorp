@@ -82,7 +82,7 @@ class BarangController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'garansi' => $item->garansi,
+                'garansi' => $item->garansi === 'Yes' ? 'Ada' : 'Tidak Ada',
                 'barcode' => $item->barcode,
                 'barcode_path' => $item->barcode_path,
                 'gambar_path' => $item->gambar_path,
@@ -205,6 +205,7 @@ class BarangController extends Controller
             $barang->barcode = $barcodeValue;
             $barang->barcode_path = $barcodeFilename;
             $barang->gambar_path = $gambarPath;
+            $barang->garansi = $request->garansi;
             $barang->save();
 
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
@@ -232,7 +233,11 @@ class BarangController extends Controller
         $barang = Barang::with('brand', 'jenis')->findOrFail($id);
         $brand = Brand::all();
         $jenis = JenisBarang::all();
-        return view('master.barang.edit', compact('menu', 'barang', 'brand', 'jenis'));
+        $item = [
+            'id' => $id,
+            'garansi' => null, // Contoh value garansi
+        ];
+        return view('master.barang.edit', compact('menu', 'barang', 'brand', 'jenis', 'item'));
     }
 
     public function update(Request $request, string $id)
@@ -243,6 +248,7 @@ class BarangController extends Controller
                 'id_jenis_barang' => $request->id_jenis_barang,
                 'id_brand_barang' => $request->id_brand_barang,
                 'nama_barang' => $request->nama_barang,
+                'garansi' => $request->garansi,
                 // 'barcode' => $request->barcode,
             ]);
             return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
