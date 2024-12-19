@@ -78,7 +78,7 @@ class PengirimanBarangController extends Controller
             $endDate = $request->input('endDate');
 
             // Lakukan filter berdasarkan tanggal
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+            $query->whereBetween('tgl_kirim', [$startDate, $endDate]);
         }
 
         $data = $query->paginate($meta['limit']);
