@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Log;
 
 class RetureController extends Controller
 {
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Tambah Data Reture',
+        ];
+    }
+
     public function index()
     {
         return view('reture.index');
@@ -17,13 +27,14 @@ class RetureController extends Controller
 
     public function create()
     {
-        return view('reture.create');
+        $menu = [$this->title[0], $this->label[3]];
+        return view('reture.create', compact('menu'));
     }
 
     public function getDataReture(Request $request)
     {
         $qrcode = $request->input('qrcode');
-        
+
         if (empty($qrcode)) {
             return response()->json([
                 "error" => true,
@@ -31,18 +42,18 @@ class RetureController extends Controller
                 "status_code" => 400,
             ], 400);
         }
-    
+
         try {
             // Cek data di tabel detail_kasir
             $detailKasir = DetailKasir::where('qrcode', $qrcode)->first();
-    
+
             if ($detailKasir) {
                 // Eager loading untuk menghindari banyak query
                 $kasir = Kasir::with(['toko', 'member'])->find($detailKasir->id_kasir);
-    
+
                 if ($kasir) {
                     $barang = Barang::find($detailKasir->id_barang);
-    
+
                     // Format data untuk dikirim ke FE
                     $data = [
                         "error" => false,
@@ -60,22 +71,21 @@ class RetureController extends Controller
                             ],
                         ],
                     ];
-    
+
                     return response()->json($data, 200);
                 }
             }
-    
+
             // Jika data tidak ditemukan
             return response()->json([
                 "error" => true,
                 "message" => "Data tidak ditemukan",
                 "status_code" => 404,
             ], 404);
-    
         } catch (\Throwable $th) {
             // Tangkap error dan log untuk debugging
             Log::error($th->getMessage());
-    
+
             return response()->json([
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server",
@@ -90,5 +100,4 @@ class RetureController extends Controller
 
         dd($data);
     }
-    
 }
