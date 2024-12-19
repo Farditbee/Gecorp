@@ -9,6 +9,20 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+    <style>
+        @media (max-width: 768px) {
+            .modal-dialog {
+                max-width: 100%;
+                margin: 0;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .modal-dialog {
+                max-width: 90%;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -310,10 +324,10 @@
     @foreach ($kasir as $ksr)
         <div class="modal fade" id="mediumModal-{{ $ksr->id }}" tabindex="-1" role="dialog"
             aria-labelledby="mediumModalLabel-{{ $ksr->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lgs" role="document">
+            <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="mediumModalLabel-{{ $ksr->id }}">Detail Transaksi</h5>
+                        <h5 class="modal-tile" id="mediumModalLabel-{{ $ksr->id }}">Detail Transaksi</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -324,8 +338,7 @@
                             <div class="tab-pane fade show active" id="home-{{ $ksr->id }}" role="tabpanel"
                                 aria-labelledby="home-tab-{{ $ksr->id }}">
                                 <div class="row">
-                                    <!-- Informasi Transaksi -->
-                                    <div class="col-md-7">
+                                    <div class="col-md-7 mb-4">
                                         <div class="info-wrapper">
                                             <div class="info-wrapper">
                                                 <div class="info-row">
@@ -389,42 +402,45 @@
                                         </div>
 
                                         <!-- Tabel Data Barang -->
-                                        <div class="table-responsive-js">
-                                            <table class="table table-striped" id="jsTable-{{ $ksr->id }}">
+                                        <div class="table-responsive table-scroll-wrapper">
+                                            <table class="table table-hover m-0" id="jsTable-{{ $ksr->id }}">
                                                 <thead>
                                                     <tr>
-                                                        <th>Id trx</th>
-                                                        <th>Nama Barang</th>
-                                                        <th>Item</th>
-                                                        <th>Harga</th>
-                                                        <th>N.retur</th>
-                                                        <th>Action</th>
+                                                        <th class="text-center text-wrap align-top">Id trx</th>
+                                                        <th class="text-wrap align-top">Nama Barang</th>
+                                                        <th class="text-wrap align-top">Item</th>
+                                                        <th class="text-wrap align-top">Harga</th>
+                                                        <th class="text-wrap align-top">N.retur</th>
+                                                        <th class="text-wrap align-top">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <!-- Filter hanya data detail yang sesuai dengan kasir -->
                                                     @foreach ($detail_kasir->where('id_kasir', $ksr->id) as $dtks)
                                                         <tr>
-                                                            <td>{{ $dtks->id_kasir }}</td>
-                                                            <td>{{ $dtks->barang->nama_barang }}</td>
-                                                            <td>{{ $dtks->qty }}</td>
-                                                            <td>{{ number_format($dtks->harga, 0, '.', '.') }}</td>
-                                                            <td>0</td>
-                                                            <td><a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
-                                                                    download class="btn btn-success"><i
-                                                                        class="fa fa-download">Download</i></a></td>
+                                                            <td class="text-center text-wrap align-top">
+                                                                {{ $dtks->id_kasir }}</td>
+                                                            <td class="text-wrap align-top">
+                                                                {{ $dtks->barang->nama_barang }}</td>
+                                                            <td class="text-wrap align-top">{{ $dtks->qty }}</td>
+                                                            <td class="text-wrap align-top">
+                                                                {{ number_format($dtks->harga, 0, '.', '.') }}</td>
+                                                            <td class="text-wrap align-top">0</td>
+                                                            <td class="text-wrap align-top">
+                                                                <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
+                                                                    download class="btn btn-success">
+                                                                    <span><i
+                                                                            class="fa fa-download mr-2"></i>Download</span>
+                                                                </a>
+                                                            </td>
                                                         </tr>
                                                     @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div>
-
-                                    <!-- Tabel kedua di sebelah kanan -->
                                     <div class="col-md-5" style="background-color: rgb(250, 250, 250)">
-                                        <div class="card text-center" style="background-color: rgb(250, 250, 250)">
+                                        <div class="card text-center p-0" style="background-color: rgb(250, 250, 250)">
                                             <div class="card-body">
-                                                {{-- <h5 class="card-title">{{ $ksr->toko->nama_toko }}</h5> --}}
                                                 <h5 class="card-subtitle">{{ $ksr->toko->nama_toko }}</h5>
                                                 <p class="card-text">{{ $ksr->toko->alamat }}</p>
                                             </div>
@@ -434,7 +450,6 @@
                                                 <div class="info-row">
                                                     <p class="label">No Nota</p>
                                                     <p class="value">: @php
-                                                        // Mendapatkan nilai no_nota dari database
                                                         $noNotaFormatted =
                                                             substr($ksr->no_nota, 0, 6) .
                                                             '-' .
@@ -515,8 +530,10 @@
                                             </table>
                                         </div>
                                         <p class="card-text" style="text-align: center">Terima Kasih</p>
-                                        <button type="button" class="btn btn-primary btn-sm"
-                                            onclick="cetakStruk({{ $ksr->id }})">Cetak Struk</button>
+                                        <hr>
+                                        <button type="button" class="btn btn-primary btn-sm mb-3 btn-block" onclick="cetakStruk({{ $ksr->id }})">
+                                            <i class="fa fa-print mr-2"></i>Cetak Struk
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -720,7 +737,7 @@
                 const today = new Date();
                 const day = String(today.getDate()).padStart(2, '0');
                 const month = String(today.getMonth() + 1).padStart(2,
-                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+                    '0'); // Ditambah 1 karena getMonth() dimulai dari 0
                 const year = today.getFullYear();
 
                 // Array nama hari
@@ -739,7 +756,7 @@
                 // Mendapatkan tanggal, bulan, tahun (2 digit), jam, menit, dan detik
                 const day = String(now.getDate()).padStart(2, '0');
                 const month = String(now.getMonth() + 1).padStart(2,
-                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+                    '0'); // Ditambah 1 karena getMonth() dimulai dari 0
                 const year = String(now.getFullYear()).slice(-2);
                 const hours = String(now.getHours()).padStart(2, '0');
                 const minutes = String(now.getMinutes()).padStart(2, '0');
@@ -913,7 +930,8 @@
                         hargaSelect.disabled = true;
 
                         fetch(
-                                `/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
+                                `/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`
+                            )
                             .then(response => response.json())
                             .then(data => {
                                 console.log(data.filteredHarga);
@@ -936,7 +954,7 @@
                                 if (options.length === 1) {
                                     // Jika hanya ada satu opsi, langsung pilih opsi tersebut
                                     hargaSelect.value = options[0]
-                                    .value; // Pilih nilai secara langsung
+                                        .value; // Pilih nilai secara langsung
                                 } else {
                                     // Jika lebih dari satu opsi, tambahkan opsi default
                                     hargaSelect.insertAdjacentHTML('afterbegin',
