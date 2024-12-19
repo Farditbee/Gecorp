@@ -54,6 +54,7 @@
                                                 <th class="text-wrap align-top">Nama Barang</th>
                                                 <th class="text-wrap align-top">Jenis Barang</th>
                                                 <th class="text-wrap align-top">Brand Barang</th>
+                                                <th class="text-wrap align-top">Garansi</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
@@ -183,6 +184,8 @@
                     '<span class="badge badge-danger">Tidak Ada Data</span>',
                 nama_brand: data?.nama_brand && data.nama_brand !== "" ? data.nama_brand :
                     '<span class="badge badge-danger">Tidak Ada Data</span>',
+                garansi: data?.garansi && data.garansi !== "" ? data.garansi :
+                    '<span class="badge badge-danger">Tidak Ada Data</span>',
                 gambar_barcode,
                 edit_button,
                 download_button,
@@ -208,6 +211,7 @@
                         <td class="${classCol}">${element.nama_barang}</td>
                         <td class="${classCol}">${element.nama_jenis_barang}</td>
                         <td class="${classCol}">${element.nama_brand}</td>
+                        <td class="${classCol}">${element.garansi}</td>
                         <td class="${classCol}">
                             <div class="d-flex justify-content-center w-100">
                                 <div class="hovering p-1">

@@ -82,6 +82,7 @@ class BarangController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
+                'garansi' => $item->garansi,
                 'barcode' => $item->barcode,
                 'barcode_path' => $item->barcode_path,
                 'gambar_path' => $item->gambar_path,
@@ -160,12 +161,12 @@ class BarangController extends Controller
 
             // Path folder barcode
             $barcodeFolder = storage_path('app/public/barcodes');
-    
+
             // Buat folder barcode jika belum ada
             if (!file_exists($barcodeFolder)) {
                 mkdir($barcodeFolder, 0755, true);
             }
-            
+
             // Generate barcode as PNG file
             $barcodeFilename = "barcodes/{$barcodeValue}.png";
             if (!Storage::exists($barcodeFilename)) {
@@ -183,12 +184,12 @@ class BarangController extends Controller
 
             // Path folder gambar_barang
             $gambarFolder = storage_path('app/public/gambar_barang');
-    
+
             // Buat folder gambar_barang jika belum ada
             if (!file_exists($gambarFolder)) {
                 mkdir($gambarFolder, 0755, true);
             }
-            
+
             // Simpan gambar barang jika diunggah
             $gambarPath = null; // Default null jika gambar tidak diunggah
             if ($request->hasFile('gambar_barang')) {
