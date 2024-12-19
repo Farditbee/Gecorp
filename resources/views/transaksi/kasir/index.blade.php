@@ -188,7 +188,7 @@
                                 <div class="card">
                                     <div class="card-body table-border-style">
                                         <div class="form">
-                                            <form action="{{ route('master.kasir.store') }}" method="post"
+                                            <form action="{{ route('transaksi.kasir.store') }}" method="post"
                                                 class="">
                                                 @csrf
                                                 <input type="hidden" id="hiddenNoNota" name="no_nota">
