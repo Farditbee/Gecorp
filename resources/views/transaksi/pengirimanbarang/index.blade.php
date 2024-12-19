@@ -20,7 +20,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a href="{{ route('master.pengirimanbarang.create') }}"
+                                <a href="{{ route('transaksi.pengirimanbarang.create') }}"
                                     class="btn btn-primary mb-2 mb-lg-0 text-white">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
@@ -101,7 +101,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('master.pengirimanbarang.index') }}" method="GET">
+                                <form action="{{ route('transaksi.pengirimanbarang.index') }}" method="GET">
                                     <div class="form-group">
                                         <label for="startDate">Tanggal Mulai</label>
                                         <input type="date" name="startDate" id="startDate" class="form-control"

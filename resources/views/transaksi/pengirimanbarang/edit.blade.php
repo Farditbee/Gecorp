@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <!-- Tombol Edit -->
-                        <a href="{{ route('master.pengirimanbarang.index')}}" class="btn btn-danger">
+                        <a href="{{ url()->previous() }}" class="btn btn-danger">
                             <i class="ti-plus menu-icon"></i> Kembali
                         </a>
                         <!-- Input Search -->
@@ -22,7 +22,7 @@
                     <x-adminlte-alerts />
                     <div class="card-body table-border-style">
                         <div class="table-responsive">
-                            <form action="{{ route('master.pengirimanbarang.update_status', $pengiriman_barang->id) }}" method="POST" class="">
+                            <form action="{{ route('transaksi.pengirimanbarang.update_status', $pengiriman_barang->id) }}" method="POST" class="">
                                 @csrf
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">

@@ -18,8 +18,8 @@
                                             <h4 class="m-b-10 ml-3">Pembelian Barang</h4>
                                         </div>
                                         <ul class="breadcrumb ">
-                                            <li class="breadcrumb-item ml-3"><a href="{{ route('master.index')}}"><i class="feather icon-home"></i></a></li>
-                                            <li class="breadcrumb-item"><a href="{{ route('master.pembelianbarang.index')}}">Pembelian Barang</a></li>
+                                            <li class="breadcrumb-item ml-3"><a href="{{ route('dashboard.index')}}"><i class="feather icon-home"></i></a></li>
+                                            <li class="breadcrumb-item"><a href="{{ route('transaksi.pembelianbarang.index')}}">Pembelian Barang</a></li>
                                             <li class="breadcrumb-item"><a>Tambah Pembelian</a></li>
                                         </ul>
                                     </div>
@@ -32,7 +32,7 @@
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <a href="{{ route('master.pembelianbarang.index') }}" class="btn btn-danger">Kembali</a>
+                                        <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
                                     </div>
                                     <div class="card-body">
                                         <div class="custom-tab">
@@ -45,7 +45,7 @@
                                             <div class="tab-content pl-3 pt-2" id="nav-tabContent">
                                                 <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}" id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
                                                     <br>
-                                                    <form action="{{ route('master.pembelianbarang.store') }}" method="POST">
+                                                    <form action="{{ route('transaksi.pembelianbarang.store') }}" method="POST">
                                                         @csrf
                                                         <div class="row">
                                                             <div class="col-6">
@@ -120,7 +120,7 @@
                                                     </li>
                                                 </ul>
                                                 <br>
-                                                <form action="{{ route('master.pembelianbarang.update', $pembelian->id) }}" method="POST">
+                                                <form action="{{ route('transaksi.pembelianbarang.update', $pembelian->id) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <!-- Item Container -->
@@ -215,7 +215,7 @@
                                                 </div>
                                                 @endif
                                                 <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel" aria-labelledby="custom-nav-contact-tab">
-                                                    <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
+                                                    <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
                                                 </div>
                                             </div>
                                         </div>

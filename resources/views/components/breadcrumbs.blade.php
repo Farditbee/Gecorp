@@ -14,7 +14,7 @@
             <div class="col-sm-auto">
                 <ul class="breadcrumb p-0 m-0 font-weight-bold">
                     <li class="breadcrumb-item">
-                        <a href="{{ route('master.index') }}"><i class="feather icon-home"></i></a>
+                        <a href="{{ route('dashboard.index') }}"><i class="feather icon-home"></i></a>
                     </li>
                     @if (!empty($menu[1]))
                         <li class="breadcrumb-item text-primary">{{ $menu[1] }}</li>

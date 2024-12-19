@@ -97,7 +97,7 @@
                                 </button>
                             </div>
                             <div class="modal-body">
-                                <form action="{{ route('master.pembelianbarang.index') }}" method="GET">
+                                <form action="{{ route('transaksi.pembelianbarang.index') }}" method="GET">
                                     <div class="form-group">
                                         <label for="startDate">Tanggal Mulai</label>
                                         <input type="date" name="startDate" id="startDate" class="form-control"
@@ -143,7 +143,7 @@
                                                 aria-labelledby="tambah-tab">
                                                 <br>
                                                 <form id="form-tambah-pembelian"
-                                                    action="{{ route('master.pembelianbarang.store') }}" method="POST">
+                                                    action="{{ route('transaksi.pembelianbarang.store') }}" method="POST">
                                                     @csrf
                                                     <div class="row">
                                                         <div class="col-6">
@@ -205,7 +205,7 @@
                                                 </ul>
                                                 <br>
                                                 <form id="form-update-pembelian"
-                                                    action="{{ route('master.pembelianbarang.update', ':id') }}"
+                                                    action="{{ route('transaksi.pembelianbarang.update', ':id') }}"
                                                     method="POST">
                                                     @csrf
                                                     @method('PUT')

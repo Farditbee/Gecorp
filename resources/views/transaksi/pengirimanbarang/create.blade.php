@@ -15,7 +15,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <a href="{{ route('master.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
+                            <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
                         </div>
                         <div class="card-body">
                             <div class="custom-tab">
@@ -37,7 +37,7 @@
                                     <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}"
                                         id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
                                         <br>
-                                        <form action="{{ route('master.pengirimanbarang.store') }}" method="POST">
+                                        <form action="{{ route('transaksi.pengirimanbarang.store') }}" method="POST">
                                             @csrf
                                             <div class="row">
                                                 <div class="col-6">
@@ -181,7 +181,7 @@
                                             </ul>
                                             <br>
                                             <form
-                                                action="{{ route('master.pengirimanbarang.update', $pengiriman_barang->id) }}"
+                                                action="{{ route('transaksi.pengirimanbarang.update', $pengiriman_barang->id) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
@@ -322,7 +322,7 @@
                                         <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel"
                                             aria-labelledby="custom-nav-contact-tab">
                                             <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt
-                                                tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor,
+                                                tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche tempor,
                                                 williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh
                                                 dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd.
                                                 Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel,

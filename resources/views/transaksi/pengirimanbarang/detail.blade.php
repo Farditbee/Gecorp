@@ -14,11 +14,11 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <!-- Tombol Tambah -->
-                        <a href="{{ route('master.pengirimanbarang.index')}}" class="btn btn-danger">
+                        <a href="{{ url()->previous() }}" class="btn btn-danger">
                             <i class="ti-plus menu-icon"></i> Kembali
                         </a>
                         <!-- Input Search -->
-                        <form class="d-flex" method="GET" action="{{ route('master.pengirimanbarang.detail', $pengiriman_barang->id) }}">
+                        <form class="d-flex" method="GET" action="{{ route('transaksi.pengirimanbarang.detail', $pengiriman_barang->id) }}">
                             <input class="form-control me-2" id="search" type="search" name="search" placeholder="Cari Detail" aria-label="Search">
                         </form>
                     </div>
@@ -145,7 +145,7 @@
                     </div>
                     @endif
                     <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel" aria-labelledby="custom-nav-contact-tab">
-                        <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth master cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
+                        <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche tempor, williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd. Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel, butcher voluptate nisi .</p>
                     </div>
                         </div>
                     </div>

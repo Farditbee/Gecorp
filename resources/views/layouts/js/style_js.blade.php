@@ -215,7 +215,7 @@
                     var id_pembelian = response.id_pembelian;
                     // Ganti URL action form untuk update
                     var updateFormAction =
-                        "{{ route('master.pembelianbarang.update', ':id') }}";
+                        "{{ route('transaksi.pembelianbarang.update', ':id') }}";
                     updateFormAction = updateFormAction.replace(':id', id_pembelian);
                     $('#form-update-pembelian').attr('action', updateFormAction);
                     // console.log('URL action untuk update telah diganti menjadi: ', updateFormAction);

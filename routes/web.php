@@ -33,8 +33,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->group(function () {
 
     Route::prefix('admin')->group(function () {
-        Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('master.index');
-        Route::get('/dashboard', [AuthController::class, 'index'])->name('master.index');
+        Route::get('/dashboard', [AuthController::class, 'dashboard'])->name('dashboard.index');
+        Route::get('/dashboard', [AuthController::class, 'index'])->name('dashboard.index');
 
         // Brand Controller
         Route::get('/brand', [BrandController::class, 'index'])->name('master.brand.index');
@@ -53,16 +53,16 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/jenis_barang/delete/{id}', [JenisBarangController::class, 'delete'])->name('master.jenisbarang.delete');
 
         // Pembelian Barang
-        Route::get('/pembelianbarang', [PembelianBarangController::class, 'index'])->name('master.pembelianbarang.index');
-        Route::get('/pembelianbarang/create', [PembelianBarangController::class, 'create'])->name('master.pembelianbarang.create');
-        Route::post('/pembelianbarang/store', [PembelianBarangController::class, 'store'])->name('master.pembelianbarang.store');
-        Route::post('/pembelianbarang/additem', [PembelianBarangController::class, 'addItem'])->name('master.pembelianbarang.additem');
+        Route::get('/pembelianbarang', [PembelianBarangController::class, 'index'])->name('transaksi.pembelianbarang.index');
+        Route::get('/pembelianbarang/create', [PembelianBarangController::class, 'create'])->name('transaksi.pembelianbarang.create');
+        Route::post('/pembelianbarang/store', [PembelianBarangController::class, 'store'])->name('transaksi.pembelianbarang.store');
+        Route::post('/pembelianbarang/additem', [PembelianBarangController::class, 'addItem'])->name('transaksi.pembelianbarang.additem');
         Route::delete('/pembelianbarang/remove-item/{id}', [PembelianBarangController::class, 'removeItem']);
-        Route::get('/pembelianbarang/{id}/edit', [PembelianBarangController::class, 'edit'])->name('master.pembelianbarang.edit');
-        Route::put('/pembelianbarang/{id}/update', [PembelianBarangController::class, 'update'])->name('master.pembelianbarang.update');
-        Route::delete('/pembelianbarang/{id}/delete', [PembelianBarangController::class, 'delete'])->name('master.pembelianbarang.delete');
-        Route::get('/get-stock/{id_barang}', [PembelianBarangController::class, 'getStock'])->name('master.pembelian.getstock');
-        Route::post('/pembelianbarang/update_status/{id}', [PembelianBarangController::class, 'updateStatus'])->name('master.pembelianbarang.update_status');
+        Route::get('/pembelianbarang/{id}/edit', [PembelianBarangController::class, 'edit'])->name('transaksi.pembelianbarang.edit');
+        Route::put('/pembelianbarang/{id}/update', [PembelianBarangController::class, 'update'])->name('transaksi.pembelianbarang.update');
+        Route::delete('/pembelianbarang/{id}/delete', [PembelianBarangController::class, 'delete'])->name('transaksi.pembelianbarang.delete');
+        Route::get('/get-stock/{id_barang}', [PembelianBarangController::class, 'getStock'])->name('transaksi.pembelian.getstock');
+        Route::post('/pembelianbarang/update_status/{id}', [PembelianBarangController::class, 'updateStatus'])->name('transaksi.pembelianbarang.update_status');
         Route::get('/pembelian-barang/level-harga/{barangId}', [PembelianBarangController::class, 'getLevelHarga']);
 
         // Toko Controller
@@ -150,25 +150,25 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
 
         // Pengiriman Barang
-        Route::get('/pengirimanbarang', [PengirimanBarangController::class, 'index'])->name('master.pengirimanbarang.index');
-        Route::get('/pengirimanbarang/create', [PengirimanBarangController::class, 'create'])->name('master.pengirimanbarang.create');
-        Route::get('/pengirimanbarang/detail/{id}', [PengirimanBarangController::class, 'detail'])->name('master.pengirimanbarang.detail');
+        Route::get('/pengirimanbarang', [PengirimanBarangController::class, 'index'])->name('transaksi.pengirimanbarang.index');
+        Route::get('/pengirimanbarang/create', [PengirimanBarangController::class, 'create'])->name('transaksi.pengirimanbarang.create');
+        Route::get('/pengirimanbarang/detail/{id}', [PengirimanBarangController::class, 'detail'])->name('transaksi.pengirimanbarang.detail');
         Route::get('/get-users-by-toko/{id_toko}', [PengirimanBarangController::class, 'getUsersByToko']);
         Route::get('/get-barang-stock/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getBarangStock']);
         Route::get('/get-harga-barang/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getHargaBarang']);
-        Route::post('/pengirimanbarang/additem', [PengirimanBarangController::class, 'addItem'])->name('master.pengirimanbarang.additem');
+        Route::post('/pengirimanbarang/additem', [PengirimanBarangController::class, 'addItem'])->name('transaksi.pengirimanbarang.additem');
         Route::delete('/pengirimanbarang/remove-item/{id}', [PengirimanBarangController::class, 'removeItem']);
-        Route::post('/pengirimanbarang/store', [PengirimanBarangController::class, 'store'])->name('master.pengirimanbarang.store');
-        Route::get('/pengirimanbarang/edit/{id}', [PengirimanBarangController::class, 'edit'])->name('master.pengirimanbarang.edit');
-        Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('master.pengirimanbarang.update_status');
-        Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('master.pengirimanbarang.update');
+        Route::post('/pengirimanbarang/store', [PengirimanBarangController::class, 'store'])->name('transaksi.pengirimanbarang.store');
+        Route::get('/pengirimanbarang/edit/{id}', [PengirimanBarangController::class, 'edit'])->name('transaksi.pengirimanbarang.edit');
+        Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('transaksi.pengirimanbarang.update_status');
+        Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('transaksi.pengirimanbarang.update');
 
         // Kasir Controller
-        Route::get('/kasir', [KasirController::class, 'index'])->name('master.kasir.index');
-        Route::post('/kasir/store', [KasirController::class, 'store'])->name('master.kasir.store');
+        Route::get('/kasir', [KasirController::class, 'index'])->name('transaksi.kasir.index');
+        Route::post('/kasir/store', [KasirController::class, 'store'])->name('transaksi.kasir.store');
         Route::get('/kasirs/{id}/detail', [KasirController::class, 'detail'])->name('kasirs.detail');
-        Route::put('/kasir/update/{id}', [KasirController::class, 'update'])->name('master.kasir.update');
-        Route::delete('/kasir/delete/{id}', [KasirController::class, 'delete'])->name('master.kasir.delete');
+        Route::put('/kasir/update/{id}', [KasirController::class, 'update'])->name('transaksi.kasir.update');
+        Route::delete('/kasir/delete/{id}', [KasirController::class, 'delete'])->name('transaksi.kasir.delete');
         Route::get('/kasir/get-filtered-harga', [KasirController::class, 'getFilteredHarga']);
         Route::get('/cetak-struk/{id_kasir}', [KasirController::class, 'cetakStruk'])->name('cetak.struk');
 

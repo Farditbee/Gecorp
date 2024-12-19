@@ -13,10 +13,10 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <a href="{{ route('master.pembelianbarang.index')}}" class="btn btn-danger">Kembali</a>
+                        <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
                     </div>
                     <div class="card-body">
-                        <form action="{{ route('master.pembelianbarang.update_status', $pembelian->id) }}" method="POST">
+                        <form action="{{ route('transaksi.pembelianbarang.update_status', $pembelian->id) }}" method="POST">
                         @csrf
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">

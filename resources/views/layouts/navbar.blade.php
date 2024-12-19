@@ -1,3 +1,7 @@
+@php
+    $nav_link = 'text-primary bg-white';
+@endphp
+
 <nav class="pcoded-navbar theme-horizontal menu-light nav-svg">
     <div class="navbar-wrapper">
         <div class="navbar-content sidenav-horizontal" id="layout-sidenav">
@@ -6,12 +10,16 @@
                     <label>Navigasi</label>
                 </li>
                 <li class="nav-item">
-                    <a href="{{ route('master.index') }}" class="nav-link "><span class="pcoded-micon"><i
-                                class="feather icon-home"></i></span><span class="pcoded-mtext">Dashboard</span></a>
+                    <a href="{{ route('dashboard.index') }}"
+                        class="nav-link {{ set_active_menu('dashboard.index', $nav_link) }}">
+                        <span class="pcoded-micon"><i class="feather icon-home"></i></span>
+                        <span class="pcoded-mtext">Dashboard</span>
+                    </a>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="#!" class="nav-link "><span class="pcoded-micon"><i
-                                class="feather icon-box"></i></span><span class="pcoded-mtext">Data Master</span></a>
+                    <a class="nav-link {{ set_active_menu('master.*', $nav_link) }}"><span
+                            class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Data
+                            Master</span></a>
                     <ul class="pcoded-submenu">
                         <li class="font-weight-bold">Stakeholder</li>
                         <li><a class="dropdown-item" href="{{ route('master.user.index') }}"><i class="fa fa-users"></i>
@@ -49,20 +57,20 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="#!" class="nav-link "><span class="pcoded-micon"><i
+                    <a class="nav-link {{ set_active_menu('transaksi.*', $nav_link) }}"><span class="pcoded-micon"><i
                                 class="icon feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Data
                             Transaksi</span></a>
                     <ul class="pcoded-submenu">
-                        <li><a class="dropdown-item" href="{{ route('master.pembelianbarang.index') }}"><i
+                        <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
                                     class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
-                        <li><a class="dropdown-item" href="{{ route('master.pengirimanbarang.index') }}"><i
+                        <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
                                     class="fa fa-truck"></i> Pengiriman Barang</a></li>
-                        <li><a class="dropdown-item" href="{{ route('master.kasir.index') }}"><i
+                        <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
                                     class="fa fa-laptop"></i> Transaksi Kasir</a></li>
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="#!" class="nav-link "><span class="pcoded-micon"><i
+                    <a class="nav-link {{ set_active_menu('laporan.*', $nav_link) }}"><span class="pcoded-micon"><i
                                 class="icon feather icon-file-text"></i></span><span
                             class="pcoded-mtext">Laporan</span></a>
                     <ul class="pcoded-submenu">
