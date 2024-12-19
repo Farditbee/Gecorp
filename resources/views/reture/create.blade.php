@@ -125,7 +125,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.getreture') }}', {
+                '{{ route('master.getreture') }}', { 
                     ...filterParams
                 }
             ).then(function(response) {

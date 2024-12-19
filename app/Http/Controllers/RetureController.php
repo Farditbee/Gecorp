@@ -60,15 +60,13 @@ class RetureController extends Controller
                         "message" => "Successfully",
                         "status_code" => 200,
                         "data" => [
-                            [
-                                "nama_toko" => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
-                                "id_transaksi" => $detailKasir->id_kasir,
-                                "tipe_transaksi" => "Kasir",
-                                "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
-                                "harga_jual" => $detailKasir->harga - $detailKasir->diskon,
-                                "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
-                                "qty_beli" => $detailKasir->qty,
-                            ],
+                            "nama_toko" => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
+                            "id_transaksi" => $detailKasir->id_kasir,
+                            "tipe_transaksi" => "Kasir",
+                            "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
+                            "harga_jual" => $detailKasir->harga - $detailKasir->diskon,
+                            "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
+                            "qty_beli" => $detailKasir->qty,
                         ],
                     ];
 
