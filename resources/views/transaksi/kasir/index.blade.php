@@ -531,7 +531,8 @@
                                         </div>
                                         <p class="card-text" style="text-align: center">Terima Kasih</p>
                                         <hr>
-                                        <button type="button" class="btn btn-primary btn-sm mb-3 btn-block" onclick="cetakStruk({{ $ksr->id }})">
+                                        <button type="button" class="btn btn-primary btn-sm mb-3 btn-block"
+                                            onclick="cetakStruk({{ $ksr->id }})">
                                             <i class="fa fa-print mr-2"></i>Cetak Struk
                                         </button>
                                     </div>
@@ -571,6 +572,8 @@
         let customFilter = {};
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listData').html(loadingData());
+
             let filterParams = {};
 
             if (customFilter['startDate'] && customFilter['endDate']) {

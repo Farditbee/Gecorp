@@ -99,6 +99,8 @@
         let customFilter = {};
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listData').html(loadingData());
+
             let filterParams = {};
 
             let getDataRest = await renderAPI(
@@ -123,16 +125,17 @@
                 );
                 await setListData(handleDataArray, getDataRest.data.pagination);
             } else {
-                errorMessage = getDataRest?.data?.message;
+                let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
-                            <tr class="text-dark">
-                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-                            </tr>`;
+            <tr class="text-dark">
+                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+            </tr>`;
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
                 $('#totalPage').text("0");
             }
         }
+
 
         async function handleData(data) {
             let status = '';
@@ -182,7 +185,6 @@
                 delete_button,
             };
         }
-
 
         async function setListData(dataList, pagination) {
             totalPage = pagination.total_pages;

@@ -17,61 +17,72 @@
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
     @include('layouts.css.style_css')
     <style>
-        body {
-            /* background-image: url('{{ asset('images/dashboard-atas.svg') }}'); */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+        .loader {
+            top: calc(50% - 32px);
+            left: calc(50% - 32px);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            perspective: 800px;
         }
 
-        .header-corp {
-            background: linear-gradient(135deg, #1A2E40 0%, #1D4E89 50%, #A69364 100%);
-            color: white;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            border-bottom: 1px solid #A69364;
+        .inner {
+            position: absolute;
+            box-sizing: border-box;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
         }
 
-        .header-corp .b-brand b {
-            font-family: 'Poppins', sans-serif;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: #FFD700;
-            /* Gold color for brand name */
+        .inner.one {
+            left: 0%;
+            top: 0%;
+            animation: rotate-one 1s linear infinite;
+            border-bottom: 3px solid #1abc9c;
         }
 
-        .header-corp .navbar-nav .dropdown-toggle,
-        .header-corp .navbar-nav .dropdown-item {
-            color: #FFF;
-            font-weight: 500;
+        .inner.two {
+            right: 0%;
+            top: 0%;
+            animation: rotate-two 1s linear infinite;
+            border-right: 3px solid #1abc9c;
         }
 
-        .header-corp .navbar-nav .dropdown-item:hover {
-            background-color: rgba(255, 215, 0, 0.2);
-            /* Gold with transparency */
-            color: #FFD700;
+        .inner.three {
+            right: 0%;
+            bottom: 0%;
+            animation: rotate-three 1s linear infinite;
+            border-top: 3px solid #1abc9c;
         }
 
-        .pro-head {
-            background-color: #1D4E89;
-            /* Navy Blue */
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #A69364;
+        @keyframes rotate-one {
+            0% {
+                transform: rotateX(35deg) rotateY(-45deg) rotateZ(0deg);
+            }
+
+            100% {
+                transform: rotateX(35deg) rotateY(-45deg) rotateZ(360deg);
+            }
         }
 
-        .pro-head h5,
-        .pro-head p {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
+        @keyframes rotate-two {
+            0% {
+                transform: rotateX(50deg) rotateY(10deg) rotateZ(0deg);
+            }
+
+            100% {
+                transform: rotateX(50deg) rotateY(10deg) rotateZ(360deg);
+            }
         }
 
-        .pro-body .dropdown-item {
-            color: #1A2E40;
-        }
+        @keyframes rotate-three {
+            0% {
+                transform: rotateX(35deg) rotateY(55deg) rotateZ(0deg);
+            }
 
-        .pro-body .dropdown-item:hover {
-            background-color: #A69364;
-            color: #FFF;
+            100% {
+                transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
+            }
         }
     </style>
     @yield('css')
@@ -79,6 +90,7 @@
         document.onreadystatechange = function() {
             var state = document.readyState;
             if (state == 'complete') {
+                document.getElementById('load-screen').style.display = 'none';
                 if (window.initPageLoad) {
                     initPageLoad();
                 }
@@ -88,21 +100,21 @@
 </head>
 
 <body>
-    <!-- [ navigation menu ] start -->
-    @include('layouts.navbar')
-    <!-- [ navigation menu ] end -->
+    <div>
+        <!-- [ navigation menu ] start -->
+        @include('layouts.navbar')
+        <!-- [ navigation menu ] end -->
 
-    <!-- [ Header ] start -->
-    @include('layouts.header')
-    <!-- [ Header ] end -->
+        <!-- [ Header ] start -->
+        @include('layouts.header')
+        <!-- [ Header ] end -->
 
-    <br>
+        <!-- [ Main Content ] start -->
+        @yield('content')
+        <!-- [ Main Content ] end -->
 
-    <!-- [ Main Content ] start -->
-    @yield('content')
-    <!-- [ Main Content ] end -->
-
-    @include('layouts.footer')
+        @include('layouts.footer')
+    </div>
 
     <!-- Warning Section Ends -->
     @include('layouts.js.style_js')
@@ -112,7 +124,31 @@
     <script src="{{ asset('js/notification.js') }}"></script>
     <script src="{{ asset('js/sweetalert2.js') }}"></script>
     @yield('asset_js')
+
     <script>
+        function loadingPage(value) {
+            if (value == true) {
+                document.getElementById('load-screen').style.display = '';
+            } else {
+                document.getElementById('load-screen').style.display = 'none';
+            }
+            return;
+        }
+
+        function loadingData() {
+            let html = `
+            <tr class="text-dark">
+                <td class="text-center" colspan="${$('.tb-head th').length}">
+                    <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg"
+                        xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" width="162px" height="24px"
+                        viewBox="0 0 128 19" xml:space="preserve"><rect x="0" y="0" width="100%" height="100%" fill="#FFFFFF" /><path fill="#1abc9c" d="M0.8,2.375H15.2v14.25H0.8V2.375Zm16,0H31.2v14.25H16.8V2.375Zm16,0H47.2v14.25H32.8V2.375Zm16,0H63.2v14.25H48.8V2.375Zm16,0H79.2v14.25H64.8V2.375Zm16,0H95.2v14.25H80.8V2.375Zm16,0h14.4v14.25H96.8V2.375Zm16,0h14.4v14.25H112.8V2.375Z"/><g><path fill="#c7efe7" d="M128.8,2.375h14.4v14.25H128.8V2.375Z"/><path fill="#c7efe7" d="M144.8,2.375h14.4v14.25H144.8V2.375Z"/><path fill="#9fe3d5" d="M160.8,2.375h14.4v14.25H160.8V2.375Z"/><path fill="#72d6c2" d="M176.8,2.375h14.4v14.25H176.8V2.375Z"/><animateTransform attributeName="transform" type="translate" values="0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;-16 0;-32 0;-48 0;-64 0;-80 0;-96 0;-112 0;-128 0;-144 0;-160 0;-176 0;-192 0" calcMode="discrete" dur="2160ms" repeatCount="indefinite"/></g><g><path fill="#c7efe7" d="M-15.2,2.375H-0.8v14.25H-15.2V2.375Z"/><path fill="#c7efe7" d="M-31.2,2.375h14.4v14.25H-31.2V2.375Z"/><path fill="#9fe3d5" d="M-47.2,2.375h14.4v14.25H-47.2V2.375Z"/><path fill="#72d6c2" d="M-63.2,2.375h14.4v14.25H-63.2V2.375Z"/><animateTransform attributeName="transform" type="translate" values="16 0;32 0;48 0;64 0;80 0;96 0;112 0;128 0;144 0;160 0;176 0;192 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0;0 0" calcMode="discrete" dur="2160ms" repeatCount="indefinite"/></g>
+                    </svg>
+                </td>
+            </tr>`;
+
+            return html;
+        }
+
         function formatRupiah(value) {
             let number = parseFloat(value) || 0;
             let roundedNumber = Math.round(number);

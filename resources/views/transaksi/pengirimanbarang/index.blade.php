@@ -142,6 +142,8 @@
         let customFilter = {};
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listData').html(loadingData());
+
             let filterParams = {};
 
             if (customFilter['startDate'] && customFilter['endDate']) {
