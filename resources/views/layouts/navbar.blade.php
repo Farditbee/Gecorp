@@ -17,7 +17,7 @@
                     </a>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}"><span
+                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}"><span
                             class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Data
                             Master</span></a>
                     <ul class="pcoded-submenu">
@@ -57,7 +57,7 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
+                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
                                 class="icon feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Data
                             Transaksi</span></a>
                     <ul class="pcoded-submenu">
@@ -70,7 +70,7 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
+                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
                                 class="icon feather icon-file-text"></i></span><span
                             class="pcoded-mtext">Laporan</span></a>
                     <ul class="pcoded-submenu">
@@ -83,7 +83,7 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="#!" class="nav-link "><span class="pcoded-micon"><i
+                    <a href="javascript::void(0)" class="nav-link "><span class="pcoded-micon"><i
                                 class="icon feather icon-rotate-ccw"></i></span><span
                             class="pcoded-mtext">Reture</span></a>
                     <ul class="pcoded-submenu">
