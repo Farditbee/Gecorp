@@ -61,7 +61,7 @@
                                                 <th class="text-wrap align-top">Nilai</th>
                                                 <th class="text-wrap align-top">Payment</th>
                                                 <th class="text-wrap align-top">Kasir</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -597,12 +597,12 @@
 
         async function handleData(data) {
             let detail_button = `
-                <a class="p-1 btn detail-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
+                <a class="p-1 btn detail-data action_button" data-toggle="modal" data-target="#mediumModal-${data.id}"
                     data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
                     title="Detail ${title}: ${data.no_nota}"
                     data-id='${data.id}'>
                     <span class="text-dark">Detail</span>
-                    <div class="icon text-warning">
+                    <div class="icon text-info">
                         <i class="fa fa-book"></i>
                     </div>
                 </a>`;
@@ -704,6 +704,8 @@
                     customFilter);
             });
         }
+
+
 
         function cetakStruk(id_kasir) {
             const url = `{{ route('cetak.struk', ':id_kasir') }}`.replace(':id_kasir', id_kasir);
