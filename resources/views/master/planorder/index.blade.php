@@ -19,15 +19,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-primary">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @else
-                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-secondary disabled">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @endif
+
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -50,32 +42,10 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama Barang</th>
-                                                @foreach ($toko as $tk)
-                                                    <th class="text-wrap align-top">{{ $tk->singkatan }}</th>
-                                                @endforeach
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            @foreach ($barang as $brg)
-                                                <tr>
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>{{ $brg->nama_barang }}</td>
-                                                    @foreach ($toko as $tk)
-                                                        <td>
-                                                            @if ($tk->id == 1)
-                                                                {{-- Ambil stok dari StockBarang jika id_toko == 1 --}}
-                                                                {{ $stock->where('id_barang', $brg->id)->first()?->stock ?? 0 }}
-                                                            @else
-                                                                {{-- Ambil qty dari DetailToko jika id_toko != 1 --}}
-                                                                {{ $stokTokoLain->where('id_barang', $brg->id)->where('id_toko', $tk->id)->first()?->qty ?? 0 }}
-                                                            @endif
-                                                        </td>
-                                                    @endforeach
-                                                </tr>
-                                            @endforeach
+                                        <tbody id="listData">
                                         </tbody>
-                                        {{-- <tbody id="listData">
-                                    </tbody> --}}
                                     </table>
                                 </div>
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
@@ -99,6 +69,102 @@
         </div>
     </div>
 @endsection
-</body>
 
-</html>
+@section('asset_js')
+    <script src="{{ asset('js/pagination.js') }}"></script>
+@endsection
+
+@section('js')
+    <script>
+        let title = 'Plan Order';
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listData').html(loadingData());
+
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.getplanorder') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let allKeys = new Set();
+                getDataRest.data.data.forEach(item => {
+                    if (item.stok_per_toko) {
+                        Object.keys(item.stok_per_toko).forEach(key => allKeys.add(key));
+                    }
+                });
+
+                const dynamicKeys = Array.from(allKeys);
+                await setListData(getDataRest.data.data, getDataRest.data.pagination, dynamicKeys);
+            } else {
+                let errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+            <tr class="text-dark">
+                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+            </tr>`;
+                $('#listData').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
+        }
+
+        async function setListData(dataList, pagination, dynamicKeys = []) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let dynamicHeaders = dynamicKeys.map(key => `<th class="text-wrap align-top">${key}</th>`).join('');
+            let tableHeaders = `
+                <tr class="tb-head">
+                    <th class="text-center text-wrap align-top">No</th>
+                    <th class="text-wrap align-top">Nama Barang</th>
+                    ${dynamicHeaders}
+                </tr>`;
+            $('thead').html(tableHeaders);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                let stokColumns = dynamicKeys.map(key =>
+                    `<td class="${classCol}">${element.stok_per_toko[key] ?? '-'}</td>`).join('');
+
+                getDataTable += `
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">${element.nama_barang}</td>
+                    ${stokColumns}
+                </tr>`;
+            });
+
+            $('#listData').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            renderPagination();
+        }
+
+        async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
+        }
+    </script>
+@endsection
