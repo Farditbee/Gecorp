@@ -17,7 +17,7 @@ class PlanOrderController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Data Barang',
+            'Plan Order',
             'Tambah Data',
             'Edit Data'
         ];
@@ -38,7 +38,7 @@ class PlanOrderController extends Controller
 
     // Mengambil stok barang dari StockBarang untuk toko yang dipilih
     $stock = StockBarang::with('barang', 'toko')
-        ->whereIn('id_toko', $selectedTokoIds)
+        // ->whereIn('id_toko', $selectedTokoIds)
         ->orderBy('id', 'desc')
         ->get();
 
@@ -57,7 +57,7 @@ class PlanOrderController extends Controller
             if (in_array($tk->id, $selectedTokoIds)) {
                 if ($tk->id == 1) {
                     // Ambil stok dari StockBarang untuk toko id = 1
-                    $stok = $stock->where('id_barang', $brg->id)->where('id_toko', $tk->id)->first()?->stock ?? 0;
+                    $stok = $stock->where('id_barang', $brg->id)->first()?->stock ?? 0;
                 } else {
                     // Ambil qty dari DetailToko untuk toko selain id = 1
                     $stok = $stokTokoLain->where('id_barang', $brg->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
