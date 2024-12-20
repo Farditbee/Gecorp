@@ -19,7 +19,6 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -39,10 +38,6 @@
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-hover m-0">
                                         <thead>
-                                            <tr class="tb-head">
-                                                <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Nama Barang</th>
-                                            </tr>
                                         </thead>
                                         <tbody id="listData">
                                         </tbody>
@@ -118,9 +113,9 @@
             } else {
                 let errorMessage = getDataRest?.data?.message;
                 let errorRow = `
-            <tr class="text-dark">
-                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-            </tr>`;
+                <tr class="text-dark">
+                    <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                </tr>`;
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
                 $('#totalPage').text("0");
@@ -128,25 +123,45 @@
         }
 
         async function setListData(dataList, pagination, dynamicKeys = []) {
+            $('#listData').html(loadingData());
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
-            let dynamicHeaders = dynamicKeys.map(key => `<th class="text-wrap align-top">${key}</th>`).join('');
+            let dynamicHeaders = dynamicKeys.map(key => `
+                <th class="text-wrap align-top text-center" colspan="3">${key}</th>
+            `).join('');
+
+            let subHeaders = dynamicKeys.map(() => `
+                <th class="text-wrap align-top text-center">Stock</th>
+                <th class="text-wrap align-top text-center">OTW</th>
+                <th class="text-wrap align-top text-center">TT (Hari)</th>
+            `).join('');
+
             let tableHeaders = `
                 <tr class="tb-head">
                     <th class="text-center text-wrap align-top">No</th>
                     <th class="text-wrap align-top">Nama Barang</th>
                     ${dynamicHeaders}
+                </tr>
+                <tr class="tb-subhead">
+                    <th colspan="2"></th>
+                    ${subHeaders}
                 </tr>`;
             $('thead').html(tableHeaders);
 
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
-                let stokColumns = dynamicKeys.map(key =>
-                    `<td class="${classCol}">${element.stok_per_toko[key] ?? '-'}</td>`).join('');
+                let stokColumns = dynamicKeys.map(key => {
+                    let tokoData = element.stok_per_toko[key] || 0;
+                    return `
+                        <td class="${classCol} text-center">${tokoData ?? '-'}</td>
+                        <td class="${classCol} text-center">${tokoData.otw ?? '-'}</td>
+                        <td class="${classCol} text-center">${tokoData.tt ?? '-'}</td>
+                    `;
+                }).join('');
 
                 getDataTable += `
                 <tr class="text-dark">
