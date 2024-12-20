@@ -24,64 +24,68 @@ class PlanOrderController extends Controller
     }
 
     public function getplanorder(Request $request)
-{
-    // Ambil id_toko dari request, jika kosong gunakan semua toko
-    $selectedTokoIds = $request->input('id_toko', []);
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-    // Ambil semua toko
-    $toko = Toko::all();
+        // Ambil id_toko dari request, jika kosong gunakan semua toko
+        $selectedTokoIds = $request->input('id_toko', []);
 
-    // Jika tidak ada toko yang dipilih, gunakan semua id_toko
-    if (empty($selectedTokoIds)) {
-        $selectedTokoIds = $toko->pluck('id')->toArray();
-    }
+        // Ambil semua toko
+        $toko = Toko::all();
 
-    // Mengambil stok barang dari StockBarang untuk toko yang dipilih
-    $stock = StockBarang::with('barang', 'toko')
-        // ->whereIn('id_toko', $selectedTokoIds)
-        ->orderBy('id', 'desc')
-        ->get();
+        // Jika tidak ada toko yang dipilih, gunakan semua id_toko
+        if (empty($selectedTokoIds)) {
+            $selectedTokoIds = $toko->pluck('id')->toArray();
+        }
 
-    // Mengambil stok barang dari DetailToko untuk toko selain id = 1 dan yang dipilih
-    $stokTokoLain = DetailToko::with('barang', 'toko')
-        ->whereIn('id_toko', $selectedTokoIds)
-        ->where('id_toko', '!=', 1)
-        ->get();
+        // Ambil semua barang
+        $barang = Barang::all();
 
-    // Ambil semua barang
-    $barang = Barang::all();
+        // Paginate barang
+        $query = Barang::select('barang.id', 'barang.nama_barang')->orderBy('id', $meta['orderBy']);
+        $data = $query->paginate($meta['limit']);
 
-    // Format data stok untuk respons JSON
-    $data = $barang->map(function ($brg) use ($stock, $stokTokoLain, $selectedTokoIds, $toko) {
-        $stokPerToko = $toko->mapWithKeys(function ($tk) use ($brg, $stock, $stokTokoLain, $selectedTokoIds) {
-            if (in_array($tk->id, $selectedTokoIds)) {
-                if ($tk->id == 1) {
-                    // Ambil stok dari StockBarang untuk toko id = 1
-                    $stok = $stock->where('id_barang', $brg->id)->first()?->stock ?? 0;
-                } else {
-                    // Ambil qty dari DetailToko untuk toko selain id = 1
-                    $stok = $stokTokoLain->where('id_barang', $brg->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
+        // Metadata pagination
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage(),
+        ];
+
+        // Format data barang dan stok
+        $mappedData = collect($data->items())->map(function ($item) use ($toko, $selectedTokoIds) {
+            $stokPerToko = $toko->mapWithKeys(function ($tk) use ($item, $selectedTokoIds) {
+                if (in_array($tk->id, $selectedTokoIds)) {
+                    if ($tk->id == 1) {
+                        // Ambil stok dari StockBarang untuk toko id = 1
+                        $stok = StockBarang::where('id_barang', $item->id)->first()?->stock ?? 0;
+                    } else {
+                        // Ambil qty dari DetailToko untuk toko selain id = 1
+                        $stok = DetailToko::where('id_barang', $item->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
+                    }
+                    return [$tk->singkatan => $stok];
                 }
-                return [$tk->singkatan => $stok];
-            }
-            return [];
+                return [];
+            });
+
+            return [
+                'id' => $item->id,
+                'nama_barang' => $item->nama_barang,
+                'stok_per_toko' => $stokPerToko,
+            ];
         });
 
-        return [
-            'nama_barang' => $brg->nama_barang,
-            'stok_per_toko' => $stokPerToko,
-        ];
-    });
-
-    // Kembalikan data dalam format JSON
-    return response()->json([
-        "error" => false,
-        "message" => $data->isEmpty() ? "No data found" : "Data retrieved successfully",
-        "status_code" => 200,
-        "data" => $data
-    ]);
-}
-
+        // Kembalikan data dalam format JSON
+        return response()->json([
+            "error" => false,
+            "message" => $mappedData->isEmpty() ? "No data found" : "Data retrieved successfully",
+            "status_code" => 200,
+            "pagination" => $paginationMeta,
+            "data" => $mappedData,
+        ]);
+    }
 
     public function index()
     {
