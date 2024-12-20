@@ -137,7 +137,7 @@
 
         function loadingData() {
             let html = `
-            <tr class="text-dark">
+            <tr class="text-dark loading-row">
                 <td class="text-center" colspan="${$('.tb-head th').length}">
                     <svg xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg"
                         xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" width="162px" height="24px"

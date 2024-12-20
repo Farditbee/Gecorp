@@ -13,7 +13,7 @@ class RedirectIfAuthenticated
     {
         if (Auth::check()) {
             // Jika pengguna sudah login, redirect ke halaman master.index
-            return redirect()->route('master.index');
+            return redirect()->route('dashboard.index');
         }
 
         return $next($request);
