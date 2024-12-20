@@ -55,7 +55,7 @@
                                                 <th class="text-wrap align-top">Jenis Barang</th>
                                                 <th class="text-wrap align-top">Brand Barang</th>
                                                 <th class="text-wrap align-top">Garansi</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -176,6 +176,19 @@
                     </div>
                 </a>`;
 
+            let action_buttons = '';
+            if (edit_button || delete_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-start">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 nama_barang: data?.nama_barang && data.nama_barang !== "" ? data.nama_barang :
@@ -189,9 +202,7 @@
                 garansi: data?.garansi && data.garansi !== "" ? data.garansi :
                     '<span class="badge badge-danger">Tidak Ada Data</span>',
                 gambar_barcode,
-                edit_button,
-                download_button,
-                delete_button,
+                action_buttons,
             };
         }
 
@@ -214,19 +225,7 @@
                         <td class="${classCol}">${element.nama_jenis_barang}</td>
                         <td class="${classCol}">${element.nama_brand}</td>
                         <td class="${classCol}">${element.garansi}</td>
-                        <td class="${classCol}">
-                            <div class="d-flex justify-content-center w-100">
-                                <div class="hovering p-1">
-                                    ${element.edit_button}
-                                </div>
-                                <div class="hovering p-1">
-                                    ${element.download_button}
-                                </div>
-                                <div class="hovering p-1">
-                                    ${element.delete_button}
-                                </div>
-                            </div>
-                        </td>
+                        <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
             });
 

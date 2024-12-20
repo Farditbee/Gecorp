@@ -1,4 +1,4 @@
-<div class="page-header pt-4">
+<div class="page-header pt-2">
     <div class="page-block">
         <div class="row align-items-center justify-content-between">
             <div class="col-sm-auto d-flex align-items-center">
