@@ -103,7 +103,7 @@ class BarangController extends Controller
 
     public function index()
     {
-        $menu = [$this->title[0], $this->label[0]];
+    $menu = [$this->title[0], $this->label[0]];
         $barang = Barang::with('brand', 'jenis')
             ->orderBy('id', 'desc')
             ->get();
@@ -242,20 +242,26 @@ class BarangController extends Controller
 
     public function update(Request $request, string $id)
     {
-        $barang = Barang::findOrFail($id);
-        try {
-            $barang->update([
-                'id_jenis_barang' => $request->id_jenis_barang,
-                'id_brand_barang' => $request->id_brand_barang,
-                'nama_barang' => $request->nama_barang,
-                'garansi' => $request->garansi,
-                // 'barcode' => $request->barcode,
-            ]);
-            return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
-        } catch (\Throwable $th) {
-            return redirect()->back()->with('error', $th->getMessage())->withInput();
-        }
+    $request->validate([
+        'id_jenis_barang' => 'required|integer',
+        'id_brand_barang' => 'required|integer',
+        'nama_barang' => 'required|string|max:255',
+    ]);
+
+    $barang = Barang::findOrFail($id);
+
+    try {
+        $barang->update([
+            'id_jenis_barang' => $request->id_jenis_barang,
+            'id_brand_barang' => $request->id_brand_barang,
+            'nama_barang' => $request->nama_barang,
+            'garansi' => $request->garansi,
+        ]);
+        return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
+    } catch (\Throwable $th) {
+        return redirect()->back()->with('error', $th->getMessage())->withInput();
     }
+}
 
     public function delete(string $id)
     {

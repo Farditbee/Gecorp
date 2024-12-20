@@ -50,20 +50,6 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="flexSwitchCheckDefault"
-                                                    class="form-control-label">Garansi</label>
-                                                <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" role="switch"
-                                                        id="flexSwitchCheckDefault" name="garansi"
-                                                        {{ $barang['garansi'] == 'Yes' ? 'checked' : '' }}
-                                                        onchange="updateSwitchStatus(this)">
-                                                    <span
-                                                        id="switchStatus">{{ $barang['garansi'] == 'Yes' ? 'Ada' : 'Tidak Ada' }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
                                                 <label for="id_brand_barang" class="form-control-label">Brand Barang</label>
                                                 <select name="id_brand_barang" id="s_brand_barang" class="form-control"
                                                     tabindex="1">
@@ -74,6 +60,27 @@
                                                             {{ $br->nama_brand }}</option>
                                                     @endforeach
                                                 </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="flexSwitchCheckDefault" class="form-control-label">Garansi</label>
+                                                <div class="form-check form-switch">
+                                                    <!-- Hidden input untuk nilai "No" jika switch dimatikan -->
+                                                    <input type="hidden" name="garansi" value="No">
+                                                    <!-- Switch input -->
+                                                    <input
+                                                        class="form-check-input"
+                                                        type="checkbox"
+                                                        role="switch"
+                                                        id="flexSwitchCheckDefault"
+                                                        name="garansi"
+                                                        value="Yes"
+                                                        {{ $barang['garansi'] == 'Yes' ? 'checked' : '' }}
+                                                        onchange="updateSwitchStatus(this)">
+                                                    <!-- Label status -->
+                                                    <span id="switchStatus">{{ $barang['garansi'] == 'Yes' ? 'Ada' : 'Tidak Ada' }}</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
