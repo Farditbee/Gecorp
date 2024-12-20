@@ -20,7 +20,7 @@
                 <div class="page-header float-right">
                     <div class="page-title">
                         <ol class="breadcrumb text-right">
-                            <li><a href="{{ route('master.index')}}">Dashboard</a></li>
+                            <li><a href="{{ route('dashboard.index')}}">Dashboard</a></li>
                             <li class="active">Data Plan Order - All Toko</li>
                         </ol>
                     </div>

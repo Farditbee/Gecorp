@@ -20,11 +20,11 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.pembelianbarang.index') }}" class="mr-2 btn btn-primary">
+                                    <a href="{{ route('transaksi.pembelianbarang.index') }}" class="mr-2 btn btn-primary">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @else
-                                    <a href="{{ route('master.pembelianbarang.index') }}"
+                                    <a href="{{ route('transaksi.pembelianbarang.index') }}"
                                         class="mr-2 btn btn-secondary disabled">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
