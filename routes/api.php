@@ -10,6 +10,7 @@ use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengirimanBarangController;
+use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RetureController;
 use App\Http\Controllers\StockBarangController;
@@ -44,3 +45,4 @@ Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getp
 Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master.getbarangs');
 Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');
 Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
+Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name('master.getplanorder');
