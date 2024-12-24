@@ -24,78 +24,79 @@ class PlanOrderController extends Controller
     }
 
     public function getplanorder(Request $request)
-    {
-        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+{
+    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        // Ambil id_toko dari request, jika kosong gunakan semua toko
-        $selectedTokoIds = $request->input('id_toko', []);
+    // Ambil id_toko dari request
+    $selectedTokoIds = $request->input('id_toko', []);
 
-        // Ambil semua toko
-        $toko = Toko::all();
+    // Ambil semua toko jika tidak ada yang dipilih
+    if (empty($selectedTokoIds)) {
+        $selectedTokoIds = Toko::pluck('id')->toArray();
+    }
 
-        // Jika tidak ada toko yang dipilih, gunakan semua id_toko
-        if (empty($selectedTokoIds)) {
-            $selectedTokoIds = $toko->pluck('id')->toArray();
-        }
+    // Query barang
+    $query = Barang::select('barang.id', 'barang.nama_barang')
+        ->orderBy('id', $meta['orderBy']);
 
-        // Ambil semua barang
-        $barang = Barang::all();
+    // Pencarian
+    if (!empty($request['search'])) {
+        $searchTerm = trim(strtolower($request['search']));
 
+        $query->where(function ($query) use ($searchTerm) {
+            $query->orWhereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+        });
+    }
 
-        // Paginate barang
-        $query = Barang::select('barang.id', 'barang.nama_barang')->orderBy('id', $meta['orderBy']);
-        if (!empty($request['search'])) {
-            $searchTerm = trim(strtolower($request['search']));
+    // Paginate data barang
+    $data = $query->paginate($meta['limit']);
 
-            $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+    // Metadata pagination
+    $paginationMeta = [
+        'total'        => $data->total(),
+        'per_page'     => $data->perPage(),
+        'current_page' => $data->currentPage(),
+        'total_pages'  => $data->lastPage(),
+    ];
 
-            });
-        }
-        $data = $query->paginate($meta['limit']);
-
-        // Metadata pagination
-        $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage(),
-        ];
-
-        // Format data barang dan stok
-        $mappedData = collect($data->items())->map(function ($item) use ($toko, $selectedTokoIds) {
-            $stokPerToko = $toko->mapWithKeys(function ($tk) use ($item, $selectedTokoIds) {
-                if (in_array($tk->id, $selectedTokoIds)) {
-                    if ($tk->id == 1) {
-                        // Ambil stok dari StockBarang untuk toko id = 1
-                        $stok = StockBarang::where('id_barang', $item->id)->first()?->stock ?? 0;
-                    } else {
-                        // Ambil qty dari DetailToko untuk toko selain id = 1
-                        $stok = DetailToko::where('id_barang', $item->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
-                    }
-                    return [$tk->singkatan => $stok];
-                }
-                return [];
-            });
-
-            return [
-                'id' => $item->id,
-                'nama_barang' => $item->nama_barang,
-                'stok_per_toko' => $stokPerToko,
-            ];
+    // Format data barang dan stok
+    $mappedData = collect($data->items())->map(function ($item) use ($selectedTokoIds) {
+        $stokPerToko = Toko::whereIn('id', $selectedTokoIds)->get()->mapWithKeys(function ($tk) use ($item) {
+            if ($tk->id == 1) {
+                // Ambil stok dari StockBarang untuk toko id = 1
+                $stok = StockBarang::where('id_barang', $item->id)->first()?->stock ?? 0;
+            } else {
+                // Ambil qty dari DetailToko untuk toko selain id = 1
+                $stok = DetailToko::where('id_barang', $item->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
+            }
+            return [$tk->singkatan => $stok];
         });
 
-        // Kembalikan data dalam format JSON
-        return response()->json([
-            "error" => false,
-            "message" => $mappedData->isEmpty() ? "No data found" : "Data retrieved successfully",
-            "status_code" => 200,
-            "pagination" => $paginationMeta,
-            "data" => $mappedData,
-        ]);
-    }
+        // Jika tidak ada stok sama sekali, set default stok ke 0
+        if ($stokPerToko->isEmpty()) {
+            $stokPerToko = Toko::whereIn('id', $selectedTokoIds)->get()->mapWithKeys(function ($tk) {
+                return [$tk->singkatan => 0];
+            });
+        }
+
+        return [
+            'id' => $item->id,
+            'nama_barang' => $item->nama_barang,
+            'stok_per_toko' => $stokPerToko,
+        ];
+    });
+
+    // Kembalikan data dalam format JSON
+    return response()->json([
+        "error" => false,
+        "message" => $mappedData->isEmpty() ? "No data found" : "Data retrieved successfully",
+        "status_code" => 200,
+        "pagination" => $paginationMeta,
+        "data" => $mappedData,
+    ]);
+}
+
 
     public function index()
     {
