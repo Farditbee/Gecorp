@@ -214,7 +214,7 @@ class PengirimanBarangController extends Controller
 
             DB::commit();
             // Redirect ke tab "detail pengiriman" dengan data pengiriman yang baru disimpan
-            return redirect()->route('master.pengirimanbarang.create')
+            return redirect()->route('transaksi.pengirimanbarang.create')
                 ->with('tab', 'detail')
                 ->with('pengiriman_barang', $pengiriman_barang);
             // ->with('stock', $stock);
@@ -341,7 +341,7 @@ class PengirimanBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('master.pengirimanbarang.index')->with('success', 'Data Pengiriman Barang berhasil Ditambahkan.');
+            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Data Pengiriman Barang berhasil Ditambahkan.');
         } catch (\Exception $e) {
             DB::rollback();
 
@@ -439,7 +439,7 @@ class PengirimanBarangController extends Controller
             }
 
             DB::commit();  // Commit transaction setelah semua operasi berhasil
-            return redirect()->route('master.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
+            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
         } catch (\Exception $e) {
             DB::rollBack();  // Rollback jika terjadi error
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

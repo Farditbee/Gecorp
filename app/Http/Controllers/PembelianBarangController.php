@@ -326,7 +326,7 @@ class PembelianBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('master.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
+            return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $e->getMessage()]);
@@ -425,7 +425,7 @@ class PembelianBarangController extends Controller
 
         $pembelian->save();
 
-        return redirect()->route('master.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
+        return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
     }
 
 
@@ -442,7 +442,7 @@ class PembelianBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('master.pembelianbarang.index')
+            return redirect()->route('transaksi.pembelianbarang.index')
                 ->with('success', 'Pembelian barang deleted successfully.');
         } catch (\Exception $e) {
             DB::rollback();

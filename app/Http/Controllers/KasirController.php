@@ -414,7 +414,7 @@ class KasirController extends Controller
 
             DB::commit();
 
-            return redirect()->route('master.kasir.index')->with('success', 'Data berhasil disimpan');
+            return redirect()->route('transaksi.kasir.index')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {
             DB::rollback();
 

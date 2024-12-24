@@ -4,12 +4,13 @@
     Tambah Pengiriman Barang
 @endsection
 
-@section('content')
-
+@section('css')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+@endsection
 
+@section('content')
     <div class="pcoded-main-container">
-        <div class="pcoded-content">
+        <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
             <div class="row">
                 <div class="col-md-12">
@@ -81,7 +82,8 @@
                                                     Toko)<span style="color: red">*</span></label>
                                                 <select name="nama_pengirim" id="nama_pengirim" class="form-control"
                                                     data-placeholder="~Silahkan Pilih Nama~" tabindex="1">
-                                                    <option class="" required>~Pilih Toko Pengirim Terlebih Dahulu~</option>
+                                                    <option class="" required>~Pilih Toko Pengirim Terlebih Dahulu~
+                                                    </option>
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -200,7 +202,8 @@
                                                                     <label for="id_barang" class="form-control-label">Nama
                                                                         Barang<span style="color: red">*</span></label>
                                                                     <select name="id_barang" id="id_barang">
-                                                                        <option value="" disabled selected required>~Pilih Barang~</option>
+                                                                        <option value="" disabled selected required>
+                                                                            ~Pilih Barang~</option>
 
                                                                         @if ($pengiriman_barang->toko_pengirim == 1)
                                                                             {{-- Jika toko_pengirim adalah 1, ambil data dari StockBarang --}}
@@ -322,7 +325,8 @@
                                         <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel"
                                             aria-labelledby="custom-nav-contact-tab">
                                             <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt
-                                                tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche tempor,
+                                                tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche
+                                                tempor,
                                                 williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh
                                                 dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd.
                                                 Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel,
@@ -335,33 +339,38 @@
                     </div>
                 </div>
             </div>
-            <!-- [ Main Content ] end -->
         </div>
     </div>
+@endsection
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section('asset_js')
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+@endsection
 
+@section('js')
     <script>
-        document.getElementById('tgl_kirim').addEventListener('focus', function() {
-            this.showPicker(); // Membuka picker tanggal saat input difokuskan
-        });
+        async function initPageLoad() {
 
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inisialisasi Tom Select untuk #toko_pengirim dan #toko_penerima sekali saja
+            // Ensure elements exist before adding event listeners
+            const tglKirim = document.getElementById('tgl_kirim');
+            if (tglKirim) {
+                tglKirim.addEventListener('focus', function() {
+                    this.showPicker(); // Open the date picker when the input is focused
+                });
+            }
+
+            // Initialize Tom Select for #toko_pengirim and #toko_penerima
             new TomSelect("#toko_pengirim", {
                 allowClear: true,
                 create: false
             });
 
-            var tokoPenerimaSelect = new TomSelect("#toko_penerima", {
+            const tokoPenerimaSelect = new TomSelect("#toko_penerima", {
                 placeholder: "Pilih Toko Penerima",
                 allowClear: true
             });
 
-            // Event saat toko pengirim dipilih
+            // Event for when toko_pengirim is selected
             $('#toko_pengirim').change(function() {
                 var idToko = $(this).val();
 
@@ -371,98 +380,89 @@
                         type: "GET",
                         dataType: "json",
                         success: function(data) {
-                            console.log('Data received:', data); // Log data untuk debugging
-                            $('#nama_pengirim').empty();
-                            $('#nama_pengirim').append('<option value="">~Pilih Nama Pengirim~</option>');
+                            console.log('Data received:',
+                                data); // Log data for debugging
+                            $('#nama_pengirim').empty().append(
+                                '<option value="">~Pilih Nama Pengirim~</option>');
                             $.each(data, function(key, value) {
-                                $('#nama_pengirim').append('<option value="' + value.id + '">' + value.nama + '</option>');
+                                $('#nama_pengirim').append('<option value="' +
+                                    value
+                                    .id + '">' + value.nama + '</option>');
                             });
                         },
                         error: function(xhr, status, error) {
                             if (xhr.status === 404) {
-                                $('#nama_pengirim').empty();
-                                $('#nama_pengirim').append('<option value="">Toko Tidak ada Admin</option>');
+                                $('#nama_pengirim').empty().append(
+                                    '<option value="">Toko Tidak ada Admin</option>'
+                                );
                             } else {
                                 console.error(xhr.responseText);
                             }
                         }
                     });
 
-                    // Hapus semua opsi dari #toko_penerima dan tambahkan kembali kecuali yang sama dengan idToko
+                    // Clear and refresh toko_penerima options
                     tokoPenerimaSelect.clearOptions();
-
-                    // Tambahkan opsi yang tersedia di toko penerima, kecuali yang sama dengan toko pengirim
                     $('#toko_penerima option').each(function() {
                         if ($(this).val() != idToko) {
-                            tokoPenerimaSelect.addOption({ value: $(this).val(), text: $(this).text() });
+                            tokoPenerimaSelect.addOption({
+                                value: $(this).val(),
+                                text: $(this).text()
+                            });
                         }
                     });
-
-                    // Refresh opsi di Tom Select
                     tokoPenerimaSelect.refreshOptions();
-
                 } else {
-                    $('#nama_pengirim').empty();
-                    $('#nama_pengirim').append('<option value="">~Nama Pengirim Tidak Ditemukan~</option>');
+                    $('#nama_pengirim').empty().append(
+                        '<option value="">~Nama Pengirim Tidak Ditemukan~</option>');
                 }
             });
-        });
-    </script>
 
-    <script>
-        new TomSelect("#id_barang", {
-                allowClear: true,
-                create: false
+            // Event for when #id_barang changes
+            $('#id_barang').change(function() {
+                var idBarang = $(this).val();
+                var idToko = $('#tk_pengirim').val(); // Get id_toko from hidden input
+
+                console.log("Selected idBarang: ", idBarang);
+                console.log("Selected idToko: ", idToko);
+
+                if (idBarang) {
+                    $.ajax({
+                        url: '/admin/get-harga-barang/' + idBarang + '/' + idToko,
+                        type: 'GET',
+                        success: function(response) {
+                            console.log("Response from server: ", response);
+                            if (response.harga) {
+                                $('#harga_formatted').val(formatNumber(response.harga));
+                                $('#harga').val(response.harga);
+                            } else {
+                                alert('Harga barang tidak ditemukan.');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Error fetching price:", error);
+                            alert('Gagal mendapatkan harga barang.');
+                        }
+                    });
+                } else {
+                    $('#harga_formatted').val('');
+                    $('#harga').val('');
+                }
             });
 
-        $('#id_barang').change(function() {
-            var idBarang = $(this).val();
-            var idToko = $('#tk_pengirim').val(); // Ambil id_toko dari hidden input
-
-            console.log("Selected idBarang: ", idBarang);
-            console.log("Selected idToko: ", idToko);
-
-            if (idBarang) {
-                $.ajax({
-                    url: '/admin/get-harga-barang/' + idBarang + '/' + idToko,
-                    type: 'GET',
-                    success: function(response) {
-                        console.log("Response from server: ", response);
-                        if (response.harga) {
-                            // Format number untuk tampilan
-                            $('#harga_formatted').val(formatNumber(response.harga));
-                            // Simpan harga asli ke input hidden untuk dikirim ke server
-                            $('#harga').val(response.harga);
-                        } else {
-                            alert('Harga barang tidak ditemukan.');
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error fetching price:", error);
-                        alert('Gagal mendapatkan harga barang.');
-                    }
-                });
-            } else {
-                $('#harga_formatted').val('');
-                $('#harga').val('');
+            // Function to format number with thousand separator
+            function formatNumber(num) {
+                return new Intl.NumberFormat('id-ID', {
+                    minimumFractionDigits: 0
+                }).format(num);
             }
-        });
 
-        // Fungsi untuk memformat angka dengan pemisah ribuan
-        function formatNumber(num) {
-            return new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 0
-            }).format(num);
-        }
-    </script>
-
-    {{-- Tampilkan Add --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize other functionality after DOM is ready
             let subtotal = 0;
             let addedItems = new Set();
+            let lastDeletedItem = null;
 
-            // Fungsi untuk mengatur input field
+            // Toggle input fields for item quantity and price
             function toggleInputFields(disabled) {
                 document.getElementById('jml_item').disabled = disabled;
                 document.getElementById('harga').disabled = disabled;
@@ -472,29 +472,29 @@
                 }
             }
 
-            // Initial check to set input fields based on existing items
+            // Check input fields to prevent duplicates
             function checkInputFields() {
                 let idBarang = document.getElementById('id_barang').value;
                 let isItemAdded = addedItems.has(idBarang);
                 toggleInputFields(isItemAdded);
             }
 
-            let lastDeletedItem = null;
-            document.getElementById('add-item-detail').addEventListener('click', function() {
+            // Add item to table on click
+            document.getElementById('add-item-detail')?.addEventListener('click', function() {
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
-                let qty = parseInt(document.getElementById('jml_item').value) || 0; // Default to 0 if NaN
-                let harga = parseInt(document.getElementById('harga').value) || 0; // Default to 0 if NaN
+                let qty = parseInt(document.getElementById('jml_item').value) || 0;
+                let harga = parseInt(document.getElementById('harga').value) || 0;
 
                 if (!idBarang) {
                     alert('Harap pilih barang terlebih dahulu!');
                     return;
                 }
-                // Ambil stok barang dari atribut stok yang disimpan di dalam option
-                let stok = parseInt(document.getElementById('id_barang').selectedOptions[0].getAttribute(
-                    'data-stock')) || 0; // Default to 0 if NaN
 
-                // Validasi apakah qty melebihi stok yang tersedia
+                let stok = parseInt(document.getElementById('id_barang').selectedOptions[0]
+                    .getAttribute(
+                        'data-stock')) || 0;
+
                 if (qty > stok) {
                     alert('Stock barang tidak cukup!');
                     return;
@@ -521,28 +521,23 @@
                 subtotal += totalHarga;
 
                 let row = `
-                        <tr>
-                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
-                            <td class="numbered">${document.querySelectorAll('tbody tr').length + 1}</td>
-                            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                            <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                        </tr>
-                    `;
+                    <tr>
+                        <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                        <td class="numbered">${document.querySelectorAll('tbody tr').length + 1}</td>
+                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+                        <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                        <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+                        <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                    </tr>
+                `;
 
                 document.querySelector('tbody').insertAdjacentHTML('beforeend', row);
-
-                // Update subtotal in the footer
                 document.querySelector('tfoot tr th:last-child').textContent =
                     `Rp ${subtotal.toLocaleString('id-ID')}`;
 
-                // Disable input fields after adding
                 toggleInputFields(true);
-
                 updateNumbers();
 
-                // Reset input fields jika barang yang dihapus berbeda
                 if (!lastDeletedItem || lastDeletedItem.id !== idBarang) {
                     document.getElementById('id_barang').value = '';
                     document.getElementById('jml_item').value = '';
@@ -550,49 +545,43 @@
                 }
             });
 
-            document.querySelector('tbody').addEventListener('click', function(e) {
+            // Remove item from table on click
+            document.querySelector('tbody')?.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-item')) {
                     let row = e.target.closest('tr');
                     let idBarang = row.querySelector('input[name="id_barang[]"]').value;
-
-                    // Get total price of the removed item (use a fallback of 0 to avoid NaN)
-                    let totalHarga = parseInt(row.querySelector('td:last-child').textContent.replace(
-                        /[^\d]/g, '')) || 0;
+                    let totalHarga = parseInt(row.querySelector('td:last-child').textContent
+                        .replace(
+                            /[^\d]/g, '')) || 0;
 
                     subtotal -= totalHarga;
-
                     row.remove();
-
                     addedItems.delete(idBarang);
 
-                    // Simpan barang yang terakhir dihapus
                     lastDeletedItem = {
                         id: idBarang,
                         nama: row.querySelector('td:nth-child(3)').textContent,
                         qty: row.querySelector('td:nth-child(4)').textContent,
-                        harga: row.querySelector('td:nth-child(5)').textContent.replace(/\D/g, '')
+                        harga: row.querySelector('td:nth-child(5)').textContent.replace(/\D/g,
+                            '')
                     };
 
-                    // Update subtotal in the footer
                     document.querySelector('tfoot tr th:last-child').textContent =
                         `Rp ${subtotal.toLocaleString('id-ID')}`;
                     updateNumbers();
 
-                    // Enable input fields if no items are added
                     if (!addedItems.size) {
                         toggleInputFields(false);
                     } else {
-                        // Isi ulang form dengan barang yang terakhir dihapus
                         document.getElementById('id_barang').value = lastDeletedItem.id;
                         document.getElementById('jml_item').value = lastDeletedItem.qty;
                         document.getElementById('harga').value = lastDeletedItem.harga;
-                        // Recheck if the currently selected item is in the added items
                         checkInputFields();
                     }
                 }
             });
 
-            // Fungsi untuk update nomor urut di tabel
+            // Update item numbering after a row is added or removed
             function updateNumbers() {
                 let rows = document.querySelectorAll('tbody tr');
                 rows.forEach((row, index) => {
@@ -600,8 +589,8 @@
                 });
             }
 
-            // Memastikan input fields bisa digunakan kembali ketika dropdown barang berubah
-            document.getElementById('id_barang').addEventListener('change', function() {
+            // Update stock and price information based on selected item
+            document.getElementById('id_barang')?.addEventListener('change', function() {
                 let idBarang = this.value;
 
                 if (idBarang) {
@@ -626,7 +615,7 @@
 
                 checkInputFields();
             });
-        });
-    </script>
 
+        }
+    </script>
 @endsection
