@@ -53,6 +53,49 @@
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
+            <div class="alert alert-custom alert-dismissible fade show" role="alert">
+                <h4 class="alert-heading">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                        class="bi bi-info-circle" viewBox="0 0 20 20">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                        <path
+                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                    </svg>
+                    Informasi
+                </h4>
+                <div>
+                    <div class="text-bold d-flex align-items-center mb-2">
+                        <em class="fa fa-circle mx-1"></em>
+                        <span>
+                            Untuk Filter Data, silahkan klik tombol
+                            <strong><em class="fa fa-filter mx-1"></em>Filter</strong> lalu isi inputan dan klik tombol
+                            <strong><em class="fa fa-magnifying-glass mx-1"></em>Cari</strong> untuk submit
+                        </span>
+                    </div>
+                    <div class="text-bold d-flex align-items-center mb-2">
+                        <em class="fa fa-circle mx-1"></em>
+                        <div
+                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a8e6a1, #66ff66); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                        </div>
+                        <span><strong class="fw-bold">S (Stock)</strong>, Jumlah stock barang yang tersisa</span>
+                    </div>
+                    <div class="text-bold d-flex align-items-center mb-2">
+                        <em class="fa fa-circle mx-1"></em>
+                        <div
+                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #fff9a1, #ffff33); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                        </div>
+                        <span><strong class="fw-bold">OTW (On The Way)</strong>, Barang yang sedang dikirimkan</span>
+                    </div>
+                    <div class="text-bold d-flex align-items-center">
+                        <em class="fa fa-circle mx-1"></em>
+                        <div
+                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a1e9ff, #00ccff); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                        </div>
+                        <span><strong class="fw-bold">LO (Last Order)</strong>, Penjualan terakhir dari stock barang yang
+                            tersisa dalam satuan hari</span>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
@@ -77,6 +120,9 @@
                                 <form id="custom-filter" class="d-flex justify-content-start align-items-center">
                                     <button class="btn btn-info mr-2 h-100 mb-2" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
+                                        <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
                                     <select name="f_toko" id="f_toko" class="form-select select2 ml-2 mb-lg-0"
                                         style="width: 200px;"></select>
@@ -215,7 +261,6 @@
             }
         }
 
-
         async function setListData(dataList, pagination, dynamicKeys = []) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
@@ -242,7 +287,7 @@
                 </th>
                 <th class="text-wrap align-top text-center header-${index}-lo"
                     style="background: linear-gradient(to bottom, #a1e9ff, #00ccff);">
-                    LO (Hari)
+                    LO
                 </th>
             `).join('');
 
@@ -264,9 +309,9 @@
                 let stokColumns = dynamicKeys.map((key, i) => {
                     let tokoData = element.stok_per_toko[key] || 0;
                     return `
-                        <td class="${classCol} text-center header-${i}-stock"><b>${tokoData ?? '-'}</b></td>
+                        <td class="${classCol} text-center header-${i}-stock"><b>${tokoData.stock ?? '-'}</b></td>
                         <td class="${classCol} text-center header-${i}-otw"><b>${tokoData.otw ?? '-'}</b></td>
-                        <td class="${classCol} text-center header-${i}-lo"><b>${tokoData.tt ?? '-'}</b></td>
+                        <td class="${classCol} text-center header-${i}-lo"><b>${tokoData.lo ?? '-'}</b></td>
                     `;
                 }).join('');
 
@@ -336,6 +381,24 @@
 
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $('#limitPage').val();
+                currentPage = 1;
+
+                await getListData(
+                    defaultLimitPage,
+                    currentPage,
+                    defaultAscending,
+                    defaultSearch,
+                    customFilter
+                );
+            });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('.select2').val('').trigger('change');
+                $('.tb-search').val('');
+
+                customFilter = {};
+                defaultSearch = '';
+                defaultLimitPage = 10;
                 currentPage = 1;
 
                 await getListData(

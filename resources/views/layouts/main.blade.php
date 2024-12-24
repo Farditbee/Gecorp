@@ -86,6 +86,10 @@
                 transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
             }
         }
+        .alert-custom {
+            background: linear-gradient(135deg, #004d3d, #066854, #0f8f75, #1ec7a5, #6bf1d7);
+            color: #ffffff;
+        }
     </style>
     @yield('css')
     <script>
