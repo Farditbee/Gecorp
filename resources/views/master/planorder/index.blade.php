@@ -330,7 +330,6 @@
 
                 let selectedTokoIds = $('#f_toko').val();
 
-                let customFilter = {};
                 if (selectedTokoIds && selectedTokoIds.length > 0) {
                     customFilter['id_toko'] = selectedTokoIds;
                 }
