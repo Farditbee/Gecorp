@@ -57,21 +57,31 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                            </div>
-
+                            <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                                <i class="fa fa-filter"></i> Filter
+                            </button>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
+                                    style="width: 150px;">
                                     <option value="10">10</option>
                                     <option value="20">20</option>
                                     <option value="30">30</option>
                                 </select>
                                 <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 250px;">
                             </div>
                         </div>
                         <div class="content">
+                            <div class="collapse mt-2 pl-4" id="filter-collapse">
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
+                                    <button class="btn btn-info mr-2 h-100 mb-2" id="tb-filter" type="submit">
+                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <select name="f_toko" id="f_toko" class="form-select select2 ml-2 mb-lg-0"
+                                        style="width: 200px;"></select>
+                                </form>
+                            </div>
                             <x-adminlte-alerts />
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
@@ -104,6 +114,7 @@
     </div>
 @endsection
 
+
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
 @endsection
@@ -117,6 +128,11 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let selectOptions = [{
+            id: '#f_toko',
+            isUrl: '{{ route('master.toko') }}',
+            placeholder: 'Pilih Toko'
+        }];
 
         function renderData() {
             let dynamicHeadersCount = $('.tb-head th').length - 2;
@@ -157,6 +173,10 @@
 
             let filterParams = {};
 
+            if (customFilter['id_toko']) {
+                filterParams.id_toko = customFilter['id_toko'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getplanorder') }}', {
@@ -194,6 +214,7 @@
                 $('#totalPage').text("0");
             }
         }
+
 
         async function setListData(dataList, pagination, dynamicKeys = []) {
             totalPage = pagination.total_pages;
@@ -303,10 +324,38 @@
             });
         }
 
+        async function filterList() {
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                let selectedTokoIds = $('#f_toko').val();
+
+                let customFilter = {};
+                if (selectedTokoIds && selectedTokoIds.length > 0) {
+                    customFilter['id_toko'] = selectedTokoIds;
+                }
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $('#limitPage').val();
+                currentPage = 1;
+
+                await getListData(
+                    defaultLimitPage,
+                    currentPage,
+                    defaultAscending,
+                    defaultSearch,
+                    customFilter
+                );
+            });
+        }
+
         async function initPageLoad() {
+            await setDynamicButton();
+            await selectMulti(selectOptions);
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await setViewData();
+            await filterList();
         }
     </script>
 @endsection

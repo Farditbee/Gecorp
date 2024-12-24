@@ -15,6 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/select2.min.css') }}">
+
     @include('layouts.css.style_css')
     <style>
         .loader {
@@ -118,6 +120,7 @@
 
     <!-- Warning Section Ends -->
     @include('layouts.js.style_js')
+    <script src="{{ asset('js/select2.min.js') }}"></script>
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>
     <script src="{{ asset('js/toastr.min.js') }}"></script>
@@ -212,6 +215,57 @@
                     }
                 });
             });
+        }
+
+        async function selectMulti(optionsArray) {
+            const auth_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            for (const {
+                    id,
+                    isUrl,
+                    placeholder
+                }
+                of optionsArray) {
+                let selectOption = {
+                    ajax: {
+                        url: isUrl,
+                        dataType: 'json',
+                        delay: 500,
+                        headers: {
+                            Authorization: `Bearer ` + auth_token
+                        },
+                        data: function(params) {
+                            let query = {
+                                search: params.term,
+                                page: params.page || 1,
+                                limit: 30,
+                                ascending: 1,
+                            };
+                            return query;
+                        },
+                        processResults: function(res, params) {
+                            let data = res.data;
+                            let filteredData = $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.optional ? `${item.optional} / ${item.text}` : item.text
+                                };
+                            });
+                            return {
+                                results: filteredData,
+                                pagination: {
+                                    more: res.pagination && res.pagination.more
+                                }
+                            };
+                        },
+                    },
+                    allowClear: true,
+                    placeholder: placeholder,
+                    multiple: true,
+                };
+
+                await $(id).select2(selectOption);
+            }
         }
     </script>
     <!-- Required Js -->

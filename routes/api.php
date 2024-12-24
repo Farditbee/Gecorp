@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MasterController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\DashboardController;
@@ -46,3 +47,8 @@ Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master
 Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');
 Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
 Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name('master.getplanorder');
+
+Route::prefix('master')->as('master.')->group(function () {
+    Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
+});
+

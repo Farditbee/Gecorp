@@ -1,50 +1,46 @@
     <link rel="icon" href="{{ asset('flat-able-lite/dist/assets/images/favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/plugins/prism-coy.css') }}">
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/style.css') }}">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
-    {{-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> --}}
     <style>
-.form-check-input {
-    width: 50px;
-    height: 25px;
-    position: relative;
-    appearance: none;
-    background-color: #c33939;
-    border-radius: 25px;
-    outline: none;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        .form-check-input {
+            width: 50px;
+            height: 25px;
+            position: relative;
+            appearance: none;
+            background-color: #c33939;
+            border-radius: 25px;
+            outline: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-.form-check-input::before {
-    content: '';
-    position: absolute;
-    width: 21px;
-    height: 21px;
-    top: 2px;
-    left: 2px;
-    background-color: white;
-    border-radius: 50%;
-    transition: transform 0.3s;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+        .form-check-input::before {
+            content: '';
+            position: absolute;
+            width: 21px;
+            height: 21px;
+            top: 2px;
+            left: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
 
-.form-check-input:checked {
-    background-color: #47c339;
-}
+        .form-check-input:checked {
+            background-color: #47c339;
+        }
 
-.form-check-input:checked::before {
-    transform: translateX(25px);
-}
+        .form-check-input:checked::before {
+            transform: translateX(25px);
+        }
 
-.form-check-label {
-    margin-left: 10px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
+        .form-check-label {
+            margin-left: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
     </style>
 
     <style>
@@ -55,6 +51,7 @@
             font-weight: 700;
             text-shadow: 2px 2px 4px rgba(5, 5, 5, 0.5);
         }
+
         .dropdown .dropdown-menu {
             display: none;
             /* Hanya muncul saat di-hover */
