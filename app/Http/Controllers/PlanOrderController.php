@@ -74,8 +74,10 @@ class PlanOrderController extends Controller
 
             // Hitung jumlah barang OTW
             $otw = DetailPengirimanBarang::where('id_barang', $item->id)
-                ->where('id_toko_penerima', $tk->id)
-                ->where('status', '!=', 'success')
+                ->whereHas('pengiriman', function ($query) use ($tk) {
+                    $query->where('toko_penerima', $tk->id)
+                          ->where('status', '!=', 'success');
+                })
                 ->sum('qty');
 
             return [$tk->singkatan => ['stock' => $stock, 'otw' => $otw]];
@@ -84,7 +86,7 @@ class PlanOrderController extends Controller
         return [
             'id' => $item->id,
             'nama_barang' => $item->nama_barang,
-            'toko' => $stokPerToko,
+            'stok_per_toko' => $stokPerToko,
         ];
     });
 
