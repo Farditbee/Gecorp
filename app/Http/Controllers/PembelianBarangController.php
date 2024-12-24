@@ -11,7 +11,13 @@ use App\Models\StockBarang;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+// use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
+use Endroid\QrCode\Label\Label;
+use Endroid\QrCode\Label\Font\NotoSans;
 
 class PembelianBarangController extends Controller
 {
@@ -203,6 +209,136 @@ class PembelianBarangController extends Controller
         ]);
     }
 
+    // public function update(Request $request, $id)
+    // {
+    //     $idBarangs = $request->input('id_barang', []);
+    //     $qtys = $request->input('qty', []);
+    //     $hargaBarangs = $request->input('harga_barang', []);
+    //     $levelNamas = $request->input('level_nama', []);
+    //     $levelHargas = $request->input('level_harga', []);
+
+    //     try {
+    //         // dd($request->all());
+    //         DB::beginTransaction();
+
+    //         $pembelian = PembelianBarang::findOrFail($id);
+
+    //         $totalItem = 0;
+    //         $totalNilai = 0;
+
+    //         $counter = 1; // Nomor urut barang dalam pembelian
+
+    //         foreach ($idBarangs as $index => $id_barang) {
+    //             $qty = $qtys[$index] ?? null;
+    //             $harga_barang = $hargaBarangs[$index] ?? null;
+
+    //             if (is_null($qty) || is_null($harga_barang)) {
+    //                 continue;
+    //             }
+
+    //             // Update DetailPembelianBarang
+    //             if ($id_barang && $qty > 0 && $harga_barang > 0) {
+    //                 $barang = Barang::findOrFail($id_barang);
+
+    //                 // Generate QR Code Value
+    //                 $tglNota = \Carbon\Carbon::parse($pembelian->tgl_nota)->format('dmY');
+    //                 $idSupplier = $pembelian->id_supplier;         // ID Supplier
+    //                 $idPembelian = $pembelian->id;                // ID Pembelian
+    //                 $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
+
+    //                 // Path QR code for this barang
+    //                 $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
+    //                 $fullPath = storage_path('app/public/' . $qrCodePath);
+
+    //                 // Buat folder jika belum ada
+    //                 if (!file_exists(dirname($fullPath))) {
+    //                     mkdir(dirname($fullPath), 0755, true);
+    //                 }
+
+    //                 // Generate QR Code
+    //                 QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
+
+    //                 $detail = DetailPembelianBarang::updateOrCreate(
+    //                     [
+    //                         'id_pembelian_barang' => $pembelian->id,
+    //                         'id_barang' => $id_barang,
+    //                     ],
+    //                     [
+    //                         'nama_barang' => $barang->nama_barang,
+    //                         'qty' => $qty,
+    //                         'harga_barang' => $harga_barang,
+    //                         'total_harga' => $qty * $harga_barang,
+    //                         'qrcode' => $qrCodeValue, // Simpan QR Code Value
+    //                         'qrcode_path' => $qrCodePath, // Simpan Path QR Code
+    //                     ]
+    //                 );
+
+    //                 // Update status menjadi success jika tidak ingin merubah field lain
+    //                 $detail->status = 'success';
+    //                 $detail->save();
+
+    //                 $totalItem += $detail->qty;
+    //                 $totalNilai += $detail->total_harga;
+
+    //                 // Proses Level Harga
+    //                 $levelHargaBarang = [];
+
+    //                 if (isset($levelHargas[$id_barang]) && is_array($levelHargas[$id_barang])) {
+    //                     foreach ($levelHargas[$id_barang] as $levelIndex => $hargaLevel) {
+    //                         $levelNama = $levelNamas[$levelIndex] ?? 'Level ' . ($levelIndex + 1);
+    //                         if (!is_null($hargaLevel)) {
+    //                             $levelHargaBarang[] = "{$levelNama} : {$hargaLevel}";
+    //                         }
+    //                     }
+    //                 }
+
+    //                 // Simpan Level Harga sebagai JSON ke tabel Barang
+    //                 $barang->level_harga = json_encode($levelHargaBarang);
+    //                 $barang->save();
+
+    //                 // Update atau Insert ke stockBarang
+    //                 $stockBarang = StockBarang::firstOrNew(['id_barang' => $id_barang]);
+
+    //                 $hpp_awal = $stockBarang->hpp_awal ?: $harga_barang;
+    //                 $stock_awal = $stockBarang->stock ?: 0;
+
+    //                 // Hitung nilai total dan hpp baru
+    //                 $total_harga_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('total_harga');
+    //                 $total_qty_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('qty');
+
+    //                 if ($total_qty_barang > 0) {
+    //                     $hpp_baru = $total_harga_barang / $total_qty_barang;
+    //                 } else {
+    //                     $hpp_baru = $hpp_awal;
+    //                 }
+
+    //                 // Update stock dan nilai total di stockBarang
+    //                 $stockBarang->stock = $stock_awal + $detail->qty;
+    //                 $stockBarang->hpp_awal = $hpp_awal;
+    //                 $stockBarang->hpp_baru = $hpp_baru;
+    //                 $stockBarang->nilai_total = $hpp_baru * $stockBarang->stock;
+    //                 $stockBarang->nama_barang = $barang->nama_barang;
+    //                 $stockBarang->save();
+
+    //                 $counter++;
+    //             }
+    //         }
+
+    //         // Update total item dan total nilai pembelian
+    //         $pembelian->total_item = $totalItem;
+    //         $pembelian->total_nilai = $totalNilai;
+    //         $pembelian->status = 'success';
+    //         $pembelian->save();
+
+    //         DB::commit();
+
+    //         return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
+    //     } catch (\Exception $e) {
+    //         DB::rollback();
+    //         return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $e->getMessage()]);
+    //     }
+    // }
+
     public function update(Request $request, $id)
     {
         $idBarangs = $request->input('id_barang', []);
@@ -212,7 +348,6 @@ class PembelianBarangController extends Controller
         $levelHargas = $request->input('level_harga', []);
 
         try {
-            // dd($request->all());
             DB::beginTransaction();
 
             $pembelian = PembelianBarang::findOrFail($id);
@@ -236,8 +371,8 @@ class PembelianBarangController extends Controller
 
                     // Generate QR Code Value
                     $tglNota = \Carbon\Carbon::parse($pembelian->tgl_nota)->format('dmY');
-                    $idSupplier = $pembelian->id_supplier;         // ID Supplier
-                    $idPembelian = $pembelian->id;                // ID Pembelian
+                    $idSupplier = $pembelian->id_supplier;
+                    $idPembelian = $pembelian->id;
                     $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
 
                     // Path QR code for this barang
@@ -249,8 +384,22 @@ class PembelianBarangController extends Controller
                         mkdir(dirname($fullPath), 0755, true);
                     }
 
-                    // Generate QR Code
-                    QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
+                    // Generate QR Code dengan endroid/qr-code
+                    $qrCode = QrCode::create($qrCodeValue)
+                        ->setEncoding(new Encoding('UTF-8'))
+                        ->setSize(200)
+                        ->setMargin(10);
+
+                    $writer = new PngWriter();
+                    $result = $writer->write(
+                        $qrCode,
+                        null,
+                        Label::create("{$barang->nama_barang}")
+                            ->setFont(new NotoSans(12))
+                    );
+
+                    // Simpan file QR Code
+                    $result->saveToFile($fullPath);
 
                     $detail = DetailPembelianBarang::updateOrCreate(
                         [
@@ -267,7 +416,6 @@ class PembelianBarangController extends Controller
                         ]
                     );
 
-                    // Update status menjadi success jika tidak ingin merubah field lain
                     $detail->status = 'success';
                     $detail->save();
 
@@ -296,17 +444,11 @@ class PembelianBarangController extends Controller
                     $hpp_awal = $stockBarang->hpp_awal ?: $harga_barang;
                     $stock_awal = $stockBarang->stock ?: 0;
 
-                    // Hitung nilai total dan hpp baru
                     $total_harga_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('total_harga');
                     $total_qty_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('qty');
 
-                    if ($total_qty_barang > 0) {
-                        $hpp_baru = $total_harga_barang / $total_qty_barang;
-                    } else {
-                        $hpp_baru = $hpp_awal;
-                    }
+                    $hpp_baru = $total_qty_barang > 0 ? $total_harga_barang / $total_qty_barang : $hpp_awal;
 
-                    // Update stock dan nilai total di stockBarang
                     $stockBarang->stock = $stock_awal + $detail->qty;
                     $stockBarang->hpp_awal = $hpp_awal;
                     $stockBarang->hpp_baru = $hpp_baru;
@@ -318,7 +460,6 @@ class PembelianBarangController extends Controller
                 }
             }
 
-            // Update total item dan total nilai pembelian
             $pembelian->total_item = $totalItem;
             $pembelian->total_nilai = $totalNilai;
             $pembelian->status = 'success';
