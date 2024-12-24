@@ -77,14 +77,14 @@
                         <div
                             style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a8e6a1, #66ff66); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
                         </div>
-                        <span><strong class="fw-bold">S (Stock)</strong>, Jumlah stock barang yang tersisa</span>
+                        <span><strong class="fw-bold">Stock</strong>, Jumlah stock barang yang tersisa</span>
                     </div>
                     <div class="text-bold d-flex align-items-center mb-2">
                         <em class="fa fa-circle mx-1"></em>
                         <div
                             style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #fff9a1, #ffff33); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
                         </div>
-                        <span><strong class="fw-bold">OTW (On The Way)</strong>, Barang yang sedang dikirimkan</span>
+                        <span><strong class="fw-bold">OTW (On The Way)</strong>, Jumlah barang yang sedang dikirimkan</span>
                     </div>
                     <div class="text-bold d-flex align-items-center">
                         <em class="fa fa-circle mx-1"></em>

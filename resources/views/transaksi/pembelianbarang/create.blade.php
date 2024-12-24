@@ -7,7 +7,7 @@
 @section('content')
 
 <div class="pcoded-main-container">
-            <div class="pcoded-inner-content">
+            <div class="pcoded-inner-content pt-1 mt-1">
                 <div class="main-body">
                     <div class="page-wrapper">
                         <div class="page-header">
