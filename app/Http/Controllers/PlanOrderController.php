@@ -42,8 +42,18 @@ class PlanOrderController extends Controller
         // Ambil semua barang
         $barang = Barang::all();
 
+
         // Paginate barang
         $query = Barang::select('barang.id', 'barang.nama_barang')->orderBy('id', $meta['orderBy']);
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+
+            });
+        }
         $data = $query->paginate($meta['limit']);
 
         // Metadata pagination

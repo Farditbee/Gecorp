@@ -276,18 +276,6 @@ class PengirimanBarangController extends Controller
         // Ambil harga dari tabel stock_barang berdasarkan id_barang
     }
 
-    // public function getHargaBarangs($id_barang)
-    // {
-    //     // Ambil harga dari tabel detail_toko berdasarkan id_barang
-    //     $detail = DetailToko::where('id_barang', $id_barang)->first();
-
-    //     if ($detail) {
-    //         return response()->json(['harga' => $detail->harga]);
-    //     } else {
-    //         return response()->json(['error' => 'Barang tidak ditemukan'], 404);
-    //     }
-    // }
-
     public function update(Request $request, $id)
     {
         // dd($request);
@@ -326,10 +314,6 @@ class PengirimanBarangController extends Controller
                     continue;
                 }
 
-                // if (!$barang) {
-                //     return redirect()->back()->with('error', 'Barang dengan ID ' . $id_barang . ' tidak ditemukan.');
-                // }
-
                 if ($id_barang && $qty > 0 && $harga > 0) {
                     $barang = StockBarang::where('id_barang', $id_barang)->first();
 
@@ -364,65 +348,6 @@ class PengirimanBarangController extends Controller
             return redirect()->back()->with('error', 'Failed to update pengeriman barang. ' . $e->getMessage());
         }
     }
-
-
-    // public function updateStatus(Request $request, $id)
-    // {
-    //     try {
-    //         DB::beginTransaction();
-
-    //         $detailPengiriman = DetailPengirimanBarang::findOrFail($id);
-    //         $status = $request->input('status');
-
-    //         // Jika status diubah menjadi "success"
-    //         if ($status === 'success' && $detailPengiriman->status !== 'success') {
-    //             // Mengurangi stock barang berdasarkan qty
-    //             $stockBarang = StockBarang::find($detailPengiriman->id_barang);
-    //             if ($stockBarang) {
-    //                 $stockBarang->stock -= $detailPengiriman->qty;
-    //                 $stockBarang->save();
-    //             }
-    //         }
-
-    //         // Update status pengiriman
-    //         $detailPengiriman->status = $status;
-    //         $detailPengiriman->save();
-
-    //         DB::commit();
-
-    //         return redirect()->back()->with('success', 'Status berhasil diperbarui.');
-    //     } catch (\Exception $e) {
-    //         DB::rollback();
-    //         return redirect()->back()->with('error', 'Failed to update status: ' . $e->getMessage());
-    //     }
-    // }
-
-
-    // Method untuk menyimpan detail barang
-    // public function update(Request $request, PengirimanBarang $pengiriman_barang)
-    // {
-    //     try {
-    //         DB::beginTransaction();
-
-    //         // Simpan detail barang yang dikirim
-    //         foreach ($request->id_barang as $key => $id_barang) {
-    //             $pengiriman_barang->barang()->create([
-    //                 'id_barang' => $id_barang,
-    //                 'qty' => $request->qty[$key],
-    //                 'harga' => $request->harga[$key],
-    //                 'total_harga' => $request->qty[$key] * $request->harga[$key],
-    //             ]);
-    //         }
-
-    //         DB::commit();
-
-    //         return redirect()->route('master.pengirimanbarang.index')->with('success', 'Detail pengiriman berhasil ditambahkan.');
-
-    //     } catch (\Throwable $th) {
-    //         DB::rollBack();
-    //         return redirect()->back()->with('error', $th->getMessage());
-    //     }
-    // }
 
     public function edit($id)
     {
