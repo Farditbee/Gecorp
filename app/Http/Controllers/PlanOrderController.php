@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
 use App\Models\StockBarang;
 use App\Models\Toko;
@@ -60,30 +61,30 @@ class PlanOrderController extends Controller
         'total_pages'  => $data->lastPage(),
     ];
 
-    // Format data barang dan stok
+    // Format data barang, stok, dan data "OTW"
     $mappedData = collect($data->items())->map(function ($item) use ($selectedTokoIds) {
         $stokPerToko = Toko::whereIn('id', $selectedTokoIds)->get()->mapWithKeys(function ($tk) use ($item) {
             if ($tk->id == 1) {
                 // Ambil stok dari StockBarang untuk toko id = 1
-                $stok = StockBarang::where('id_barang', $item->id)->first()?->stock ?? 0;
+                $stock = StockBarang::where('id_barang', $item->id)->first()?->stock ?? 0;
             } else {
                 // Ambil qty dari DetailToko untuk toko selain id = 1
-                $stok = DetailToko::where('id_barang', $item->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
+                $stock = DetailToko::where('id_barang', $item->id)->where('id_toko', $tk->id)->first()?->qty ?? 0;
             }
-            return [$tk->singkatan => $stok];
-        });
 
-        // Jika tidak ada stok sama sekali, set default stok ke 0
-        if ($stokPerToko->isEmpty()) {
-            $stokPerToko = Toko::whereIn('id', $selectedTokoIds)->get()->mapWithKeys(function ($tk) {
-                return [$tk->singkatan => 0];
-            });
-        }
+            // Hitung jumlah barang OTW
+            $otw = DetailPengirimanBarang::where('id_barang', $item->id)
+                ->where('id_toko_penerima', $tk->id)
+                ->where('status', '!=', 'success')
+                ->sum('qty');
+
+            return [$tk->singkatan => ['stock' => $stock, 'otw' => $otw]];
+        });
 
         return [
             'id' => $item->id,
             'nama_barang' => $item->nama_barang,
-            'stok_per_toko' => $stokPerToko,
+            'toko' => $stokPerToko,
         ];
     });
 
@@ -96,7 +97,6 @@ class PlanOrderController extends Controller
         "data" => $mappedData,
     ]);
 }
-
 
     public function index()
     {
