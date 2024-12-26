@@ -38,7 +38,7 @@ class PembelianBarangController extends Controller
 
         $query = PembelianBarang::query();
 
-        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('tgl_nota', $meta['orderBy']);
+        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
