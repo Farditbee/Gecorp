@@ -34,7 +34,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
+                                <a id="btn-tambah" class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
@@ -735,285 +735,284 @@
             };
         }
 
-        async function getOther() {
-            function getTodayDateWithDay() {
-                const today = new Date();
-                const day = String(today.getDate()).padStart(2, '0');
-                const month = String(today.getMonth() + 1).padStart(2,
-                    '0'); // Ditambah 1 karena getMonth() dimulai dari 0
-                const year = today.getFullYear();
+        function getTodayDateWithDay() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2,
+                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const year = today.getFullYear();
 
-                // Array nama hari
-                const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-                const dayName = days[today.getDay()]; // Mendapatkan nama hari berdasarkan indeks
+            // Array nama hari
+            const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+            const dayName = days[today.getDay()]; // Mendapatkan nama hari berdasarkan indeks
 
-                return `${dayName}, ${day}-${month}-${year}`;
+            return `${dayName}, ${day}-${month}-${year}`;
+        }
+
+        // Menampilkan tanggal dan hari di elemen dengan ID tglTransaksi
+        document.getElementById('tglTransaksi').textContent += getTodayDateWithDay();
+        // Fungsi untuk menghasilkan nomor berdasarkan format yang diinginkan
+        function generateFormattedNumber() {
+            const now = new Date();
+
+            // Mendapatkan tanggal, bulan, tahun (2 digit), jam, menit, dan detik
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2,
+                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const year = String(now.getFullYear()).slice(-2);
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+
+            // Mendapatkan 3 digit angka acak
+            const randomDigits = Math.floor(100 + Math.random() * 900);
+
+            const noNota = `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
+
+            // Menyisipkan separator '-' setelah 6 digit pertama dan 6 digit kedua
+            return `${noNota.slice(0, 6)}-${noNota.slice(6, 12)}-${noNota.slice(12)}`;
+        }
+
+        // Event listener untuk menampilkan nomor nota saat modal dibuka
+        $('.bd-example-modal-lg').on('show.bs.modal', function() {
+            const formattedNoNota = generateFormattedNumber();
+            const noNotaElement = document.getElementById('noNota');
+            const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
+
+            // Menampilkan nomor nota di elemen tampilan
+            noNotaElement.textContent = ': ' + formattedNoNota;
+
+            // Menghilangkan separator untuk penyimpanan
+            const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
+            hiddenNoNotaInput.value = noNotaWithoutSeparator;
+        });
+
+        const searchInput = document.getElementById("search-barang");
+        const select = document.getElementById("barang");
+
+        // Event listener untuk memfilter opsi dropdown saat pengguna mengetik
+        searchInput.addEventListener("input", function(event) {
+            const searchValue = event.target.value.toLowerCase();
+            let matchCount = 0; // Hitung opsi yang cocok
+
+            // Loop melalui opsi dan tampilkan/sembunyikan berdasarkan kecocokan searchValue
+            for (const option of select.options) {
+                const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
+
+                // Tampilkan opsi yang mengandung searchValue, sembunyikan yang lain
+                if (namaBarang && namaBarang.includes(searchValue)) {
+                    option.style.display = ""; // Tampilkan opsi yang cocok
+                    matchCount++; // Tambahkan hitungan untuk opsi yang cocok
+                } else {
+                    option.style.display = "none"; // Sembunyikan opsi yang tidak cocok
+                }
             }
 
-            // Menampilkan tanggal dan hari di elemen dengan ID tglTransaksi
-            document.getElementById('tglTransaksi').textContent += getTodayDateWithDay();
-            // Fungsi untuk menghasilkan nomor berdasarkan format yang diinginkan
-            function generateFormattedNumber() {
-                const now = new Date();
+            // Atur ukuran dropdown agar terlihat sejumlah opsi yang cocok
+            select.size = matchCount > 0 ? matchCount : 1; // Minimal ukuran dropdown tetap 1
+        });
 
-                // Mendapatkan tanggal, bulan, tahun (2 digit), jam, menit, dan detik
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2,
-                    '0'); // Ditambah 1 karena getMonth() dimulai dari 0
-                const year = String(now.getFullYear()).slice(-2);
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-
-                // Mendapatkan 3 digit angka acak
-                const randomDigits = Math.floor(100 + Math.random() * 900);
-
-                const noNota = `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
-
-                // Menyisipkan separator '-' setelah 6 digit pertama dan 6 digit kedua
-                return `${noNota.slice(0, 6)}-${noNota.slice(6, 12)}-${noNota.slice(12)}`;
-            }
-
-            // Event listener untuk menampilkan nomor nota saat modal dibuka
-            $('.bd-example-modal-lg').on('show.bs.modal', function() {
-                const formattedNoNota = generateFormattedNumber();
-                const noNotaElement = document.getElementById('noNota');
-                const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
-
-                // Menampilkan nomor nota di elemen tampilan
-                noNotaElement.textContent = ': ' + formattedNoNota;
-
-                // Menghilangkan separator untuk penyimpanan
-                const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
-                hiddenNoNotaInput.value = noNotaWithoutSeparator;
-            });
-
-            const searchInput = document.getElementById("search-barang");
-            const select = document.getElementById("barang");
-
-            // Event listener untuk memfilter opsi dropdown saat pengguna mengetik
-            searchInput.addEventListener("input", function(event) {
+        // Event listener untuk memilih opsi jika Enter ditekan
+        searchInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Mencegah form submit jika ada
                 const searchValue = event.target.value.toLowerCase();
-                let matchCount = 0; // Hitung opsi yang cocok
+                let found = false;
 
-                // Loop melalui opsi dan tampilkan/sembunyikan berdasarkan kecocokan searchValue
                 for (const option of select.options) {
                     const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
+                    const barcodeBarang = option.getAttribute("data-barcode-barang")?.toLowerCase();
 
-                    // Tampilkan opsi yang mengandung searchValue, sembunyikan yang lain
-                    if (namaBarang && namaBarang.includes(searchValue)) {
-                        option.style.display = ""; // Tampilkan opsi yang cocok
-                        matchCount++; // Tambahkan hitungan untuk opsi yang cocok
-                    } else {
-                        option.style.display = "none"; // Sembunyikan opsi yang tidak cocok
+                    if (namaBarang === searchValue || barcodeBarang === searchValue) {
+                        option.selected = true;
+                        found = true;
+                        select.dispatchEvent(new Event('change'));
+                        break;
                     }
                 }
 
-                // Atur ukuran dropdown agar terlihat sejumlah opsi yang cocok
-                select.size = matchCount > 0 ? matchCount : 1; // Minimal ukuran dropdown tetap 1
-            });
+                if (!found && searchValue) {
+                    alert("Barang tidak ditemukan. Pastikan nama barang sesuai.");
+                }
 
-            // Event listener untuk memilih opsi jika Enter ditekan
-            searchInput.addEventListener("keydown", function(event) {
-                if (event.key === "Enter") {
-                    event.preventDefault(); // Mencegah form submit jika ada
-                    const searchValue = event.target.value.toLowerCase();
-                    let found = false;
+                // Reset ukuran dropdown dan bersihkan input
+                select.size = 1; // Kembali ke ukuran normal setelah pemilihan
+                this.value = ''; // Bersihkan input setelah pencarian
+            }
+        });
 
-                    for (const option of select.options) {
-                        const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
-                        const barcodeBarang = option.getAttribute("data-barcode-barang")?.toLowerCase();
+        // Event listener untuk menangkap pilihan barang secara langsung
+        select.addEventListener("change", function() {
+            select.size = 1; // Kembali ke ukuran normal setelah memilih opsi
+            searchInput.value = ''; // Bersihkan input setelah pilihan
+        });
 
-                        if (namaBarang === searchValue || barcodeBarang === searchValue) {
-                            option.selected = true;
-                            found = true;
-                            select.dispatchEvent(new Event('change'));
-                            break;
-                        }
+        // Tutup dropdown ketika pengguna mengklik di luar input atau dropdown
+        document.addEventListener("click", function(event) {
+            if (!select.contains(event.target) && !searchInput.contains(event.target)) {
+                select.size = 1; // Tutup dropdown ketika klik di luar
+            }
+        });
+
+        document.getElementById('btn-tambah').addEventListener('click', function() {
+            // Tunggu modal tampil
+            setTimeout(function() {
+                document.getElementById('search-barang').focus();
+            }, 1000); // Penyesuaian waktu, sesuai animasi modal
+        });
+
+        $('.bd-example-modal-lg').on('shown.bs.modal', function() {
+            const searchBarangInput = document.getElementById('search-barang');
+
+            if (searchBarangInput) {
+                // Fokus awal ke input search-barang
+                searchBarangInput.focus();
+
+                // Event listener untuk klik di modal
+                const modalContent = document.querySelector('.bd-example-modal-lg .modal-content');
+
+                modalContent.addEventListener('click', function(event) {
+                    // Daftar elemen interaktif yang tidak akan memicu fokus ulang
+                    const nonInteractiveElements = ['input', 'select', 'textarea', 'button', 'a'];
+
+                    // Jika area yang diklik bukan elemen interaktif, fokuskan kembali ke input search-barang
+                    if (!nonInteractiveElements.includes(event.target.tagName.toLowerCase())) {
+                        searchBarangInput.focus();
                     }
+                });
+            }
+        });
 
-                    if (!found && searchValue) {
-                        alert("Barang tidak ditemukan. Pastikan nama barang sesuai.");
-                    }
 
-                    // Reset ukuran dropdown dan bersihkan input
-                    select.size = 1; // Kembali ke ukuran normal setelah pemilihan
-                    this.value = ''; // Bersihkan input setelah pencarian
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // const selectBarang = new TomSelect("#barang", {
+            //     // Menyimpan data value dan text untuk setiap opsi
+            //     valueField: 'value',
+            //     labelField: 'text',
+            //     searchField: ['text',
+            //         'data-search-barang'
+            //     ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
+            //     render: {}
+            // });
+
+            const memberSelect = document.getElementById('id_member');
+            const barangSelect = document.getElementById('barang');
+            const hargaSelect = document.getElementById('harga');
+            const qtyInput = document.getElementById('qty');
+            const addButton = document.getElementById('add-button');
+            const tableBody = document.querySelector('.modal-body table tbody');
+            const subtotalFooter = document.querySelector('.modal-body tfoot th[colspan="5"] + th');
+
+            const metodeSelect = document.getElementById('metode');
+            const uangBayarInput = document.getElementById('uang-bayar-input');
+            const kembalianAmount = document.getElementById('kembalian-amount');
+
+            let subtotal = 0;
+
+            function updateRowNumbers() {
+                const rows = tableBody.querySelectorAll('tr');
+                rows.forEach((row, index) => {
+                    row.children[1].textContent = index + 1; // Mengupdate nomor baris
+                });
+            }
+
+            memberSelect.addEventListener('change', function() {
+                barangSelect.disabled = !this.value;
+                hargaSelect.disabled = true;
+                hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
             });
 
-            // Event listener untuk menangkap pilihan barang secara langsung
-            select.addEventListener("change", function() {
-                select.size = 1; // Kembali ke ukuran normal setelah memilih opsi
-                searchInput.value = ''; // Bersihkan input setelah pilihan
-            });
+            barangSelect.addEventListener('change', function() {
+                const selectedBarang = this.options[this.selectedIndex];
+                const memberId = memberSelect.value;
+                const barangId = selectedBarang.value;
 
-            // Tutup dropdown ketika pengguna mengklik di luar input atau dropdown
-            document.addEventListener("click", function(event) {
-                if (!select.contains(event.target) && !searchInput.contains(event.target)) {
-                    select.size = 1; // Tutup dropdown ketika klik di luar
-                }
-            });
-
-            document.getElementById('btn-tambah').addEventListener('click', function() {
-                // Tunggu modal tampil
-                setTimeout(function() {
-                    document.getElementById('search-barang').focus();
-                }, 1000); // Penyesuaian waktu, sesuai animasi modal
-            });
-
-            $('.bd-example-modal-lg').on('shown.bs.modal', function() {
-                const searchBarangInput = document.getElementById('search-barang');
-
-                if (searchBarangInput) {
-                    // Fokus awal ke input search-barang
-                    searchBarangInput.focus();
-
-                    // Event listener untuk klik di modal
-                    const modalContent = document.querySelector('.bd-example-modal-lg .modal-content');
-
-                    modalContent.addEventListener('click', function(event) {
-                        // Daftar elemen interaktif yang tidak akan memicu fokus ulang
-                        const nonInteractiveElements = ['input', 'select', 'textarea', 'button', 'a'];
-
-                        // Jika area yang diklik bukan elemen interaktif, fokuskan kembali ke input search-barang
-                        if (!nonInteractiveElements.includes(event.target.tagName.toLowerCase())) {
-                            searchBarangInput.focus();
-                        }
-                    });
-                }
-            });
-
-
-            document.addEventListener('DOMContentLoaded', function() {
-                // const selectBarang = new TomSelect("#barang", {
-                //     // Menyimpan data value dan text untuk setiap opsi
-                //     valueField: 'value',
-                //     labelField: 'text',
-                //     searchField: ['text',
-                //         'data-search-barang'
-                //     ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
-                //     render: {}
-                // });
-
-                const memberSelect = document.getElementById('id_member');
-                const barangSelect = document.getElementById('barang');
-                const hargaSelect = document.getElementById('harga');
-                const qtyInput = document.getElementById('qty');
-                const addButton = document.getElementById('add-button');
-                const tableBody = document.querySelector('.modal-body table tbody');
-                const subtotalFooter = document.querySelector('.modal-body tfoot th[colspan="5"] + th');
-
-                const metodeSelect = document.getElementById('metode');
-                const uangBayarInput = document.getElementById('uang-bayar-input');
-                const kembalianAmount = document.getElementById('kembalian-amount');
-
-                let subtotal = 0;
-
-                function updateRowNumbers() {
-                    const rows = tableBody.querySelectorAll('tr');
-                    rows.forEach((row, index) => {
-                        row.children[1].textContent = index + 1; // Mengupdate nomor baris
-                    });
-                }
-
-                memberSelect.addEventListener('change', function() {
-                    barangSelect.disabled = !this.value;
+                if (memberId && barangId) {
+                    hargaSelect.innerHTML = '<option value="">Loading...</option>';
                     hargaSelect.disabled = true;
-                    hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
+
+                    fetch(
+                            `/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`
+                        )
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data.filteredHarga);
+                            hargaSelect.innerHTML =
+                                ''; // Kosongkan dropdown sebelum menambahkan opsi baru
+
+                            if (Array.isArray(data.filteredHarga)) {
+                                data.filteredHarga.forEach(harga => {
+                                    if (harga) {
+                                        hargaSelect.innerHTML +=
+                                            `<option value="${harga}">${harga}</option>`;
+                                    }
+                                });
+                            } else if (data.filteredHarga) {
+                                hargaSelect.innerHTML +=
+                                    `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
+                            }
+
+                            const options = hargaSelect.querySelectorAll('option[value]');
+                            if (options.length === 1) {
+                                // Jika hanya ada satu opsi, langsung pilih opsi tersebut
+                                hargaSelect.value = options[0]
+                                    .value; // Pilih nilai secara langsung
+                            } else {
+                                // Jika lebih dari satu opsi, tambahkan opsi default
+                                hargaSelect.insertAdjacentHTML('afterbegin',
+                                    '<option value="">~Masukkan Harga~</option>');
+                            }
+
+                            // Aktifkan kembali dropdown jika ada opsi
+                            hargaSelect.disabled = options.length === 0;
+                        })
+                        .catch(error => console.error('Error fetching filtered harga:', error));
+                }
+            });
+
+            function toggleMemberSelectDisabled() {
+                const hasRows = tableBody.children.length > 0;
+                memberSelect.disabled = hasRows;
+            }
+
+            addButton.addEventListener('click', function() {
+                let idBarang = document.getElementById('barang').value;
+                const selectedBarang = barangSelect.options[barangSelect.selectedIndex];
+                const selectedHarga = hargaSelect.value;
+                const qty = parseInt(qtyInput.value);
+                const stock = parseInt(selectedBarang.getAttribute('data-stock'));
+                let harga = parseInt(document.getElementById('harga').value);
+
+                // Cek apakah barang sudah ada di tabel
+                const existingRow = Array.from(tableBody.children).find(row => {
+                    const barangNameCell = row.children[2];
+                    return barangNameCell && barangNameCell.textContent.trim() ===
+                        selectedBarang
+                        .textContent.trim();
                 });
 
-                barangSelect.addEventListener('change', function() {
-                    const selectedBarang = this.options[this.selectedIndex];
-                    const memberId = memberSelect.value;
-                    const barangId = selectedBarang.value;
-
-                    if (memberId && barangId) {
-                        hargaSelect.innerHTML = '<option value="">Loading...</option>';
-                        hargaSelect.disabled = true;
-
-                        fetch(
-                                `/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`
-                            )
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log(data.filteredHarga);
-                                hargaSelect.innerHTML =
-                                    ''; // Kosongkan dropdown sebelum menambahkan opsi baru
-
-                                if (Array.isArray(data.filteredHarga)) {
-                                    data.filteredHarga.forEach(harga => {
-                                        if (harga) {
-                                            hargaSelect.innerHTML +=
-                                                `<option value="${harga}">${harga}</option>`;
-                                        }
-                                    });
-                                } else if (data.filteredHarga) {
-                                    hargaSelect.innerHTML +=
-                                        `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
-                                }
-
-                                const options = hargaSelect.querySelectorAll('option[value]');
-                                if (options.length === 1) {
-                                    // Jika hanya ada satu opsi, langsung pilih opsi tersebut
-                                    hargaSelect.value = options[0]
-                                        .value; // Pilih nilai secara langsung
-                                } else {
-                                    // Jika lebih dari satu opsi, tambahkan opsi default
-                                    hargaSelect.insertAdjacentHTML('afterbegin',
-                                        '<option value="">~Masukkan Harga~</option>');
-                                }
-
-                                // Aktifkan kembali dropdown jika ada opsi
-                                hargaSelect.disabled = options.length === 0;
-                            })
-                            .catch(error => console.error('Error fetching filtered harga:', error));
-                    }
-                });
-
-                function toggleMemberSelectDisabled() {
-                    const hasRows = tableBody.children.length > 0;
-                    memberSelect.disabled = hasRows;
+                if (existingRow) {
+                    alert("Barang sudah ditambahkan");
+                    return; // Menghentikan proses jika barang sudah ada
                 }
 
-                addButton.addEventListener('click', function() {
-                    let idBarang = document.getElementById('barang').value;
-                    const selectedBarang = barangSelect.options[barangSelect.selectedIndex];
-                    const selectedHarga = hargaSelect.value;
-                    const qty = parseInt(qtyInput.value);
-                    const stock = parseInt(selectedBarang.getAttribute('data-stock'));
-                    let harga = parseInt(document.getElementById('harga').value);
+                // Validasi apakah qty melebihi stok
+                if (qty > stock) {
+                    alert("Stock barang tidak cukup");
+                    return;
+                }
 
-                    // Cek apakah barang sudah ada di tabel
-                    const existingRow = Array.from(tableBody.children).find(row => {
-                        const barangNameCell = row.children[2];
-                        return barangNameCell && barangNameCell.textContent.trim() ===
-                            selectedBarang
-                            .textContent.trim();
-                    });
+                if (!selectedBarang.value || !selectedHarga || !qty) {
+                    alert("Silakan lengkapi semua data sebelum menambahkan.");
+                    return;
+                }
 
-                    if (existingRow) {
-                        alert("Barang sudah ditambahkan");
-                        return; // Menghentikan proses jika barang sudah ada
-                    }
+                const totalHarga = parseFloat(selectedHarga) * qty;
+                subtotal += totalHarga;
+                subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
 
-                    // Validasi apakah qty melebihi stok
-                    if (qty > stock) {
-                        alert("Stock barang tidak cukup");
-                        return;
-                    }
-
-                    if (!selectedBarang.value || !selectedHarga || !qty) {
-                        alert("Silakan lengkapi semua data sebelum menambahkan.");
-                        return;
-                    }
-
-                    const totalHarga = parseFloat(selectedHarga) * qty;
-                    subtotal += totalHarga;
-                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
-
-                    const newRow = document.createElement('tr');
-                    newRow.innerHTML = `
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `
                     <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
                     <td></td> <!-- Ini akan diisi oleh fungsi updateRowNumbers -->
                     <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.textContent}</td>
@@ -1021,90 +1020,89 @@
                     <td><input type="hidden" name="harga[]" value="${harga}">Rp ${parseFloat(selectedHarga).toLocaleString()}</td>
                     <td>Rp ${totalHarga.toLocaleString()}</td>
                 `;
-                    tableBody.appendChild(newRow);
+                tableBody.appendChild(newRow);
 
-                    qtyInput.value = '';
-                    document.getElementById('harga').value = '';
-                    document.getElementById('barang').value = '';
+                qtyInput.value = '';
+                document.getElementById('harga').value = '';
+                document.getElementById('barang').value = '';
 
-                    // Menambah event listener untuk tombol hapus
-                    newRow.querySelector('.remove-btn').addEventListener('click', function() {
-                        subtotal -= totalHarga;
-                        subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
-                        newRow.remove();
-                        updateRowNumbers(); // Memperbarui nomor baris setelah menghapus
-                        toggleMemberSelectDisabled();
-                    });
-
-                    updateRowNumbers(); // Memperbarui nomor baris setelah menambahkan
+                // Menambah event listener untuk tombol hapus
+                newRow.querySelector('.remove-btn').addEventListener('click', function() {
+                    subtotal -= totalHarga;
+                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+                    newRow.remove();
+                    updateRowNumbers(); // Memperbarui nomor baris setelah menghapus
                     toggleMemberSelectDisabled();
-
-                    const searchBarangInput = document.getElementById('search-barang');
-                    searchBarangInput.focus();
                 });
 
-                document.getElementById('id_member').addEventListener('change', function() {
-                    const selectedMember = this.value;
-                    document.getElementById('hiddenMember').value = selectedMember;
-                });
+                updateRowNumbers(); // Memperbarui nomor baris setelah menambahkan
+                toggleMemberSelectDisabled();
 
-                // Set hidden inputs before form submission
-                document.querySelector('form').addEventListener('submit', function(event) {
-                    document.getElementById('hiddenNoNota').value = document.getElementById('noNota')
-                        .textContent;
-                    document.getElementById('hiddenKembalian').value = document.getElementById(
-                        'kembalian-amount').textContent;
-                    document.getElementById('hiddenMember').value = document.getElementById('id_member')
-                        .value;
-                });
-
-                // Fungsi untuk update kembalian berdasarkan subtotal dan input Uang Bayar
-                function updateKembalian() {
-                    const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0; // Menghapus koma
-                    const kembalian = uangBayar - subtotal;
-                    kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
-
-                    // Menyimpan nilai kembalian ke input hidden
-                    document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : 0;
-                }
-
-                // Format input uang bayar dengan pemisah ribuan
-                uangBayarInput.addEventListener('input', function() {
-                    // Menghapus semua karakter non-digit (kecuali koma)
-                    let value = this.value.replace(/[^0-9]/g, '');
-
-                    // Menyimpan nilai asli (tanpa koma) di hidden input untuk database
-                    document.getElementById('hiddenUangBayar').value = value;
-
-                    // Menggunakan format pemisah ribuan
-                    if (value) {
-                        this.value = parseInt(value).toLocaleString();
-                    }
-                    updateKembalian(); // Update kembalian
-                });
-
-                // Event listener untuk mengupdate kembalian secara real-time
-                uangBayarInput.addEventListener('input', updateKembalian);
-
-                // Menyembunyikan dan menampilkan baris Uang Bayar dan Kembalian sesuai metode pembayaran
-                metodeSelect.addEventListener('change', function() {
-                    const isTunai = metodeSelect.value === "Tunai";
-                    document.getElementById('uang-bayar-row').style.display = isTunai ? '' : 'none';
-                    document.getElementById('kembalian-row').style.display = isTunai ? '' : 'none';
-                    uangBayarInput.value = ''; // Reset input dan kembalian jika metode diubah
-                    kembalianAmount.textContent = 'Rp 0';
-                });
-
-                // Menetapkan tampilan awal berdasarkan pilihan metode pembayaran
-                metodeSelect.dispatchEvent(new Event('change'));
+                const searchBarangInput = document.getElementById('search-barang');
+                searchBarangInput.focus();
             });
-        }
+
+            document.getElementById('id_member').addEventListener('change', function() {
+                const selectedMember = this.value;
+                document.getElementById('hiddenMember').value = selectedMember;
+            });
+
+            // Set hidden inputs before form submission
+            document.querySelector('form').addEventListener('submit', function(event) {
+                document.getElementById('hiddenNoNota').value = document.getElementById('noNota')
+                    .textContent;
+                document.getElementById('hiddenKembalian').value = document.getElementById(
+                    'kembalian-amount').textContent;
+                document.getElementById('hiddenMember').value = document.getElementById('id_member')
+                    .value;
+            });
+
+            // Fungsi untuk update kembalian berdasarkan subtotal dan input Uang Bayar
+            function updateKembalian() {
+                const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0; // Menghapus koma
+                const kembalian = uangBayar - subtotal;
+                kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
+
+                // Menyimpan nilai kembalian ke input hidden
+                document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : 0;
+            }
+
+            // Format input uang bayar dengan pemisah ribuan
+            uangBayarInput.addEventListener('input', function() {
+                // Menghapus semua karakter non-digit (kecuali koma)
+                let value = this.value.replace(/[^0-9]/g, '');
+
+                // Menyimpan nilai asli (tanpa koma) di hidden input untuk database
+                document.getElementById('hiddenUangBayar').value = value;
+
+                // Menggunakan format pemisah ribuan
+                if (value) {
+                    this.value = parseInt(value).toLocaleString();
+                }
+                updateKembalian(); // Update kembalian
+            });
+
+            // Event listener untuk mengupdate kembalian secara real-time
+            uangBayarInput.addEventListener('input', updateKembalian);
+
+            // Menyembunyikan dan menampilkan baris Uang Bayar dan Kembalian sesuai metode pembayaran
+            metodeSelect.addEventListener('change', function() {
+                const isTunai = metodeSelect.value === "Tunai";
+                document.getElementById('uang-bayar-row').style.display = isTunai ? '' : 'none';
+                document.getElementById('kembalian-row').style.display = isTunai ? '' : 'none';
+                uangBayarInput.value = ''; // Reset input dan kembalian jika metode diubah
+                kembalianAmount.textContent = 'Rp 0';
+            });
+
+            // Menetapkan tampilan awal berdasarkan pilihan metode pembayaran
+            metodeSelect.dispatchEvent(new Event('change'));
+        });
+
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();
-            await getOther();
         }
     </script>
 @endsection
