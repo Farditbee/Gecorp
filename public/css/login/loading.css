@@ -1,0 +1,54 @@
+#preloaderLoadingPage {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    z-index: 9999;
+    background-color: #000000b3;
+}
+
+.centerpreloader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -40px 0 0 -40px;
+}
+
+.ui-loading {
+    width: 80px;
+    height: 80px;
+    -moz-animation-name: cckw;
+    -webkit-animation-duration: 2s;
+    animation-duration: 2s;
+    -webkit-animation-name: cckw;
+    -webkit-animation-duration: 2.84s;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+}
+
+@-webkit-keyframes ckw {
+    0% {
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -moz-transform: rotate(1turn);
+        -webkit-transform: rotate(1turn);
+    }
+}
+
+@-webkit-keyframes cckw {
+    0% {
+        -moz-transform: rotate(1turn);
+        -webkit-transform: rotate(1turn);
+    }
+    to {
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+    }
+}
+
+.sk-three-bounce {
+    background-color: #00000024;
+}

@@ -1,4 +1,3 @@
-    <link rel="icon" href="{{ asset('flat-able-lite/dist/assets/images/favicon.ico') }}" type="image/x-icon">
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/plugins/prism-coy.css') }}">
     <link rel="stylesheet" href="{{ asset('flat-able-lite/dist/assets/css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">

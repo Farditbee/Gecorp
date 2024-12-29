@@ -25,34 +25,41 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        try {
-            $credentials = $request->only('username', 'password');
+        $credentials = $request->only('username', 'password');
 
-            ActivityLogger::log('Login', []);
+        ActivityLogger::log('Login', []);
 
-            if (Auth::attempt($credentials)) {
-                $request->session()->regenerate();
-                $user = Auth::user();
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $user = Auth::user();
 
-                $user->update([
-                    'ip_login' => $request->ip(),
-                    'last_activity' => Carbon::now(),
-                ]);
+            $user->update([
+                'ip_login' => $request->ip(),
+                'last_activity' => Carbon::now(),
+            ]);
 
-                // dd($user);
-                if ($user->id_level == 1) {
-                    return redirect()->route('dashboard.index')->with('success', 'Berhasil Login');
-                } elseif ($user->nama_level == 'petugas') {
-                    return redirect('/petugas/dashboard')->with('success', 'Berhasil Login');
-                } else {
-                    return redirect()->route('dashboard.index')->with('success', 'Berhasil Login');
-                }
+            $route = '';
+            if ($user->id_level == 1) {
+                $route = route('dashboard.index');
+            } elseif ($user->nama_level == 'petugas') {
+                $route = redirect('/petugas/dashboard');
             } else {
-                // Jika kredensial salah
-                return redirect()->back()->withErrors(['error' => 'Username atau password salah'])->onlyInput('username');
+                $route = route('dashboard.index');
             }
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->onlyInput('username');
+            return response()->json([
+                'status_code'   => 200,
+                'error'         => false,
+                'message'       => "Successfully",
+                'data'          => array(
+                    'route_redirect'    => $route
+                )
+            ], 200);
+        } else {
+            return response()->json([
+                'status_code'   => 300,
+                'error'         => true,
+                'message'       => "Terjadi Kesalahan",
+            ], 300);
         }
     }
 

@@ -7,11 +7,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="description" content="" />
     <meta name="keywords" content="">
-    <meta name="author" content="Phoenixcoded" />
+    <meta name="author" content="GSS" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title') | {{ env('APP_NAME') ?? 'GSS' }}</title>
     <!-- Favicon icon -->
-    <link rel="icon" href="assets/images/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('images/logo/logo.png') }}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- prism css -->
     <link rel="stylesheet" href="{{ asset('css/fontawesome.min.css') }}">
@@ -86,6 +86,7 @@
                 transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
             }
         }
+
         .alert-custom {
             background: linear-gradient(135deg, #004d3d, #066854, #0f8f75, #1ec7a5, #6bf1d7);
             color: #ffffff;
