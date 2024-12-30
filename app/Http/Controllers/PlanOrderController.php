@@ -104,13 +104,15 @@ class PlanOrderController extends Controller
             ];
         });
 
-        // Kembalikan data dalam format JSON
+        $dataToko = Toko::select('nama_toko', 'singkatan')->get();
+
         return response()->json([
             "error" => false,
             "message" => $mappedData->isEmpty() ? "No data found" : "Data retrieved successfully",
             "status_code" => 200,
             "pagination" => $paginationMeta,
             "data" => $mappedData,
+            "data_toko" => $dataToko,
         ]);
     }
 

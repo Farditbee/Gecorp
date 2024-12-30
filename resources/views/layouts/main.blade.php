@@ -125,6 +125,7 @@
 
     <!-- Warning Section Ends -->
     @include('layouts.js.style_js')
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/select2.min.js') }}"></script>
     <script src="{{ asset('js/axios.js') }}"></script>
     <script src="{{ asset('js/restAPI.js') }}"></script>

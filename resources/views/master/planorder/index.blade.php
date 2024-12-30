@@ -21,7 +21,7 @@
         .header-wrapper i {
             position: absolute;
             top: 50%;
-            right: 10px;
+            right: 2px;
             transform: translateY(-50%);
         }
 
@@ -77,21 +77,24 @@
                         <div
                             style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a8e6a1, #66ff66); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
                         </div>
-                        <span><strong class="fw-bold">Stock</strong>, Jumlah stock barang yang tersisa</span>
+                        <span><strong class="fw-bold"><i class="fa fa-box"></i></strong> Jumlah stock barang yang
+                            tersisa</span>
                     </div>
                     <div class="text-bold d-flex align-items-center mb-2">
                         <em class="fa fa-circle mx-1"></em>
                         <div
                             style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #fff9a1, #ffff33); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
                         </div>
-                        <span><strong class="fw-bold">OTW (On The Way)</strong>, Jumlah barang yang sedang dikirimkan</span>
+                        <span><strong class="fw-bold"><i class="fa fa-truck-fast"></i></strong> Jumlah barang yang sedang
+                            dikirimkan</span>
                     </div>
                     <div class="text-bold d-flex align-items-center">
                         <em class="fa fa-circle mx-1"></em>
                         <div
                             style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a1e9ff, #00ccff); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
                         </div>
-                        <span><strong class="fw-bold">LO (Last Order)</strong>, Penjualan terakhir dari stock barang yang
+                        <span><strong class="fw-bold"><i class="fa fa-clock"></i></strong> Penjualan terakhir dari stock
+                            barang yang
                             tersisa dalam satuan hari</span>
                     </div>
                 </div>
@@ -159,7 +162,6 @@
         </div>
     </div>
 @endsection
-
 
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
@@ -248,7 +250,14 @@
                 });
 
                 const dynamicKeys = Array.from(allKeys);
-                await setListData(getDataRest.data.data, getDataRest.data.pagination, dynamicKeys);
+                const tokoMap = {};
+                if (getDataRest.data.data_toko) {
+                    getDataRest.data.data_toko.forEach(toko => {
+                        tokoMap[toko.singkatan] = toko.nama_toko;
+                    });
+                }
+
+                await setListData(getDataRest.data.data, getDataRest.data.pagination, dynamicKeys, tokoMap);
             } else {
                 let errorMessage = getDataRest?.data?.message;
                 let errorRow = `
@@ -261,46 +270,49 @@
             }
         }
 
-        async function setListData(dataList, pagination, dynamicKeys = []) {
+        async function setListData(dataList, pagination, dynamicKeys = [], tokoMap = {}) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
-            let dynamicHeaders = dynamicKeys.map((key, index) => `
-                <th class="text-wrap align-top text-center toggle-header" colspan="3" data-key="header-${index}" id="header-${index}">
-                    <div class="d-flex align-items-center header-wrapper">
-                        <span>${key}</span>
-                        <i class="fa fa-caret-left"></i>
-                    </div>
-                </th>
-            `).join('');
+            let dynamicHeaders = dynamicKeys.map((key, index) => {
+                let title = tokoMap[key] || key;
+                return `
+                    <th class="text-wrap align-top text-center toggle-header" colspan="3" data-key="header-${index}" id="header-${index}" title="${title}" data-toggle="tooltip" data-placement="top">
+                        <div class="d-flex align-items-center header-wrapper">
+                            <span>${key}</span>
+                            <i class="fa fa-caret-left"></i>
+                        </div>
+                    </th>
+                `;
+            }).join('');
 
             let subHeaders = dynamicKeys.map((key, index) => `
                 <th class="text-wrap align-top text-center header-${index}-stock"
-                    style="background: linear-gradient(to bottom, #a8e6a1, #66ff66);">
-                    Stock
+                    style="background: linear-gradient(to bottom, #a8e6a1, #66ff66); width: 80px;">
+                    <i class="fa fa-box"></i>
                 </th>
                 <th class="text-wrap align-top text-center header-${index}-otw"
-                    style="background: linear-gradient(to bottom, #fff9a1, #ffff33);">
-                    OTW
+                    style="background: linear-gradient(to bottom, #fff9a1, #ffff33); width: 80px;">
+                    <i class="fa fa-truck-fast"></i>
                 </th>
                 <th class="text-wrap align-top text-center header-${index}-lo"
-                    style="background: linear-gradient(to bottom, #a1e9ff, #00ccff);">
-                    LO
+                    style="background: linear-gradient(to bottom, #a1e9ff, #00ccff); width: 80px;">
+                    <i class="fa fa-clock"></i>
                 </th>
             `).join('');
 
             let tableHeaders = `
-                <tr class="tb-head">
-                    <th class="text-center text-wrap align-top">No</th>
-                    <th class="text-wrap align-top">Nama Barang</th>
-                    ${dynamicHeaders}
-                </tr>
-                <tr class="tb-subhead">
-                    <th colspan="2"></th>
-                    ${subHeaders}
-                </tr>`;
+            <tr class="tb-head">
+                <th class="text-center text-wrap align-top">No</th>
+                <th class="text-wrap align-top">Nama Barang</th>
+                ${dynamicHeaders}
+            </tr>
+            <tr class="tb-subhead">
+                <th colspan="2"></th>
+                ${subHeaders}
+            </tr>`;
             $('thead').html(tableHeaders);
 
             let getDataTable = '';
@@ -309,10 +321,10 @@
                 let stokColumns = dynamicKeys.map((key, i) => {
                     let tokoData = element.stok_per_toko[key] || 0;
                     return `
-                        <td class="${classCol} text-center header-${i}-stock"><b>${tokoData.stock ?? '-'}</b></td>
-                        <td class="${classCol} text-center header-${i}-otw"><b>${tokoData.otw ?? '-'}</b></td>
-                        <td class="${classCol} text-center header-${i}-lo"><b>${tokoData.lo ?? '-'}</b></td>
-                    `;
+                <td class="${classCol} text-center header-${i}-stock" style="background-color: #CCFFCC"><b>${tokoData.stock ?? '-'}</b></td>
+                <td class="${classCol} text-center header-${i}-otw" style="background-color: #FFFFCC"><b>${tokoData.otw ?? '-'}</b></td>
+                <td class="${classCol} text-center header-${i}-lo" style="background-color: #99CCFF"><b>${tokoData.lo ?? '-'}</b></td>
+            `;
                 }).join('');
 
                 getDataTable += `
@@ -326,6 +338,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 
