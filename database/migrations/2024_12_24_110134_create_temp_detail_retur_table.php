@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('temp_detail_retur', function (Blueprint $table) {
             $table->id()->primary();
             $table->string('id_users');
-            $table->string('id_data_retur');
+            $table->string('id_retur');
             $table->string('id_transaksi');
             $table->string('id_barang');
             $table->string('no_nota');

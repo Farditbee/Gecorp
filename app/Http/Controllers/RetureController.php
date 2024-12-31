@@ -145,7 +145,7 @@ class RetureController extends Controller
         $request->validate([
             'no_nota' => 'required|string',
             'id_transaksi' => 'required|string',
-            'id_barang' => 'required|string',
+            'id_barang' => 'required|integer',
             'qty' => 'required|integer',
             'harga_jual' => 'required|integer',
         ]);
@@ -154,7 +154,7 @@ class RetureController extends Controller
 
         DB::table('temp_detail_retur')->insert([
             'id_users' => $user->id,
-            'id_data_retur' => $request->input('id_data_retur'),
+            'id_retur' => $request->input('id_retur'),
             'id_transaksi' => $request->input('id_transaksi'),
             'id_barang' => $request->input('id_barang'),
             'no_nota' => $request->input('no_nota'),
@@ -167,13 +167,39 @@ class RetureController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
     }
 
-    public function getTemporaryItems($noNota)
+    public function getTemporaryItems($id)
     {
         $items = DB::table('temp_detail_retur')
             ->where('id_users', Auth::user()->id)
-            ->where('no_nota', $noNota)
+            ->where('id', $id)
             ->get();
 
         return response()->json($items, 200);
     }
+
+    public function saveTemporaryItems(Request $request, $noNota)
+    {
+        $items = DB::table('temporary_items')
+            ->where('user_id', Auth::user()->id)
+            ->where('no_nota', $noNota)
+            ->get();
+    
+        foreach ($items as $item) {
+            DB::table('permanent_items')->insert([
+                'no_nota' => $item->no_nota,
+                'barang' => $item->barang,
+                'qty' => $item->qty,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+    
+        DB::table('temporary_items')
+            ->where('user_id', Auth::user()->id)
+            ->where('no_nota', $noNota)
+            ->delete();
+    
+        return redirect()->route('your.route')->with('success', 'Data berhasil disimpan permanen!');
+    }
+    
 }
