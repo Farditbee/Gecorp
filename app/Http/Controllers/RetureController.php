@@ -19,19 +19,21 @@ class RetureController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Tambah Data Reture',
+            'Reture',
+            'Tambah Reture',
         ];
     }
 
     public function index()
     {
+        $menu = [$this->title[0]];
         $reture = DataReture::all();
-        return view('reture.index', compact('reture'));
+        return view('reture.index', compact('menu', 'reture'));
     }
 
     public function create()
     {
-        $menu = [$this->title[0], $this->label[3]];
+        $menu = [$this->title[1], $this->label[3]];
         return view('reture.create', compact('menu'));
     }
 
@@ -146,7 +148,7 @@ class RetureController extends Controller
             'qty' => 'required|integer',
             'harga_jual' => 'required|integer',
         ]);
-    
+
         $user = Auth::user();
 
         DB::table('temp_detail_retur')->insert([
@@ -160,7 +162,7 @@ class RetureController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-    
+
         return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
     }
 
@@ -170,7 +172,7 @@ class RetureController extends Controller
             ->where('id_users', Auth::user()->id)
             ->where('no_nota', $noNota)
             ->get();
-    
+
         return response()->json($items, 200);
     }
 }
