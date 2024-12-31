@@ -299,6 +299,7 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {
