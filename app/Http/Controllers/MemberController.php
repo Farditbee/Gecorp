@@ -25,100 +25,123 @@ class MemberController extends Controller
     }
 
     public function getmember(Request $request)
-    {
-        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+{
+    $user = Auth::user(); // Ambil data pengguna yang sedang login
 
-        $query = Member::query();
+    // Pastikan pengguna sudah login
+    if (!$user) {
+        return response()->json([
+            'status_code' => 401,
+            'errors' => true,
+            'message' => 'Unauthorized. Please log in.'
+        ], 401);
+    }
 
-        $query->with(['toko', 'levelHarga', 'jenis_barang'])->orderBy('id', $meta['orderBy']);
+    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        if (!empty($request['search'])) {
-            $searchTerm = trim(strtolower($request['search']));
+    $query = Member::query();
 
-            $query->where(function ($query) use ($searchTerm) {
-                $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
-            });
+    // Tambahkan relasi dan urutan
+    $query->with(['toko', 'levelHarga', 'jenis_barang'])
+        ->orderBy('id', $meta['orderBy']);
 
-            $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-            });
+    // Filter berdasarkan id_toko pengguna yang login
+    if ($user->id_toko != 1) { // Jika bukan admin (id_toko = 1)
+        $query->where('id_toko', $user->id_toko);
+    }
+
+    // Tambahkan filter pencarian jika ada
+    if (!empty($request['search'])) {
+        $searchTerm = trim(strtolower($request['search']));
+
+        $query->where(function ($query) use ($searchTerm) {
+            $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+            $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
+            $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
+        });
+
+        $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+            $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+        });
+    }
+
+    // Ambil data dengan pagination
+    $data = $query->paginate($meta['limit']);
+
+    $paginationMeta = [
+        'total'        => $data->total(),
+        'per_page'     => $data->perPage(),
+        'current_page' => $data->currentPage(),
+        'total_pages'  => $data->lastPage()
+    ];
+
+    $data = [
+        'data' => $data->items(),
+        'meta' => $paginationMeta
+    ];
+
+    // Jika tidak ada data, kembalikan respons error
+    if (empty($data['data'])) {
+        return response()->json([
+            'status_code' => 400,
+            'errors' => true,
+            'message' => 'Tidak ada data'
+        ], 400);
+    }
+
+    // Mapping data
+    $mappedData = collect($data['data'])->map(function ($item) {
+        $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
+
+        if (!is_array($idLevelHarga) || empty($idLevelHarga)) {
+            $idLevelHarga = [];
         }
 
-        $data = $query->paginate($meta['limit']);
-
-        $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
-        ];
-
-        $data = [
-            'data' => $data->items(),
-            'meta' => $paginationMeta
-        ];
-
-        if (empty($data['data'])) {
-            return response()->json([
-                'status_code' => 400,
-                'errors' => true,
-                'message' => 'Tidak ada data'
-            ], 400);
+        $levelData = [];
+        if (!empty($idLevelHarga)) {
+            $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
+                ->get(['jenis_barang', 'nama_level_harga as level_harga'])
+                ->toArray();
         }
 
-        $mappedData = collect($data['data'])->map(function ($item) {
-            $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
+        $selectedLevels = [];
+        if (!empty($item->level_info)) {
+            foreach (json_decode($item->level_info, true) as $info) {
+                preg_match('/(\d+) : (\d+)/', $info, $matches);
+                if (!empty($matches)) {
+                    $jenisBarang = \App\Models\JenisBarang::find($matches[1]);
+                    $levelHarga = \App\Models\LevelHarga::find($matches[2]);
 
-            if (!is_array($idLevelHarga) || empty($idLevelHarga)) {
-                $idLevelHarga = [];
-            }
-
-            $levelData = [];
-            if (!empty($idLevelHarga)) {
-                $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
-                    ->get(['jenis_barang', 'nama_level_harga as level_harga'])
-                    ->toArray();
-            }
-
-            $selectedLevels = [];
-            if (!empty($item->level_info)) {
-                foreach (json_decode($item->level_info, true) as $info) {
-                    preg_match('/(\d+) : (\d+)/', $info, $matches);
-                    if (!empty($matches)) {
-                        $jenisBarang = \App\Models\JenisBarang::find($matches[1]);
-                        $levelHarga = \App\Models\LevelHarga::find($matches[2]);
-
-                        if ($jenisBarang && $levelHarga) {
-                            $selectedLevels[] = [
-                                'nama_jenis_barang' => $jenisBarang->nama_jenis_barang,
-                                'nama_level_harga' => $levelHarga->nama_level_harga,
-                            ];
-                        }
+                    if ($jenisBarang && $levelHarga) {
+                        $selectedLevels[] = [
+                            'nama_jenis_barang' => $jenisBarang->nama_jenis_barang,
+                            'nama_level_harga' => $levelHarga->nama_level_harga,
+                        ];
                     }
                 }
             }
+        }
 
-            return [
-                'id' => $item['id'],
-                'nama_member' => $item['nama_member'],
-                'nama_toko' => $item['toko']->nama_toko ?? null,
-                'level' => $selectedLevels,
-                'no_hp' => $item->no_hp,
-                'alamat' => $item->alamat,
-            ];
-        });
+        return [
+            'id' => $item['id'],
+            'nama_member' => $item['nama_member'],
+            'nama_toko' => $item['toko']->nama_toko ?? null,
+            'level' => $selectedLevels,
+            'no_hp' => $item->no_hp,
+            'alamat' => $item->alamat,
+        ];
+    });
 
-        return response()->json([
-            'data' => $mappedData,
-            'status_code' => 200,
-            'errors' => false,
-            'message' => 'Sukses',
-            'pagination' => $data['meta']
-        ], 200);
-    }
+    // Kembalikan respons JSON
+    return response()->json([
+        'data' => $mappedData,
+        'status_code' => 200,
+        'errors' => false,
+        'message' => 'Sukses',
+        'pagination' => $data['meta']
+    ], 200);
+}
 
     public function index()
     {
