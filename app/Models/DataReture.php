@@ -19,8 +19,6 @@ class DataReture extends Model
         'tgl_retur',
     ];
 
-    public $incrementing = false;
-
     protected $keyType = 'string';
 
     public $primaryKey = 'id';

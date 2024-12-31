@@ -280,6 +280,7 @@
     <script>
         let customFilter = {};
         let rowCount = 0;
+        let dataTemp = {};
 
         function getExistingTransactionIds() {
             const transactionInputs = document.querySelectorAll('input[name="id_transaksi[]"]');
@@ -315,7 +316,9 @@
             if (getDataRest && getDataRest.status === 200) {
                 let data = getDataRest.data.data;
                 if (data) {
-                    $('#info-input').html('Masukkan QR Code lain, jika ingin menambah reture')
+                    $('#info-input').html('Masukkan QR Code lain, jika ingin menambah reture');
+
+                    await postDataToTempStore(data);
                     addRowToTable(data);
                     resetQRCodeInput();
                 } else {
@@ -325,6 +328,26 @@
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 notificationAlert('error', 'Kesalahan', errorMessage);
                 handleEmptyState();
+            }
+        }
+
+        async function postDataToTempStore(data) {
+            try {
+                let response = await renderAPI(
+                    'POST',
+                    '{{ route('reture.tempStore') }}', {
+                        ...dataTemp,
+                        ...data
+                    }
+                );
+
+                if (response.status >= 200 && response.status < 300) {
+                    console.log('Data successfully posted to tempStore');
+                } else {
+                    notificationAlert('info', 'Pemberitahuan', 'Gagal menyimpan data ke TempStore');
+                }
+            } catch (error) {
+                notificationAlert('error', 'Kesalahan', 'Terjadi kesalahan saat memposting data');
             }
         }
 
@@ -351,8 +374,8 @@
                     </button>
                 </td>
                 <td class="text-wrap align-top">
-                    <input type="number" name="qty[]" value="0" max="${data.qty_beli || 0}" class="form-control" required>
-                    <small class="text-danger"><b>Maksimal Qty: ${data.qty_beli || 0}</b></small>
+                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
+                    <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
                 </td>
                 <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
@@ -518,10 +541,9 @@
                         $('#i_no_nota').text(rest_data.no_nota);
                         $('#i_tgl_retur').text(rest_data.tgl_retur);
 
-                        $('#tambah-tab').removeAttr(
-                            'style');
-                        $('#detail-tab').removeAttr(
-                            'style');
+                        $('#tambah-tab').removeAttr('style');
+                        $('#detail-tab').removeAttr('style');
+                        dataTemp = rest_data;
                     } else {
                         notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
                     }
