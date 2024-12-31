@@ -136,11 +136,10 @@ class MemberController extends Controller
                 ->orderBy('id', 'desc')
                 ->with(['levelharga', 'toko', 'jenis_barang'])
                 ->get();
+                $toko = Toko::where('id', $user->id_toko)->get();
         }
         $jenis_barang = JenisBarang::all();
-        $toko = Toko::all();
         $levelharga = LevelHarga::all();
-        $jenis_barang = JenisBarang::all();
 
         $selected_levels = [];
         foreach ($member as $mbr) {
