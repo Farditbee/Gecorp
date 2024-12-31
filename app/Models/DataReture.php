@@ -6,13 +6,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class DataRetur extends Model
+class DataReture extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'DataRetur';
+    protected $table = 'data_retur';
 
-    protected $guarded = [''];
+    protected $fillable = [
+        'id_users',
+        'id_toko',
+        'no_nota',
+        'tgl_retur',
+    ];
 
     public $incrementing = false;
 

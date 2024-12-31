@@ -180,7 +180,10 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/reture', [RetureController::class, 'index'])->name('reture.index');
         Route::get('/reture/create', [RetureController::class, 'create'])->name('reture.create');
-        Route::post('/reture/store', [RetureController::class, 'store'])->name('reture.store');
+        Route::post('/reture/storeNota', [RetureController::class, 'store_nota'])->name('reture.storeNota');
+        Route::post('/reture/updateStore', [RetureController::class, 'updateStore'])->name('reture.updateStore');
+        Route::post('/reture/tempStore', [RetureController::class, 'store_temp_item'])->name('reture.tempStore');
+        Route::get('/temporary-items/{noNota}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
     });
 
 });
