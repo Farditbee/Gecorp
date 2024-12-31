@@ -77,14 +77,23 @@
                                     <input type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username', $user->username) }}" placeholder="Contoh : users213">
                                 </div>
 
-                                <label for="password" class=" form-control-label">Password</label>
-                                <div class="input-group">
-                                    <input type="password" id="password" class="form-control @error('password') is-invalid @enderror" name="password" value="{{ old('password', $user->password) }}" placeholder="Password akan sama jika tidak diubah" aria-label="Recipient's username" aria-describedby="basic-addon2" >
+                                <div class="form-group">
+                                    <label for="password" class="form-control-label">Password</label>
+                                    <div class="input-group">
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            class="form-control @error('password') is-invalid @enderror"
+                                            name="password"
+                                            placeholder="Kosongkan jika password tidak ada perubahan"
+                                            aria-label="Recipient's username"
+                                            aria-describedby="basic-addon2">
                                         <div class="input-group-append">
                                             <button type="button" id="toggle-password" class="btn btn-outline-secondary">👁️</button>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="form-group">
                                     <label for="alamat" class=" form-control-label">Alamat<span style="color: red">*</span></label>
                                     <textarea name="alamat" id="alamat" rows="4" @error('alamat') is-invalid @enderror" name="alamat" class="form-control">{{ old('alamat', $user->alamat) }}</textarea>

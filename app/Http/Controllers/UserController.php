@@ -202,24 +202,32 @@ class UserController extends Controller
     }
 
     public function update(Request $request, String $id)
-    {
-        $user = User::findOrFail($id);
-        try {
-            $user->update([
-                'id_toko' => $request->id_toko,
-                'id_level' => $request->id_level,
-                'nama' => $request->nama,
-                'username' => $request->username,
-                'password' => bcrypt($request->password),
-                'email' => $request->email,
-                'alamat' => $request->alamat,
-                'no_hp' => $request->no_hp,
-            ]);
-        } catch (\Throwable $th) {
-            return redirect()->back()->with('error', $th->getMessage())->withInput();
+{
+    $user = User::findOrFail($id);
+
+    try {
+        $data = [
+            'id_toko' => $request->id_toko,
+            'id_level' => $request->id_level,
+            'nama' => $request->nama,
+            'username' => $request->username,
+            'email' => $request->email,
+            'alamat' => $request->alamat,
+            'no_hp' => $request->no_hp,
+        ];
+
+        // Hanya tambahkan password jika field password tidak kosong
+        if (!empty($request->password)) {
+            $data['password'] = bcrypt($request->password);
         }
-        return redirect()->route('master.user.index')->with('success', 'Sukses Mengubah Data User');
+
+        $user->update($data);
+    } catch (\Throwable $th) {
+        return redirect()->back()->with('error', $th->getMessage())->withInput();
     }
+
+    return redirect()->route('master.user.index')->with('success', 'Sukses Mengubah Data User');
+}
 
     public function delete(String $id)
     {
