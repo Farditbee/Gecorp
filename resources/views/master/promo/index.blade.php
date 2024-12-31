@@ -22,7 +22,8 @@
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
-                                    <i class="fa fa-plus-circle"></i> Tambah
+                                    <span data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Promo"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
                                 </a>
                             </div>
 
@@ -310,10 +311,11 @@
                 edit_button = `
                 <button class="p-1 btn edit-data action_button"
                     data-toggle="modal" data-target="#mediumModal-${data.id}"
-                    title="Edit ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
+                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit ${title}: ${data.nama_barang}">Edit</span>
+                    <div class="icon text-warning" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit ${title}: ${data.nama_barang}">
                         <i class="fa fa-edit"></i>
                     </div>
                 </button>`;
@@ -374,6 +376,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

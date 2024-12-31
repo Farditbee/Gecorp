@@ -21,7 +21,8 @@
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
-                                    <i class="fa fa-plus-circle"></i> Tambah
+                                    <span data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Member"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
                                 </a>
                             </div>
 
@@ -251,6 +252,7 @@
 
 @section('js')
     <script>
+        let title = 'Data Member';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -299,19 +301,19 @@
         async function handleData(data) {
             let edit_button = `
                 <a class="p-1 btn edit-data action_button" data-toggle="modal" data-target="#editMemberModal${data.id}"
-                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Edit Member: ${data.nama_member}"
                     data-id='${data.id}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
+                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit ${title}: ${data.nama_member}">Edit</span>
+                    <div class="icon text-warning" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit ${title}: ${data.nama_member}">
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>`;
 
             let delete_button = `
                 <a class="p-1 btn hapus-data action_button"
-                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Hapus Member: ${data.nama_member}"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title}: ${data.nama_member}"
                     data-id='${data.id}'
                     data-name='${data.nama_member}'>
                     <span class="text-dark">Hapus</span>
@@ -377,6 +379,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

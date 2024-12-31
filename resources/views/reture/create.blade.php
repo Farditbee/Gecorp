@@ -147,10 +147,6 @@
             }
 
             const existingIds = getExistingTransactionIds();
-            if (existingIds.includes(data.id_transaksi)) {
-                notificationAlert('info', 'Pemberitahuan', 'Data dengan ID Transaksi ini sudah ada di tabel.');
-                return;
-            }
 
             rowCount++;
             const tr = document.createElement('tr');
