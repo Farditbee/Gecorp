@@ -47,8 +47,8 @@
                         <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
                                     class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
                         @endif
-                        <li class="font-weight-bold mt-2">Pengaturan</li>
                         @if (Auth::user()->id_level == 1)
+                        <li class="font-weight-bold mt-2">Pengaturan</li>
                             <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
                                         class="fa fa-laptop"></i> Level User</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.levelharga.index') }}"><i

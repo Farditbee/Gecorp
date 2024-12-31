@@ -25,12 +25,6 @@
                                         title="Tambah Data Supplier">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
-                                @else
-                                    <a href="{{ route('master.supplier.create') }}" class="mr-2 btn btn-secondary disabled"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data Supplier">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
                                 @endif
                             </div>
 
