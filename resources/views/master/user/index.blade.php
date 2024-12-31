@@ -25,12 +25,6 @@
                                         title="Tambah Data User">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
-                                @else
-                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-secondary disabled"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data User">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
                                 @endif
                             </div>
 
@@ -115,6 +109,7 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {

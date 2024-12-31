@@ -25,12 +25,6 @@
                                         title="Tambah Data Stock Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
-                                @else
-                                    <a href="{{ route('transaksi.pembelianbarang.index') }}"
-                                        class="mr-2 btn btn-secondary disabled" data-container="body" data-toggle="tooltip"
-                                        data-placement="top" title="Tambah Data Stock Barang">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
                                 @endif
                             </div>
 
