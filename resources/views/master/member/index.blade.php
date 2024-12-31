@@ -102,10 +102,11 @@
                                                     <option value="" selected>~Silahkan Pilih Toko~</option>
                                                     <!-- Selalu dipilih secara default -->
                                                     @foreach ($toko as $tk)
-                                                        <option value="{{ $tk->id }}">
+                                                        <option value="{{ $tk->id }}" {{ count($toko) === 1 ? 'selected' : '' }}>
                                                             {{ $tk->nama_toko }}
                                                         </option>
                                                     @endforeach
+
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -192,8 +193,7 @@
                                 <select name="id_toko" id="selectors" class="form-control">
                                     <option value="" required>~Silahkan Pilih Toko~</option>
                                     @foreach ($toko as $tk)
-                                        <option value="{{ $tk->id }}"
-                                            {{ $mbr->id_toko == $tk->id ? 'selected' : '' }}>
+                                        <option value="{{ $tk->id }}" {{ count($toko) === 1 ? 'selected' : '' }}>
                                             {{ $tk->nama_toko }}
                                         </option>
                                     @endforeach

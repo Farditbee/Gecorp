@@ -125,19 +125,20 @@ class MemberController extends Controller
         $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user();
 
-        // Jika user memiliki id_level = 1, tampilkan semua data member
+        // Ambil data member berdasarkan level user
         if ($user->id_level == 1) {
             $member = Member::orderBy('id', 'desc')
                 ->with(['levelharga', 'toko', 'jenis_barang'])
                 ->get();
+            $toko = Toko::all(); // Semua toko untuk admin
         } else {
-            // Jika id_level selain 1, hanya tampilkan member dari toko yang sama dengan user yang login
             $member = Member::where('id_toko', $user->id_toko)
                 ->orderBy('id', 'desc')
                 ->with(['levelharga', 'toko', 'jenis_barang'])
                 ->get();
-                $toko = Toko::where('id', $user->id_toko)->get();
+            $toko = Toko::where('id', $user->id_toko)->get(); // Hanya toko yang sedang login
         }
+
         $jenis_barang = JenisBarang::all();
         $levelharga = LevelHarga::all();
 
@@ -151,7 +152,7 @@ class MemberController extends Controller
             }
         }
 
-        return view('master.member.index', compact('menu', 'member', 'toko', 'jenis_barang', 'levelharga', 'jenis_barang', 'selected_levels'));
+        return view('master.member.index', compact('menu', 'member', 'toko', 'jenis_barang', 'levelharga', 'selected_levels'));
     }
 
     public function getLevelHarga($id_toko)
