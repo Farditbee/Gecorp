@@ -91,6 +91,10 @@
             background: linear-gradient(135deg, #004d3d, #066854, #0f8f75, #1ec7a5, #6bf1d7);
             color: #ffffff;
         }
+
+        .swal2-container {
+            z-index: 99999 !important;
+        }
     </style>
     @yield('css')
     <script>
