@@ -17,7 +17,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+// use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
+use Endroid\QrCode\Encoding\Encoding;
+use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
+use Endroid\QrCode\Label\Label;
+use Endroid\QrCode\Label\Font\NotoSans;
 
 class KasirController extends Controller
 {
@@ -368,7 +374,21 @@ class KasirController extends Controller
                 }
 
                 // Generate QR Code
-                QrCode::size(200)->format('png')->generate($qrCodeValue, $fullPath);
+                $qrCode = QrCode::create($qrCodeValue)
+                        ->setEncoding(new Encoding('UTF-8'))
+                        ->setSize(200)
+                        ->setMargin(10);
+
+                    $writer = new PngWriter();
+                    $result = $writer->write(
+                        $qrCode,
+                        null,
+                        Label::create("{$qrCodeValue}")
+                            ->setFont(new NotoSans(12))
+                    );
+
+                    // Simpan file QR Code
+                    $result->saveToFile($fullPath);
 
                 // Simpan detail kasir
                 $detail = DetailKasir::create([
