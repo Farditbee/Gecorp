@@ -19,7 +19,7 @@ class UserController extends Controller
         $this->title = [
             'Data User',
             'Tambah Data',
-            'Edit Data'
+            'Edit Datas'
         ];
     }
 
