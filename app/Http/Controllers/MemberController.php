@@ -26,43 +26,40 @@ class MemberController extends Controller
 
     public function getmember(Request $request)
 {
-    $user = Auth::user(); // Ambil data pengguna yang sedang login
-
-    // Pastikan pengguna sudah login
-    if (!$user) {
-        return response()->json([
-            'status_code' => 401,
-            'errors' => true,
-            'message' => 'Unauthorized. Please log in.'
-        ], 401);
-    }
-
     $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
     $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
     $query = Member::query();
 
-    // Tambahkan relasi dan urutan
-    $query->with(['toko', 'levelHarga', 'jenis_barang'])
-        ->orderBy('id', $meta['orderBy']);
+    // Relasi yang digunakan
+    $query->with(['toko', 'levelHarga', 'jenis_barang'])->orderBy('id', $meta['orderBy']);
 
-    // Filter berdasarkan id_toko pengguna yang login
-    if ($user->id_toko != 1) { // Jika bukan admin (id_toko = 1)
-        $query->where('id_toko', $user->id_toko);
+    // Filter berdasarkan id_toko
+    if ($request->has('id_toko')) {
+        $idToko = $request->input('id_toko');
+        if ($idToko != 1) {
+            $query->where('id_toko', $idToko);
+        }
     }
 
-    // Tambahkan filter pencarian jika ada
+    // Pencarian
     if (!empty($request['search'])) {
         $searchTerm = trim(strtolower($request['search']));
 
         $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
-            $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
-            $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
-        });
+            if ($searchTerm === 'guest') {
+                // Jika pencarian adalah "Guest", cari data dengan id_member = 0
+                $query->where('id_member', 0);
+            } else {
+                // Logika pencarian normal
+                $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
 
-        $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-            $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                });
+            }
         });
     }
 
