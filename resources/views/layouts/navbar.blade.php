@@ -28,8 +28,10 @@
                                 Data Toko</a></li>
                         <li><a class="dropdown-item" href="{{ route('master.member.index') }}"><i
                                     class="fa fa-user"></i> Data Member</a></li>
+                        @if (Auth::user()->id_level == 1)
                         <li><a class="dropdown-item" href="{{ route('master.supplier.index') }}"><i
                                     class="fa fa-download"></i> Data Supplier</a></li>
+                        @endif
                         <li class="font-weight-bold mt-2">Barang</li>
                         @if (Auth::user()->id_level == 1)
                             <li><a class="dropdown-item" href="{{ route('master.jenisbarang.index') }}"><i

@@ -32,6 +32,14 @@ class UserController extends Controller
 
         $query->with(['toko', 'leveluser',])->orderBy('id', $meta['orderBy']);
 
+        // Filter berdasarkan id_toko
+    if ($request->has('id_toko')) {
+        $idToko = $request->input('id_toko');
+        if ($idToko != 1) {
+            $query->where('id_toko', $idToko);
+        }
+    }
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
