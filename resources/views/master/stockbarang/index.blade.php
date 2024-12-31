@@ -20,12 +20,15 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('transaksi.pembelianbarang.index') }}" class="mr-2 btn btn-primary">
+                                    <a href="{{ route('transaksi.pembelianbarang.index') }}" class="mr-2 btn btn-primary"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Stock Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @else
                                     <a href="{{ route('transaksi.pembelianbarang.index') }}"
-                                        class="mr-2 btn btn-secondary disabled">
+                                        class="mr-2 btn btn-secondary disabled" data-container="body" data-toggle="tooltip"
+                                        data-placement="top" title="Tambah Data Stock Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @endif
@@ -296,6 +299,7 @@
                     limit: limit,
                     ascending: ascending,
                     search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
             ).then(function(response) {
@@ -326,9 +330,8 @@
             let detail_button = `
                 <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
                     data-toggle="modal" data-target="#mediumModal-${data.id}"
-                    title="Detail ${title}: ${data.nama_barang}"
                     data-id='${data.id}' data-id-barang='${data.id_barang}'>
-                    <span class="text-white"><i class="fa fa-eye mr-1"></i>Detail</span>
+                    <span class="text-white" data-container="body" data-toggle="tooltip" data-placement="top" title="Detail ${title}: ${data.nama_barang}"><i class="fa fa-eye mr-1"></i>Detail</span>
                 </button>`;
 
             let delete_button = `
@@ -385,6 +388,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
             detailPage();
         }

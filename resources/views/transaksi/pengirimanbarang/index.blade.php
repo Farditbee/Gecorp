@@ -21,14 +21,17 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
                                 <a href="{{ route('transaksi.pengirimanbarang.create') }}"
-                                    class="btn btn-primary mb-2 mb-lg-0 text-white">
+                                    class="btn btn-primary mb-2 mb-lg-0 text-white" data-container="body"
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengiriman Barang">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
 
                                 <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
                                     <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
+                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Filter Pengiriman Barang">
                                         <i class="fa fa-filter"></i> Filter
                                     </button>
                                 </form>
@@ -231,7 +234,7 @@
                 delete_button = `
                 <a class="p-1 btn hapus-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Hapus No. Resi: ${data.no_resi}"
+                    title="Hapus Data Nomor Resi: ${data.no_resi}"
                     data-id='${data.id}'
                     data-name='${data.no_resi}'>
                     <span class="text-dark">Hapus</span>
@@ -309,6 +312,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

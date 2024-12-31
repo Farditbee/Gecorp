@@ -20,11 +20,15 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-primary">
+                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-primary"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Toko">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @else
-                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-secondary disabled">
+                                    <a href="{{ route('master.toko.create') }}" class="mr-2 btn btn-secondary disabled"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Toko">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @endif
@@ -90,6 +94,7 @@
 
 @section('js')
     <script>
+        let title = 'Data Toko';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -138,16 +143,16 @@
         async function handleData(data) {
             let detail_button = `
             <a href='toko/detail/${data.id}' class="p-1 btn detail-data btn btn-primary"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Lihat Detail Toko: ${data.nama_toko}"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Lihat Detail ${title}: ${data.nama_toko}"
                 data-id='${data.id}'>
                 <span class="text-white"><i class="fa fa-eye mr-1"></i>Cek Detail</span>
             </a>`;
 
             let edit_button = `
             <a href='toko/edit/${data.id}' class="p-1 btn edit-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Edit Toko: ${data.nama_toko}"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Edit ${title}: ${data.nama_toko}"
                 data-id='${data.id}'>
                 <span class="text-dark">Edit</span>
                 <div class="icon text-warning">
@@ -157,8 +162,8 @@
 
             let delete_button = `
             <a class="p-1 btn hapus-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                title="Hapus Toko: ${data.nama_toko}"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Hapus ${title}: ${data.nama_toko}"
                 data-id='${data.id}'
                 data-name='${data.nama_toko}'>
                 <span class="text-dark">Hapus</span>
@@ -214,6 +219,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

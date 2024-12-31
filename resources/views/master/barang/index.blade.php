@@ -20,11 +20,15 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-primary">
+                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-primary"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @else
-                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-secondary disabled">
+                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-secondary disabled"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Data Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
                                 @endif
@@ -232,6 +236,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

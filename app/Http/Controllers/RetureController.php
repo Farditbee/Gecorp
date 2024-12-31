@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\Kasir;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class RetureController extends Controller
@@ -16,18 +19,21 @@ class RetureController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Tambah Data Reture',
+            'Reture',
+            'Tambah Reture',
         ];
     }
 
     public function index()
     {
-        return view('reture.index');
+        $menu = [$this->title[0]];
+        $reture = DataReture::all();
+        return view('reture.index', compact('menu', 'reture'));
     }
 
     public function create()
     {
-        $menu = [$this->title[0], $this->label[3]];
+        $menu = [$this->title[1], $this->label[3]];
         return view('reture.create', compact('menu'));
     }
 
@@ -54,17 +60,21 @@ class RetureController extends Controller
                 if ($kasir) {
                     $barang = Barang::find($detailKasir->id_barang);
 
+                    $diskon = $detailKasir->diskon ?? 0;
+
                     // Format data untuk dikirim ke FE
                     $data = [
                         "error" => false,
                         "message" => "Successfully",
                         "status_code" => 200,
                         "data" => [
+                            "no_nota" => $kasir->no_nota ?? null,
                             "nama_toko" => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
                             "id_transaksi" => $detailKasir->id_kasir,
+                            "id_barang" => $barang ? $barang->id : null,
                             "tipe_transaksi" => "Kasir",
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
-                            "harga_jual" => $detailKasir->harga - $detailKasir->diskon,
+                            "harga_jual" => $detailKasir->harga - $diskon,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
                             "qty_beli" => $detailKasir->qty,
                         ],
@@ -81,7 +91,6 @@ class RetureController extends Controller
                 "status_code" => 404,
             ], 404);
         } catch (\Throwable $th) {
-            // Tangkap error dan log untuk debugging
             Log::error($th->getMessage());
 
             return response()->json([
@@ -92,10 +101,79 @@ class RetureController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store_nota(Request $request)
     {
-        $data = $request->all();
+        $request->validate([
+            'no_nota' => 'required|string',
+            'tgl_retur' => 'required|date',
+        ]);
 
-        dd($data);
+        $user = Auth::user();
+
+        try {
+            $retur = DataReture::create([
+                'id_users' => $user->id,
+                'id_toko' => $user->id_toko,
+                'no_nota' => $request->no_nota,
+                'tgl_retur' => $request->tgl_retur,
+            ]);
+
+            // Return JSON response
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => [
+                    'id_retur'=> $retur->id,
+                    'no_nota' => $retur->no_nota,
+                    'tgl_retur' => $retur->tgl_retur,
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+
+            return response()->json([
+                "error" => true,
+                "message" => "Terjadi kesalahan pada server",
+                "status_code" => 500,
+            ], 500);
+        }
+    }
+
+    public function store_temp_item(Request $request)
+    {
+        $request->validate([
+            'no_nota' => 'required|string',
+            'id_transaksi' => 'required|string',
+            'id_barang' => 'required|string',
+            'qty' => 'required|integer',
+            'harga_jual' => 'required|integer',
+        ]);
+
+        $user = Auth::user();
+
+        DB::table('temp_detail_retur')->insert([
+            'id_users' => $user->id,
+            'id_data_retur' => $request->input('id_data_retur'),
+            'id_transaksi' => $request->input('id_transaksi'),
+            'id_barang' => $request->input('id_barang'),
+            'no_nota' => $request->input('no_nota'),
+            'qty' => $request->input('qty'),
+            'harga' => $request->input('harga_jual'),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
+    }
+
+    public function getTemporaryItems($noNota)
+    {
+        $items = DB::table('temp_detail_retur')
+            ->where('id_users', Auth::user()->id)
+            ->where('no_nota', $noNota)
+            ->get();
+
+        return response()->json($items, 200);
     }
 }

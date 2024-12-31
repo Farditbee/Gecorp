@@ -92,7 +92,7 @@
                             class="pcoded-mtext">Reture</span></a>
                     <ul class="pcoded-submenu">
                         <li>
-                            <a href="{{ route('reture.create') }}" class="dropdown-item"><i class="icon feather icon-rotate-cw"></i> Data Reture</a>
+                            <a href="{{ route('reture.index') }}" class="dropdown-item"><i class="icon feather icon-rotate-cw"></i> Data Reture</a>
                         </li>
                     </ul>
                 </li>

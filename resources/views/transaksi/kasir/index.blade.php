@@ -46,7 +46,9 @@
                                 <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
                                     <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
+                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Filter Transaksi Kasir">
                                         <i class="fa fa-filter"></i> Filter
                                     </button>
                                 </form>
@@ -623,18 +625,18 @@
         async function handleData(data) {
             let detail_button = `
                 <a class="p-1 btn detail-data action_button" data-toggle="modal" data-target="#mediumModal-${data.id}"
-                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
-                    title="Detail ${title}: ${data.no_nota}"
                     data-id='${data.id}'>
-                    <span class="text-dark">Detail</span>
-                    <div class="icon text-info">
+                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail ${title}: ${data.no_nota}">Detail</span>
+                    <div class="icon text-info" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail ${title}: ${data.no_nota}">
                         <i class="fa fa-book"></i>
                     </div>
                 </a>`;
 
             let delete_button = `
                 <a class="p-1 btn hapus-data action_button"
-                    data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Hapus ${title}: ${data.no_nota}"
                     data-id='${data.id}'
                     data-name='${data.no_nota}'>
@@ -697,6 +699,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 

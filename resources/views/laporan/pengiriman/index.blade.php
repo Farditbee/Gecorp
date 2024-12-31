@@ -27,7 +27,7 @@
     </style>
 
     <div class="pcoded-main-container">
-        <div class="pcoded-content">
+        <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
             <div class="row">
                 <div class="col-xl-12">

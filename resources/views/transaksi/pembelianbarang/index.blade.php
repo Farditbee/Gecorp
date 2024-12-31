@@ -22,14 +22,16 @@
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                     data-target=".bd-example-modal-lg">
-                                    <i class="fa fa-plus-circle"></i> Tambah
+                                    <span data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Pembelian Barang"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
                                 </a>
 
-                                <form id="custom-filter"
-                                    class="d-flex justify-content-between align-items-center mx-2">
+                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
                                     <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
+                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Filter Pembelian Barang">
                                         <i class="fa fa-filter"></i> Filter
                                     </button>
                                 </form>
@@ -143,7 +145,8 @@
                                                 aria-labelledby="tambah-tab">
                                                 <br>
                                                 <form id="form-tambah-pembelian"
-                                                    action="{{ route('transaksi.pembelianbarang.store') }}" method="POST">
+                                                    action="{{ route('transaksi.pembelianbarang.store') }}"
+                                                    method="POST">
                                                     @csrf
                                                     <div class="row">
                                                         <div class="col-6">
@@ -373,11 +376,11 @@
 @section('js')
     <script>
         const tglNota = document.getElementById('tgl_nota');
-            if (tglNota) {
-                tglNota.addEventListener('focus', function() {
-                    this.showPicker(); // Open the date picker when the input is focused
-                });
-            }
+        if (tglNota) {
+            tglNota.addEventListener('focus', function() {
+                this.showPicker(); // Open the date picker when the input is focused
+            });
+        }
 
         let defaultLimitPage = 10;
         let currentPage = 1;
@@ -443,7 +446,7 @@
 
             let detail_button = `
             <a href="pembelianbarang/${data.id}/edit" class="p-1 btn edit-data action_button"
-                data-bs-container="body" data-bs-toggle="tooltip" data-bs-placement="top"
+                data-container="body" data-toggle="tooltip" data-placement="top"
                 title="Detail Data Nomor Nota: ${data.no_nota}"
                 data-id='${data.id}'>
                 <span class="text-dark">Detail</span>
@@ -495,6 +498,7 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 
@@ -931,12 +935,12 @@
             await addData();
         }
         document.addEventListener('DOMContentLoaded', function() {
-                new TomSelect("#id_supplier", {
-                    placeholder: "Pilih Supplier",
-                    allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
-                    create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
-                });
+            new TomSelect("#id_supplier", {
+                placeholder: "Pilih Supplier",
+                allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
+                create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
             });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#id_barang", {
                 placeholder: "Pilih Barang",
