@@ -76,7 +76,7 @@ class RetureController extends Controller
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
                             "harga_jual" => $detailKasir->harga - $diskon,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
-                            "qty_beli" => $detailKasir->qty,
+                            "qty" => $detailKasir->qty,
                         ],
                     ];
 
