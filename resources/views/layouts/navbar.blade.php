@@ -43,8 +43,10 @@
                                     class="fa fa-tasks"></i> Stock Barang</a></li>
                         <li><a class="dropdown-item" href="{{ route('master.stockopname.index') }}"><i
                                     class="fa fa-edit"></i> Stock Opname</a></li>
+                        @if (Auth::user()->id_level == 1)
                         <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
                                     class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
+                        @endif
                         <li class="font-weight-bold mt-2">Pengaturan</li>
                         @if (Auth::user()->id_level == 1)
                             <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
@@ -61,8 +63,10 @@
                                 class="icon feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Data
                             Transaksi</span></a>
                     <ul class="pcoded-submenu">
+                        @if (Auth::user()->id_level == 1)
                         <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
-                                    class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
+                            class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
+                        @endif
                         <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
                                     class="fa fa-truck"></i> Pengiriman Barang</a></li>
                         <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i

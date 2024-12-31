@@ -33,4 +33,9 @@ class StockBarang extends Model
         return $this->hasMany(LevelHarga::class, 'id_barang', 'id');
     }
 
+    public function detailToko()
+{
+    return $this->hasMany(DetailToko::class, 'id_barang', 'id_barang');
+}
+
 }

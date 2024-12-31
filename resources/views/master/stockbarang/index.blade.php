@@ -51,8 +51,8 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama Barang</th>
+                                                <th class="text-wrap align-top">Stock</th>
                                                 @if (Auth::user()->id_level == 1)
-                                                    <th class="text-wrap align-top">Stock</th>
                                                     <th class="text-wrap align-top">Harga Satuan (Hpp Baru)</th>
                                                 @endif
                                                 <th class="text-wrap align-top">Detail</th>
@@ -367,8 +367,8 @@
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_barang}</td>
-                        @if (Auth::user()->id_level == 1)
                         <td class="${classCol}">${element.stock}</td>
+                        @if (Auth::user()->id_level == 1)
                         <td class="${classCol}">${element.hpp_baru}</td>
                         @endif
                         <td class="${classCol}">${element.detail_button}</td>
