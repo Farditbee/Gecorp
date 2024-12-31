@@ -199,7 +199,7 @@
                                                     </li>
                                                     <li class="list-group-item">
                                                         <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span
-                                                                id="tgl-nota"
+                                                                id="tgl_nota"
                                                                 class="badge badge-secondary pull-right"></span></h5>
                                                     </li>
                                                 </ul>
@@ -372,6 +372,13 @@
 
 @section('js')
     <script>
+        const tglNota = document.getElementById('tgl_nota');
+            if (tglNota) {
+                tglNota.addEventListener('focus', function() {
+                    this.showPicker(); // Open the date picker when the input is focused
+                });
+            }
+
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
