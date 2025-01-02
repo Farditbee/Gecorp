@@ -182,19 +182,30 @@ class RetureController extends Controller
         ]);
     }
 
+    public function getTempoData()
+    {
+        $items = DataReture::all();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => 200,
+            'data' => $items,
+        ]);
+    }
+    
     public function saveTemporaryItems(Request $request)
     {
         $request->validate([
-            'id_users' => 'required|integer',
             'id_retur' => 'required|integer',
-            'no_nota' => 'required|string',
+            'no_nota' => 'required|integer',
             'id_transaksi' => 'required|array',
             'id_barang' => 'required|array',
             'qty' => 'required|array',
             'harga' => 'required|array',
         ]);
 
-        $userId = $request->id_users;
+        $userId = Auth::user()->id;
         $idRetur = $request->id_retur;
         $noNota = $request->no_nota;
         $idTransaksi = $request->id_transaksi;
