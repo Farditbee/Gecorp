@@ -152,10 +152,6 @@
                                                         <span id="i_tgl_retur" class="badge badge-secondary"></span>
                                                     </li>
                                                 </ul>
-                                                {{-- <form id="form-update-pembelian"
-                                                    action="{{ route('reture.updateStore') }}" method="POST">
-                                                    @csrf --}}
-                                                <!-- Item Container -->
                                                 <div id="item-container">
                                                     <div class="item-group">
                                                         <div class="row">
@@ -180,9 +176,7 @@
                                                                         <small class="text-danger"><b
                                                                                 id="info-input"></b></small>
                                                                     </div>
-                                                                    <form action="{{ route('reture.updateStore') }}"
-                                                                        method="post" id="retureForm">
-                                                                        @csrf
+                                                                    <form id="retureForm">
                                                                         <div class="table-responsive table-scroll-wrapper">
                                                                             <table class="table table-bordered">
                                                                                 <thead>
@@ -238,22 +232,8 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        {{-- <br>
-                                                            <div class="form-group">
-                                                                <button type="submit" class="btn btn-primary pull-right"
-                                                                    style="float: right">
-                                                                    <i class="fa fa-dot-circle-o"></i> Simpan
-                                                                </button>
-                                                                <button type="button" id="cancel-button"
-                                                                    class="btn btn-warning pull-right"
-                                                                    style="float: right">
-                                                                    <i class="fa fa-dot-circle-o"></i> Cancel
-                                                                </button>
-                                                            </div> --}}
                                                     </div>
                                                 </div>
-                                                {{-- <br><br><br>
-                                                </form> --}}
                                             </div>
                                         </div>
                                     </div>
@@ -381,8 +361,11 @@
                 <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="harga_jual[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top">
+                    <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
+                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                </td>
                 <td class="text-wrap align-top text-center">
                     <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
                 </td>
@@ -554,12 +537,70 @@
             });
         }
 
+        async function postMultiData() {
+            $(document).on("click", "#retureForm", function() {
+                $("#retureForm").data("action-url", '{{ route('reture.permStore') }}');
+                submitMultiForm();
+            });
+        }
+
+        async function submitMultiForm(url) {
+            $(document).on("submit", "#retureForm", async function(e) {
+                e.preventDefault();
+                loadingPage(true);
+
+                if (!dataTemp.id_retur || !dataTemp.no_nota) {
+                    loadingPage(false);
+                    notificationAlert('error', 'Pemberitahuan', 'ID Retur dan No Nota wajib diisi.');
+                    return;
+                }
+
+                let url = $("#retureForm").data("action-url");
+
+                let formData = {
+                    id_retur: dataTemp.id_retur,
+                    no_nota: dataTemp.no_nota,
+                    id_transaksi: $("input[name='id_transaksi[]']").map(function() {
+                        return $(this).val();
+                    }).get(),
+                    id_barang: $("input[name='id_barang[]']").map(function() {
+                        return $(this).val();
+                    }).get(),
+                    qty: $("input[name='qty[]']").map(function() {
+                        return $(this).val();
+                    }).get(),
+                    harga: $("input[name='harga[]']").map(function() {
+                        return $(this).val();
+                    }).get(),
+                };
+
+                let method = 'POST';
+                try {
+                    let postData = await renderAPI(method, url, formData);
+
+                    loadingPage(false);
+                    if (postData.status >= 200 && postData.status < 300) {
+                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Berhasil');
+                    } else {
+                        notificationAlert('error', 'Pemberitahuan', postData.message ||
+                        'Terjadi kesalahan');
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    let resp = error.response || {};
+                    notificationAlert('error', 'Pemberitahuan', resp.message || 'Terjadi kesalahan');
+                }
+            });
+        }
+
+
         async function initPageLoad() {
             await addData();
             await submitForm();
             await setDatePicker();
             await searchData();
             await setSortable();
+            await postMultiData();
         }
     </script>
 @endsection

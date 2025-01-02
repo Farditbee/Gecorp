@@ -78,12 +78,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/toko/{id_toko}/detail/{id_barang}/edit/{id}', [TokoController::class, 'edit_detail'])->name('master.toko.edit_detail');
         Route::put('/toko/{id_toko}/detail/{id_barang}/update', [TokoController::class, 'update_detail'])->name('master.toko.update_detail');
         Route::delete('/toko/{id_toko}/detail/{id_barang}/delete', [TokoController::class, 'delete_detail'])->name('master.toko.delete_detail');
-        // web.php
         Route::get('/master/toko/search', [TokoController::class, 'search'])->name('master.toko.search');
         Route::get('/master/stock/searchs', [TokoController::class, 'searchs'])->name('master.stock.searchs');
-
-        // web.php
-
 
         // User Controller
         Route::get('/user', [UserController::class, 'index'])->name('master.user.index');
@@ -183,7 +179,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reture/storeNota', [RetureController::class, 'store_nota'])->name('reture.storeNota');
         Route::post('/reture/updateStore', [RetureController::class, 'updateStore'])->name('reture.updateStore');
         Route::post('/reture/tempStore', [RetureController::class, 'store_temp_item'])->name('reture.tempStore');
-        Route::get('/temporary-items/{noNota}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
+        Route::get('/temporary-items/{id}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
+        Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
     });
 
 });

@@ -152,54 +152,141 @@ class RetureController extends Controller
 
         $user = Auth::user();
 
-        DB::table('temp_detail_retur')->insert([
-            'id_users' => $user->id,
-            'id_retur' => $request->input('id_retur'),
-            'id_transaksi' => $request->input('id_transaksi'),
-            'id_barang' => $request->input('id_barang'),
-            'no_nota' => $request->input('no_nota'),
-            'qty' => $request->input('qty'),
-            'harga' => $request->input('harga_jual'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
-    }
-
-    public function getTemporaryItems($id)
-    {
-        $items = DB::table('temp_detail_retur')
-            ->where('id_users', Auth::user()->id)
-            ->where('id', $id)
-            ->get();
-
-        return response()->json($items, 200);
-    }
-
-    public function saveTemporaryItems(Request $request, $noNota)
-    {
-        $items = DB::table('temporary_items')
-            ->where('user_id', Auth::user()->id)
-            ->where('no_nota', $noNota)
-            ->get();
-    
-        foreach ($items as $item) {
-            DB::table('permanent_items')->insert([
-                'no_nota' => $item->no_nota,
-                'barang' => $item->barang,
-                'qty' => $item->qty,
+            DB::table('temp_detail_retur')->insert([
+                'id_users' => $user->id,
+                'id_retur' => $request->input('id_retur'),
+                'id_transaksi' => $request->input('id_transaksi'),
+                'id_barang' => $request->input('id_barang'),
+                'no_nota' => $request->input('no_nota'),
+                'qty' => $request->input('qty'),
+                'harga' => $request->input('harga_jual'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error storing temporary item: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data sementara.',
+                'status_code' => 500,
+            ], 500);
         }
+    }
+
+    public function getTemporaryItems($idReture)
+    {
+        try {
+            $items = DB::table('temp_detail_retur')
+                ->where('id_users', Auth::user()->id)
+                ->where('id_retur', $idReture)
+                ->get();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $items,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching temporary items: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengambil data sementara.',
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function getTempoData()
+    {
+        try {
+            $items = DataReture::all();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $items,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching tempo data: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengambil data.',
+                'status_code' => 500,
+            ], 500);
+        }
+    }
     
-        DB::table('temporary_items')
-            ->where('user_id', Auth::user()->id)
-            ->where('no_nota', $noNota)
-            ->delete();
-    
-        return redirect()->route('your.route')->with('success', 'Data berhasil disimpan permanen!');
+    public function saveTemporaryItems(Request $request)
+    {
+        $request->validate([
+            'id_retur' => 'required|integer',
+            'no_nota' => 'required|integer',
+            'id_transaksi' => 'required|array',
+            'id_barang' => 'required|array',
+            'qty' => 'required|array',
+            'harga' => 'required|array',
+        ]);
+
+        $userId = Auth::user()->id;
+        $idRetur = $request->id_retur;
+        $noNota = $request->no_nota;
+        $idTransaksi = $request->id_transaksi;
+        $idBarang = $request->id_barang;
+        $qty = $request->qty;
+        $harga = $request->harga;
+
+        try {
+            DB::beginTransaction();
+
+            foreach ($idTransaksi as $index => $idTrans) {
+                DB::table('detail_retur')->insert([
+                    'id_users' => $userId,
+                    'id_retur' => $idRetur,
+                    'id_transaksi' => $idTrans,
+                    'id_barang' => $idBarang[$index],
+                    'no_nota' => $noNota,
+                    'qty' => $qty[$index],
+                    'harga' => $harga[$index],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::table('temporary_items')
+                ->where('user_id', $userId)
+                ->where('id_retur', $idRetur)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil disimpan permanen!',
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error saving temporary items: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
     
 }
