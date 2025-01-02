@@ -167,39 +167,63 @@ class RetureController extends Controller
         return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
     }
 
-    public function getTemporaryItems($id)
+    public function getTemporaryItems($idReture)
     {
         $items = DB::table('temp_detail_retur')
             ->where('id_users', Auth::user()->id)
-            ->where('id', $id)
+            ->where('id_retur', $idReture)
             ->get();
 
-        return response()->json($items, 200);
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => 200,
+            'data' => $items,
+        ]);
     }
 
-    public function saveTemporaryItems(Request $request, $noNota)
+    public function saveTemporaryItems(Request $request)
     {
-        $items = DB::table('temporary_items')
-            ->where('user_id', Auth::user()->id)
-            ->where('no_nota', $noNota)
-            ->get();
-    
-        foreach ($items as $item) {
-            DB::table('permanent_items')->insert([
-                'no_nota' => $item->no_nota,
-                'barang' => $item->barang,
-                'qty' => $item->qty,
-                'created_at' => now(),
-                'updated_at' => now(),
+        $request->validate([
+            'id_users' => 'required|integer',
+            'id_retur' => 'required|integer',
+            'no_nota' => 'required|string',
+            'id_transaksi' => 'required|array',
+            'id_barang' => 'required|array',
+            'qty' => 'required|array',
+            'harga' => 'required|array',
+        ]);
+
+        $userId = $request->id_users;
+        $idRetur = $request->id_retur;
+        $noNota = $request->no_nota;
+        $idTransaksi = $request->id_transaksi;
+        $idBarang = $request->id_barang;
+        $qty = $request->qty;
+        $harga = $request->harga;
+
+        foreach ($idTransaksi as $index => $idTrans) {
+            DB::table('detail_retur')->insert([
+                'id_users' => $userId,
+                'id_retur' => $idRetur,
+                'id_transaksi' => $idTrans,
+                'id_barang' => $idBarang[$index],
+                'no_nota' => $noNota,
+                'qty' => $qty[$index],
+                'harga' => $harga[$index],
             ]);
         }
-    
+
         DB::table('temporary_items')
-            ->where('user_id', Auth::user()->id)
-            ->where('no_nota', $noNota)
+            ->where('user_id', $userId)
+            ->where('id_retur', $idRetur)
             ->delete();
-    
-        return redirect()->route('your.route')->with('success', 'Data berhasil disimpan permanen!');
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Data berhasil disimpan permanen!',
+            'status_code' => 200,
+        ]);
     }
     
 }
