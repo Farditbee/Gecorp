@@ -263,6 +263,11 @@
 
                 total.textContent = formatRupiah(apiResponse.totals || 0);
 
+                if (apiResponse.totals === 0) {
+                    chartContainer.innerHTML = '<p><b class="text-center text-danger">Data tidak ditemukan, silahkan pilih opsi filter lain.</b></p>';
+                    return;
+                }
+
                 const categories = {
                     daily: Array.from({
                         length: penjualan.length
@@ -318,6 +323,7 @@
                 const chart = new ApexCharts(chartContainer, chartOptions);
                 chart.render();
             };
+
 
             setDefaultMonth();
             populateYearOptions();
@@ -375,7 +381,6 @@
                 }
             }
         }
-
 
         function populateYearOptions() {
             const filterYear = document.getElementById('filter-year');
