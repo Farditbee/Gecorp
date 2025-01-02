@@ -207,26 +207,73 @@ class RetureController extends Controller
         }
     }
 
-    public function getTempoData()
+    public function getTempoData(Request $request)
     {
-        try {
-            $items = DataReture::all();
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-            return response()->json([
-                'error' => false,
-                'message' => 'Successfully',
-                'status_code' => 200,
-                'data' => $items,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching tempo data: ' . $e->getMessage());
+        $query = DataReture::query();
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Terjadi kesalahan saat mengambil data.',
-                'status_code' => 500,
-            ], 500);
+        $query->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(status) LIKE ?", ["%$searchTerm%"]);
+            });
         }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'id_users' => $item['id_users'],
+                'id_toko' => $item['id_toko'],
+                'no_nota' => $item['no_nota'],
+                'tgl_retur' => $item['tgl_retur'],
+                'status' => $item['status'],
+                'created_at' => $item['created_at'],
+                'updated_at' => $item['updated_at'],
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
     }
 
     public function saveTemporaryItems(Request $request)
