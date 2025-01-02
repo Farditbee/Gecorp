@@ -268,7 +268,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.getdatauser') }}', {
+                '{{ route('get.tempoData') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
