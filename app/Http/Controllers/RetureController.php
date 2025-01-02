@@ -265,8 +265,8 @@ class RetureController extends Controller
                 ]);
             }
 
-            DB::table('temporary_items')
-                ->where('user_id', $userId)
+            DB::table('temp_detail_retur')
+                ->where('id_users', $userId)
                 ->where('id_retur', $idRetur)
                 ->delete();
 
