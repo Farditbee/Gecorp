@@ -29,7 +29,7 @@
                                     <input type="text" id="nama_toko" name="nama_toko" placeholder="Contoh : Toko Sejahtera" class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <label for="singkatan" class="form-control-label">Singkatan Toko<span style="color: red">*</span></label>
+                                    <label for="singkatan" class="form-control-label">Singkatan<span style="color: red">*</span></label>
                                     <input type="text" id="singkatan" name="singkatan" placeholder="Maksimal 4 Karakter" class="form-control" value="{{ old('singkatan') }}">
                                     @error('singkatan')
                                         <small class="text-danger">{{ $message }}</small>
