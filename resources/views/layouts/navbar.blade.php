@@ -43,8 +43,6 @@
                         @endif
                         <li><a class="dropdown-item" href="{{ route('master.stockbarang.index') }}"><i
                                     class="fa fa-tasks"></i> Stock Barang</a></li>
-                        <li><a class="dropdown-item" href="{{ route('master.stockopname.index') }}"><i
-                                    class="fa fa-edit"></i> Stock Opname</a></li>
                         @if (Auth::user()->id_level == 1)
                         <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
                                     class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
