@@ -5,7 +5,6 @@
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
 @endsection
 
 @section('content')
@@ -40,17 +39,20 @@
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 5 Penjualan</h5>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div style="width: 200px;">
-                                            <select id="f-barang-toko"
-                                                class="filter-option form-select form-select-sm w-auto">
-                                                <option value="all">Semua Toko</option>
-                                                @foreach ($toko as $tokoData)
-                                                    <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}</option>
-                                                @endforeach
-                                            </select>
+                                    @if (auth()->user()->id_toko == 1)
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div style="width: 200px;">
+                                                <select id="f-barang-toko"
+                                                    class="filter-option form-select form-select-sm w-auto">
+                                                    <option value="all">Semua Toko</option>
+                                                    @foreach ($toko as $tokoData)
+                                                        <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                                 <div class="performance-scroll overflow-auto" style="height: 350px; position: relative;">
                                     <div class="card-body p-0">
@@ -131,16 +133,18 @@
                                                     <option value="yearly">Tahunan</option>
                                                 </select>
                                             </div>
-                                            <div style="width: 200px;">
-                                                <select id="f-penjualan-toko" name="nama_toko"
-                                                    class="filter-option form-select form-select-sm w-100">
-                                                    <option value="all">Semua Toko</option>
-                                                    @foreach ($toko as $tokoData)
-                                                        <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                            @if (auth()->user()->id_toko == 1)
+                                                <div style="width: 200px;">
+                                                    <select id="f-penjualan-toko" name="nama_toko"
+                                                        class="filter-option form-select form-select-sm w-100">
+                                                        <option value="all">Semua Toko</option>
+                                                        @foreach ($toko as $tokoData)
+                                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -155,8 +159,7 @@
 @endsection
 
 @section('asset_js')
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+    <script src="{{ asset('js/apexcharts.js') }}"></script>
 @endsection
 
 @section('js')
@@ -167,7 +170,9 @@
         async function getTotalPendapatan() {
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ asset('dummy/pendapatan.json') }}'
+                '{{ asset('dummy/pendapatan.json') }}', {
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                }
             ).then(function(response) {
                 return response;
             }).catch(function(error) {
@@ -186,9 +191,12 @@
         async function getLaporanPenjualan() {
             let filterParams = {};
 
-            if (customFilter['nama_toko']) {
+            if ('{{ auth()->user()->id_toko != 1 }}') {
+                filterParams.nama_toko = '{{ auth()->user()->id_toko }}';
+            } else if (customFilter['nama_toko']) {
                 filterParams.nama_toko = customFilter['nama_toko'];
             }
+
             if (customFilter['period']) {
                 filterParams.period = customFilter['period'];
             }
@@ -258,7 +266,7 @@
                 const categories = {
                     daily: Array.from({
                         length: penjualan.length
-                    }, (_, i) => `Day ${i + 1}`),
+                    }, (_, i) => `Tgl ${i + 1}`),
                     monthly: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                         'September', 'Oktober', 'November', 'Desember'
                     ],
@@ -311,6 +319,7 @@
                 chart.render();
             };
 
+            setDefaultMonth();
             populateYearOptions();
             updateChart(period, defaultYear, currentChartType);
 
@@ -355,10 +364,23 @@
             setActiveChartButton('chart-bar');
         }
 
+        function setDefaultMonth() {
+            const filterMonth = document.getElementById('filter-month');
+            const currentMonth = new Date().getMonth() + 1;
+
+            for (let option of filterMonth.options) {
+                if (parseInt(option.value) === currentMonth) {
+                    option.selected = true;
+                    break;
+                }
+            }
+        }
+
+
         function populateYearOptions() {
             const filterYear = document.getElementById('filter-year');
             const currentYear = new Date().getFullYear();
-            const startYear = currentYear - 10;
+            const startYear = 2000;
 
             let selectedYear = filterYear.value;
 
@@ -379,40 +401,12 @@
             }
         }
 
-        async function filterList() {
-            let dateRangePickerList = initializeDateRangePicker();
-
-            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                let startDate = dateRangePickerList.data('daterangepicker').startDate;
-                let endDate = dateRangePickerList.data('daterangepicker').endDate;
-
-                if (!startDate || !endDate) {
-                    startDate = null;
-                    endDate = null;
-                } else {
-                    startDate = startDate.startOf('day').toISOString();
-                    endDate = endDate.endOf('day').toISOString();
-                }
-
-                customFilter = {
-                    'startDate': $("#daterange").val() != '' ? startDate : '',
-                    'endDate': $("#daterange").val() != '' ? endDate : ''
-                };
-
-                defaultSearch = $('.tb-search').val();
-                defaultLimitPage = $("#limitPage").val();
-                currentPage = 1;
-
-                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                    customFilter);
-            });
-        }
-
         async function getTopPenjualan(customFilter2 = {}) {
             let filterParams = {};
 
-            if (customFilter2['id_toko']) {
+            if ('{{ auth()->user()->id_toko != 1 }}') {
+                filterParams.id_toko = '{{ auth()->user()->id_toko }}';
+            } else if (customFilter2['id_toko']) {
                 filterParams.id_toko = customFilter2['id_toko'];
             }
 
@@ -538,10 +532,12 @@
         async function initPageLoad() {
             await setDynamicButton();
             await getLaporanPenjualan();
-            await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month',
-                'filter-year'
-            ]);
             await getTopPenjualan();
+            if ('{{ auth()->user()->id_toko == 1 }}') {
+                await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month', 'filter-year']);
+            } else {
+                await selectList(['filter-period', 'filter-month', 'filter-year']);
+            }
             await filterSelect();
         }
     </script>
