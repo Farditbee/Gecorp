@@ -152,46 +152,81 @@ class RetureController extends Controller
 
         $user = Auth::user();
 
-        DB::table('temp_detail_retur')->insert([
-            'id_users' => $user->id,
-            'id_retur' => $request->input('id_retur'),
-            'id_transaksi' => $request->input('id_transaksi'),
-            'id_barang' => $request->input('id_barang'),
-            'no_nota' => $request->input('no_nota'),
-            'qty' => $request->input('qty'),
-            'harga' => $request->input('harga_jual'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
+            DB::table('temp_detail_retur')->insert([
+                'id_users' => $user->id,
+                'id_retur' => $request->input('id_retur'),
+                'id_transaksi' => $request->input('id_transaksi'),
+                'id_barang' => $request->input('id_barang'),
+                'no_nota' => $request->input('no_nota'),
+                'qty' => $request->input('qty'),
+                'harga' => $request->input('harga_jual'),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::commit();
+
+            return response()->json(['message' => 'Data berhasil disimpan sementara!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error storing temporary item: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data sementara.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
 
     public function getTemporaryItems($idReture)
     {
-        $items = DB::table('temp_detail_retur')
-            ->where('id_users', Auth::user()->id)
-            ->where('id_retur', $idReture)
-            ->get();
+        try {
+            $items = DB::table('temp_detail_retur')
+                ->where('id_users', Auth::user()->id)
+                ->where('id_retur', $idReture)
+                ->get();
 
-        return response()->json([
-            'error' => false,
-            'message' => 'Successfully',
-            'status_code' => 200,
-            'data' => $items,
-        ]);
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $items,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching temporary items: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengambil data sementara.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
 
     public function getTempoData()
     {
-        $items = DataReture::all();
+        try {
+            $items = DataReture::all();
 
-        return response()->json([
-            'error' => false,
-            'message' => 'Successfully',
-            'status_code' => 200,
-            'data' => $items,
-        ]);
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $items,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching tempo data: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengambil data.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
     
     public function saveTemporaryItems(Request $request)
@@ -213,28 +248,45 @@ class RetureController extends Controller
         $qty = $request->qty;
         $harga = $request->harga;
 
-        foreach ($idTransaksi as $index => $idTrans) {
-            DB::table('detail_retur')->insert([
-                'id_users' => $userId,
-                'id_retur' => $idRetur,
-                'id_transaksi' => $idTrans,
-                'id_barang' => $idBarang[$index],
-                'no_nota' => $noNota,
-                'qty' => $qty[$index],
-                'harga' => $harga[$index],
+        try {
+            DB::beginTransaction();
+
+            foreach ($idTransaksi as $index => $idTrans) {
+                DB::table('detail_retur')->insert([
+                    'id_users' => $userId,
+                    'id_retur' => $idRetur,
+                    'id_transaksi' => $idTrans,
+                    'id_barang' => $idBarang[$index],
+                    'no_nota' => $noNota,
+                    'qty' => $qty[$index],
+                    'harga' => $harga[$index],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::table('temporary_items')
+                ->where('user_id', $userId)
+                ->where('id_retur', $idRetur)
+                ->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil disimpan permanen!',
+                'status_code' => 200,
             ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error saving temporary items: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
         }
-
-        DB::table('temporary_items')
-            ->where('user_id', $userId)
-            ->where('id_retur', $idRetur)
-            ->delete();
-
-        return response()->json([
-            'error' => false,
-            'message' => 'Data berhasil disimpan permanen!',
-            'status_code' => 200,
-        ]);
     }
     
 }
