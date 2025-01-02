@@ -25,14 +25,6 @@
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
-
-                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
-                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
-                                        name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
-                                        <i class="fa fa-filter"></i> Filter
-                                    </button>
-                                </form>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
@@ -54,10 +46,9 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
-                                                <th class="text-wrap align-top">Tanggal Nota</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Tanggal Reture</th>
+                                                {{-- <th class="text-center text-wrap align-top">Action</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody id="listDataTable">
@@ -258,16 +249,96 @@
 
 @section('js')
     <script>
-        let customFilter = {};
+        let customFilter2 = {};
         let rowCount = 0;
         let dataTemp = {};
+
+        let title = 'Reture';
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listDataTable').html(loadingData());
+
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.getdatauser') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
+                let errorRow = `
+                <tr class="text-dark">
+                    <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                </tr>`;
+                $('#listDataTable').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
+        }
+
+        async function handleData(data) {
+
+            return {
+                id: data?.id ?? '-',
+                no_nota: data?.no_nota ?? '-',
+                tgl_retur: data?.tgl_retur ?? '-',
+            };
+        }
+
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.no_nota}</td>
+                        <td class="${classCol}">${element.tgl_retur}</td>
+                    </tr>`;
+            });
+
+            $('#listDataTable').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
+            renderPagination();
+        }
 
         function getExistingTransactionIds() {
             const transactionInputs = document.querySelectorAll('input[name="id_transaksi[]"]');
             return Array.from(transactionInputs).map(input => input.value);
         }
 
-        async function getData(customFilter = {}) {
+        async function getData(customFilter2 = {}) {
             const tbody = document.getElementById('listData');
 
             const loadingRow = document.querySelector('#listData .loading-row');
@@ -277,8 +348,8 @@
             }
 
             let filterParams = {};
-            if (customFilter['qrcode']) {
-                filterParams.qrcode = customFilter['qrcode'];
+            if (customFilter2['qrcode']) {
+                filterParams.qrcode = customFilter2['qrcode'];
             }
 
             let getDataRest = await renderAPI(
@@ -467,10 +538,10 @@
                 notificationAlert('info', 'Pemberitahuan', 'Masukkan QRCode terlebih dahulu.');
                 return;
             }
-            customFilter = {
+            customFilter2 = {
                 qrcode: qrcodeValue
             };
-            await getData(customFilter);
+            await getData(customFilter2);
         }
 
         async function setDatePicker() {
@@ -580,10 +651,14 @@
 
                     loadingPage(false);
                     if (postData.status >= 200 && postData.status < 300) {
-                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Berhasil');
+                        notificationAlert('success', 'Pemberitahuan', postData.data.message || 'Berhasil');
+                        setTimeout(async function() {
+                            await getListData();
+                        }, 500);
+                        $("#modal-form").modal("hide");
                     } else {
                         notificationAlert('error', 'Pemberitahuan', postData.message ||
-                        'Terjadi kesalahan');
+                            'Terjadi kesalahan');
                     }
                 } catch (error) {
                     loadingPage(false);
@@ -593,8 +668,8 @@
             });
         }
 
-
         async function initPageLoad() {
+            await getListData();
             await addData();
             await submitForm();
             await setDatePicker();

@@ -228,7 +228,7 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
     public function saveTemporaryItems(Request $request)
     {
         $request->validate([
@@ -265,8 +265,8 @@ class RetureController extends Controller
                 ]);
             }
 
-            DB::table('temporary_items')
-                ->where('user_id', $userId)
+            DB::table('temp_detail_retur')
+                ->where('id_users', $userId)
                 ->where('id_retur', $idRetur)
                 ->delete();
 
@@ -288,5 +288,5 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
 }
