@@ -107,6 +107,12 @@ class AuthController extends Controller
             $kasirQuery->whereBetween('tgl_transaksi', [$startDate, $endDate]);
         }
 
+        // Filter berdasarkan id_toko dari request atau tampilkan semua jika id_toko login = 1
+        $idToko = $request->input('id_toko', $user->id_toko);
+        if ($user->id_toko != 1) {
+            $kasirQuery->where('id_toko', $idToko);
+        }
+
         $kasir = $kasirQuery->get();
 
         // Ambil data barang dan member berdasarkan level user
@@ -114,13 +120,14 @@ class AuthController extends Controller
             $barang = StockBarang::all();
             $member = Member::all();
         } else {
-            $barang = DetailToko::where('id_toko', $user->id_toko)->get();
-            $member = Member::where('id_toko', $user->id_toko)->get();
+            $barang = DetailToko::where('id_toko', $idToko)->get();
+            $member = Member::where('id_toko', $idToko)->get();
         }
 
-        $totalSemuaNilai = Kasir::sum('total_nilai');
-
-        // dd($totalSemuaNilai);
+        // Hitung total nilai berdasarkan id_toko atau semua jika id_toko login = 1
+        $totalSemuaNilai = $user->id_toko == 1
+            ? Kasir::sum('total_nilai')
+            : Kasir::where('id_toko', $idToko)->sum('total_nilai');
 
         return view('dashboard', compact('menu', 'barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko', 'totalSemuaNilai'));
     }
