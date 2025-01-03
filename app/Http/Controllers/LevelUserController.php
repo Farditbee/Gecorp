@@ -118,7 +118,7 @@ class LevelUserController extends Controller
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
-        return redirect()->route('master.leveluser.index')->with('success', 'Sukses menambahkan Karyawan Baru');
+        return redirect()->route('master.leveluser.index')->with('success', 'Sukses menambahkan User Baru');
     }
 
     public function edit(String $id)

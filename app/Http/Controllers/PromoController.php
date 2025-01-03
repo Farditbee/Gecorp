@@ -6,6 +6,8 @@ use App\Models\Barang;
 use App\Models\Promo;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PromoController extends Controller
 {
@@ -145,11 +147,16 @@ class PromoController extends Controller
                 'dari' => $validatedData['dari'],
                 'sampai' => $validatedData['sampai'],
             ]);
+            return response()->json(['message' => 'Data berhasil disimpan!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error Tambah Data: ' . $e->getMessage());
 
-            return redirect()->back()->with('success', 'Promo berhasil disimpan!');
-        } catch (\Throwable $th) {
-
-            return redirect()->back()->with('error', 'Something gone wrong. ' . $th->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
         }
     }
 }
