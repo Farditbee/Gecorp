@@ -381,14 +381,15 @@ class RetureController extends Controller
         }
     }
 
-    public function deleteRowTable($id_retur)
+    public function deleteRowTable($id_barang, $id_transaksi)
     {
         try {
             DB::table('temp_detail_retur')
                 ->where('id_users', Auth::user()->id)
-                ->where('id_retur', $id_retur)
+                ->where('id_barang', $id_barang)
+                ->where('id_transaksi', $id_transaksi)
                 ->delete();
-
+    
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil dihapus!',
@@ -403,6 +404,11 @@ class RetureController extends Controller
                 'status_code' => 500,
             ], 500);
         }
+    }
+
+    public function updateNotaReture(Request $request)
+    {
+        $reture = $request->reture ? 'Cash' : 'Barang';
     }
 
 }
