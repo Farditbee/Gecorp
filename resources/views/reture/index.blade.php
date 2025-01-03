@@ -79,8 +79,8 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title h4" id="modal-title"></h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                        aria-hidden="true">&times;</span></button>
+                                <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                                    aria-label="Close"><i class="fa fa-xmark"></i></button>
                             </div>
                             <div class="modal-body">
                                 <div class="card-body">
@@ -121,7 +121,7 @@
                                                     </div>
 
                                                     <button type="submit" style="float: right" id="save-btn"
-                                                        class="btn btn-primary">
+                                                        class="btn btn-primary mt-4">
                                                         <span id="save-btn-text"><i class="fa fa-save"></i> Lanjut</span>
                                                         <span id="save-btn-spinner"
                                                             class="spinner-border spinner-border-sm" role="status"
@@ -213,7 +213,7 @@
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
-                                                                        <div class="form-group mt-4">
+                                                                        <div class="form-group mt-2" style="float: right">
                                                                             <button type="submit"
                                                                                 class="btn btn-success">
                                                                                 <i class="fa fa-save mr-2"></i>Simpan
