@@ -146,7 +146,7 @@
                             </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-hover m-0">
+                                    <table class="table table-striped m-0">
                                         <thead id="dynamicHeaders">
                                         </thead>
                                         <tbody id="listData">
