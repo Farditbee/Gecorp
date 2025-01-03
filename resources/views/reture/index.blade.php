@@ -537,33 +537,27 @@
             updateRowNumbers();
             handleEmptyState();
 
-            deleteRowTable(idRetur);
+            if (!dataTemp.id_retur) {
+                loadingPage(false);
+                notificationAlert('error', 'Pemberitahuan', 'ID Retur wajib diisi.');
+                return;
+            }
+
+            deleteRowTable(dataTemp.id_retur);
         }
 
-        function deleteRowTable(idRetur) {
-            fetch(`/admin/reture/deleteTemp/${idRetur}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    console.error('Error:', data.message);
-                    alert('Terjadi kesalahan saat menghapus data.');
-                } else {
-                    console.log('Success:', data.message);
-                    alert('Data berhasil dihapus!');
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan saat menghapus data.');
+        async function deleteRowTable(idRetur) {
+            let postDataRest = await renderAPI(
+                'DELETE',
+                `/admin/reture/deleteTemp/${idRetur}`
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
             });
         }
-            
+
         function updateRowNumbers() {
             const rows = document.querySelectorAll('#listData tr:not(.empty-row)');
             rowCount = 0;
