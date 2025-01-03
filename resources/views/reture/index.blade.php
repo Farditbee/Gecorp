@@ -48,7 +48,7 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Tanggal Reture</th>
-                                                {{-- <th class="text-center text-wrap align-top">Action</th> --}}
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listDataTable">
@@ -302,10 +302,64 @@
 
         async function handleData(data) {
 
+            let edit_button = '';
+
+            if (data.action === 'edit_temp') {
+                edit_button = `
+                    <a href='temp/edit/${data.id}' class="p-1 btn edit-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit Temp ${title}: ${data.no_nota}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Edit Temp</span>
+                        <div class="icon text-warning">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </a>`;
+            } else if (data.action === 'edit_detail') {
+                edit_button = `
+                    <a href='detail/edit/${data.id}' class="p-1 btn edit-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit Detail ${title}: ${data.no_nota}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Edit Detail</span>
+                        <div class="icon text-warning">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </a>`;
+            } else {
+                edit_button = `
+                    <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+            }
+
+            let delete_button = `
+            <a class="p-1 btn hapus-data action_button"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Hapus ${title}: ${data.nama_barang}"
+                data-id='${data.id}'
+                data-name='${data.nama_barang}'>
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
+
+            let action_buttons = '';
+            if (edit_button || delete_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-start">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 no_nota: data?.no_nota ?? '-',
                 tgl_retur: data?.tgl_retur ?? '-',
+                action_buttons,
             };
         }
 
@@ -323,6 +377,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.no_nota}</td>
                         <td class="${classCol}">${element.tgl_retur}</td>
+                        <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
             });
 
@@ -480,10 +535,35 @@
             }
 
             updateRowNumbers();
-
             handleEmptyState();
+
+            deleteRowTable(idRetur);
         }
 
+        function deleteRowTable(idRetur) {
+            fetch(`/admin/reture/deleteTemp/${idRetur}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Error:', data.message);
+                    alert('Terjadi kesalahan saat menghapus data.');
+                } else {
+                    console.log('Success:', data.message);
+                    alert('Data berhasil dihapus!');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Terjadi kesalahan saat menghapus data.');
+            });
+        }
+            
         function updateRowNumbers() {
             const rows = document.querySelectorAll('#listData tr:not(.empty-row)');
             rowCount = 0;
