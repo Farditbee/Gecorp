@@ -145,11 +145,9 @@ class PromoController extends Controller
                 'dari' => $validatedData['dari'],
                 'sampai' => $validatedData['sampai'],
             ]);
-
-            return redirect()->back()->with('success', 'Promo berhasil disimpan!');
         } catch (\Throwable $th) {
-
-            return redirect()->back()->with('error', 'Something gone wrong. ' . $th->getMessage());
+            return redirect()->route('master.promo.index')->with('error', $th->getMessage())->withInput();
         }
+        return redirect()->route('master.promo.index')->with('success', 'Sukses menambahkan promo Baru');
     }
 }

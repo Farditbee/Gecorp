@@ -92,6 +92,31 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+                <div class="alert alert-custom alert-dismissible fade show" role="alert">
+                    <h4 class="alert-heading">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                            class="bi bi-info-circle" viewBox="0 0 20 20">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                            <path
+                                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                        </svg>
+                        Informasi
+                    </h4>
+                    <div>
+                        <div class="text-bold d-flex align-items-center mb-2">
+                            <em class="fa fa-circle mx-1"></em>
+                            <span><strong class="fw-bold"></strong> Minimal : Minimal pembelian item agar promo nya aktif</span>
+                        </div>
+                        <div class="text-bold d-flex align-items-center mb-2">
+                            <em class="fa fa-circle mx-1"></em>
+                            <span><strong class="fw-bold"></strong> Jumlah : Total barang yang dipromokan, dan barang tersebut harus berkelipatan sebanyak item Minimal</span>
+                        </div>
+                        <div class="text-bold d-flex align-items-center">
+                            <em class="fa fa-circle mx-1"></em>
+                            <span><strong class="fw-bold"></strong> Diskon : Barang yang di diskon adalah hanya per item</span>
+                        </div>
+                    </div>
+                </div>
                 <div class="modal-body">
                     <form id="form-tambah-pembelian" action="{{ route('master.promo.store') }}" method="POST">
                         @csrf
@@ -99,20 +124,20 @@
                             <div class="col-3">
                                 <!-- Nama Supplier -->
                                 <div class="form-group">
-                                    <label for="barang" class="form-control-label">Nama Barang</label>
-                                    <select name="barang" id="barang">
-                                        <option value="" selected>Pilih Barang</option>
-                                        @foreach ($barang as $brg)
-                                            <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group">
                                     <label for="toko" class="form-control-label">Nama toko</label>
                                     <select name="toko" id="toko">
                                         <option value="" selected>Pilih Toko</option>
                                         @foreach ($toko as $tk)
                                             <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="barang" class="form-control-label">Nama Barang</label>
+                                    <select name="barang" id="barang">
+                                        <option value="" selected>Pilih Barang</option>
+                                        @foreach ($barang as $brg)
+                                            <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -133,7 +158,7 @@
                             </div>
 
                             <div class="col-3">
-                                <label for="id_supplier" class="form-control-label">diskon</label>
+                                <label for="id_supplier" class="form-control-label">Diskon</label>
                                 <input class="form-control" type="number" min='0' max='100' name="diskon"
                                     id="diskon">
                             </div>
@@ -357,7 +382,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_barang}</td>
                         <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.diskon}</td>
+                        <td class="${classCol}">${element.diskon} %</td>
                         <td class="${classCol}">${element.jumlah}</td>
                         <td class="${classCol}">${element.terjual}</td>
                         <td class="${classCol}">${element.dari}</td>

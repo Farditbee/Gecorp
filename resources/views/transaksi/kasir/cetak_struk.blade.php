@@ -1,4 +1,5 @@
-<style>/* Container utama */
+<style>
+    /* Container utama */
     .receipt-container {
         max-width: 300px;
         margin: 0 auto;
@@ -29,14 +30,14 @@
     /* Informasi transaksi */
     .receipt-info {
         font-size: 12px;
-        line-height: 1.6;
+        line-height: 1.2;
         margin-bottom: 10px;
     }
 
     .receipt-info .label {
         font-weight: bold;
         display: inline-block;
-        width: 90px;
+        width: 60px;
     }
 
     /* Tabel transaksi */
@@ -49,7 +50,7 @@
 
     .receipt-table th,
     .receipt-table td {
-        padding: 5px;
+        padding: 2px;
         border-bottom: 1px dotted #ccc;
         text-align: left;
     }
@@ -91,7 +92,68 @@
         display: block;
         clear: both;
     }
-    </style>
+
+    /* Media query untuk cetak */
+    @media print {
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .receipt-container {
+            max-width: none;
+            /* Hilangkan batasan lebar */
+            width: 80mm;
+            /* Lebar sesuai ukuran kertas */
+            padding: 5px;
+            border: none;
+            /* Hilangkan border */
+            background-color: #fff;
+            /* Pastikan latar belakang tetap putih */
+        }
+
+        .receipt-header h1 {
+            font-size: 16px;
+        }
+
+        .receipt-header p {
+            font-size: 10px;
+        }
+
+        .receipt-info {
+            font-size: 10px;
+        }
+
+        .receipt-table th,
+        .receipt-table td {
+            font-size: 10px;
+            padding: 1px;
+        }
+
+        .receipt-footer {
+            font-size: 9px;
+        }
+
+        /* Hilangkan margin dan padding default browser */
+        @page {
+            size: auto;
+            margin: 0;
+        }
+
+        .page-break {
+            display: none;
+            /* Tidak terlihat di layar */
+        }
+
+        @media print {
+            .page-break {
+                display: block;
+                page-break-after: always;
+                /* Hentikan cetak setelah elemen ini */
+            }
+        }
+    }
+</style>
 
 <div class="receipt-container">
     <div class="receipt-header">
@@ -102,14 +164,15 @@
     <div class="receipt-info">
         <p><span class="label">No Nota</span> : @php
             // Mendapatkan nilai no_nota dari database
-            $noNotaFormatted = substr($kasir->no_nota, 0, 6) . '-' . substr($kasir->no_nota, 6, 6) . '-' . substr($kasir->no_nota, 12);
+            $noNotaFormatted =
+                substr($kasir->no_nota, 0, 6) . '-' . substr($kasir->no_nota, 6, 6) . '-' . substr($kasir->no_nota, 12);
         @endphp
-        {{ $noNotaFormatted }}</p>
+            {{ $noNotaFormatted }}</p>
         <p><span class="label">Tanggal</span> : {{ $kasir->created_at->format('d-m-Y H:i:s') }}</p>
         <p><span class="label">Member</span> : {{ $kasir->id_member == 0 ? 'Guest' : $kasir->member->nama_member }}</p>
         <p><span class="label">Kasir</span> : {{ $kasir->users->nama }}</p>
     </div>
-<hr>
+    <hr>
     <table class="receipt-table">
         <thead>
             <tr>
@@ -121,12 +184,13 @@
         </thead>
         <tbody>
             @foreach ($detail_kasir->where('id_kasir', $kasir->id) as $dtks)
-            <tr>
-                <td>{{$loop->iteration}}</td>
-                <td>{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs) @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
-                <td class="price">-{{ number_format((float) $dtks->diskon, 0, '.', '.') }}</td>
-                <td class="price">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
-            </tr>
+                <tr>
+                    <td>{{ $loop->iteration }}</td>
+                    <td>{{ $dtks->barang->nama_barang }} ({{ $dtks->qty }}pcs)
+                        @.{{ number_format($dtks->harga, 0, '.', '.') }}</td>
+                    <td class="price">-{{ number_format((float) $dtks->diskon, 0, '.', '.') }}</td>
+                    <td class="price">{{ number_format($dtks->total_harga, 0, '.', '.') }}</td>
+                </tr>
             @endforeach
         </tbody>
         <tfoot>
@@ -145,7 +209,7 @@
             <tr>
                 <th scope="col" colspan="3" style="text-align:left">Total Bayar</th>
                 <th scope="col" class="price">
-                    {{ number_format(($kasir->total_nilai - $kasir->total_diskon), 0, '.', '.') }}</th>
+                    {{ number_format($kasir->total_nilai - $kasir->total_diskon, 0, '.', '.') }}</th>
             </tr>
             <tr>
                 <td colspan="3" style="text-align:left">Dibayar</td>
@@ -163,5 +227,21 @@
     <div class="receipt-footer">
         <p>Terima Kasih</p>
     </div>
+    <div class="page-break"></div>
 </div>
 
+<script>
+    window.onload = function() {
+    const container = document.querySelector('.receipt-container');
+    const footer = document.querySelector('.receipt-footer');
+
+    // Pastikan tinggi container sesuai dengan konten
+    if (container.scrollHeight > 210) {
+        footer.style.pageBreakAfter = 'always';
+    }
+
+    // Otomatis mencetak setelah halaman dimuat
+    window.print();
+};
+
+</script>

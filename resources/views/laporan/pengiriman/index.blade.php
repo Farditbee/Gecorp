@@ -74,55 +74,63 @@
                                                 </tr>
                                             @else
                                                 @foreach ($toko as $tk)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <td>{{ $tk->nama_toko }}</td>
-                                                        <td>
-                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
-                                                                @foreach ($tk->pengirimanSebagaiPengirim->unique('toko_penerima') as $pengiriman)
-                                                                    <div style="margin-bottom: 10px;">
-                                                                        {{ $pengiriman->tokos->nama_toko ?? '-' }}
-                                                                    </div>
-                                                                @endforeach
-                                                            @else
-                                                                <div>-</div>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
-                                                                @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $pengirimanGroup)
-                                                                    <div style="margin-bottom: 10px;">
-                                                                        {{ $pengirimanGroup->sum('total_item') }}
-                                                                    </div>
-                                                                @endforeach
-                                                            @else
-                                                                <div>0</div>
-                                                            @endif
-                                                        </td>
-                                                        <td>
-                                                            @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
-                                                                @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $pengirimanGroup)
-                                                                    <div style="margin-bottom: 10px;">
-                                                                        {{ number_format($pengirimanGroup->sum('total_nilai'), 0, '.', '.') }}
-                                                                    </div>
-                                                                @endforeach
-                                                            @else
-                                                                <div>0</div>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="table-success">
-                                                        <td></td>
-                                                        <td><strong>Total</strong></td>
-                                                        <td></td>
-                                                        <td><strong>{{ $tk->pengirimanSebagaiPengirim->sum('total_item') }}</strong></td>
-                                                        <td><strong>{{ number_format($tk->pengirimanSebagaiPengirim->sum('total_nilai'), 0, '.', '.') }}</strong></td>
-                                                    </tr>
+                                                    {{-- Filter hanya untuk user dengan id_toko selain 1 --}}
+                                                    @if (auth()->user()->id_toko == 1 || $tk->id == auth()->user()->id_toko)
+                                                        <tr>
+                                                            <td>{{ $loop->iteration }}</td>
+                                                            <td>{{ $tk->nama_toko }}</td>
+                                                            <td>
+                                                                @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                    @foreach ($tk->pengirimanSebagaiPengirim->unique('toko_penerima') as $pengiriman)
+                                                                        @if (auth()->user()->id_toko == 1 || $pengiriman->toko_penerima == auth()->user()->id_toko)
+                                                                            <div style="margin-bottom: 10px;">
+                                                                                {{ $pengiriman->tokos->nama_toko ?? '-' }}
+                                                                            </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div>-</div>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                    @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $tokoPenerimaId => $pengirimanGroup)
+                                                                        @if (auth()->user()->id_toko == 1 || $tokoPenerimaId == auth()->user()->id_toko)
+                                                                            <div style="margin-bottom: 10px;">
+                                                                                {{ $pengirimanGroup->sum('total_item') }}
+                                                                            </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div>0</div>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if ($tk->pengirimanSebagaiPengirim->isNotEmpty())
+                                                                    @foreach ($tk->pengirimanSebagaiPengirim->groupBy('toko_penerima') as $tokoPenerimaId => $pengirimanGroup)
+                                                                        @if (auth()->user()->id_toko == 1 || $tokoPenerimaId == auth()->user()->id_toko)
+                                                                            <div style="margin-bottom: 10px;">
+                                                                                {{ number_format($pengirimanGroup->sum('total_nilai'), 0, '.', '.') }}
+                                                                            </div>
+                                                                        @endif
+                                                                    @endforeach
+                                                                @else
+                                                                    <div>0</div>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                        <tr class="table-success">
+                                                            <td></td>
+                                                            <td><strong>Total</strong></td>
+                                                            <td></td>
+                                                            <td><strong>{{ $tk->pengirimanSebagaiPengirim->sum('total_item') }}</strong></td>
+                                                            <td><strong>{{ number_format($tk->pengirimanSebagaiPengirim->sum('total_nilai'), 0, '.', '.') }}</strong></td>
+                                                        </tr>
+                                                    @endif
                                                 @endforeach
                                             @endif
                                         </tbody>
                                     </table>
-
 
                                     <div class="d-flex justify-content-between align-items-center mb-3">
 
