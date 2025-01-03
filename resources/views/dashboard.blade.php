@@ -57,7 +57,7 @@
                                 <div class="performance-scroll overflow-auto" style="height: 350px; position: relative;">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
-                                            <table class="table table-hover m-b-0 without-header">
+                                            <table class="table table-striped m-b-0 without-header">
                                                 <tbody id="listData">
                                                 </tbody>
                                             </table>

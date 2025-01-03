@@ -99,10 +99,10 @@
 
         /* Efek hover untuk baris */
         .table.table-striped tbody tr:hover {
-            background-color: #c3d6e6d3;
+            background-color: #99a8b3d3;
             /* Warna background seluruh baris saat di-hover */
             transition: background-color 0.3s ease;
-            transform: scale(1.01);
+            transform: scale(1.008);
             transform-origin: center;
         }
 

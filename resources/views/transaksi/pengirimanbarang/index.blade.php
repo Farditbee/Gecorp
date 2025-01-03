@@ -52,7 +52,7 @@
                             <x-adminlte-alerts />
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-hover m-0">
+                                    <table class="table table-striped m-0">
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
