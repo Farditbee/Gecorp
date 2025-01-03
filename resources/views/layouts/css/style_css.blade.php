@@ -106,6 +106,13 @@
             transform-origin: center;
         }
 
+        .table-striped thead {
+            background-color: #007bff;
+            color: #1900ff;
+            border-bottom: 2px solid #0056b3;
+            /* Garis bawah */
+        }
+
         /* Informasi tambahan di luar tabel */
         .info-wrapper {
             max-width: 100%;
