@@ -320,7 +320,7 @@ class RetureController extends Controller
             'pagination' => $data['meta']
         ], 200);
     }
-    
+
     public function saveTemporaryItems(Request $request)
     {
         $request->validate([
@@ -380,5 +380,5 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
 }
