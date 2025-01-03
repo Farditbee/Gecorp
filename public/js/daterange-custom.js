@@ -15,9 +15,6 @@ function initializeDateRangePicker() {
             daysOfWeek: ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
             monthNames: monthNames
         },
-        maxSpan: {
-            days: 31
-        },
         opens: 'center',
         ranges: {},
         showCustomRangeLabel: false,

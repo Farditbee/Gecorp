@@ -333,9 +333,68 @@
             renderPagination();
         }
 
-        function getExistingTransactionIds() {
-            const transactionInputs = document.querySelectorAll('input[name="id_transaksi[]"]');
-            return Array.from(transactionInputs).map(input => input.value);
+        function getExistingTransactionItemPairs() {
+            const rows = document.querySelectorAll('#listData tr');
+            return Array.from(rows).map(row => {
+                const idBarang = row.querySelector('input[name="id_barang[]"]')?.value;
+                const idTransaksi = row.querySelector('input[name="id_transaksi[]"]')?.value;
+                return {
+                    idBarang,
+                    idTransaksi
+                };
+            });
+        }
+
+        function addRowToTable(data) {
+            const tbody = document.getElementById('listData');
+            const loadingRow = document.querySelector('#listData .loading-row');
+            if (loadingRow) {
+                tbody.removeChild(loadingRow);
+            }
+
+            const existingPairs = getExistingTransactionItemPairs();
+
+            const isDuplicate = existingPairs.some(pair =>
+                pair.idBarang === data.id_barang && pair.idTransaksi === data.id_transaksi
+            );
+
+            if (isDuplicate) {
+                notificationAlert('info', 'Pemberitahuan',
+                    'Data dengan kombinasi ID Barang dan ID Transaksi ini sudah ada.');
+                return;
+            }
+
+            rowCount++;
+            const tr = document.createElement('tr');
+            const rowId = `row-${rowCount}`;
+            tr.id = rowId;
+
+            tr.innerHTML = `
+                <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow('${rowId}')">
+                        <i class="fa fa-trash-alt"></i>
+                    </button>
+                </td>
+                <td class="text-wrap align-top">
+                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
+                    <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
+                </td>
+                <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top">
+                    <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
+                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                </td>
+                <td class="text-wrap align-top text-center">
+                    <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
         }
 
         async function getData(customFilter2 = {}) {
@@ -400,49 +459,6 @@
             } catch (error) {
                 notificationAlert('error', 'Kesalahan', 'Terjadi kesalahan saat memposting data');
             }
-        }
-
-        function addRowToTable(data) {
-            const tbody = document.getElementById('listData');
-
-            const loadingRow = document.querySelector('#listData .loading-row');
-            if (loadingRow) {
-                tbody.removeChild(loadingRow);
-            }
-
-            const existingIds = getExistingTransactionIds();
-
-            rowCount++;
-            const tr = document.createElement('tr');
-            const rowId = `row-${rowCount}`;
-            tr.id = rowId;
-
-            tr.innerHTML = `
-                <td class="text-wrap align-top text-center">${rowCount}</td>
-                <td class="text-wrap align-top text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow('${rowId}')">
-                        <i class="fa fa-trash-alt"></i>
-                    </button>
-                </td>
-                <td class="text-wrap align-top">
-                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
-                    <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
-                </td>
-                <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top">
-                    <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
-                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
-                </td>
-                <td class="text-wrap align-top text-center">
-                    <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
         }
 
         function setSortable() {
