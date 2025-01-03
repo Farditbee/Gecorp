@@ -184,5 +184,4 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
     });
-
 });

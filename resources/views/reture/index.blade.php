@@ -407,18 +407,6 @@
                 tbody.removeChild(loadingRow);
             }
 
-            const existingPairs = getExistingTransactionItemPairs();
-
-            const isDuplicate = existingPairs.some(pair =>
-                pair.idBarang === data.id_barang && pair.idTransaksi === data.id_transaksi
-            );
-
-            if (isDuplicate) {
-                notificationAlert('info', 'Pemberitahuan',
-                    'Data dengan kombinasi ID Barang dan ID Transaksi ini sudah ada.');
-                return;
-            }
-
             rowCount++;
             const tr = document.createElement('tr');
             const rowId = `row-${rowCount}`;
@@ -427,7 +415,8 @@
             tr.innerHTML = `
                 <td class="text-wrap align-top text-center">${rowCount}</td>
                 <td class="text-wrap align-top text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow('${rowId}')">
+                    <button type="button" class="btn btn-danger btn-sm"
+                        onclick="removeRow({ rowId: '${rowId}', id_transaksi: '${data.id_transaksi}', id_barang: '${data.id_barang}' })">
                         <i class="fa fa-trash-alt"></i>
                     </button>
                 </td>
@@ -483,9 +472,27 @@
                 if (data) {
                     $('#info-input').html('Masukkan QR Code lain, jika ingin menambah reture');
 
-                    await postDataToTempStore(data);
-                    addRowToTable(data);
-                    resetQRCodeInput();
+                    const existingPairs = getExistingTransactionItemPairs();
+
+                    const isDuplicate = existingPairs.some(pair =>
+                        pair.idBarang == data.id_barang && pair.idTransaksi == data.id_transaksi
+                    );
+
+                    if (isDuplicate) {
+                        const tbody = document.getElementById('listData');
+                        const loadingRow = document.querySelector('#listData .loading-row');
+                        if (loadingRow) {
+                            tbody.removeChild(loadingRow);
+                        }
+                        notificationAlert('info', 'Pemberitahuan',
+                            'Data dengan kombinasi ID Barang dan ID Transaksi ini sudah ada.');
+                        return;
+                    } else {
+                        await addRowToTable(data);
+                        await postDataToTempStore(data);
+                        resetQRCodeInput();
+                    }
+
                 } else {
                     handleEmptyState();
                 }
@@ -506,9 +513,7 @@
                     }
                 );
 
-                if (response.status >= 200 && response.status < 300) {
-                    console.log('Data successfully posted to tempStore');
-                } else {
+                if (response.status >= 200 && response.status < 300) {} else {
                     notificationAlert('info', 'Pemberitahuan', 'Gagal menyimpan data ke TempStore');
                 }
             } catch (error) {
@@ -528,34 +533,39 @@
             });
         }
 
-        function removeRow(rowId) {
+        function removeRow(rowData) {
+            const {
+                rowId,
+                id_transaksi,
+                id_barang
+            } = rowData;
+
             const row = document.getElementById(rowId);
             if (row) {
-                row.remove();
+                row.remove()
+                updateRowNumbers();
+                handleEmptyState();
             }
 
-            updateRowNumbers();
-            handleEmptyState();
-
-            if (!dataTemp.id_retur) {
-                loadingPage(false);
-                notificationAlert('error', 'Pemberitahuan', 'ID Retur wajib diisi.');
-                return;
-            }
-
-            deleteRowTable(dataTemp.id_retur);
+            deleteRowTable({
+                id_transaksi,
+                id_barang
+            });
         }
 
-        async function deleteRowTable(idRetur) {
-            let postDataRest = await renderAPI(
-                'DELETE',
-                `/admin/reture/deleteTemp/${idRetur}`
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                let resp = error.response;
-                return resp;
-            });
+        async function deleteRowTable(data) {
+            try {
+                const postDataRest = await renderAPI(
+                    'DELETE',
+                    `/admin/reture/deleteTemp/`,
+                    data
+                );
+                if (postDataRest && postDataRest.status === 200) {}
+            } catch (error) {
+                const resp = error.response;
+                const errorMessage = resp?.data?.message || 'Terjadi kesalahan saat menghapus data.';
+                notificationAlert('error', 'Kesalahan', errorMessage);
+            }
         }
 
         function updateRowNumbers() {
@@ -582,7 +592,7 @@
                 const emptyRow = document.createElement('tr');
                 emptyRow.className = 'empty-row';
                 emptyRow.innerHTML = `
-                <td colspan="8" class="text-center font-weight-bold">
+                <td colspan="10" class="text-center font-weight-bold">
                     <span class="badge badge-info" style="font-size: 14px;">
                         <i class="fa fa-circle-info mr-2"></i>Silahkan masukkan QR-Code terlebih dahulu.
                     </span>
