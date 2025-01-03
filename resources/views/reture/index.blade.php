@@ -22,9 +22,9 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
+                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
                                     <i class="fa fa-plus-circle"></i> Tambah
-                                </a>
+                                </button>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">

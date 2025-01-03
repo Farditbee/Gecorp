@@ -74,7 +74,9 @@ class PromoController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
+                'id_barang' => $item['barang']->id_barang,
                 'nama_barang' => $item['barang']->nama_barang,
+                'id_toko' => $item['toko']->id_toko ?? null,
                 'nama_toko' => $item['toko']->nama_toko ?? "Tak Ada Toko",
                 'minimal' => $item->minimal,
                 'diskon' => $item->diskon,
