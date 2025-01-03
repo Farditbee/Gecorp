@@ -515,7 +515,7 @@
                                                         <td class="price-column">
                                                             {{ number_format($ksr->total_diskon, 0, '.', '.') }}</td>
                                                     </tr>
-                                                    <tr>
+                                                    <tr style="background-color: rgba(145, 145, 145, 0.289);">
                                                         <th scope="col" colspan="3" style="text-align:left">Total
                                                         </th>
                                                         <th scope="col" class="price-column">

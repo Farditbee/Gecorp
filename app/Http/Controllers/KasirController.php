@@ -125,7 +125,7 @@ class KasirController extends Controller
                 'no_nota' => $item->no_nota,
                 'total_item' => $item->total_item,
                 'metode' => $item->metode,
-                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
+                'total_nilai' => 'Rp. ' . number_format($item->total_nilai - $item->total_diskon, 0, '.', '.'),
             ];
         });
 
