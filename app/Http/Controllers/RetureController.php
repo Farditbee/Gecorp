@@ -381,13 +381,21 @@ class RetureController extends Controller
         }
     }
 
-    public function deleteRowTable($id_barang, $id_transaksi)
+    public function deleteRowTable(Request $request)
     {
+        $request->validate([
+            'id_barang' => 'required|integer',
+            'id_transaksi' => 'required|integer',
+        ]);
+
+        $userId = Auth::user()->id;
+
         try {
+            
             DB::table('temp_detail_retur')
-                ->where('id_users', Auth::user()->id)
-                ->where('id_barang', $id_barang)
-                ->where('id_transaksi', $id_transaksi)
+                ->where('id_users', $userId)
+                ->where('id_barang', $request->id_barang)
+                ->where('id_transaksi', $request->id_transaksi)
                 ->delete();
     
             return response()->json([
