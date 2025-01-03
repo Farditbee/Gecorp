@@ -196,7 +196,7 @@
                     `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
             } else if (data?.status === 'Progress') {
                 status =
-                    `<span class="badge badge-warning custom-badge"><i class="mx-1 fa fa-spinner"></i>Progress</span>`;
+                    `<span class="badge badge-warning custom-badge"><i class="mx-1 fa fa-spinner"></i>Proses</span>`;
             } else if (data?.status === 'Gagal') {
                 status =
                     `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;

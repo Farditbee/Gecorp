@@ -224,6 +224,16 @@
                                                 @endforeach
                                             </select>
                                     </div>
+                                    <div class="form-group">
+                                        <label for="status" class="form-control-label">Status
+                                            <select name="status" id="status" class="form-control">
+                                                @foreach ($promo as $prm)
+                                                <option value="" disabled>Pilih Status</option>
+                                                <option value="ongoing">On Going</option>
+                                                <option value="done">Selesai</option>
+                                                @endforeach
+                                            </select>
+                                    </div>
                                 </div>
 
                                 <div class="col-3">

@@ -182,7 +182,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/temporary-items/{id}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
         Route::get('/temporary-Data', [RetureController::class, 'getTempoData'])->name('get.tempoData');
         Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
+        Route::delete('/reture/deleteTemp/{id_reture}', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
     });
 
 });
-

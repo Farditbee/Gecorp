@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
+use App\Models\DetailRetur;
 use App\Models\Kasir;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -207,6 +208,30 @@ class RetureController extends Controller
         }
     }
 
+    public function getRetureItems($idReture)
+    {
+        try {
+            $items = DetailRetur::where('id_users', Auth::user()->id)
+                                ->where('id_retur', $idReture)
+                                ->get();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $items,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching temporary items: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengambil data Reture.',
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
     public function getTempoData(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
@@ -255,6 +280,25 @@ class RetureController extends Controller
         }
 
         $mappedData = collect($data['data'])->map(function ($item) {
+            // Cek apakah ada data no_nota yang sama di tabel temp_detail_retur
+            $existsInTemp = DB::table('temp_detail_retur')
+                ->where('no_nota', $item['no_nota'])
+                ->exists();
+        
+            // Cek apakah ada data no_nota yang sama di tabel detail_retur
+            $existsInDetail = DetailRetur::where('no_nota', $item['no_nota'])
+                ->exists();
+        
+            // Tentukan nilai action berdasarkan hasil pengecekan
+            $action = 'none';
+            if ($existsInTemp) {
+                $action = 'edit_temp';
+            } elseif ($existsInDetail) {
+                $action = 'edit_detail';
+            } else {
+                $action = 'edit_temp';
+            }
+        
             return [
                 'id' => $item['id'],
                 'id_users' => $item['id_users'],
@@ -264,6 +308,7 @@ class RetureController extends Controller
                 'status' => $item['status'],
                 'created_at' => $item['created_at'],
                 'updated_at' => $item['updated_at'],
+                'action' => $action,
             ];
         });
 
@@ -331,6 +376,30 @@ class RetureController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function deleteRowTable($id_retur)
+    {
+        try {
+            DB::table('temp_detail_retur')
+                ->where('id_users', Auth::user()->id)
+                ->where('id_retur', $id_retur)
+                ->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil dihapus!',
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting row: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menghapus data.',
                 'status_code' => 500,
             ], 500);
         }
