@@ -80,7 +80,6 @@
                                         <tr>
                                             <td>
                                                 @if ($detail->status == 'success')
-                                                <!-- Jika status sudah 'success', tampilkan badge -->
                                                 <span class="badge badge-success">Success</span>
                                                 @else
                                                 <select name="status_detail[{{ $detail->id }}]" id="status_detail_{{ $detail->id }}" class="form-control status-select">

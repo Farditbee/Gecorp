@@ -180,6 +180,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reture/updateStore', [RetureController::class, 'updateStore'])->name('reture.updateStore');
         Route::post('/reture/tempStore', [RetureController::class, 'store_temp_item'])->name('reture.tempStore');
         Route::get('/temporary-items/{id}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
+        Route::get('/temporary-Data', [RetureController::class, 'getTempoData'])->name('get.tempoData');
         Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
     });
 

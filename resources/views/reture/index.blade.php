@@ -25,14 +25,6 @@
                                 <a class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
-
-                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
-                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
-                                        name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit">
-                                        <i class="fa fa-filter"></i> Filter
-                                    </button>
-                                </form>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
@@ -54,10 +46,9 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
-                                                <th class="text-wrap align-top">Tanggal Nota</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Tanggal Reture</th>
+                                                {{-- <th class="text-center text-wrap align-top">Action</th> --}}
                                             </tr>
                                         </thead>
                                         <tbody id="listDataTable">
@@ -88,8 +79,8 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <h5 class="modal-title h4" id="modal-title"></h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                        aria-hidden="true">&times;</span></button>
+                                <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                                    aria-label="Close"><i class="fa fa-xmark"></i></button>
                             </div>
                             <div class="modal-body">
                                 <div class="card-body">
@@ -130,7 +121,7 @@
                                                     </div>
 
                                                     <button type="submit" style="float: right" id="save-btn"
-                                                        class="btn btn-primary">
+                                                        class="btn btn-primary mt-4">
                                                         <span id="save-btn-text"><i class="fa fa-save"></i> Lanjut</span>
                                                         <span id="save-btn-spinner"
                                                             class="spinner-border spinner-border-sm" role="status"
@@ -222,7 +213,7 @@
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
-                                                                        <div class="form-group mt-4">
+                                                                        <div class="form-group mt-2" style="float: right">
                                                                             <button type="submit"
                                                                                 class="btn btn-success">
                                                                                 <i class="fa fa-save mr-2"></i>Simpan
@@ -258,16 +249,155 @@
 
 @section('js')
     <script>
-        let customFilter = {};
+        let customFilter2 = {};
         let rowCount = 0;
         let dataTemp = {};
 
-        function getExistingTransactionIds() {
-            const transactionInputs = document.querySelectorAll('input[name="id_transaksi[]"]');
-            return Array.from(transactionInputs).map(input => input.value);
+        let title = 'Reture';
+        let defaultLimitPage = 10;
+        let currentPage = 1;
+        let totalPage = 1;
+        let defaultAscending = 0;
+        let defaultSearch = '';
+        let customFilter = {};
+
+        async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
+            $('#listDataTable').html(loadingData());
+
+            let filterParams = {};
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('get.tempoData') }}', {
+                    page: page,
+                    limit: limit,
+                    ascending: ascending,
+                    search: search,
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let handleDataArray = await Promise.all(
+                    getDataRest.data.data.map(async item => await handleData(item))
+                );
+                await setListData(handleDataArray, getDataRest.data.pagination);
+            } else {
+                let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
+                let errorRow = `
+                <tr class="text-dark">
+                    <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                </tr>`;
+                $('#listDataTable').html(errorRow);
+                $('#countPage').text("0 - 0");
+                $('#totalPage').text("0");
+            }
         }
 
-        async function getData(customFilter = {}) {
+        async function handleData(data) {
+
+            return {
+                id: data?.id ?? '-',
+                no_nota: data?.no_nota ?? '-',
+                tgl_retur: data?.tgl_retur ?? '-',
+            };
+        }
+
+        async function setListData(dataList, pagination) {
+            totalPage = pagination.total_pages;
+            currentPage = pagination.current_page;
+            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
+            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
+
+            let getDataTable = '';
+            let classCol = 'align-center text-dark text-wrap';
+            dataList.forEach((element, index) => {
+                getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.no_nota}</td>
+                        <td class="${classCol}">${element.tgl_retur}</td>
+                    </tr>`;
+            });
+
+            $('#listDataTable').html(getDataTable);
+            $('#totalPage').text(pagination.total);
+            $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
+            renderPagination();
+        }
+
+        function getExistingTransactionItemPairs() {
+            const rows = document.querySelectorAll('#listData tr');
+            return Array.from(rows).map(row => {
+                const idBarang = row.querySelector('input[name="id_barang[]"]')?.value;
+                const idTransaksi = row.querySelector('input[name="id_transaksi[]"]')?.value;
+                return {
+                    idBarang,
+                    idTransaksi
+                };
+            });
+        }
+
+        function addRowToTable(data) {
+            const tbody = document.getElementById('listData');
+            const loadingRow = document.querySelector('#listData .loading-row');
+            if (loadingRow) {
+                tbody.removeChild(loadingRow);
+            }
+
+            const existingPairs = getExistingTransactionItemPairs();
+
+            const isDuplicate = existingPairs.some(pair =>
+                pair.idBarang === data.id_barang && pair.idTransaksi === data.id_transaksi
+            );
+
+            if (isDuplicate) {
+                notificationAlert('info', 'Pemberitahuan',
+                    'Data dengan kombinasi ID Barang dan ID Transaksi ini sudah ada.');
+                return;
+            }
+
+            rowCount++;
+            const tr = document.createElement('tr');
+            const rowId = `row-${rowCount}`;
+            tr.id = rowId;
+
+            tr.innerHTML = `
+                <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top text-center">
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow('${rowId}')">
+                        <i class="fa fa-trash-alt"></i>
+                    </button>
+                </td>
+                <td class="text-wrap align-top">
+                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
+                    <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
+                </td>
+                <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top">
+                    <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
+                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                </td>
+                <td class="text-wrap align-top text-center">
+                    <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        }
+
+        async function getData(customFilter2 = {}) {
             const tbody = document.getElementById('listData');
 
             const loadingRow = document.querySelector('#listData .loading-row');
@@ -277,8 +407,8 @@
             }
 
             let filterParams = {};
-            if (customFilter['qrcode']) {
-                filterParams.qrcode = customFilter['qrcode'];
+            if (customFilter2['qrcode']) {
+                filterParams.qrcode = customFilter2['qrcode'];
             }
 
             let getDataRest = await renderAPI(
@@ -329,49 +459,6 @@
             } catch (error) {
                 notificationAlert('error', 'Kesalahan', 'Terjadi kesalahan saat memposting data');
             }
-        }
-
-        function addRowToTable(data) {
-            const tbody = document.getElementById('listData');
-
-            const loadingRow = document.querySelector('#listData .loading-row');
-            if (loadingRow) {
-                tbody.removeChild(loadingRow);
-            }
-
-            const existingIds = getExistingTransactionIds();
-
-            rowCount++;
-            const tr = document.createElement('tr');
-            const rowId = `row-${rowCount}`;
-            tr.id = rowId;
-
-            tr.innerHTML = `
-                <td class="text-wrap align-top text-center">${rowCount}</td>
-                <td class="text-wrap align-top text-center">
-                    <button type="button" class="btn btn-danger btn-sm" onclick="removeRow('${rowId}')">
-                        <i class="fa fa-trash-alt"></i>
-                    </button>
-                </td>
-                <td class="text-wrap align-top">
-                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
-                    <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
-                </td>
-                <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top">
-                    <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
-                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
-                </td>
-                <td class="text-wrap align-top text-center">
-                    <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
-                </td>
-            `;
-
-            tbody.appendChild(tr);
         }
 
         function setSortable() {
@@ -467,10 +554,10 @@
                 notificationAlert('info', 'Pemberitahuan', 'Masukkan QRCode terlebih dahulu.');
                 return;
             }
-            customFilter = {
+            customFilter2 = {
                 qrcode: qrcodeValue
             };
-            await getData(customFilter);
+            await getData(customFilter2);
         }
 
         async function setDatePicker() {
@@ -580,10 +667,14 @@
 
                     loadingPage(false);
                     if (postData.status >= 200 && postData.status < 300) {
-                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Berhasil');
+                        notificationAlert('success', 'Pemberitahuan', postData.data.message || 'Berhasil');
+                        setTimeout(async function() {
+                            await getListData();
+                        }, 500);
+                        $("#modal-form").modal("hide");
                     } else {
                         notificationAlert('error', 'Pemberitahuan', postData.message ||
-                        'Terjadi kesalahan');
+                            'Terjadi kesalahan');
                     }
                 } catch (error) {
                     loadingPage(false);
@@ -593,8 +684,8 @@
             });
         }
 
-
         async function initPageLoad() {
+            await getListData();
             await addData();
             await submitForm();
             await setDatePicker();

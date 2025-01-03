@@ -53,60 +53,20 @@
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
-            <div class="alert alert-custom alert-dismissible fade show" role="alert">
-                <h4 class="alert-heading">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                        class="bi bi-info-circle" viewBox="0 0 20 20">
-                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
-                        <path
-                            d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                    </svg>
-                    Informasi
-                </h4>
-                <div>
-                    <div class="text-bold d-flex align-items-center mb-2">
-                        <em class="fa fa-circle mx-1"></em>
-                        <span>
-                            Untuk Filter Data, silahkan klik tombol
-                            <strong><em class="fa fa-filter mx-1"></em>Filter</strong> lalu isi inputan dan klik tombol
-                            <strong><em class="fa fa-magnifying-glass mx-1"></em>Cari</strong> untuk submit
-                        </span>
-                    </div>
-                    <div class="text-bold d-flex align-items-center mb-2">
-                        <em class="fa fa-circle mx-1"></em>
-                        <div
-                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a8e6a1, #66ff66); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                        </div>
-                        <span><strong class="fw-bold"><i class="fa fa-box"></i></strong> Jumlah stock barang yang
-                            tersisa</span>
-                    </div>
-                    <div class="text-bold d-flex align-items-center mb-2">
-                        <em class="fa fa-circle mx-1"></em>
-                        <div
-                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #fff9a1, #ffff33); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                        </div>
-                        <span><strong class="fw-bold"><i class="fa fa-truck-fast"></i></strong> Jumlah barang yang sedang
-                            dikirimkan</span>
-                    </div>
-                    <div class="text-bold d-flex align-items-center">
-                        <em class="fa fa-circle mx-1"></em>
-                        <div
-                            style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a1e9ff, #00ccff); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                        </div>
-                        <span><strong class="fw-bold"><i class="fa fa-clock"></i></strong> Penjualan terakhir dari stock
-                            barang yang
-                            tersisa dalam satuan hari</span>
-                    </div>
-                </div>
-            </div>
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
-                                data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
-                                <i class="fa fa-filter"></i> Filter
-                            </button>
+                            <div class="d-flex gap-1">
+                                <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                    data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                                <button class="btn-dynamic btn btn-outline-primary mx-2" type="button" data-toggle="collapse"
+                                    data-target="#info-collapse" aria-expanded="false" aria-controls="info-collapse">
+                                    <i class="fa fa-circle-info"></i> Informasi
+                                </button>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 150px;">
@@ -119,19 +79,71 @@
                             </div>
                         </div>
                         <div class="content">
+                            <div class="collapse px-4 pt-3" id="info-collapse">
+                                <div class="alert alert-custom alert-dismissible fade show" role="alert">
+                                    <h4 class="alert-heading">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                            fill="currentColor" class="bi bi-info-circle" viewBox="0 0 20 20">
+                                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
+                                            <path
+                                                d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
+                                        </svg>
+                                        Informasi
+                                    </h4>
+                                    <div>
+                                        <div class="text-bold d-flex align-items-center mb-2">
+                                            <em class="fa fa-circle mx-1"></em>
+                                            <span>
+                                                Untuk Filter Data, silahkan klik tombol
+                                                <strong><em class="fa fa-filter mx-1"></em>Filter</strong> lalu isi inputan
+                                                dan klik tombol
+                                                <strong><em class="fa fa-magnifying-glass mx-1"></em>Cari</strong> untuk
+                                                submit
+                                            </span>
+                                        </div>
+                                        <div class="text-bold d-flex align-items-center mb-2">
+                                            <em class="fa fa-circle mx-1"></em>
+                                            <div
+                                                style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a8e6a1, #66ff66); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                                            </div>
+                                            <span><strong class="fw-bold"><i class="fa fa-box"></i></strong> Jumlah stock
+                                                barang yang
+                                                tersisa</span>
+                                        </div>
+                                        <div class="text-bold d-flex align-items-center mb-2">
+                                            <em class="fa fa-circle mx-1"></em>
+                                            <div
+                                                style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #fff9a1, #ffff33); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                                            </div>
+                                            <span><strong class="fw-bold"><i class="fa fa-truck-fast"></i></strong> Jumlah
+                                                barang yang sedang
+                                                dikirimkan</span>
+                                        </div>
+                                        <div class="text-bold d-flex align-items-center">
+                                            <em class="fa fa-circle mx-1"></em>
+                                            <div
+                                                style="display: inline-block; width: 15px; height: 15px; background: linear-gradient(to bottom, #a1e9ff, #00ccff); border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
+                                            </div>
+                                            <span><strong class="fw-bold"><i class="fa fa-clock"></i></strong> Penjualan
+                                                terakhir dari stock
+                                                barang yang
+                                                tersisa dalam satuan hari</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="collapse mt-2 pl-4" id="filter-collapse">
                                 <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <button class="btn btn-info mr-2 h-100 mb-2" id="tb-filter" type="submit">
+                                    <select name="f_toko" id="f_toko" class="form-select select2 mb-lg-0"
+                                        style="width: 200px;"></select>
+                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                     </button>
                                     <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
                                         <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
-                                    <select name="f_toko" id="f_toko" class="form-select select2 ml-2 mb-lg-0"
-                                        style="width: 200px;"></select>
                                 </form>
                             </div>
-                            <x-adminlte-alerts />
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-hover m-0">
