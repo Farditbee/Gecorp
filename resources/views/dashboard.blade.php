@@ -72,7 +72,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="mb-2">Laporan Penjualan</h5>
+                                <h5 class="mb-2">Rekapitulasi Penjualan</h5>
                                 <div class="row align-items-center">
                                     <div class="col-auto ms-auto">
                                         <span class="text-muted me-1">

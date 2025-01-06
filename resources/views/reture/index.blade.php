@@ -87,16 +87,16 @@
                                     <div class="custom-tab">
                                         <nav>
                                             <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                                                <a class="nav-item nav-link {{ session('tab') == 'detail' ? '' : 'active' }}"
-                                                    id="tambah-tab" data-toggle="tab" href="#tambah" role="tab"
-                                                    aria-controls="tambah" aria-selected="true"
-                                                    {{ session('tab') == 'detail' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Tambah
-                                                    Reture</a>
-                                                <a class="nav-item nav-link {{ session('tab') == 'detail' ? 'active' : '' }}"
-                                                    id="detail-tab" data-toggle="tab" href="#detail" role="tab"
-                                                    aria-controls="detail" aria-selected="false"
-                                                    {{ session('tab') == '' ? 'style=pointer-events:none;opacity:0.6;' : '' }}>Detail
-                                                    Reture</a>
+                                                <a class="nav-item nav-link active" id="tambah-tab" data-toggle="tab"
+                                                    href="#tambah" role="tab" aria-controls="tambah"
+                                                    aria-selected="true">
+                                                    Tambah Reture
+                                                </a>
+                                                <a class="nav-item nav-link disabled" id="detail-tab" data-toggle="tab"
+                                                    href="#detail" role="tab" aria-controls="detail"
+                                                    aria-selected="false" style="pointer-events: none; opacity: 0.6;">
+                                                    Detail Reture
+                                                </a>
                                             </div>
                                         </nav>
                                         <div class="tab-content pl-3 pt-2" id="nav-tabContent">
@@ -301,29 +301,29 @@
         }
 
         async function handleData(data) {
-
+            let elementData = JSON.stringify(data);
             let edit_button = '';
 
             if (data.action === 'edit_temp') {
                 edit_button = `
-                    <a href='temp/edit/${data.id}' class="p-1 btn edit-data action_button"
+                    <button class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit Temp ${title}: ${data.no_nota}"
+                        title="Edit ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'>
-                        <span class="text-dark">Edit Temp</span>
+                        <span class="text-dark">Edit</span>
                         <div class="icon text-warning">
                             <i class="fa fa-edit"></i>
                         </div>
-                    </a>`;
+                    </button>`;
             } else if (data.action === 'edit_detail') {
                 edit_button = `
-                    <a href='detail/edit/${data.id}' class="p-1 btn edit-data action_button"
+                    <a href='{{ route('get.retureItems') }}/id_retur=${data.id}' class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit Detail ${title}: ${data.no_nota}"
+                        title="Verify ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'>
-                        <span class="text-dark">Edit Detail</span>
-                        <div class="icon text-warning">
-                            <i class="fa fa-edit"></i>
+                        <span class="text-dark">Verify</span>
+                        <div class="icon text-success">
+                            <i class="fa fa-circle-check"></i>
                         </div>
                     </a>`;
             } else {
@@ -386,6 +386,67 @@
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
+        }
+
+        async function editData() {
+            $(document).on("click", ".edit-data", async function() {
+                let id = $(this).attr("data-id");
+                $("#modal-title").html(`Form Edit Reture`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("#form").data("action-url", '{{ route('reture.storeNota') }}');
+
+                $("#tambah-tab").removeClass("active").addClass("d-none");
+                $("#tambah").removeClass("show active");
+                $("#detail-tab").removeClass("disabled").addClass("active").css({
+                    "pointer-events": "auto",
+                    "opacity": "1",
+                });
+                $("#detail").addClass("show active");
+
+                try {
+                    const response = await renderAPI('GET', '{{ route('get.temporary.items') }}', {
+                        id_retur: id
+                    });
+                    if (response && response.status === 200) {
+                        const dataItems = response.data;
+
+                        if (Array.isArray(dataItems) && dataItems.length > 0) {
+                            dataItems.forEach(item => addRowToTable(item));
+                        } else {
+                            handleEmptyState();
+                        }
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
+                        handleEmptyState();
+                    }
+                } catch (error) {
+                    const errorMessage = error?.response?.data?.message ||
+                        'Terjadi kesalahan saat memuat data sementara.';
+                    notificationAlert('error', 'Kesalahan', errorMessage);
+                    handleEmptyState();
+                }
+            });
+        }
+
+        async function addData() {
+            $(document).on("click", ".add-data", function() {
+                $("#modal-title").html(`Form Tambah Reture`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("#form").data("action-url", '{{ route('reture.storeNota') }}');
+
+                $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
+                $("#tambah").addClass("show active");
+
+                $("#detail-tab").addClass("disabled").removeClass("active").attr("aria-selected", "false").css({
+                    "pointer-events": "none",
+                    "opacity": "0.6"
+                });
+                $("#detail").removeClass("show active");
+            });
         }
 
         function getExistingTransactionItemPairs() {
@@ -557,7 +618,7 @@
             try {
                 const postDataRest = await renderAPI(
                     'DELETE',
-                    `/admin/reture/deleteTemp/`,
+                    '{{ route('delete.tempData') }}',
                     data
                 );
                 if (postDataRest && postDataRest.status === 200) {}
@@ -662,20 +723,13 @@
             });
         }
 
-        async function addData() {
-            $(document).on("click", ".add-data", function() {
-                $("#modal-title").html(`Form Tambah Reture`);
-                $("#modal-form").modal("show");
-                $("form").find("input, select, textarea").val("").prop("checked", false)
-                    .trigger("change");
-
-                $("#form").data("action-url", '{{ route('reture.storeNota') }}');
-            });
-        }
-
         async function submitForm() {
             $(document).on("submit", "#form", async function(e) {
                 e.preventDefault();
+                const saveButton = document.getElementById('save-btn');
+                saveButton.disabled = true;
+                saveButton.querySelector('span').textContent = 'Menyimpan...';
+
                 loadingPage(true);
 
                 let actionUrl = $("#form").data("action-url");
@@ -698,6 +752,10 @@
                         $('#tambah-tab').removeAttr('style');
                         $('#detail-tab').removeAttr('style');
                         dataTemp = rest_data;
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
                     } else {
                         notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
                     }
@@ -711,8 +769,8 @@
         async function postMultiData() {
             $(document).on("click", "#retureForm", function() {
                 $("#retureForm").data("action-url", '{{ route('reture.permStore') }}');
-                submitMultiForm();
             });
+            await submitMultiForm();
         }
 
         async function submitMultiForm(url) {
@@ -753,7 +811,8 @@
                     if (postData.status >= 200 && postData.status < 300) {
                         notificationAlert('success', 'Pemberitahuan', postData.data.message || 'Berhasil');
                         setTimeout(async function() {
-                            await getListData();
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
                         }, 500);
                         $("#modal-form").modal("hide");
                     } else {
@@ -768,14 +827,105 @@
             });
         }
 
+        function resetModal() {
+            const modal = document.getElementById('modal-form');
+
+            modal.addEventListener('hidden.bs.modal', function() {
+                rowCount = 0;
+                const forms = modal.querySelectorAll('form');
+                forms.forEach((form) => {
+                    form.reset();
+                });
+
+                const badges = modal.querySelectorAll('.badge');
+                badges.forEach((badge) => {
+                    badge.textContent = '';
+                });
+
+                const listData = document.getElementById('listData');
+                if (listData) {
+                    listData.innerHTML = `
+                    <tr class="empty-row">
+                        <td colspan="10" class="text-center font-weight-bold">
+                            <span class="badge badge-info" style="font-size: 14px;">
+                                <i class="fa fa-circle-info mr-2"></i>Silahkan masukkan QR-Code terlebih dahulu.
+                            </span>
+                        </td>
+                    </tr>
+                `;
+                }
+
+                const inputs = modal.querySelectorAll('input, textarea');
+                inputs.forEach((input) => {
+                    input.value = '';
+                    if (input.placeholder) {
+                        input.placeholder = input.getAttribute('placeholder');
+                    }
+                });
+
+                const infoInput = document.getElementById('info-input');
+                if (infoInput) {
+                    infoInput.textContent = '';
+                }
+
+                const dynamicElements = modal.querySelectorAll('.dynamic-element');
+                dynamicElements.forEach((element) => {
+                    element.remove();
+                });
+
+                const tambahTab = modal.querySelector('#tambah-tab');
+                const detailTab = modal.querySelector('#detail-tab');
+                const tambahContent = modal.querySelector('#tambah');
+                const detailContent = modal.querySelector('#detail');
+
+                if (tambahTab && detailTab && tambahContent && detailContent) {
+                    tambahTab.classList.add('active');
+                    tambahTab.setAttribute('aria-selected', 'true');
+                    tambahContent.classList.add('show', 'active');
+
+                    detailTab.classList.remove('active');
+                    detailTab.setAttribute('aria-selected', 'false');
+                    detailContent.classList.remove('show', 'active');
+                }
+
+                const form = document.getElementById('form');
+
+                detailTab.classList.add('disabled');
+                detailTab.style.pointerEvents = 'none';
+                detailTab.style.opacity = '0.6';
+
+                // saveButton.addEventListener('click', function(event) {
+                //     event.preventDefault();
+
+                //     if (form.checkValidity()) {
+                //         detailTab.classList.remove('disabled');
+                //         detailTab.style.pointerEvents = 'auto';
+                //         detailTab.style.opacity = '1';
+
+                //         tambahTab.classList.remove('active');
+                //         detailTab.classList.add('active');
+
+                //         const tambahPane = document.getElementById('tambah');
+                //         const detailPane = document.getElementById('detail');
+                //         tambahPane.classList.remove('show', 'active');
+                //         detailPane.classList.add('show', 'active');
+                //     } else {
+                //         form.reportValidity();
+                //     }
+                // });
+            });
+        }
+
         async function initPageLoad() {
-            await getListData();
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await addData();
-            await submitForm();
+            await editData();
             await setDatePicker();
             await searchData();
             await setSortable();
             await postMultiData();
+            await resetModal();
+            await submitForm();
         }
     </script>
 @endsection
