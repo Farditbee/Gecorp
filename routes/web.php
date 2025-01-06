@@ -179,11 +179,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reture/storeNota', [RetureController::class, 'store_nota'])->name('reture.storeNota');
         Route::post('/reture/updateStore', [RetureController::class, 'updateStore'])->name('reture.updateStore');
         Route::post('/reture/tempStore', [RetureController::class, 'store_temp_item'])->name('reture.tempStore');
-        Route::get('/temporary-items/{id}', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
+        Route::get('/temporary-items', [RetureController::class, 'getTemporaryItems'])->name('get.temporary.items');
         Route::get('/temporary-Data', [RetureController::class, 'getTempoData'])->name('get.tempoData');
         Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
-        Route::get('/retureItem/{id}', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
+        Route::get('/retureItem', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
         Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
     });
 });

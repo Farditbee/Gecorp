@@ -183,8 +183,14 @@ class RetureController extends Controller
         }
     }
 
-    public function getTemporaryItems($idReture)
+    public function getTemporaryItems(Request $request)
     {
+        $request->validate([
+            'id_retur' => 'required|integer',
+        ]);
+
+        $idReture = $request->id_retur;
+
         try {
             $items = DB::table('temp_detail_retur')
                 ->where('id_users', Auth::user()->id)
@@ -208,8 +214,14 @@ class RetureController extends Controller
         }
     }
 
-    public function getRetureItems($idReture)
+    public function getRetureItems(Request $request)
     {
+        $request->validate([
+            'id_retur' => 'required|integer',
+        ]);
+
+        $idReture = $request->id_retur;
+
         try {
             $items = DetailRetur::where('id_users', Auth::user()->id)
                                 ->where('id_retur', $idReture)
