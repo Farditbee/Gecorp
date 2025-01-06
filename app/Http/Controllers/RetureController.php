@@ -249,6 +249,28 @@ class RetureController extends Controller
                                 ->where('id_retur', $idReture)
                                 ->get();
 
+            $kasir = Kasir::with(['toko', 'member'])->find($items[0]->id_transaksi);
+            $barang = Barang::find($items[0]->id_barang);
+            $retur = DataReture::find($idReture);
+            $items = $items->map(function ($item) use ($kasir, $barang, $retur) {
+                return [
+                    'id' => $item->id,
+                    'id_users' => $item->id_users,
+                    'id_retur' => $item->id_retur,
+                    'id_transaksi' => $item->id_transaksi,
+                    'id_barang' => $item->id_barang,
+                    'no_nota' => $item->no_nota,
+                    'qty' => $item->qty,
+                    'harga' => $item->harga,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
+                    'nama_toko' => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
+                    'nama_member' => $kasir->member ? $kasir->member->nama_member : "Guest",
+                    'nama_barang' => $barang ? $barang->nama_barang : "Tidak Ditemukan",
+                    'tgl_retur' => $retur->tgl_retur,
+                ];
+            });
+
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
