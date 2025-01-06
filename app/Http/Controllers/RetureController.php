@@ -296,11 +296,11 @@ class RetureController extends Controller
             $existsInTemp = DB::table('temp_detail_retur')
                 ->where('no_nota', $item['no_nota'])
                 ->exists();
-        
+
             // Cek apakah ada data no_nota yang sama di tabel detail_retur
             $existsInDetail = DetailRetur::where('no_nota', $item['no_nota'])
                 ->exists();
-        
+
             // Tentukan nilai action berdasarkan hasil pengecekan
             $action = 'none';
             if ($existsInTemp) {
@@ -310,7 +310,7 @@ class RetureController extends Controller
             } else {
                 $action = 'edit_temp';
             }
-        
+
             return [
                 'id' => $item['id'],
                 'id_users' => $item['id_users'],
@@ -409,7 +409,7 @@ class RetureController extends Controller
                 ->where('id_barang', $request->id_barang)
                 ->where('id_transaksi', $request->id_transaksi)
                 ->delete();
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil dihapus!',
@@ -428,69 +428,7 @@ class RetureController extends Controller
 
     public function updateNotaReture(Request $request)
     {
-        $request->validate([
-            'metode' => 'required|string',
-            'id_transaksi' => 'required|integer',
-            'id_barang' => 'required|integer',
-            'qty' => 'required|integer',
-            'harga' => 'required|integer',
-        ]);
-
-        $metode = $request->metode;
-        $id_kasir = $request->id_kasir;
-        $id_barang = $request->id_barang;
-        $qty = $request->qty;
-        $harga = $request->harga;
-        $id_users = Auth::user()->id;
-
-        try {
-            if ($metode === 'Cash') {
-                $detailKasir = DetailKasir::where('id_kasir', $id_kasir)
-                                            ->where('id_barang', $id_barang)
-                                            ->first();
-
-                if ($detailKasir) {
-                    // Update kolom reture dan reture_by
-                    $detailKasir->reture = true;
-                    $detailKasir->reture_by = $id_users;
-
-                    // Update kolom harga dan qty
-                    $detailKasir->harga -= $harga;
-                    $detailKasir->qty -= $qty;
-
-                    // Update kolom total_harga
-                    $detailKasir->total_harga -= ($harga * $qty);
-
-                    $detailKasir->save();
-
-                    return response()->json([
-                        'error' => false,
-                        'message' => 'Data berhasil diupdate!',
-                        'status_code' => 200,
-                    ]);
-                } else {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Data tidak ditemukan!',
-                        'status_code' => 404,
-                    ], 404);
-                }
-            } else {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Metode tidak valid!',
-                    'status_code' => 400,
-                ], 400);
-            }
-        } catch (\Exception $e) {
-            Log::error('Error updating nota reture: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => true,
-                'message' => 'Terjadi kesalahan saat mengupdate data.',
-                'status_code' => 500,
-            ], 500);
-        }
+        $reture = $request->reture ? 'Cash' : 'Barang';
     }
 
 }
