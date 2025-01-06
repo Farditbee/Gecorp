@@ -21,34 +21,42 @@ class LapPembelianController extends Controller
     }
 
     public function index(Request $request)
-    {
-        $menu = [$this->title[0], $this->label[2]];
-        // Pastikan semua data supplier, barang, dan LevelHarga tetap dikirim ke view
-        $suppliers = Supplier::all();
-        $barang = Barang::all();
-        $LevelHarga = LevelHarga::all();
+{
+    $menu = [$this->title[0], $this->label[2]];
+    $suppliers = Supplier::all();
+    $barang = Barang::all();
+    $LevelHarga = LevelHarga::all();
 
-        // Cek apakah parameter tanggal dikirimkan
-        if ($request->has('startDate') && $request->has('endDate')) {
-            $startDate = $request->input('startDate');
-            $endDate = $request->input('endDate');
+    // Default tanggal awal dan akhir untuk bulan ini
+    $startDate = now()->startOfMonth()->toDateString();
+    $endDate = now()->endOfMonth()->toDateString();
 
-            // Ambil data pembelian yang sudah difilter
-            $pembelian_dt = PembelianBarang::where('status', 'success')
-                ->whereBetween('tgl_nota', [$startDate, $endDate])
-                ->orderBy('id', 'desc')
-                ->get();
+    // Jika parameter tanggal dikirimkan, gunakan tanggal dari request
+    if ($request->has('startDate') && $request->has('endDate')) {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+    }
 
-            // Kirim data ke view dengan filter tanggal
-            return view('laporan.pembelian.index', compact('menu', 'pembelian_dt', 'suppliers', 'barang', 'LevelHarga'))
-                ->with('startDate', $startDate)
-                ->with('endDate', $endDate);
-        }
+    // Ambil data pembelian berdasarkan tanggal
+    $pembelian_dt = PembelianBarang::where('status', 'success')
+        ->whereBetween('tgl_nota', [$startDate, $endDate])
+        ->orderBy('id', 'desc')
+        ->get();
 
-        // Jika tidak ada filter tanggal, kirim view tanpa data pembelian
+    // Jika tidak ada data pembelian di bulan ini dan tidak ada filter, tampilkan pesan
+    if ($pembelian_dt->isEmpty() && !$request->has('startDate') && !$request->has('endDate')) {
         return view('laporan.pembelian.index', compact('menu', 'suppliers', 'barang', 'LevelHarga'))
             ->with('pembelian_dt', collect()) // Kirim koleksi kosong
-            ->with('startDate', null)
-            ->with('endDate', null);
+            ->with('startDate', $startDate)
+            ->with('endDate', $endDate)
+            ->with('message', 'Tidak ada data di bulan ini.');
     }
+
+    // Kirim data ke view
+    return view('laporan.pembelian.index', compact('menu', 'pembelian_dt', 'suppliers', 'barang', 'LevelHarga'))
+        ->with('startDate', $startDate)
+        ->with('endDate', $endDate)
+        ->with('message', null); // Tidak ada pesan jika ada data
+}
+
 }
