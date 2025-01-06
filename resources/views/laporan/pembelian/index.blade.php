@@ -49,6 +49,10 @@
                                         {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
                                         {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
                                     </p>
+                                @else
+                                <p class="text-muted mt-2 mb-0">
+                                    Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
+                                </p>
                                 @endif
                             </div>
                         </div>
