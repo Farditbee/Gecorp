@@ -48,7 +48,11 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama Barang</th>
-                                                <th class="text-wrap align-top">Stock</th>
+                                                <th class="text-wrap align-top">
+                                                    Stock
+                                                    <button class="btn btn-link p-0" id="sortAscStock">▲</button>
+                                                    <button class="btn btn-link p-0" id="sortDescStock">▼</button>
+                                                </th>
                                                 @if (Auth::user()->id_level == 1)
                                                     <th class="text-wrap align-top">Harga Satuan (Hpp Baru)</th>
                                                 @endif
@@ -350,7 +354,6 @@
             };
         }
 
-
         async function setListData(dataList, pagination) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
@@ -534,6 +537,21 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
+        }
+
+        document.getElementById('sortAscStock').addEventListener('click', function() {
+            handleSort('asc');
+        });
+
+        document.getElementById('sortDescStock').addEventListener('click', function() {
+            handleSort('desc');
+        });
+
+        function handleSort(orderBy) {
+            const currentSearch = document.getElementById('searchInput')?.value ||
+            ''; // Adjust based on your search input ID
+            const currentPage = 1; // Reset to the first page when sorting
+            getListData(defaultLimitPage, currentPage, orderBy === 'asc' ? 1 : 0, currentSearch);
         }
     </script>
 @endsection

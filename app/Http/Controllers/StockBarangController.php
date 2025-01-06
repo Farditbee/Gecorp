@@ -26,86 +26,92 @@ class StockBarangController extends Controller
     }
 
     public function getstockbarang(Request $request)
-{
-    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+    {
+        $meta['orderBy'] = $request->input('ascending', 0) ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-    $idToko = $request->input('id_toko');
+        $idToko = $request->input('id_toko');
 
-    // Ambil data stok barang dari tabel 'stock_barang'
-    $query = StockBarang::with(['barang', 'toko'])
-        ->orderBy('id', $meta['orderBy']);
+        // Ambil data stok barang dari tabel 'stock_barang'
+        $query = StockBarang::with(['barang', 'toko']);
 
-    // Tambahkan filter pencarian jika ada
-    if (!empty($request['search'])) {
-        $searchTerm = trim(strtolower($request['search']));
-
-        $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereHas('barang', function ($subquery) use ($searchTerm) {
-                $subquery->whereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
-            });
-        });
-    }
-
-    // Filter berdasarkan tanggal
-    if ($request->has('startDate') && $request->has('endDate')) {
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
-        $query->whereBetween('created_at', [$startDate, $endDate]);
-    }
-
-    // Ambil data dengan pagination
-    $data = $query->paginate($meta['limit']);
-
-    $paginationMeta = [
-        'total'        => $data->total(),
-        'per_page'     => $data->perPage(),
-        'current_page' => $data->currentPage(),
-        'total_pages'  => $data->lastPage()
-    ];
-
-    // Format data untuk respons
-    $mappedData = collect($data->items())->map(function ($item) use ($idToko) {
+        // Sorting berdasarkan kolom stock atau qty
         if ($idToko == 1) {
-            // Jika id_toko = 1, gunakan stock dari StockBarang
-            return [
-                'id' => $item->id,
-                'id_barang' => $item->barang->id ?? null,
-                'nama_barang' => $item->barang->nama_barang ?? null,
-                'hpp_baru' => $item->hpp_baru,
-                'stock' => $item->stock,
-            ];
+            $query->orderBy('stock', $meta['orderBy']);
         } else {
-            // Jika toko lain, gunakan qty dari DetailToko
-            $detailToko = $item->detailToko()->where('id_toko', $idToko)->first();
-            return [
-                'id' => $item->id,
-                'id_barang' => $item->barang->id ?? null,
-                'nama_barang' => $item->barang->nama_barang ?? null,
-                'hpp_baru' => $item->hpp_baru,
-                'stock' => $detailToko->qty ?? 0, // Default ke 0 jika tidak ada data
-            ];
+            $query->with(['detailToko' => function ($q) use ($idToko, $meta) {
+                $q->where('id_toko', $idToko)->orderBy('qty', $meta['orderBy']);
+            }]);
         }
-    });
 
-    // Jika tidak ada data, kembalikan respons error
-    if ($mappedData->isEmpty()) {
+        // Tambahkan filter pencarian jika ada
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereHas('barang', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_barang) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        // Filter berdasarkan tanggal
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        // Ambil data dengan pagination
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        // Format data untuk respons
+        $mappedData = collect($data->items())->map(function ($item) use ($idToko) {
+            if ($idToko == 1) {
+                return [
+                    'id' => $item->id,
+                    'id_barang' => $item->barang->id ?? null,
+                    'nama_barang' => $item->barang->nama_barang ?? null,
+                    'hpp_baru' => $item->hpp_baru,
+                    'stock' => $item->stock,
+                ];
+            } else {
+                $detailToko = $item->detailToko()->where('id_toko', $idToko)->first();
+                return [
+                    'id' => $item->id,
+                    'id_barang' => $item->barang->id ?? null,
+                    'nama_barang' => $item->barang->nama_barang ?? null,
+                    'hpp_baru' => $item->hpp_baru,
+                    'stock' => $detailToko->qty ?? 0,
+                ];
+            }
+        });
+
+        // Jika tidak ada data, kembalikan respons error
+        if ($mappedData->isEmpty()) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        // Respons JSON
         return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'Tidak ada data'
-        ], 400);
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+            'pagination' => $paginationMeta
+        ], 200);
     }
-
-    // Respons JSON
-    return response()->json([
-        'data' => $mappedData,
-        'status_code' => 200,
-        'errors' => false,
-        'message' => 'Sukses',
-        'pagination' => $paginationMeta
-    ], 200);
-}
 
     public function index()
     {
