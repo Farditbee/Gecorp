@@ -183,5 +183,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/temporary-Data', [RetureController::class, 'getTempoData'])->name('get.tempoData');
         Route::post('/reture/permStore', [RetureController::class, 'saveTemporaryItems'])->name('reture.permStore');
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
+        Route::get('/retureItem/{id}', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
+        Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
     });
 });

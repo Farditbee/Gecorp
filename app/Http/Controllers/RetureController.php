@@ -391,7 +391,7 @@ class RetureController extends Controller
         $userId = Auth::user()->id;
 
         try {
-            
+
             DB::table('temp_detail_retur')
                 ->where('id_users', $userId)
                 ->where('id_barang', $request->id_barang)
@@ -416,7 +416,69 @@ class RetureController extends Controller
 
     public function updateNotaReture(Request $request)
     {
-        $reture = $request->reture ? 'Cash' : 'Barang';
+        $request->validate([
+            'metode' => 'required|string',
+            'id_transaksi' => 'required|integer',
+            'id_barang' => 'required|integer',
+            'qty' => 'required|integer',
+            'harga' => 'required|integer',
+        ]);
+
+        $metode = $request->metode;
+        $id_kasir = $request->id_kasir;
+        $id_barang = $request->id_barang;
+        $qty = $request->qty;
+        $harga = $request->harga;
+        $id_users = Auth::user()->id;
+
+        try {
+            if ($metode === 'Cash') {
+                $detailKasir = DetailKasir::where('id_kasir', $id_kasir)
+                                            ->where('id_barang', $id_barang)
+                                            ->first();
+
+                if ($detailKasir) {
+                    // Update kolom reture dan reture_by
+                    $detailKasir->reture = true;
+                    $detailKasir->reture_by = $id_users;
+
+                    // Update kolom harga dan qty
+                    $detailKasir->harga -= $harga;
+                    $detailKasir->qty -= $qty;
+
+                    // Update kolom total_harga
+                    $detailKasir->total_harga -= ($harga * $qty);
+
+                    $detailKasir->save();
+
+                    return response()->json([
+                        'error' => false,
+                        'message' => 'Data berhasil diupdate!',
+                        'status_code' => 200,
+                    ]);
+                } else {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Data tidak ditemukan!',
+                        'status_code' => 404,
+                    ], 404);
+                }
+            } else {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Metode tidak valid!',
+                    'status_code' => 400,
+                ], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error updating nota reture: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat mengupdate data.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
 
 }
