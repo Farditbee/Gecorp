@@ -49,6 +49,10 @@
                                         {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
                                         {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
                                     </p>
+                                @else
+                                    <p class="text-muted mt-2 mb-0">
+                                        Data dimuat secara default pada Bulan ini
+                                    </p>
                                 @endif
                             </div>
                         </div>
@@ -70,7 +74,9 @@
                                         <tbody>
                                             @if ($toko->isEmpty())
                                                 <tr>
-                                                    <td colspan="5" class="text-center">Silahkan Filter periode untuk menampilkan data.</td>
+                                                    <td colspan="5" class="text-center">
+                                                        {{ $message ?? 'Silahkan Filter periode untuk menampilkan data.' }}
+                                                    </td>
                                                 </tr>
                                             @else
                                                 @foreach ($toko as $tk)
@@ -131,6 +137,7 @@
                                             @endif
                                         </tbody>
                                     </table>
+
 
                                     <div class="d-flex justify-content-between align-items-center mb-3">
 
