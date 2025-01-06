@@ -80,7 +80,9 @@
                                                 @endforeach
                                             @else
                                                 <tr>
-                                                    <td colspan="5" class="text-center">Silahkan Filter periode untuk menampilkan data.</td>
+                                                    <td colspan="5" class="text-center">
+                                                        {{ $message ?? 'Silahkan Filter periode untuk menampilkan data.' }}
+                                                    </td>
                                                 </tr>
                                             @endif
                                         </tbody>
