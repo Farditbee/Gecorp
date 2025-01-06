@@ -485,7 +485,7 @@
                             tbody.removeChild(loadingRow);
                         }
                         notificationAlert('info', 'Pemberitahuan',
-                            'Data dengan kombinasi ID Barang dan ID Transaksi ini sudah ada.');
+                            'Data dengan Nama Barang dan ID Transaksi ini sudah ada.');
                         return;
                     } else {
                         await addRowToTable(data);
