@@ -21,6 +21,8 @@ return new class extends Migration
             $table->double('harga');
             $table->integer('diskon')->nullable();
             $table->double('total_harga');
+            $table->boolean('reture')->default(false)->nullable();
+            $table->string('reture_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
