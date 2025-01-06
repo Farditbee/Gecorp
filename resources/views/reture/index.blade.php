@@ -398,6 +398,9 @@
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
 
+                dataTemp.id_retur = id;
+                dataTemp.no_nota = nota;
+                
                 $("#modal-title").html(`Form Edit Reture No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
