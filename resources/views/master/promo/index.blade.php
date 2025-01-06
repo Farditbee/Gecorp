@@ -423,34 +423,30 @@
                 let element = JSON.parse(data);
                 let id = $(this).attr("data-id");
 
-                // Set modal title and show the modal
                 $("#modal-title").html(modalTitle);
                 $("#modal-form").modal("show");
 
-                // Reset all form fields
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
-                // Destroy and reinitialize Select2 for Toko and Barang
                 if ($.fn.select2) {
-                    $("#toko").select2("destroy").empty(); // Destroy existing Select2 instance
-                    $("#barang").select2("destroy").empty(); // Destroy existing Select2 instance
+                    $("#toko").select2("destroy").empty();
+                    $("#barang").select2("destroy").empty();
                 }
 
                 $("#toko").select2({
                     placeholder: "Cari Toko",
                     allowClear: true,
-                    width: "100%", // Ensure full width
-                    dropdownParent: $("#modal-form"), // Attach dropdown to the modal
+                    width: "100%",
+                    dropdownParent: $("#modal-form"),
                 });
 
                 $("#barang").select2({
                     placeholder: "Cari Barang",
                     allowClear: true,
-                    width: "100%", // Ensure full width
-                    dropdownParent: $("#modal-form"), // Attach dropdown to the modal
+                    width: "100%",
+                    dropdownParent: $("#modal-form"),
                 });
 
-                // Update Toko select
                 let tokoExists = $('#toko option[value="' + element.id_toko + '"]').length > 0;
                 if (!tokoExists) {
                     let newOption = new Option(element.nama_toko, element.id_toko, true, true);
@@ -459,7 +455,6 @@
                     $("#toko").val(element.id_toko).trigger("change");
                 }
 
-                // Update Barang select
                 let barangExists = $('#barang option[value="' + element.id_barang + '"]').length > 0;
                 if (!barangExists) {
                     let newOption = new Option(element.nama_barang, element.id_barang, true, true);
@@ -468,14 +463,12 @@
                     $("#barang").val(element.id_barang).trigger("change");
                 }
 
-                // Set other input values
                 $('#minimal').val(element.minimal);
                 $('#jumlah').val(element.jumlah);
                 $('#diskon').val(element.diskon);
                 $('#dari').val(element.dari);
                 $('#sampai').val(element.sampai);
 
-                // Set form action data attributes
                 $("#form").data("action-url", '{{ route('master.promo.store') }}');
                 $("#form").data("id_user", id);
             });
