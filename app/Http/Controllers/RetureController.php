@@ -258,10 +258,19 @@ class RetureController extends Controller
                                 ->where('id_retur', $idReture)
                                 ->get();
 
-            $kasir = Kasir::with(['toko', 'member'])->find($items[0]->id_transaksi);
-            $barang = Barang::find($items[0]->id_barang);
-            $retur = DataReture::find($idReture);
-            $items = $items->map(function ($item) use ($kasir, $barang, $retur) {
+            if ($items->isEmpty()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Data tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
+            }
+
+            $mappedData = $items->map(function ($item) {
+                $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
+                $barang = Barang::find($item->id_barang);
+                $retur = DataReture::find($item->id_retur);
+
                 return [
                     'id' => $item->id,
                     'id_users' => $item->id_users,
@@ -276,15 +285,15 @@ class RetureController extends Controller
                     'nama_toko' => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
                     'nama_member' => $kasir->member ? $kasir->member->nama_member : "Guest",
                     'nama_barang' => $barang ? $barang->nama_barang : "Tidak Ditemukan",
-                    'tgl_retur' => $retur->tgl_retur,
+                    'tgl_retur' => $retur ? $retur->tgl_retur : "Tidak Ditemukan",
                 ];
             });
-
+                                
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
                 'status_code' => 200,
-                'data' => $items,
+                'data' => $mappedData,
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching temporary items: ' . $e->getMessage());
