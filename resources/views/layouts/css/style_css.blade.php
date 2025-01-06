@@ -107,7 +107,7 @@
         }
 
         .table-striped thead {
-            background-color: #007bff;
+            background-color: #dcf6df;
             color: #1900ff;
             border-bottom: 2px solid #0056b3;
             /* Garis bawah */

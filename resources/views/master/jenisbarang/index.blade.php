@@ -52,9 +52,9 @@
                                     <table class="table table-striped m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Jenis Barang</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-left text-wrap align-top" style="width: 10%;"><span class="ml-4">No</span></th>
+                                                <th class="text-wrap align-top" style="width: 65%;">Jenis Barang</th>
+                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span class="mr-4">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -179,14 +179,14 @@
             dataList.forEach((element, index) => {
                 getDataTable += `
                     <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol} text-left"><span class="ml-4">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_jenis_barang}</td>
                         <td class="${classCol}">
-                            <div class="d-flex justify-content-center w-100">
+                            <div class="d-flex justify-content-end w-100">
                                 <div class="hovering p-1">
                                     ${element.edit_button}
                                 </div>
-                                <div class="hovering p-1">
+                                <div class="hovering p-1 mr-3">
                                     ${element.delete_button}
                                 </div>
                             </div>

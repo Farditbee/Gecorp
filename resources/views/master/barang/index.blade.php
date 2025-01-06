@@ -59,7 +59,7 @@
                                                 <th class="text-wrap align-top">Jenis Barang</th>
                                                 <th class="text-wrap align-top">Brand Barang</th>
                                                 <th class="text-wrap align-top">Garansi</th>
-                                                <th class="text-wrap align-top">Action</th>
+                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span class="mr-4">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">

@@ -75,8 +75,10 @@
                                             <select class="form-control" id="selector" name="toko_select[]" multiple>
                                                 <option value="">~Silahkan Pilih Toko~</option>
                                                 @foreach ($toko as $tk)
+                                                    @if ($tk->id != 1)
                                                     <option value="{{ $tk->id }}"
                                                         data-singkatan="{{ $tk->singkatan }}">{{ $tk->nama_toko }}</option>
+                                                    @endif
                                                 @endforeach
                                             </select>
                                         </div>
@@ -193,8 +195,6 @@
 
     console.log('Selected Toko:', selectedOptions);
 
-    if (selectedOptions.length === 0) return; // Jika tidak ada toko yang dipilih
-
     // Kirim permintaan AJAX untuk mendapatkan data barang terjual
     fetch('{{ route('get-barang-jual') }}', {
         method: 'POST',
@@ -202,7 +202,7 @@
             'Content-Type': 'application/json',
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
         },
-        body: JSON.stringify({ toko_select: selectedOptions.map(option => option.id) })
+        body: JSON.stringify({ toko_select: selectedOptions.length > 0 ? selectedOptions.map(option => option.id) : null })
     })
     .then(response => response.json())
     .then(dataBarangTerjual => {
@@ -222,7 +222,8 @@
         });
 
         // Tambahkan header toko
-        selectedOptions.forEach(toko => {
+        const tokoList = selectedOptions.length > 0 ? selectedOptions : dataBarangTerjual.toko_list; // Ambil semua toko jika tidak ada yang dipilih
+        tokoList.forEach(toko => {
             const th = document.createElement('th');
             th.textContent = toko.singkatan;
             th.classList.add('dynamic-column');
@@ -239,7 +240,7 @@
 
             console.log(`Processing Barang ID: ${barangId}`);
 
-            selectedOptions.forEach(toko => {
+            tokoList.forEach(toko => {
                 const tokoData = (dataBarangTerjual[barangId] || []).find(d => d.id_toko == toko.id);
                 const jumlahTerjual = tokoData ? tokoData.total_terjual : 0;
 
@@ -258,6 +259,7 @@
         console.error('Error fetching data:', error);
     });
 });
+
     </script>
 
     <script>
