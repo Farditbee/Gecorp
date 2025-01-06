@@ -309,7 +309,9 @@
                     <button class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
                         title="Edit ${title} No. Nota: ${data.no_nota}"
-                        data-id='${data.id}'>
+                        data-id='${data.id}'
+                        data-nota='${data.no_nota}'
+                        data-tanggal='${data.tgl_retur}'>
                         <span class="text-dark">Edit</span>
                         <div class="icon text-warning">
                             <i class="fa fa-edit"></i>
@@ -320,7 +322,9 @@
                     <a href='{{ route('get.retureItems') }}/id_retur=${data.id}' class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
                         title="Verify ${title} No. Nota: ${data.no_nota}"
-                        data-id='${data.id}'>
+                        data-id='${data.id}'
+                        data-nota='${data.no_nota}'
+                        data-tanggal='${data.tgl_retur}'>
                         <span class="text-dark">Verify</span>
                         <div class="icon text-success">
                             <i class="fa fa-circle-check"></i>
@@ -391,12 +395,17 @@
         async function editData() {
             $(document).on("click", ".edit-data", async function() {
                 let id = $(this).attr("data-id");
-                $("#modal-title").html(`Form Edit Reture`);
+                let nota = $(this).attr("data-nota");
+                let tanggal = $(this).attr("data-tanggal");
+
+                $("#modal-title").html(`Form Edit Reture No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#form").data("action-url", '{{ route('reture.storeNota') }}');
 
+                $("#i_no_nota").html(nota);
+                $("#i_tgl_retur").html(tanggal);
                 $("#tambah-tab").removeClass("active").addClass("d-none");
                 $("#tambah").removeClass("show active");
                 $("#detail-tab").removeClass("disabled").addClass("active").css({
@@ -410,9 +419,10 @@
                         id_retur: id
                     });
                     if (response && response.status === 200) {
-                        const dataItems = response.data;
+                        const dataItems = response.data.data;
 
                         if (Array.isArray(dataItems) && dataItems.length > 0) {
+                            $("#listData").empty();
                             dataItems.forEach(item => addRowToTable(item));
                         } else {
                             handleEmptyState();
