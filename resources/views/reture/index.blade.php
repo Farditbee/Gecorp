@@ -400,7 +400,7 @@
 
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
-                
+
                 $("#modal-title").html(`Form Edit Reture No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
@@ -460,6 +460,7 @@
                 });
                 $("#detail").removeClass("show active");
             });
+            await submitForm();
         }
 
         function getExistingTransactionItemPairs() {
@@ -745,26 +746,30 @@
 
                 loadingPage(true);
 
-                let actionUrl = $("#form").data("action-url");
-                let formData = {
+                const actionUrl = $("#form").data("action-url");
+                const formData = {
                     tgl_retur: $('#tgl_retur').val(),
-                    no_nota: $('#no_nota').val()
+                    no_nota: $('#no_nota').val(),
                 };
 
-                let method = 'POST';
+                const method = 'POST';
                 try {
-                    let postData = await renderAPI(method, actionUrl, formData);
+                    const postData = await renderAPI(method, actionUrl, formData);
 
                     loadingPage(false);
+
                     if (postData.status >= 200 && postData.status < 300) {
-                        let rest_data = postData.data.data;
+                        const rest_data = postData.data.data;
+
                         $('#nav-tab a[href="#detail"]').tab('show');
                         $('#i_no_nota').text(rest_data.no_nota);
                         $('#i_tgl_retur').text(rest_data.tgl_retur);
 
                         $('#tambah-tab').removeAttr('style');
                         $('#detail-tab').removeAttr('style');
+
                         dataTemp = rest_data;
+
                         setTimeout(async function() {
                             await getListData(defaultLimitPage, currentPage, defaultAscending,
                                 defaultSearch, customFilter);
@@ -774,7 +779,12 @@
                     }
                 } catch (error) {
                     loadingPage(false);
-                    let resp = error.response || {};
+                    const resp = error.response || {};
+                    notificationAlert('error', 'Kesalahan', resp.data?.message ||
+                        'Terjadi kesalahan saat menyimpan data.');
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.querySelector('span').textContent = 'Simpan';
                 }
             });
         }
@@ -907,25 +917,25 @@
                 detailTab.style.pointerEvents = 'none';
                 detailTab.style.opacity = '0.6';
 
-                // saveButton.addEventListener('click', function(event) {
-                //     event.preventDefault();
+                saveButton.addEventListener('click', function(event) {
+                    event.preventDefault();
 
-                //     if (form.checkValidity()) {
-                //         detailTab.classList.remove('disabled');
-                //         detailTab.style.pointerEvents = 'auto';
-                //         detailTab.style.opacity = '1';
+                    if (form.checkValidity()) {
+                        detailTab.classList.remove('disabled');
+                        detailTab.style.pointerEvents = 'auto';
+                        detailTab.style.opacity = '1';
 
-                //         tambahTab.classList.remove('active');
-                //         detailTab.classList.add('active');
+                        tambahTab.classList.remove('active');
+                        detailTab.classList.add('active');
 
-                //         const tambahPane = document.getElementById('tambah');
-                //         const detailPane = document.getElementById('detail');
-                //         tambahPane.classList.remove('show', 'active');
-                //         detailPane.classList.add('show', 'active');
-                //     } else {
-                //         form.reportValidity();
-                //     }
-                // });
+                        const tambahPane = document.getElementById('tambah');
+                        const detailPane = document.getElementById('detail');
+                        tambahPane.classList.remove('show', 'active');
+                        detailPane.classList.add('show', 'active');
+                    } else {
+                        form.reportValidity();
+                    }
+                });
             });
         }
 
@@ -938,7 +948,6 @@
             await setSortable();
             await postMultiData();
             await resetModal();
-            await submitForm();
         }
     </script>
 @endsection
