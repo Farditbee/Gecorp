@@ -491,15 +491,15 @@ class RetureController extends Controller
     public function updateNotaReture(Request $request)
     {
         $request->validate([
-            'metode' => 'required|string',
-            'id_transaksi' => 'required|integer',
-            'id_barang' => 'required|integer',
-            'qty' => 'required|integer',
-            'harga' => 'required|integer',
+            'metode' => 'required|array',
+            'id_transaksi' => 'required|array',
+            'id_barang' => 'required|array',
+            'qty' => 'required|array',
+            'harga' => 'required|array',
         ]);
 
         $metode = $request->metode;
-        $id_kasir = $request->id_kasir;
+        $id_kasir = $request->id_transaksi;
         $id_barang = $request->id_barang;
         $qty = $request->qty;
         $harga = $request->harga;
