@@ -87,37 +87,6 @@
                     </div>
                 </div>
 
-                <!-- Modal untuk Filter Tanggal -->
-                <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel"
-                    aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="filterModalLabel">Filter Tanggal</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <form action="{{ route('transaksi.pembelianbarang.index') }}" method="GET">
-                                    <div class="form-group">
-                                        <label for="startDate">Tanggal Mulai</label>
-                                        <input type="date" name="startDate" id="startDate" class="form-control"
-                                            value="{{ request('startDate') }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="endDate">Tanggal Selesai</label>
-                                        <input type="date" name="endDate" id="endDate" class="form-control"
-                                            value="{{ request('endDate') }}">
-                                    </div>
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
                     aria-labelledby="myLargeModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-lgs">
@@ -326,7 +295,6 @@
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                    <!-- Rows akan ditambahkan di sini oleh JavaScript -->
                                                                 </tbody>
                                                                 <tfoot>
                                                                     <tr>
@@ -336,7 +304,6 @@
                                                                     </tr>
                                                                 </tfoot>
                                                             </table>
-                                                            <!-- Submit Button -->
                                                             <div class="form-group">
                                                                 <button type="submit" class="btn btn-primary pull-right"
                                                                     style="float: right">
@@ -358,7 +325,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- [ Main Content ] end -->
                 </div>
             </div>
         </div>

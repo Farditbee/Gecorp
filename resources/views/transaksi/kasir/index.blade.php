@@ -43,7 +43,7 @@
                                 </a>
                                 @endif
 
-                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
+                                <form id="custom-filter" class="d-flex align-items-center flex-grow-1">
                                     <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
                                     <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
@@ -53,7 +53,6 @@
                                     </button>
                                 </form>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 100px;">
@@ -64,6 +63,19 @@
                                 <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
                                     name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
                             </div>
+                            {{-- @if (request('startDate') && request('endDate'))
+                                <p class="text-muted mt-2 mb-0 w-100 text-left font-weight-bold">
+                                    Data dimuat dalam periode dari tanggal
+                                    <span class="text-danger">
+                                        {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
+                                        {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
+                                    </span>
+                                </p>
+                            @else
+                                <p class="text-muted mt-2 mb-0 w-100 text-left font-weight-bold">
+                                    Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
+                                </p>
+                            @endif --}}
                         </div>
                         <div class="content">
                             <x-adminlte-alerts />
