@@ -52,9 +52,8 @@
                                 <p class="text-muted mt-2 mb-0 w-100 text-right font-weight-bold">
                                     Data dimuat dalam periode dari tanggal
                                     <span class="text-danger">
-                                        {{ \Carbon\Carbon::parse(request('startDate'))->locale('id')->translatedFormat('d F Y') }}
-                                        s/d
-                                        {{ \Carbon\Carbon::parse(request('endDate'))->locale('id')->translatedFormat('d F Y') }}
+                                        {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
+                                        {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
                                     </span>
                                 </p>
                             @else
@@ -138,37 +137,38 @@
         }
 
         async function filterList() {
-            let dateRangePickerList = initializeDateRangePicker();
+    let dateRangePickerList = initializeDateRangePicker();
 
-            const form = document.getElementById('custom-filter');
-            form.action = "{{ route('laporan.pembelian.index') }}";
-            form.method = "GET";
+    const form = document.getElementById('custom-filter');
+    form.action = "{{ route('laporan.pembelian.index') }}";
+    form.method = "GET";
 
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-                let startDate = dateRangePickerList.data('daterangepicker').startDate;
-                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+        let startDate = dateRangePickerList.data('daterangepicker').startDate;
+        let endDate = dateRangePickerList.data('daterangepicker').endDate;
 
-                if (!startDate || !endDate) {
-                    startDate = null;
-                    endDate = null;
-                } else {
-                    startDate = startDate.startOf('day').toISOString();
-                    endDate = endDate.endOf('day').toISOString();
-                }
-
-                const params = new URLSearchParams({
-                    startDate: $("#daterange").val() !== '' ? startDate : '',
-                    endDate: $("#daterange").val() !== '' ? endDate : ''
-                });
-
-                window.location.href = `${form.action}?${params.toString()}`;
-            });
+        if (!startDate || !endDate) {
+            startDate = null;
+            endDate = null;
+        } else {
+            // Format tanggal menjadi 'YYYY-MM-DD' tanpa waktu
+            startDate = startDate.format('YYYY-MM-DD');
+            endDate = endDate.format('YYYY-MM-DD');
         }
 
-        async function initPageLoad() {
-            await filterList();
-        }
+        const params = new URLSearchParams({
+            startDate: $("#daterange").val() !== '' ? startDate : '',
+            endDate: $("#daterange").val() !== '' ? endDate : ''
+        });
+
+        window.location.href = `${form.action}?${params.toString()}`;
+    });
+}
+
+async function initPageLoad() {
+    await filterList();
+}
     </script>
 @endsection

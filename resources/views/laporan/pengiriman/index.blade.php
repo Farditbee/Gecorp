@@ -1,8 +1,11 @@
-<title>Laporan Pengiriman - Gecorp</title>
 @extends('layouts.main')
 
-@section('content')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+@section('title')
+    Laporan Pengiriman - Gecorp
+@endsection
+
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
     <style>
         #jsTables thead th {
             font-weight: bold;
@@ -19,12 +22,15 @@
         #jsTables tbody td {
             padding: 5px;
             /* Sesuaikan padding untuk jarak antar sel */
-            line-height: 1,4;
+            line-height: 1, 4;
             /* Sesuaikan tinggi baris */
             vertical-align: middle;
             font-size: 14px;
         }
     </style>
+@endsection
+
+@section('content')
 
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
@@ -33,28 +39,34 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <!-- Tombol Tambah, Filter, dan Reset Filter -->
-                            <div>
-                                <a href="#" class="btn btn-warning" data-toggle="modal" data-target="#filterModal">
-                                    <i class="ti-plus menu-icon"></i> Filter
-                                </a>
-                                <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary ml-2"
+                            <div class="d-flex align-items-center w-50">
+                                <form id="custom-filter" class="d-flex align-items-center flex-grow-1">
+                                    <input class="form-control mx-1" type="text" id="daterange" name="daterange"
+                                        placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-warning mx-1 d-flex align-items-center" id="tb-filter"
+                                        type="submit" data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Filter Pengiriman Barang">
+                                        <i class="fa fa-filter mr-1"></i>Filter
+                                    </button>
+                                </form>
+                                <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary mx-1"
                                     onclick="resetFilter()">
-                                    Reset
+                                    <i class="fa fa-rotate mr-1"></i>Reset
                                 </a>
-                                <!-- Keterangan Periode Tanggal di Bawah Tombol Filter -->
-                                @if (request('startDate') && request('endDate'))
-                                    <p class="text-muted mt-2 mb-0">
-                                        Data dimuat dalam periode dari tanggal
+                            </div>
+                            @if (request('startDate') && request('endDate'))
+                                <p class="text-muted mt-2 mb-0 w-100 text-right font-weight-bold">
+                                    Data dimuat dalam periode dari tanggal
+                                    <span class="text-danger">
                                         {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
                                         {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
-                                    </p>
-                                @else
-                                    <p class="text-muted mt-2 mb-0">
-                                        Data dimuat secara default pada Bulan ini
-                                    </p>
-                                @endif
-                            </div>
+                                    </span>
+                                </p>
+                            @else
+                                <p class="text-muted mt-2 mb-0 w-100 text-right font-weight-bold">
+                                    Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
+                                </p>
+                            @endif
                         </div>
 
                         <div class="content">
@@ -129,8 +141,10 @@
                                                             <td></td>
                                                             <td><strong>Total</strong></td>
                                                             <td></td>
-                                                            <td><strong>{{ $tk->pengirimanSebagaiPengirim->sum('total_item') }}</strong></td>
-                                                            <td><strong>{{ number_format($tk->pengirimanSebagaiPengirim->sum('total_nilai'), 0, '.', '.') }}</strong></td>
+                                                            <td><strong>{{ $tk->pengirimanSebagaiPengirim->sum('total_item') }}</strong>
+                                                            </td>
+                                                            <td><strong>{{ number_format($tk->pengirimanSebagaiPengirim->sum('total_nilai'), 0, '.', '.') }}</strong>
+                                                            </td>
                                                         </tr>
                                                     @endif
                                                 @endforeach
@@ -182,26 +196,15 @@
                 <!-- [ Main Content ] end -->
             </div>
         </div>
+    @endsection
 
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    @section('asset_js')
+        <script src="{{ asset('js/moment.js') }}"></script>
+        <script src="{{ asset('js/daterange-picker.js') }}"></script>
+        <script src="{{ asset('js/daterange-custom.js') }}"></script>
+    @endsection
 
-        <script>
-            $(document).ready(function() {
-                // Buka modal ketika tombol filter diklik
-                $('#filterButton').on('click', function() {
-                    $('#filterModal').modal('show');
-                });
-
-                // Saat modal ditutup, bersihkan tanggal jika diperlukan
-                $('#filterModal').on('hidden.bs.modal', function() {
-                    $('#startDate').val('');
-                    $('#endDate').val('');
-                });
-            });
-        </script>
-
+    @section('js')
         <script>
             function resetFilter() {
                 const url = new URL(window.location.href);
@@ -210,21 +213,39 @@
                 window.location.href = url.toString();
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                const startDateInput = document.getElementById('startDate');
-                const endDateInput = document.getElementById('endDate');
+            async function filterList() {
+                let dateRangePickerList = initializeDateRangePicker();
 
-                if (startDateInput) {
-                    startDateInput.addEventListener('focus', function() {
-                        this.showPicker?.(); // Modern browsers
-                    });
-                }
+                const form = document.getElementById('custom-filter');
+                form.action = "{{ route('laporan.pengiriman.index') }}";
+                form.method = "GET";
 
-                if (endDateInput) {
-                    endDateInput.addEventListener('focus', function() {
-                        this.showPicker?.(); // Modern browsers
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                    let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                    if (!startDate || !endDate) {
+                        startDate = null;
+                        endDate = null;
+                    } else {
+                        // Format tanggal menjadi 'YYYY-MM-DD' tanpa waktu
+                        startDate = startDate.format('YYYY-MM-DD');
+                        endDate = endDate.format('YYYY-MM-DD');
+                    }
+
+                    const params = new URLSearchParams({
+                        startDate: $("#daterange").val() !== '' ? startDate : '',
+                        endDate: $("#daterange").val() !== '' ? endDate : ''
                     });
-                }
-            });
+
+                    window.location.href = `${form.action}?${params.toString()}`;
+                });
+            }
+
+            async function initPageLoad() {
+                await filterList();
+            }
         </script>
     @endsection
