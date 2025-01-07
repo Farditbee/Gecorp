@@ -989,6 +989,7 @@
                     let url = actionUrl;
 
                     let formData = {
+                        id_retur: dataTemp.id_retur,
                         metode: $("select[name='metode[]']").map(function() {
                             return $(this).val();
                         }).get(),
