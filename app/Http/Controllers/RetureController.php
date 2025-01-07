@@ -75,7 +75,7 @@ class RetureController extends Controller
                             "id_barang" => $barang ? $barang->id : null,
                             "tipe_transaksi" => "Kasir",
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
-                            "harga_jual" => $detailKasir->harga - $diskon,
+                            "harga" => $detailKasir->harga - $diskon,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
                             "qty" => $detailKasir->qty,
                         ],
@@ -148,7 +148,7 @@ class RetureController extends Controller
             'id_transaksi' => 'required|string',
             'id_barang' => 'required|integer',
             'qty' => 'required|integer',
-            'harga_jual' => 'required|integer',
+            'harga' => 'required|integer',
         ]);
 
         $user = Auth::user();
@@ -163,7 +163,7 @@ class RetureController extends Controller
                 'id_barang' => $request->input('id_barang'),
                 'no_nota' => $request->input('no_nota'),
                 'qty' => $request->input('qty'),
-                'harga' => $request->input('harga_jual'),
+                'harga' => $request->input('harga'),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
@@ -188,15 +188,15 @@ class RetureController extends Controller
         $request->validate([
             'id_retur' => 'required|integer',
         ]);
-    
+
         $idReture = $request->id_retur;
-    
+
         try {
             $items = DB::table('temp_detail_retur')
                 ->where('id_users', Auth::user()->id)
                 ->where('id_retur', $idReture)
                 ->get();
-    
+
             if ($items->isEmpty()) {
                 return response()->json([
                     'error' => true,
@@ -204,12 +204,12 @@ class RetureController extends Controller
                     'status_code' => 404,
                 ], 404);
             }
-    
+
             $mappedData = $items->map(function ($item) {
                 $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
                 $barang = Barang::find($item->id_barang);
                 $retur = DataReture::find($item->id_retur);
-    
+
                 return [
                     'id' => $item->id,
                     'id_users' => $item->id_users,
@@ -227,7 +227,7 @@ class RetureController extends Controller
                     'tgl_retur' => $retur ? $retur->tgl_retur : "Tidak Ditemukan",
                 ];
             });
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
@@ -236,7 +236,7 @@ class RetureController extends Controller
             ], 200);
         } catch (\Exception $e) {
             Log::error('Error fetching temporary items: ' . $e->getMessage());
-    
+
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat mengambil data sementara.',
@@ -244,7 +244,7 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
     public function getRetureItems(Request $request)
     {
         $request->validate([
@@ -288,7 +288,7 @@ class RetureController extends Controller
                     'tgl_retur' => $retur ? $retur->tgl_retur : "Tidak Ditemukan",
                 ];
             });
-                                
+
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',

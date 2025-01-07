@@ -148,7 +148,7 @@
                                                         <div class="row">
                                                             <div class="col-12">
                                                                 <div class="table-responsive">
-                                                                    <div class="mb-4">
+                                                                    <div id="scan-data" class="mb-4">
                                                                         <label for="search-data" class="form-label">Scan
                                                                             QR Code Barang<span style="color: red"
                                                                                 class="ml-1">*</span></label>
@@ -169,7 +169,8 @@
                                                                     </div>
                                                                     <form id="retureForm">
                                                                         <div class="table-responsive table-scroll-wrapper">
-                                                                            <table class="table table-bordered">
+                                                                            <table
+                                                                                class="table table-bordered table-custom">
                                                                                 <thead>
                                                                                     <tr class="tb-head">
                                                                                         <th
@@ -319,17 +320,17 @@
                     </button>`;
             } else if (data.action === 'edit_detail') {
                 edit_button = `
-                    <a href='{{ route('get.retureItems') }}/id_retur=${data.id}' class="p-1 btn edit-data action_button"
+                    <button class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Verify ${title} No. Nota: ${data.no_nota}"
+                        title="Detail ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'
                         data-nota='${data.no_nota}'
                         data-tanggal='${data.tgl_retur}'>
-                        <span class="text-dark">Verify</span>
-                        <div class="icon text-success">
-                            <i class="fa fa-circle-check"></i>
+                        <span class="text-dark">Detail</span>
+                        <div class="icon text-info">
+                            <i class="fa fa-book"></i>
                         </div>
-                    </a>`;
+                    </button>`;
             } else {
                 edit_button = `
                     <span class="badge badge-danger">Tidak Ada Aksi</span>`;
@@ -437,9 +438,62 @@
                 } catch (error) {
                     const errorMessage = error?.response?.data?.message ||
                         'Terjadi kesalahan saat memuat data sementara.';
+                    handleEmptyState();
+                }
+                updateTableHeaders('edit');
+                submitMultiForm('temporary', '{{ route('reture.permStore') }}');
+            });
+        }
+
+        async function detailData() {
+            $(document).on("click", ".detail-data", async function() {
+                let id = $(this).attr("data-id");
+                let nota = $(this).attr("data-nota");
+                let tanggal = $(this).attr("data-tanggal");
+
+                dataTemp.id_retur = id;
+                dataTemp.no_nota = nota;
+
+                $("#modal-title").html(`Form Detail Reture No. Nota: ${nota}`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+
+                $("#i_no_nota").html(nota);
+                $("#i_tgl_retur").html(tanggal);
+                $("#tambah-tab").removeClass("active").addClass("d-none");
+                $("#tambah").removeClass("show active");
+                $("#detail-tab").removeClass("disabled").addClass("active").css({
+                    "pointer-events": "auto",
+                    "opacity": "1",
+                });
+                $("#detail").addClass("show active");
+
+                try {
+                    const response = await renderAPI('GET', '{{ route('get.retureItems') }}', {
+                        id_retur: id
+                    });
+                    if (response && response.status === 200) {
+                        const dataItems = response.data.data;
+
+                        if (Array.isArray(dataItems) && dataItems.length > 0) {
+                            $("#listData").empty();
+                            dataItems.forEach(item => rowTableDetailData(item));
+                        } else {
+                            handleEmptyState();
+                        }
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
+                        handleEmptyState();
+                    }
+                } catch (error) {
+                    const errorMessage = error?.response?.data?.message ||
+                        'Terjadi kesalahan saat memuat data sementara.';
                     notificationAlert('error', 'Kesalahan', errorMessage);
                     handleEmptyState();
                 }
+                updateTableHeaders('detail');
+                submitMultiForm('origin', '{{ route('create.updateNotaReture') }}');
             });
         }
 
@@ -459,8 +513,10 @@
                     "opacity": "0.6"
                 });
                 $("#detail").removeClass("show active");
+
+                updateTableHeaders('edit');
+                submitMultiForm('temporary', '{{ route('reture.permStore') }}');
             });
-            await submitForm();
         }
 
         function getExistingTransactionItemPairs() {
@@ -503,7 +559,7 @@
                 <td class="text-wrap align-top"><input type="text" name="nama_toko[]" value="${data.nama_toko || ''}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top"><input type="text" name="no_nota[]" value="${data.no_nota || ''}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top"><input type="text" name="nama_member[]" value="${data.nama_member || 'Guest'}" class="form-control" readonly required></td>
-                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga_jual || 0}" class="form-control" readonly required></td>
+                <td class="text-wrap align-top"><input type="text" name="harga[]" value="${data.harga || 0}" class="form-control" readonly required></td>
                 <td class="text-wrap align-top">
                     <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
                     <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
@@ -514,6 +570,92 @@
             `;
 
             tbody.appendChild(tr);
+        }
+
+        function rowTableDetailData(data) {
+            const tbody = document.getElementById('listData');
+            const loadingRow = document.querySelector('#listData .loading-row');
+            if (loadingRow) {
+                tbody.removeChild(loadingRow);
+            }
+
+            rowCount++;
+            const tr = document.createElement('tr');
+            const rowId = `row-${rowCount}`;
+            tr.id = rowId;
+
+            tr.innerHTML = `
+                <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top text-center">
+                    <select name="metode[]" class="form form-select select2">
+                        <option value="Cash" selected>Cash</option>
+                    </select>
+                </td>
+                <td class="text-wrap align-top text-center">${data.qty || 0}</td>
+                <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.no_nota || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.nama_member || 'Guest'}</span></td>
+                <td class="text-wrap align-top"><span>${data.harga || 0}</span></td>
+                <td class="text-wrap align-top">
+                    <span>${data.nama_barang || ''}</span>
+                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                </td>
+            `;
+
+            tbody.appendChild(tr);
+        }
+
+        function updateTableHeaders(action) {
+            const table = document.querySelector('.table-custom');
+            const thead = table.querySelector('thead tr');
+            const ths = thead.querySelectorAll('th');
+            const scanData = document.getElementById('scan-data');
+
+            if (action === 'detail') {
+                $(".select2").select2({
+                    placeholder: "Pilih Metode",
+                    allowClear: true,
+                    width: "100%",
+                    dropdownParent: $("#modal-form"),
+                });
+
+                if (scanData) scanData.style.display = 'none';
+
+                if (ths[1]) {
+                    ths[1].textContent = 'Metode';
+                    ths[1].style.width = '20%';
+                }
+
+                if (ths[ths.length - 1] && ths[ths.length - 1].textContent.trim() === '#') {
+                    ths[ths.length - 1].style.display = 'none';
+                }
+
+                for (let i = 0; i < ths.length; i++) {
+                    if (i !== 1) {
+                        ths[i].style.width = '8%'; // Sesuaikan lebar kolom lain
+                    }
+                }
+            } else {
+                // Tampilkan kembali scanData
+                if (scanData) scanData.style.display = '';
+
+                // Kembalikan teks th kedua menjadi '#' dan lebar aslinya
+                if (ths[1]) {
+                    ths[1].textContent = '#';
+                    ths[1].style.width = ''; // Kembali ke lebar default
+                }
+
+                // Tampilkan kembali th terakhir
+                if (ths[ths.length - 1] && ths[ths.length - 1].textContent.trim() === '#') {
+                    ths[ths.length - 1].style.display = '';
+                }
+
+                // Kembalikan lebar kolom lainnya
+                for (let i = 0; i < ths.length; i++) {
+                    ths[i].style.width = ''; // Reset lebar kolom ke default
+                }
+            }
         }
 
         async function getData(customFilter2 = {}) {
@@ -789,63 +931,104 @@
             });
         }
 
-        async function postMultiData() {
-            $(document).on("click", "#retureForm", function() {
-                $("#retureForm").data("action-url", '{{ route('reture.permStore') }}');
-            });
-            await submitMultiForm();
-        }
-
-        async function submitMultiForm(url) {
-            $(document).on("submit", "#retureForm", async function(e) {
+        async function submitMultiForm(action, actionUrl) {
+            $("#retureForm").off("submit").on("submit", async function(e) {
                 e.preventDefault();
                 loadingPage(true);
 
-                if (!dataTemp.id_retur || !dataTemp.no_nota) {
-                    loadingPage(false);
-                    notificationAlert('error', 'Pemberitahuan', 'ID Retur dan No Nota wajib diisi.');
-                    return;
-                }
-
-                let url = $("#retureForm").data("action-url");
-
-                let formData = {
-                    id_retur: dataTemp.id_retur,
-                    no_nota: dataTemp.no_nota,
-                    id_transaksi: $("input[name='id_transaksi[]']").map(function() {
-                        return $(this).val();
-                    }).get(),
-                    id_barang: $("input[name='id_barang[]']").map(function() {
-                        return $(this).val();
-                    }).get(),
-                    qty: $("input[name='qty[]']").map(function() {
-                        return $(this).val();
-                    }).get(),
-                    harga: $("input[name='harga[]']").map(function() {
-                        return $(this).val();
-                    }).get(),
-                };
-
-                let method = 'POST';
-                try {
-                    let postData = await renderAPI(method, url, formData);
-
-                    loadingPage(false);
-                    if (postData.status >= 200 && postData.status < 300) {
-                        notificationAlert('success', 'Pemberitahuan', postData.data.message || 'Berhasil');
-                        setTimeout(async function() {
-                            await getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        $("#modal-form").modal("hide");
-                    } else {
-                        notificationAlert('error', 'Pemberitahuan', postData.message ||
-                            'Terjadi kesalahan');
+                if (action === 'temporary') {
+                    if (!dataTemp.id_retur || !dataTemp.no_nota) {
+                        loadingPage(false);
+                        notificationAlert('error', 'Pemberitahuan', 'ID Retur dan No Nota wajib diisi.');
+                        return;
                     }
-                } catch (error) {
-                    loadingPage(false);
-                    let resp = error.response || {};
-                    notificationAlert('error', 'Pemberitahuan', resp.message || 'Terjadi kesalahan');
+
+                    let url = actionUrl;
+
+                    let formData = {
+                        id_retur: dataTemp.id_retur,
+                        no_nota: dataTemp.no_nota,
+                        id_transaksi: $("input[name='id_transaksi[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                        id_barang: $("input[name='id_barang[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                        qty: $("input[name='qty[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                        harga: $("input[name='harga[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                    };
+
+                    let method = 'POST';
+                    try {
+                        let postData = await renderAPI(method, url, formData);
+
+                        loadingPage(false);
+                        if (postData.status >= 200 && postData.status < 300) {
+                            notificationAlert('success', 'Pemberitahuan', postData.data.message ||
+                                'Berhasil');
+                            setTimeout(async function() {
+                                await getListData(defaultLimitPage, currentPage,
+                                    defaultAscending,
+                                    defaultSearch, customFilter);
+                            }, 500);
+                            $("#modal-form").modal("hide");
+                        } else {
+                            notificationAlert('error', 'Pemberitahuan', postData.message ||
+                                'Terjadi kesalahan');
+                        }
+                    } catch (error) {
+                        loadingPage(false);
+                        let resp = error.response || {};
+                        notificationAlert('error', 'Pemberitahuan', resp.message || 'Terjadi kesalahan');
+                    }
+                } else if (action === 'origin') {
+                    let url = actionUrl;
+
+                    let formData = {
+                        metode: $("select[name='metode[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                        qty: $("#listData tr").map(function() {
+                            return $(this).find('td:nth-child(3)').text().trim();
+                        }).get(),
+                        id_transaksi: $("#listData tr").map(function() {
+                            return $(this).find('td:nth-child(4) span').text().trim();
+                        }).get(),
+                        harga: $("#listData tr").map(function() {
+                            return $(this).find('td:nth-child(8) span').text().trim();
+                        }).get(),
+                        id_barang: $("input[name='id_barang[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                    };
+
+                    let method = 'POST';
+                    try {
+                        let postData = await renderAPI(method, url, formData);
+
+                        loadingPage(false);
+                        if (postData.status >= 200 && postData.status < 300) {
+                            notificationAlert('success', 'Pemberitahuan', postData.data.message ||
+                                'Berhasil');
+                            setTimeout(async function() {
+                                await getListData(defaultLimitPage, currentPage,
+                                    defaultAscending,
+                                    defaultSearch, customFilter);
+                            }, 500);
+                            $("#modal-form").modal("hide");
+                        } else {
+                            notificationAlert('error', 'Pemberitahuan', postData.message ||
+                                'Terjadi kesalahan');
+                        }
+                    } catch (error) {
+                        loadingPage(false);
+                        let resp = error.response || {};
+                        notificationAlert('error', 'Pemberitahuan', resp.message || 'Terjadi kesalahan');
+                    }
                 }
             });
         }
@@ -943,11 +1126,12 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await addData();
             await editData();
+            await detailData();
             await setDatePicker();
             await searchData();
             await setSortable();
-            await postMultiData();
             await resetModal();
+            await submitForm();
         }
     </script>
 @endsection
