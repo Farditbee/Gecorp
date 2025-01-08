@@ -323,8 +323,8 @@
         $("#toko").select2({
             placeholder: "Cari Toko",
             allowClear: true,
-            width: "100%", // Ensure full width
-            dropdownParent: $("#modal-form"), // Attach dropdown to the modal
+            width: "100%",
+            dropdownParent: $("#modal-form"),
         });
 
         $("#barang").select2({
