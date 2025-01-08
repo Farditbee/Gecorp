@@ -24,14 +24,15 @@
                                             <i class="ph-duotone ph-currency-dollar f-26"></i>
                                         </div>
                                         <div>
-                                            <p class="font-weight-bold mb-0">Total Pendapatan</p>
+                                            <p class="font-weight-bold mb-0">Total Omset</p>
                                             <div class="d-flex align-items-end">
-                                                <h2 class="mb-0" id="total-pendapatans">
-                                                    Rp. {{ number_format($totalSemuaNilai, 0, '.', '.') }}
+                                                <h2 class="mb-0" id="total-pendapatan">
+                                                    {{-- Rp. {{ number_format($totalSemuaNilai, 0, '.', '.') }} --}}
                                                 </h2>
                                             </div>
                                         </div>
                                     </div>
+                                    <div id="omset-chart" style="margin-top: 20px;"></div>
                                 </div>
                             </div>
                         </div>
@@ -167,7 +168,7 @@
         let customFilter = {};
         let customFilter2 = {};
 
-        async function getTotalPendapatan() {
+        async function getOmset() {
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ asset('dummy/pendapatan.json') }}', {
@@ -182,10 +183,40 @@
 
             if (getDataRest && getDataRest.status === 200) {
                 let data = getDataRest.data.data;
-                await $('#total-pendapatan').html(formatRupiah(data));
+                await setOmsetChart(data);
             } else {
                 console.error(getDataRest?.data?.message || "Error retrieving data.");
             }
+        }
+
+        async function setOmsetChart(data) {
+            const total = data?.total ? formatRupiah(data.total) : 0;
+            const laba_bersih = data?.laba_bersih || 0;
+            const laba_kotor = data?.laba_kotor || 0;
+
+            await $('#total-pendapatan').html(total);
+
+            var options = {
+                series: [laba_bersih, laba_kotor],
+                chart: {
+                    type: 'donut',
+                    height: 250
+                },
+                labels: ['Laba Bersih', 'Laba Kotor'],
+                colors: ['#1abc9c', '#FF9800'],
+                legend: {
+                    position: 'bottom'
+                },
+                dataLabels: {
+                    enabled: true,
+                    formatter: function(val) {
+                        return val.toFixed(1) + "%";
+                    }
+                }
+            };
+
+            var chart = new ApexCharts(document.querySelector("#omset-chart"), options);
+            chart.render();
         }
 
         async function getLaporanPenjualan() {
@@ -237,27 +268,24 @@
             const filterPeriod = document.getElementById('filter-period');
             const filterMonthContainer = document.getElementById('filter-month-container');
             const filterMonth = document.getElementById('filter-month');
-            const filterYearContainer = document.getElementById('filter-year-container');
             const filterYear = document.getElementById('filter-year');
             const total = document.getElementById('total-penjualan');
             const chartContainer = document.getElementById('laporan-chart');
 
             let currentChartType = 'bar';
-            const defaultYear = filterYear.value || new Date().getFullYear();
 
             const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
-            const updateChart = (period, year, chartType) => {
+            const updateChart = (selectedPeriod, year, month, chartType) => {
                 let penjualan = [];
-                const month = parseInt(filterMonth.value, 10);
 
-                if (period === 'daily') {
+                if (selectedPeriod === 'daily') {
                     const daysInMonth = getDaysInMonth(year, month);
                     const dailyData = apiResponse.daily?.[year]?.[month] || Array(daysInMonth).fill(0);
                     penjualan = dailyData;
-                } else if (period === 'monthly') {
+                } else if (selectedPeriod === 'monthly') {
                     penjualan = apiResponse.monthly?.[year] || Array(12).fill(0);
-                } else if (period === 'yearly') {
+                } else if (selectedPeriod === 'yearly') {
                     penjualan = Object.values(apiResponse.yearly || {});
                 }
 
@@ -266,7 +294,7 @@
                 const categories = {
                     daily: Array.from({
                         length: penjualan.length
-                    }, (_, i) => `Tgl ${i + 1}`),
+                    }, (_, i) => `${i + 1}`),
                     monthly: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
                         'September', 'Oktober', 'November', 'Desember'
                     ],
@@ -276,7 +304,7 @@
                 const chartOptions = {
                     series: [{
                         name: 'Penjualan',
-                        data: penjualan,
+                        data: penjualan
                     }],
                     chart: {
                         height: 350,
@@ -284,12 +312,12 @@
                         toolbar: {
                             show: true,
                             tools: {
-                                download: true,
+                                download: true
                             },
                         },
                     },
                     dataLabels: {
-                        enabled: false,
+                        enabled: false
                     },
                     stroke: {
                         curve: chartType === 'line' ? 'smooth' : 'straight',
@@ -297,15 +325,15 @@
                         colors: ['#90EE90'],
                     },
                     xaxis: {
-                        categories: categories[period],
+                        categories: categories[selectedPeriod]
                     },
                     colors: ['#90EE90'],
                     legend: {
-                        position: 'top',
+                        position: 'top'
                     },
                     fill: {
                         type: 'solid',
-                        colors: ['#90EE90'],
+                        colors: ['#90EE90']
                     },
                     markers: {
                         size: 5,
@@ -319,50 +347,64 @@
                 chart.render();
             };
 
+            const setDefaultMonth = () => {
+                const currentMonth = new Date().getMonth() + 1;
+                for (let option of filterMonth.options) {
+                    if (parseInt(option.value) === currentMonth) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            };
 
-            setDefaultMonth();
+            const populateYearOptions = () => {
+                const currentYear = new Date().getFullYear();
+                const startYear = 2000;
+                const selectedYear = customFilter.year || currentYear;
+
+                filterYear.innerHTML = '';
+
+                for (let year = currentYear; year >= startYear; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (parseInt(year) === parseInt(selectedYear)) {
+                        option.selected = true;
+                    }
+                    filterYear.appendChild(option);
+                }
+            };
+
             populateYearOptions();
-            updateChart(period, defaultYear, currentChartType);
+            setDefaultMonth();
+
+            updateChart(period, filterYear.value, parseInt(filterMonth.value, 10), currentChartType);
 
             filterPeriod.addEventListener('change', () => {
-                filterMonthContainer.style.display = filterPeriod.value === 'daily' ? 'block' : 'none';
-                updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                const selectedPeriod = filterPeriod.value;
+                filterMonthContainer.style.display = selectedPeriod === 'daily' ? 'block' : 'none';
+
+                if (selectedPeriod === 'daily') {
+                    setDefaultMonth();
+                }
+
+                updateChart(selectedPeriod, filterYear.value, parseInt(filterMonth.value, 10),
+                    currentChartType);
             });
 
             filterMonth.addEventListener('change', () => {
                 if (filterPeriod.value === 'daily') {
-                    const selectedYear = filterYear.value;
-                    updateChart(filterPeriod.value, selectedYear, currentChartType);
+                    updateChart(filterPeriod.value, filterYear.value, parseInt(filterMonth.value, 10),
+                        currentChartType);
                 }
             });
 
             filterYear.addEventListener('change', () => {
-                updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                const selectedYear = filterYear.value;
+                const selectedMonth = parseInt(filterMonth.value, 10);
+
+                updateChart(filterPeriod.value, selectedYear, selectedMonth, currentChartType);
             });
-
-            const chartTypeMapping = {
-                'chart-area': 'area',
-                'chart-bar': 'bar',
-                'chart-line': 'line',
-            };
-
-            const setActiveChartButton = (activeId) => {
-                Object.keys(chartTypeMapping).forEach((id) => {
-                    const button = document.getElementById(id);
-                    button.classList.toggle('btn-primary', id === activeId);
-                    button.classList.toggle('btn-outline-primary', id !== activeId);
-                });
-            };
-
-            Object.keys(chartTypeMapping).forEach((id) => {
-                document.getElementById(id).addEventListener('click', () => {
-                    currentChartType = chartTypeMapping[id];
-                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
-                    setActiveChartButton(id);
-                });
-            });
-
-            setActiveChartButton('chart-bar');
         }
 
         function setDefaultMonth() {
@@ -530,6 +572,7 @@
         }
 
         async function initPageLoad() {
+            await getOmset();
             await setDynamicButton();
             await getLaporanPenjualan();
             await getTopPenjualan();
