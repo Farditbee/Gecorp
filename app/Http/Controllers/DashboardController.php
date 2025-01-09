@@ -175,19 +175,16 @@ class DashboardController extends Controller
             'member.nama_member',
             'kasir.id_toko',
             DB::raw('COUNT(detail_kasir.id_barang) as total_barang_dibeli'),
-            DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_pembayaran') // Hitung total pembayaran
+            DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_pembayaran')
         )
             ->join('kasir', 'member.id', '=', 'kasir.id_member')
             ->join('detail_kasir', 'kasir.id', '=', 'detail_kasir.id_kasir');
 
-        // Filter berdasarkan toko
         if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
             $query->where('kasir.id_toko', $selectedTokoIds)
                 ->groupBy('kasir.id_toko', 'member.id', 'member.nama_member');
-        } elseif ($selectedTokoIds === 'all') {
-            $query->groupBy('kasir.id_toko', 'member.id', 'member.nama_member');
         } else {
-            $query->groupBy('member.id', 'member.nama_member');
+            $query->groupBy('kasir.id_toko', 'member.id', 'member.nama_member');
         }
 
         $dataMember = $query->orderBy('total_pembayaran', 'desc')->limit(5)->get();
