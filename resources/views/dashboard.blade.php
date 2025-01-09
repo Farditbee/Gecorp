@@ -6,6 +6,12 @@
 
 @section('css')
     <style>
+        .performance-scroll {
+            max-height: 350px;
+            overflow-y: auto;
+            position: relative;
+        }
+
         .avatar {
             width: 60px;
             height: 60px;
@@ -126,7 +132,7 @@
                         <div class="col-xxl-12 col-md-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5>Top 5 Penjualan</h5>
+                                    <h5>Top 10 Penjualan</h5>
                                     @if (auth()->user()->id_toko == 1)
                                         <div class="d-flex align-items-center gap-2">
                                             <div style="width: 200px;">
@@ -142,12 +148,11 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="performance-scroll overflow-auto" style="height: 350px; position: relative;">
+                                <div class="performance-scroll overflow-auto" style="position: relative;">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped m-b-0 without-header">
-                                                <tbody id="listData">
-                                                </tbody>
+                                                <tbody id="listData"></tbody>
                                             </table>
                                         </div>
                                     </div>
@@ -157,7 +162,7 @@
                         <div class="col-xxl-12 col-md-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
-                                    <h5>Top 5 Member</h5>
+                                    <h5>Top 10 Member</h5>
                                     @if (auth()->user()->id_toko == 1)
                                         <div class="d-flex align-items-center gap-2">
                                             <div style="width: 200px;">
@@ -173,18 +178,18 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div class="performance-scroll overflow-auto" style="height: 350px; position: relative;">
+                                <div class="performance-scroll overflow-auto" style="position: relative;">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped m-b-0 without-header">
-                                                <tbody id="listData2">
-                                                </tbody>
+                                                <tbody id="listData2"></tbody>
                                             </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
                 <div class="col-xxl-6 col-md-9">
@@ -826,13 +831,21 @@
 
             filterElements.forEach((select) => {
                 select.addEventListener('change', async () => {
-                    await updateFilters();
+                    if (select.id === 'f-penjualan-toko' && select.value.trim()) {
+                        await updateFilters();
+                    }
 
                     if (select.id === 'f-barang-toko' && select.value.trim()) {
                         customFilter2 = {
                             id_toko: select.value.trim()
                         };
                         await getTopPenjualan(customFilter2);
+                    }
+                    if (select.id === 'f-member-toko' && select.value.trim()) {
+                        customFilter3 = {
+                            id_toko: select.value.trim()
+                        };
+                        await getTopMember(customFilter3);
                     }
                 });
             });
@@ -845,7 +858,9 @@
             await getTopPenjualan();
             await getTopMember();
             if ('{{ auth()->user()->id_toko == 1 }}') {
-                await selectList(['f-penjualan-toko', 'f-barang-toko', 'filter-period', 'filter-month', 'filter-year']);
+                await selectList(['f-penjualan-toko', 'f-barang-toko', 'f-member-toko', 'filter-period', 'filter-month',
+                    'filter-year'
+                ]);
             } else {
                 await selectList(['filter-period', 'filter-month', 'filter-year']);
             }
