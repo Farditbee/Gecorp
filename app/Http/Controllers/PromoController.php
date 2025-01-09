@@ -161,4 +161,74 @@ class PromoController extends Controller
             ], 500);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        $validatedData = $request->validate([
+            'id_barang' => 'nullable|exists:barang,id',
+            'id_toko' => 'nullable|exists:toko,id',
+            'minimal' => 'nullable|integer|min:0',
+            'diskon' => 'nullable|numeric|min:0|max:100',
+            'jumlah' => 'nullable|integer|min:0',
+            'terjual' => 'nullable|integer|min:0',
+            'dari' => 'nullable|date',
+            'sampai' => 'nullable|date|after_or_equal:dari',
+        ]);
+
+        $promo = Promo::find($id);
+
+        if (!$promo) {
+            return response()->json([
+                'status_code' => 404,
+                'errors' => true,
+                'message' => 'Promo tidak ditemukan',
+            ], 404);
+        }
+
+        $promo->fill($validatedData);
+        $promo->save();
+
+        return response()->json([
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Data promo berhasil diperbarui',
+            'data' => $promo,
+        ], 200);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        // Validasi input
+        $validatedData = $request->validate([
+            'status' => 'required|string|in:done,ongoing,queue', // Status yang diperbolehkan
+        ]);
+
+        // Cari promo berdasarkan ID
+        $promo = Promo::find($id);
+
+        if (!$promo) {
+            return response()->json([
+                'status_code' => 404,
+                'errors' => true,
+                'message' => 'Promo tidak ditemukan',
+            ], 404);
+        }
+
+        // Periksa apakah status yang diinginkan adalah "done" atau lainnya
+        $newStatus = $validatedData['status'];
+
+        // Update status
+        $promo->status = $newStatus;
+        $promo->save();
+
+        return response()->json([
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Status berhasil diperbarui',
+            'data' => [
+                'id' => $promo->id,
+                'status' => $promo->status,
+            ],
+        ], 200);
+    }
 }
