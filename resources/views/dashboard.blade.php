@@ -295,7 +295,7 @@
         async function getOmset() {
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ asset('dummy/pendapatan.json') }}', {
+                '{{ route('dashboard.omset') }}', {
                     id_toko: '{{ auth()->user()->id_toko }}',
                 }
             ).then(function(response) {
