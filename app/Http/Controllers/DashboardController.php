@@ -211,21 +211,22 @@ class DashboardController extends Controller
     }
 
     public function getOmset(Request $request)
-    {
-        $idToko = $request->input('id_toko'); // Ambil id_toko dari request
+{
+    // Hitung total omset kecuali id_toko = 1
+    $totalOmset = Kasir::where('id_toko', '!=', 1)->sum('total_nilai');
 
-        // Hitung total omset
-        $totalOmset = $idToko === 'all'
-            ? Kasir::where('id_toko', '!=', 1)->sum('total_nilai') // Semua kecuali id_toko = 1
-            : Kasir::where('id_toko', $idToko)->where('id_toko', '!=', 1)->sum('total_nilai'); // Toko tertentu kecuali id_toko = 1
+    $totalDiskon = Kasir::where('id_toko', '!=', 1)->sum('total_diskon');
 
-        return response()->json([
-            "error" => false,
-            "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
-            "status_code" => 200,
-            "data" => [
-                'total' => $totalOmset,
-            ],
-        ]);
-    }
+    $total =$totalOmset - $totalDiskon;
+
+    return response()->json([
+        "error" => false,
+        "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
+        "status_code" => 200,
+        "data" => [
+            'total' => $total,
+        ],
+    ]);
+}
+
 }
