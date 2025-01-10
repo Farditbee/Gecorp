@@ -196,7 +196,7 @@ class DashboardController extends Controller
             return [
                 'nama_member' => $item->nama_member,
                 'id_toko' => $item->id_toko,
-                'nama_toko' => $item->nama_toko, // Tambahkan nama_toko ke hasil
+                'nama_toko' => $item->toko->singkatan, // Tambahkan nama_toko ke hasil
                 'total_barang_dibeli' => $item->total_barang_dibeli,
                 'total_pembayaran' => $item->total_pembayaran,
             ];
