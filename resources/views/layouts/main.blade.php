@@ -277,6 +277,67 @@
                 await $(id).select2(selectOption);
             }
         }
+
+        async function selectData(optionsArray) {
+            const auth_token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            for (const {
+                    id,
+                    isUrl,
+                    placeholder,
+                    isModal,
+                    isFilter
+                }
+                of optionsArray) {
+                let selectOption = {
+                    ajax: {
+                        url: isUrl,
+                        dataType: 'json',
+                        delay: 500,
+                        headers: {
+                            Authorization: `Bearer ` + auth_token
+                        },
+                        data: function(params) {
+                            const filterParams = isFilter || {};
+
+                            let query = {
+                                search: params.term,
+                                page: params.page || 1,
+                                limit: 30,
+                                ascending: 1,
+                                ...filterParams,
+                            };
+                            return query;
+                        },
+                        processResults: function(res, params) {
+                            let data = res.data;
+                            let filteredData = $.map(data, function(item) {
+                                return {
+                                    id: item.id,
+                                    text: item.text
+                                };
+                            });
+                            return {
+                                results: filteredData,
+                                pagination: {
+                                    more: res.pagination && res.pagination.more
+                                }
+                            };
+                        },
+                    },
+                    dropdownParent: $(isModal),
+                    allowClear: true,
+                    placeholder: placeholder,
+                    dropdownAutoWidth: true,
+                    width: '100%',
+                    // escapeMarkup: function(markup) {
+                    //     return markup;
+                    // },
+                };
+
+                await $(id).select2(selectOption);
+            }
+        }
     </script>
     <!-- Required Js -->
     @yield('js')

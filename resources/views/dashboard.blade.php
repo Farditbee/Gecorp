@@ -189,91 +189,176 @@
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
                 <div class="col-xxl-6 col-md-9">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div>
-                                <h5 class="mb-2">Rekapitulasi Penjualan</h5>
-                                <div class="row align-items-center">
-                                    <div class="col-auto ms-auto">
-                                        <span class="text-muted me-1">
-                                            <i class="fa fa-cogs mr-1"></i>Atur Grafik :
-                                        </span>
-                                        <button class="btn btn-outline-primary btn-sm" id="chart-area" title="Area Grafik">
-                                            <i class="fa fa-chart-area"></i>
-                                        </button>
-                                        <button class="btn btn-outline-primary btn-sm" id="chart-bar" title="Bar Grafik">
-                                            <i class="fa fa-chart-bar"></i>
-                                        </button>
-                                        <button class="btn btn-outline-primary btn-sm" id="chart-line" title="Line Grafik">
-                                            <i class="fa fa-chart-line"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
-                                data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
-                                <i class="fa fa-filter"></i> Filter
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="row pb-2 align-items-center justify-content-between">
-                                <div class="mb-2 col-12 col-md-auto">
-                                    <h4 class="mb-1" id="total-penjualan">Rp. 0</h4>
-                                    <span>Data Penjualan</span>
-                                </div>
-                                <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
-                                    <div class="collapse" id="filter-collapse">
-                                        <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
-                                            <div style="width: 200px; display: none;" id="filter-month-container">
-                                                <select id="filter-month" name="month"
-                                                    class="filter-option form-select form-select-sm w-100">
-                                                    <option value="1">Januari</option>
-                                                    <option value="2">Februari</option>
-                                                    <option value="3">Maret</option>
-                                                    <option value="4">April</option>
-                                                    <option value="5">Mei</option>
-                                                    <option value="6">Juni</option>
-                                                    <option value="7">Juli</option>
-                                                    <option value="8">Agustus</option>
-                                                    <option value="9">September</option>
-                                                    <option value="10">Oktober</option>
-                                                    <option value="11">November</option>
-                                                    <option value="12">Desember</option>
-                                                </select>
+                    <div class="row">
+                        <div class="col-xxl-12 col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-2">Komparasi Penjualan Antar Toko</h5>
+                                        <div class="row align-items-center">
+                                            <div class="col-auto ms-auto">
+                                                <span class="text-muted me-1">
+                                                    <i class="fa fa-cogs mr-1"></i>Atur Grafik :
+                                                </span>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-area2"
+                                                    title="Area Grafik">
+                                                    <i class="fa fa-chart-area"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-bar2"
+                                                    title="Bar Grafik">
+                                                    <i class="fa fa-chart-bar"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-line2"
+                                                    title="Line Grafik">
+                                                    <i class="fa fa-chart-line"></i>
+                                                </button>
                                             </div>
-                                            <div style="width: 200px;" id="filter-year-container">
-                                                <select id="filter-year" name="year"
-                                                    class="filter-option form-select form-select-sm w-100"></select>
-                                            </div>
-                                            <div style="width: 200px;">
-                                                <select id="filter-period" name="period"
-                                                    class="filter-option form-select form-select-sm w-100">
-                                                    <option value="daily">Harian</option>
-                                                    <option value="monthly" selected>Bulanan</option>
-                                                    <option value="yearly">Tahunan</option>
-                                                </select>
-                                            </div>
-                                            @if (auth()->user()->id_toko == 1)
-                                                <div style="width: 200px;">
-                                                    <select id="f-penjualan-toko" name="nama_toko"
-                                                        class="filter-option form-select form-select-sm w-100">
-                                                        <option value="all">Semua Toko</option>
-                                                        @foreach ($toko as $tokoData)
-                                                            <option value="{{ $tokoData->id }}">{{ $tokoData->nama_toko }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            @endif
                                         </div>
                                     </div>
+                                    <button class="btn-dynamic btn btn-outline-primary" type="button"
+                                        data-toggle="collapse" data-target="#filter-collapse2" aria-expanded="false"
+                                        aria-controls="filter-collapse2">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row pb-2 align-items-center justify-content-between">
+                                        <div class="mb-2 col-12 col-md-auto">
+                                            <h4 class="mb-1" id="total-penjualan2">Rp. 0</h4>
+                                            <span>Data Penjualan</span>
+                                        </div>
+                                        <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                            <div class="collapse" id="filter-collapse2">
+                                                <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                                    <div style="width: 200px; display: none;" id="filter-month-container2">
+                                                        <select id="filter-month2" name="month"
+                                                            class="filter-option form-select form-select-sm w-100">
+                                                            <option value="1">Januari</option>
+                                                            <option value="2">Februari</option>
+                                                            <option value="3">Maret</option>
+                                                            <option value="4">April</option>
+                                                            <option value="5">Mei</option>
+                                                            <option value="6">Juni</option>
+                                                            <option value="7">Juli</option>
+                                                            <option value="8">Agustus</option>
+                                                            <option value="9">September</option>
+                                                            <option value="10">Oktober</option>
+                                                            <option value="11">November</option>
+                                                            <option value="12">Desember</option>
+                                                        </select>
+                                                    </div>
+                                                    <div style="width: 200px;" id="filter-year-container">
+                                                        <select id="filter-year2" name="year"
+                                                            class="filter-option form-select form-select-sm w-100"></select>
+                                                    </div>
+                                                    <div style="width: 200px;">
+                                                        <select id="filter-period2" name="period"
+                                                            class="filter-option form-select form-select-sm w-100">
+                                                            <option value="daily">Harian</option>
+                                                            <option value="monthly" selected>Bulanan</option>
+                                                            <option value="yearly">Tahunan</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="komparasi-chart"></div>
                                 </div>
                             </div>
-                            <div id="laporan-chart"></div>
+                        </div>
+                        <div class="col-xxl-12 col-md-12">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-2">Rekapitulasi Penjualan</h5>
+                                        <div class="row align-items-center">
+                                            <div class="col-auto ms-auto">
+                                                <span class="text-muted me-1">
+                                                    <i class="fa fa-cogs mr-1"></i>Atur Grafik :
+                                                </span>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-area"
+                                                    title="Area Grafik">
+                                                    <i class="fa fa-chart-area"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-bar"
+                                                    title="Bar Grafik">
+                                                    <i class="fa fa-chart-bar"></i>
+                                                </button>
+                                                <button class="btn btn-outline-primary btn-sm" id="chart-line"
+                                                    title="Line Grafik">
+                                                    <i class="fa fa-chart-line"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn-dynamic btn btn-outline-primary" type="button"
+                                        data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                        aria-controls="filter-collapse">
+                                        <i class="fa fa-filter"></i> Filter
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row pb-2 align-items-center justify-content-between">
+                                        <div class="mb-2 col-12 col-md-auto">
+                                            <h4 class="mb-1" id="total-penjualan">Rp. 0</h4>
+                                            <span>Data Penjualan</span>
+                                        </div>
+                                        <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                            <div class="collapse" id="filter-collapse">
+                                                <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                                    <div style="width: 200px; display: none;" id="filter-month-container">
+                                                        <select id="filter-month" name="month"
+                                                            class="filter-option form-select form-select-sm w-100">
+                                                            <option value="1">Januari</option>
+                                                            <option value="2">Februari</option>
+                                                            <option value="3">Maret</option>
+                                                            <option value="4">April</option>
+                                                            <option value="5">Mei</option>
+                                                            <option value="6">Juni</option>
+                                                            <option value="7">Juli</option>
+                                                            <option value="8">Agustus</option>
+                                                            <option value="9">September</option>
+                                                            <option value="10">Oktober</option>
+                                                            <option value="11">November</option>
+                                                            <option value="12">Desember</option>
+                                                        </select>
+                                                    </div>
+                                                    <div style="width: 200px;" id="filter-year-container">
+                                                        <select id="filter-year" name="year"
+                                                            class="filter-option form-select form-select-sm w-100"></select>
+                                                    </div>
+                                                    <div style="width: 200px;">
+                                                        <select id="filter-period" name="period"
+                                                            class="filter-option form-select form-select-sm w-100">
+                                                            <option value="daily">Harian</option>
+                                                            <option value="monthly" selected>Bulanan</option>
+                                                            <option value="yearly">Tahunan</option>
+                                                        </select>
+                                                    </div>
+                                                    @if (auth()->user()->id_toko == 1)
+                                                        <div style="width: 200px;">
+                                                            <select id="f-penjualan-toko" name="nama_toko"
+                                                                class="filter-option form-select form-select-sm w-100">
+                                                                <option value="all">Semua Toko</option>
+                                                                @foreach ($toko as $tokoData)
+                                                                    <option value="{{ $tokoData->id }}">
+                                                                        {{ $tokoData->nama_toko }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="laporan-chart"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -619,6 +704,221 @@
             }
         }
 
+        async function getKomparasiToko() {
+            let filterParams = {};
+
+            if ('{{ auth()->user()->id_toko != 1 }}') {
+                filterParams.nama_toko = '{{ auth()->user()->id_toko }}';
+            } else if (customFilter['nama_toko']) {
+                filterParams.nama_toko = customFilter['nama_toko'];
+            }
+
+            if (customFilter['period']) {
+                filterParams.period = customFilter['period'];
+            }
+            if (customFilter['month'] && customFilter['period'] === 'daily') {
+                filterParams.month = customFilter['month'];
+            }
+            if (customFilter['year']) {
+                filterParams.year = customFilter['year'];
+            }
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.index.kasir') }}', {
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status === 200) {
+                const responseData = getDataRest.data?.data?.[0] || {
+                    nama_toko: "All",
+                    daily: {},
+                    monthly: {},
+                    yearly: {},
+                    totals: 0
+                };
+                await setKomparasiToko(responseData, filterParams.period || 'monthly');
+            } else {
+                console.error(getDataRest?.data?.message || "Error retrieving data.");
+            }
+        }
+
+        async function setKomparasiToko(apiResponse, period) {
+            const filterPeriod = document.getElementById('filter-period2');
+            const filterMonthContainer = document.getElementById('filter-month-container2');
+            const filterMonth = document.getElementById('filter-month2');
+            const filterYearContainer = document.getElementById('filter-year-container2');
+            const filterYear = document.getElementById('filter-year2');
+            const total = document.getElementById('total-penjualan2');
+            const chartContainer = document.getElementById('laporan-chart2');
+
+            let currentChartType = 'bar';
+            const defaultYear = filterYear.value || new Date().getFullYear();
+
+            const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
+
+            const updateChart = (period, year, chartType) => {
+                let penjualan = [];
+                const month = parseInt(filterMonth.value, 10);
+
+                if (period === 'daily') {
+                    const daysInMonth = getDaysInMonth(year, month);
+                    const dailyData = apiResponse.daily?.[year]?.[month] || Array(daysInMonth).fill(0);
+                    penjualan = dailyData;
+                } else if (period === 'monthly') {
+                    penjualan = apiResponse.monthly?.[year] || Array(12).fill(0);
+                } else if (period === 'yearly') {
+                    penjualan = Object.values(apiResponse.yearly || {});
+                }
+
+                total.textContent = formatRupiah(apiResponse.totals || 0);
+
+                const categories = {
+                    daily: Array.from({
+                        length: penjualan.length
+                    }, (_, i) => `${i + 1}`),
+                    monthly: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
+                        'September', 'Oktober', 'November', 'Desember'
+                    ],
+                    yearly: Object.keys(apiResponse.yearly || {}).map(year => year),
+                };
+
+                const chartOptions = {
+                    series: [{
+                        name: 'Penjualan',
+                        data: penjualan,
+                    }],
+                    chart: {
+                        height: 350,
+                        type: chartType,
+                        toolbar: {
+                            show: true,
+                            tools: {
+                                download: true,
+                            },
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false,
+                    },
+                    stroke: {
+                        curve: chartType === 'line' ? 'smooth' : 'straight',
+                        width: 2,
+                        colors: ['#90EE90'],
+                    },
+                    xaxis: {
+                        categories: categories[period],
+                    },
+                    colors: ['#90EE90'],
+                    legend: {
+                        position: 'top',
+                    },
+                    fill: {
+                        type: 'solid',
+                        colors: ['#90EE90'],
+                    },
+                    markers: {
+                        size: 5,
+                        colors: ['#90EE90'],
+                        strokeWidth: 2,
+                    },
+                };
+
+                chartContainer.innerHTML = '';
+                const chart = new ApexCharts(chartContainer, chartOptions);
+                chart.render();
+            };
+
+            const setDefaultMonth = () => {
+                const currentMonth = new Date().getMonth() + 1;
+                for (let option of filterMonth.options) {
+                    if (parseInt(option.value) === currentMonth) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            };
+
+            const populateYearOptions = () => {
+                const currentYear = new Date().getFullYear();
+                const startYear = 2000;
+                const selectedYear = customFilter.year || currentYear;
+
+                filterYear.innerHTML = '';
+
+                for (let year = currentYear; year >= startYear; year--) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    if (parseInt(year) === parseInt(selectedYear)) {
+                        option.selected = true;
+                    }
+                    filterYear.appendChild(option);
+                }
+            };
+
+            populateYearOptions();
+            setDefaultMonth();
+
+            updateChart(period, defaultYear, currentChartType);
+
+            filterPeriod.addEventListener('change', () => {
+                const selectedPeriod = filterPeriod.value;
+                filterMonthContainer.style.display = selectedPeriod === 'daily' ? 'block' : 'none';
+
+                if (selectedPeriod === 'daily') {
+                    setDefaultMonth();
+                }
+
+                updateChart(selectedPeriod, filterYear.value, parseInt(filterMonth.value, 10),
+                    currentChartType);
+            });
+
+            filterMonth.addEventListener('change', () => {
+                if (filterPeriod.value === 'daily') {
+                    updateChart(filterPeriod.value, filterYear.value, parseInt(filterMonth.value, 10),
+                        currentChartType);
+                }
+            });
+
+            filterYear.addEventListener('change', () => {
+                const selectedYear = filterYear.value;
+                const selectedMonth = parseInt(filterMonth.value, 10);
+
+                updateChart(filterPeriod.value, selectedYear, selectedMonth, currentChartType);
+            });
+
+            const chartTypeMapping = {
+                'chart-area2': 'area',
+                'chart-bar2': 'bar',
+                'chart-line2': 'line',
+            };
+
+            const setActiveChartButton = (activeId) => {
+                Object.keys(chartTypeMapping).forEach((id) => {
+                    const button = document.getElementById(id);
+                    button.classList.toggle('btn-primary', id === activeId);
+                    button.classList.toggle('btn-outline-primary', id !== activeId);
+                });
+            };
+
+            Object.keys(chartTypeMapping).forEach((id) => {
+                document.getElementById(id).addEventListener('click', () => {
+                    currentChartType = chartTypeMapping[id];
+                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                    setActiveChartButton(id);
+                });
+            });
+
+            setActiveChartButton('chart-bar');
+        }
+
         async function getTopPenjualan(customFilter2 = {}) {
             let filterParams = {};
 
@@ -806,7 +1106,7 @@
                             </div>
                             <div class="d-flex justify-content-between align-items-start">
                                 <p class="m-b-0" style="font-size: 0.9rem;">
-                                    <i class="fa fa-shopping-cart"></i> <span>Terjual :</span> ${element.jumlah}
+                                    <i class="fa fa-shopping-cart"></i> <span>Transaksi :</span> ${element.jumlah}
                                 </p>
                                 <div class="text-right">
                                     <p class="m-b-0 font-weight-bold">Total</p>

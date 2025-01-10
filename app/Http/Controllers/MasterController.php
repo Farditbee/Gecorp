@@ -70,8 +70,8 @@ class MasterController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $user = Auth::user();
-        $query = Member::where('id_toko', $user->id_toko);
+        $id_toko = $request->id_toko;
+        $query = Member::where('id_toko', $id_toko);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -106,8 +106,8 @@ class MasterController extends Controller
 
         $mappedData = array_map(function ($item) {
             return [
-                'id_member' => $item['id'],
-                'nama_member' => $item['nama_member'],
+                'id' => $item['id'],
+                'text' => $item['nama_member'] . ' / ' . $item['no_hp'],
             ];
         }, $data['data']);
 
