@@ -7,6 +7,7 @@ use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailRetur;
 use App\Models\Kasir;
+use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -108,6 +109,7 @@ class RetureController extends Controller
         $request->validate([
             'no_nota' => 'required|string',
             'tgl_retur' => 'required|date',
+            'id_member' => 'required|integer',
         ]);
 
         $user = Auth::user();
@@ -118,7 +120,10 @@ class RetureController extends Controller
                 'id_toko' => $user->id_toko,
                 'no_nota' => $request->no_nota,
                 'tgl_retur' => $request->tgl_retur,
+                'id_member' => $request->id_member,
             ]);
+
+            $member = Member::find($request->id_member);
 
             // Return JSON response
             return response()->json([
@@ -129,6 +134,8 @@ class RetureController extends Controller
                     'id_retur'=> $retur->id,
                     'no_nota' => $retur->no_nota,
                     'tgl_retur' => $retur->tgl_retur,
+                    'id_member' => $retur->id_member,
+                    'nama_member' => $member->nama_member,
                 ],
             ]);
         } catch (\Throwable $th) {
@@ -503,6 +510,7 @@ class RetureController extends Controller
             'qty' => 'required|array',
             'harga' => 'required|array',
             'id_retur' => 'required|integer',
+            'id_member' => 'required|integer',
         ]);
 
         $metode = $request->metode;
