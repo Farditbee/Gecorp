@@ -134,7 +134,7 @@ class DashboardController extends Controller
             'detail_kasir.id_barang',
             'barang.nama_barang',
             DB::raw('SUM(detail_kasir.qty) as total_terjual'),
-            DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_nilai') // Hitung total nilai
+            DB::raw('SUM((detail_kasir.qty * detail_kasir.harga) - COALESCE(detail_kasir.diskon, 0)) as total_nilai') // Hitung total nilai
         )
             ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id');
 
@@ -196,7 +196,7 @@ class DashboardController extends Controller
             return [
                 'nama_member' => $item->nama_member,
                 'id_toko' => $item->id_toko,
-                'nama_toko' => $item->toko->singkatan, // Tambahkan nama_toko ke hasil
+                'nama_toko' => $item->toko->singkatan,
                 'total_barang_dibeli' => $item->total_barang_dibeli,
                 'total_pembayaran' => $item->total_pembayaran,
             ];
