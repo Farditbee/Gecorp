@@ -89,7 +89,7 @@ class AuthController extends Controller
         $user = Auth::user();
         $users = User::all();
         $detail_kasir = DetailKasir::all();
-        $toko = Toko::all();
+        $toko = Toko::where('id', '!=', 1)->get();
 
         // Mengambil data berdasarkan level user
         if ($user->id_level == 1) {
