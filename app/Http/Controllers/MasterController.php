@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Member;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MasterController extends Controller
 {
@@ -69,7 +70,8 @@ class MasterController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = Member::query();
+        $user = Auth::user();
+        $query = Member::where('id_toko', $user->id_toko);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
