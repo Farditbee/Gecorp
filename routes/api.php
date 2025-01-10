@@ -51,5 +51,6 @@ Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name(
 
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
+    Route::get('member', [MasterController::class, 'getMember'])->name('member');
 });
 

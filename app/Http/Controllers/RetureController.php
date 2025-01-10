@@ -7,6 +7,7 @@ use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailRetur;
 use App\Models\Kasir;
+use App\Models\Member;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -62,6 +63,7 @@ class RetureController extends Controller
                     $barang = Barang::find($detailKasir->id_barang);
 
                     $diskon = $detailKasir->diskon ?? 0;
+                    $reture_qty = $detailKasir->reture_qty ?? 0;
 
                     // Format data untuk dikirim ke FE
                     $data = [
@@ -77,7 +79,7 @@ class RetureController extends Controller
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
                             "harga" => $detailKasir->harga - $diskon,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
-                            "qty" => $detailKasir->qty,
+                            "qty" => $detailKasir->qty - $reture_qty,
                         ],
                     ];
 
@@ -107,6 +109,7 @@ class RetureController extends Controller
         $request->validate([
             'no_nota' => 'required|string',
             'tgl_retur' => 'required|date',
+            'id_member' => 'required|integer',
         ]);
 
         $user = Auth::user();
@@ -117,7 +120,10 @@ class RetureController extends Controller
                 'id_toko' => $user->id_toko,
                 'no_nota' => $request->no_nota,
                 'tgl_retur' => $request->tgl_retur,
+                'id_member' => $request->id_member,
             ]);
+
+            $member = Member::find($request->id_member);
 
             // Return JSON response
             return response()->json([
@@ -128,6 +134,8 @@ class RetureController extends Controller
                     'id_retur'=> $retur->id,
                     'no_nota' => $retur->no_nota,
                     'tgl_retur' => $retur->tgl_retur,
+                    'id_member' => $retur->id_member,
+                    'nama_member' => $member->nama_member,
                 ],
             ]);
         } catch (\Throwable $th) {
@@ -270,6 +278,10 @@ class RetureController extends Controller
                 $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
                 $barang = Barang::find($item->id_barang);
                 $retur = DataReture::find($item->id_retur);
+                $detailRetur = DetailRetur::where('id_transaksi', $item->id_transaksi)
+                                            ->where('id_barang', $item->id_barang)
+                                            ->where('id_retur', $item->id_retur)
+                                            ->first();
 
                 return [
                     'id' => $item->id,
@@ -286,6 +298,7 @@ class RetureController extends Controller
                     'nama_member' => $kasir->member ? $kasir->member->nama_member : "Guest",
                     'nama_barang' => $barang ? $barang->nama_barang : "Tidak Ditemukan",
                     'tgl_retur' => $retur ? $retur->tgl_retur : "Tidak Ditemukan",
+                    'status' => $detailRetur ? $detailRetur->status : "Tidak Ditemukan",
                 ];
             });
 
@@ -496,6 +509,8 @@ class RetureController extends Controller
             'id_barang' => 'required|array',
             'qty' => 'required|array',
             'harga' => 'required|array',
+            'id_retur' => 'required|integer',
+            'id_member' => 'required|integer',
         ]);
 
         $metode = $request->metode;
@@ -503,48 +518,75 @@ class RetureController extends Controller
         $id_barang = $request->id_barang;
         $qty = $request->qty;
         $harga = $request->harga;
+        $id_retur = $request->id_retur;
         $id_users = Auth::user()->id;
 
         try {
-            if ($metode === 'Cash') {
-                $detailKasir = DetailKasir::where('id_kasir', $id_kasir)
-                                            ->where('id_barang', $id_barang)
-                                            ->first();
+            DB::beginTransaction();
 
-                if ($detailKasir) {
-                    // Update kolom reture dan reture_by
-                    $detailKasir->reture = true;
-                    $detailKasir->reture_by = $id_users;
+            foreach ($id_kasir as $index => $idKasir) {
+                if ($metode[$index] === 'Cash') {
+                    $detailKasir = DetailKasir::where('id_kasir', $idKasir)
+                        ->where('id_barang', $id_barang[$index])
+                        ->first();
 
-                    // Update kolom harga dan qty
-                    $detailKasir->harga -= $harga;
-                    $detailKasir->qty -= $qty;
+                    if ($detailKasir) {
+                        // Update kolom reture dan reture_by
+                        $detailKasir->reture = true;
+                        $detailKasir->reture_by = $id_users;
 
-                    // Update kolom total_harga
-                    $detailKasir->total_harga -= ($harga * $qty);
+                        if (is_null($detailKasir->reture_qty)) {
+                            $detailKasir->reture_qty = 0;
+                        }
 
-                    $detailKasir->save();
+                        $detailKasir->reture_qty += $qty[$index];
 
-                    return response()->json([
-                        'error' => false,
-                        'message' => 'Data berhasil diupdate!',
-                        'status_code' => 200,
-                    ]);
+                        $detailKasir->save();
+                    } else {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Data tidak ditemukan untuk id_transaksi: ' . $idKasir . ' dan id_barang: ' . $id_barang[$index],
+                            'status_code' => 404,
+                        ], 404);
+                    }
                 } else {
                     return response()->json([
                         'error' => true,
-                        'message' => 'Data tidak ditemukan!',
-                        'status_code' => 404,
-                    ], 404);
+                        'message' => 'Metode tidak valid untuk id_transaksi: ' . $idKasir . ' dan id_barang: ' . $id_barang[$index],
+                        'status_code' => 400,
+                    ], 400);
                 }
-            } else {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Metode tidak valid!',
-                    'status_code' => 400,
-                ], 400);
+
+                // Update status di tabel detail_retur
+                DetailRetur::where('id_transaksi', $idKasir)
+                    ->where('id_barang', $id_barang[$index])
+                    ->where('id_retur', $id_retur)
+                    ->update(['status' => 'success']);
             }
+
+            // Update total_item dan total_harga di tabel retur
+            $totalItem = DetailRetur::where('id_retur', $id_retur)
+                                    ->sum('qty');
+
+            $totalHarga = DetailRetur::where('id_retur', $id_retur)
+                                    ->sum(DB::raw('qty * harga'));
+
+            DataReture::where('id', $id_retur)
+                        ->update([
+                            'total_item' => $totalItem,
+                            'total_harga' => $totalHarga,
+                            'status' => 'done'
+                        ]);
+
+            DB::commit();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil diupdate!',
+                'status_code' => 200,
+            ]);
         } catch (\Exception $e) {
+            DB::rollBack();
             Log::error('Error updating nota reture: ' . $e->getMessage());
 
             return response()->json([

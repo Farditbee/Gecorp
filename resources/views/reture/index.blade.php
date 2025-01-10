@@ -105,14 +105,21 @@
                                                 <br>
                                                 <form id="form">
                                                     <div class="row">
-                                                        <div class="col-6">
+                                                        <div class="col-4">
+                                                            <label for="tgl_retur" class="form-control-label">Nama Member</label>
+                                                            <select class="form-control" name="" id="">
+                                                                <option value="">~~ Pilih Member ~~</option>
+                                                                <option value=""></option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-4">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
                                                                 Reture</label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
                                                         </div>
-                                                        <div class="col-6">
+                                                        <div class="col-4">
                                                             <label for="no_nota" class=" form-control-label">Nomor
                                                                 Nota<span style="color: red">*</span></label>
                                                             <input type="number" id="no_nota" name="no_nota"
