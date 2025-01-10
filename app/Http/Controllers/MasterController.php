@@ -77,8 +77,8 @@ class MasterController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
             });
         }
 
