@@ -51,7 +51,9 @@ class KasirController extends Controller
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
                 $query->where('id_toko', $idToko);
-            }
+            } else {
+                // Secara default, jangan tampilkan transaksi dengan id_toko = 1
+                $query->where('id_toko', '!=', 1);
         }
 
         // Pencarian
@@ -136,6 +138,7 @@ class KasirController extends Controller
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
+    }
     }
 
     public function cetakStruk($id_kasir)
