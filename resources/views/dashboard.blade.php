@@ -753,6 +753,7 @@
 
         async function handleTopMember(data) {
             let nama_member = data?.nama_member ?? '-';
+            let nama_toko = data?.nama_toko ?? '-';
             let dataJumlah = data?.total_barang_dibeli ?? '-';
             let total_pembayaran = data?.total_pembayaran ?? 0;
 
@@ -775,8 +776,14 @@
                 ${dataJumlah}
             </span>`;
 
+            let toko = '';
+            if ('{{ auth()->user()->id_toko }}' == 1) {
+                toko = `<span class="badge badge-success text-white">${nama_toko}</span>`;
+            }
+
             let handleData = {
                 nama_member: nama_member === '' ? '-' : nama_member,
+                toko: toko === '' ? '-' : toko,
                 jumlah: dataJumlah === '' ? '-' : jumlah,
                 total_pembayaran: total_pembayaran === '' ? '-' : formatRupiah(total_pembayaran),
             };
@@ -793,7 +800,10 @@
                 <tr>
                     <td>
                         <div class="d-inline-block w-100">
-                            <h5 class="m-b-0 font-weight-bold">${element.nama_member}</h5>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h5 class="m-b-0 font-weight-bold">${element.nama_member}</h5>
+                                ${element.toko}
+                            </div>
                             <div class="d-flex justify-content-between align-items-start">
                                 <p class="m-b-0" style="font-size: 0.9rem;">
                                     <i class="fa fa-shopping-cart"></i> <span>Terjual :</span> ${element.jumlah}
