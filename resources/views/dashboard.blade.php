@@ -400,8 +400,8 @@
 
         async function setOmsetChart(data) {
             const total = data?.total ? formatRupiah(data.total) : 0;
-            const laba_bersih = data?.laba_bersih || 0;
-            const laba_kotor = data?.laba_kotor || 0;
+            const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 1;
+            const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 1;
 
             await $('#total-pendapatan').html(total);
             await $('#laba-bersih').html(formatRupiah(laba_bersih));
