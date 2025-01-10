@@ -106,10 +106,10 @@
                                                 <form id="form">
                                                     <div class="row">
                                                         <div class="col-4">
-                                                            <label for="tgl_retur" class="form-control-label">Nama Member</label>
-                                                            <select class="form-control" name="" id="">
-                                                                <option value="">~~ Pilih Member ~~</option>
-                                                                <option value=""></option>
+                                                            <label for="f_member" class=" form-control-label">Nama
+                                                                Member <span class="text-danger">*</span></label>
+                                                            <select class="form-select select2" name="member"
+                                                                id="f_member">
                                                             </select>
                                                         </div>
                                                         <div class="col-4">
@@ -121,7 +121,7 @@
                                                         </div>
                                                         <div class="col-4">
                                                             <label for="no_nota" class=" form-control-label">Nomor
-                                                                Nota<span style="color: red">*</span></label>
+                                                                Nota <span class="text-danger">*</span></label>
                                                             <input type="number" id="no_nota" name="no_nota"
                                                                 placeholder="Contoh : 001" class="form-control">
                                                         </div>
@@ -139,6 +139,11 @@
                                             <div class="tab-pane fade" id="detail" role="tabpanel"
                                                 aria-labelledby="detail-tab">
                                                 <ul class="list-group list-group-flush my-4">
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <h5><i class="fa fa-user-tie mr-2"></i>Nama Member</h5>
+                                                        <span id="i_member" class="badge badge-secondary"></span>
+                                                    </li>
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
                                                         <h5><i class="fa fa-home mr-2"></i>Nomor Nota</h5>
@@ -268,6 +273,16 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+
+        let selectOptions = [{
+            id: '#f_member',
+            isFilter: {
+                id_toko: '{{ auth()->user()->id_toko }}',
+            },
+            isUrl: '{{ route('master.member') }}',
+            placeholder: 'Pilih Member',
+            isModal: '#modal-form'
+        }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listDataTable').html(loadingData());
@@ -405,6 +420,7 @@
                 let id = $(this).attr("data-id");
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
+                let member = $(this).attr("data-member");
 
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
@@ -417,6 +433,7 @@
 
                 $("#i_no_nota").html(nota);
                 $("#i_tgl_retur").html(tanggal);
+                $("#i_member").html(member);
                 $("#tambah-tab").removeClass("active").addClass("d-none");
                 $("#tambah").removeClass("show active");
                 $("#detail-tab").removeClass("disabled").addClass("active").css({
@@ -640,27 +657,23 @@
 
                 for (let i = 0; i < ths.length; i++) {
                     if (i !== 1) {
-                        ths[i].style.width = '8%'; // Sesuaikan lebar kolom lain
+                        ths[i].style.width = '8%';
                     }
                 }
             } else {
-                // Tampilkan kembali scanData
                 if (scanData) scanData.style.display = '';
 
-                // Kembalikan teks th kedua menjadi '#' dan lebar aslinya
                 if (ths[1]) {
                     ths[1].textContent = '#';
-                    ths[1].style.width = ''; // Kembali ke lebar default
+                    ths[1].style.width = '';
                 }
 
-                // Tampilkan kembali th terakhir
                 if (ths[ths.length - 1] && ths[ths.length - 1].textContent.trim() === '#') {
                     ths[ths.length - 1].style.display = '';
                 }
 
-                // Kembalikan lebar kolom lainnya
                 for (let i = 0; i < ths.length; i++) {
-                    ths[i].style.width = ''; // Reset lebar kolom ke default
+                    ths[i].style.width = '';
                 }
             }
         }
@@ -897,6 +910,8 @@
 
                 const actionUrl = $("#form").data("action-url");
                 const formData = {
+                    id_member: $('#f_member').select2('data').length > 0 ? $('#f_member').select2(
+                        'data')[0].id : null,
                     tgl_retur: $('#tgl_retur').val(),
                     no_nota: $('#no_nota').val(),
                 };
@@ -913,6 +928,7 @@
                         $('#nav-tab a[href="#detail"]').tab('show');
                         $('#i_no_nota').text(rest_data.no_nota);
                         $('#i_tgl_retur').text(rest_data.tgl_retur);
+                        $('#i_member').text(rest_data.nama_member);
 
                         $('#tambah-tab').removeAttr('style');
                         $('#detail-tab').removeAttr('style');
@@ -1132,6 +1148,7 @@
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await selectData(selectOptions);
             await addData();
             await editData();
             await detailData();
