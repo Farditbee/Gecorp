@@ -211,22 +211,70 @@ class DashboardController extends Controller
     }
 
     public function getOmset(Request $request)
-{
-    // Hitung total omset kecuali id_toko = 1
-    $totalOmset = Kasir::where('id_toko', '!=', 1)->sum('total_nilai');
+    {
+        // Hitung total omset kecuali id_toko = 1
+        $totalOmset = Kasir::where('id_toko', '!=', 1)->sum('total_nilai');
 
-    $totalDiskon = Kasir::where('id_toko', '!=', 1)->sum('total_diskon');
+        $totalDiskon = Kasir::where('id_toko', '!=', 1)->sum('total_diskon');
 
-    $total =$totalOmset - $totalDiskon;
+        $total = $totalOmset - $totalDiskon;
 
-    return response()->json([
-        "error" => false,
-        "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
-        "status_code" => 200,
-        "data" => [
-            'total' => $total,
-        ],
-    ]);
-}
+        return response()->json([
+            "error" => false,
+            "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
+            "status_code" => 200,
+            "data" => [
+                'total' => $total,
+            ],
+        ]);
+    }
 
+    public function getKomparasiToko(Request $request)
+    {
+        // Ambil parameter filter tanggal
+        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
+        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
+
+        try {
+            // Query untuk menghitung total transaksi per toko
+            $query = Kasir::with('toko:id,nama_toko')
+                ->selectRaw('id_toko, SUM(total_nilai - total_diskon) as total_transaksi, COUNT(*) as jumlah_transaksi')
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->groupBy('id_toko');
+
+            $kasirData = $query->get();
+
+            // Inisialisasi variabel hasil
+            $result = [
+                'nama_toko' => [],
+                'total' => 0,
+            ];
+
+            // Iterasi data untuk membangun format hasil
+            foreach ($kasirData as $data) {
+                if ($data->toko) { // Pastikan relasi toko valid
+                    $result['nama_toko'][] = [
+                        $data->toko->nama_toko => (int)$data->jumlah_transaksi,
+                    ];
+                    $result['total'] += $data->total_transaksi;
+                }
+            }
+
+            // Return response JSON
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully retrieved comparison data',
+                'status_code' => 200,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $th) {
+            // Return JSON response untuk error
+            return response()->json([
+                'error' => true,
+                'message' => 'Error retrieving data',
+                'status_code' => 500,
+                'data' => $th->getMessage(),
+            ]);
+        }
+    }
 }

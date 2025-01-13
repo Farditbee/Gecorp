@@ -266,7 +266,11 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div id="komparasi-chart"></div>
+                                    <div class="row">
+                                        <div class="col-12 col-md-auto">
+                                            <div id="komparasi-chart"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -400,12 +404,22 @@
 
         async function setOmsetChart(data) {
             const total = data?.total ? formatRupiah(data.total) : 0;
-            const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 1;
-            const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 1;
+            const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 0;
+            const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 0;
 
             await $('#total-pendapatan').html(total);
             await $('#laba-bersih').html(formatRupiah(laba_bersih));
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
+
+            if (laba_bersih === 0 && laba_kotor === 0) {
+                $('#omset-chart').html(`
+                    <div style="display: flex; justify-content: center; align-items: center; height: 180px; color: #999;">
+                        <i class="fas fa-info-circle" style="font-size: 24px; margin-right: 8px;"></i>
+                        <span>Tidak ada data untuk ditampilkan</span>
+                    </div>
+                `);
+                return;
+            }
 
             var options = {
                 series: [laba_bersih, laba_kotor],
@@ -451,7 +465,6 @@
             var chart = new ApexCharts(document.querySelector("#omset-chart"), options);
             chart.render();
         }
-
 
         async function getLaporanPenjualan() {
             let filterParams = {};
@@ -725,7 +738,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.index.kasir') }}', {
+                '{{ route('dashboard.komparasi') }}', {
                     ...filterParams
                 }
             ).then(function(response) {
@@ -738,10 +751,6 @@
             if (getDataRest && getDataRest.status === 200) {
                 const responseData = getDataRest.data?.data?.[0] || {
                     nama_toko: "All",
-                    daily: {},
-                    monthly: {},
-                    yearly: {},
-                    totals: 0
                 };
                 await setKomparasiToko(responseData, filterParams.period || 'monthly');
             } else {
@@ -1164,6 +1173,7 @@
         async function initPageLoad() {
             await getOmset();
             await setDynamicButton();
+            await getKomparasiToko();
             await getLaporanPenjualan();
             await getTopPenjualan();
             await getTopMember();

@@ -27,6 +27,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/print/{id}', [KasirController::class, 'cetakEppos']);
 
+Route::get('/get-komparasi-toko', [DashboardController::class, 'getKomparasiToko'])->name('dashboard.komparasi');
 Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->name('master.index.kasir');
 Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->name('dashboard.rating');
 Route::get('/get-member', [DashboardController::class, 'getMember'])->name('dashboard.member');
