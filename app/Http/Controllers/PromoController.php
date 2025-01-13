@@ -162,8 +162,9 @@ class PromoController extends Controller
         }
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        $id = $request->id;
         $validatedData = $request->validate([
             'id_barang' => 'nullable|exists:barang,id',
             'id_toko' => 'nullable|exists:toko,id',

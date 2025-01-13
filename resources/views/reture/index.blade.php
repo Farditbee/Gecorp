@@ -265,6 +265,7 @@
         let customFilter2 = {};
         let rowCount = 0;
         let dataTemp = {};
+        let globalIdMember = null;
 
         let title = 'Reture';
         let defaultLimitPage = 10;
@@ -426,6 +427,7 @@
                 let tanggal = $(this).attr("data-tanggal");
                 let nama_member = $(this).attr("data-nama-member");
                 let id_member = $(this).attr("data-id-member");
+                globalIdMember = id_member;
 
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
@@ -619,7 +621,7 @@
             tr.innerHTML = `
                 <td class="text-wrap align-top text-center">${rowCount}</td>
                 <td class="text-wrap align-top text-center">
-                    <select name="metode[]" class="form form-select select2">
+                    <select name="metode[]" class="form form-select select2 select-member">
                         <option value="Cash" selected>Cash</option>
                     </select>
                 </td>
@@ -645,7 +647,7 @@
             const scanData = document.getElementById('scan-data');
 
             if (action === 'detail') {
-                $(".select2").select2({
+                $(".select-member").select2({
                     placeholder: "Pilih Metode",
                     allowClear: true,
                     width: "100%",
@@ -886,10 +888,18 @@
                 notificationAlert('info', 'Pemberitahuan', 'Masukkan QRCode terlebih dahulu.');
                 return;
             }
-            customFilter2 = {
+
+            if (!globalIdMember) {
+                notificationAlert('info', 'Pemberitahuan',
+                    'Data Member tidak tersedia. Pastikan Anda telah memilih data yang ingin diedit.');
+                return;
+            }
+
+            const customFilter2 = {
                 qrcode: qrcodeValue,
-                id_member: dataTemp.id_member,
+                id_member: globalIdMember
             };
+
             await getData(customFilter2);
         }
 
@@ -946,6 +956,7 @@
                         $('#detail-tab').removeAttr('style');
 
                         dataTemp = rest_data;
+                        globalIdMember = rest_data.id_member;
 
                         setTimeout(async function() {
                             await getListData(defaultLimitPage, currentPage, defaultAscending,
