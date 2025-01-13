@@ -209,4 +209,77 @@ class DashboardController extends Controller
             "data" => $data
         ]);
     }
+
+    public function getOmset(Request $request)
+    {
+        // Hitung total omset kecuali id_toko = 1
+        $totalOmset = Kasir::where('id_toko', '!=', 1)->sum('total_nilai');
+
+        $totalDiskon = Kasir::where('id_toko', '!=', 1)->sum('total_diskon');
+
+        $total = $totalOmset - $totalDiskon;
+
+        return response()->json([
+            "error" => false,
+            "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
+            "status_code" => 200,
+            "data" => [
+                'total' => $total,
+            ],
+        ]);
+    }
+
+    public function getKomparasiToko(Request $request)
+{
+    // Ambil parameter filter tanggal, default ke hari ini
+    $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
+    $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
+
+    try {
+        // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
+        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+            $join->on('toko.id', '=', 'kasir.id_toko')
+                ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+        })
+        ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
+        ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
+        ->groupBy('toko.id', 'toko.singkatan');
+
+        $tokoData = $query->get();
+
+        // Inisialisasi variabel hasil
+        $result = [
+            'singkatan' => [],
+            'total' => 0,
+        ];
+
+        // Iterasi data untuk membangun format hasil
+        foreach ($tokoData as $data) {
+            $result['singkatan'][] = [
+                $data->singkatan => [
+                    'jumlah_transaksi' => (int) $data->jumlah_transaksi,
+                    'total_transaksi' => (float) ($data->total_transaksi ?? 0),
+                ],
+            ];
+            $result['total'] += $data->total_transaksi ?? 0;
+        }
+
+        // Return response JSON
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully retrieved comparison data',
+            'status_code' => 200,
+            'data' => $result,
+        ]);
+    } catch (\Throwable $th) {
+        // Return JSON response untuk error
+        return response()->json([
+            'error' => true,
+            'message' => 'Error retrieving data',
+            'status_code' => 500,
+            'data' => $th->getMessage(),
+        ]);
+    }
+}
+
 }
