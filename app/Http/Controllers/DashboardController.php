@@ -236,11 +236,12 @@ class DashboardController extends Controller
     $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
     try {
-        // Ambil semua toko dan gabungkan dengan transaksi hari ini
+        // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
         $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
             $join->on('toko.id', '=', 'kasir.id_toko')
                 ->whereBetween('kasir.created_at', [$startDate, $endDate]);
         })
+        ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
         ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
         ->groupBy('toko.id', 'toko.singkatan');
 
