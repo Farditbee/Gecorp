@@ -62,8 +62,9 @@
                                     data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
                                     <i class="fa fa-filter"></i> Filter
                                 </button>
-                                <button class="btn-dynamic btn btn-outline-primary mx-2" type="button" data-toggle="collapse"
-                                    data-target="#info-collapse" aria-expanded="false" aria-controls="info-collapse">
+                                <button class="btn-dynamic btn btn-outline-primary mx-2" type="button"
+                                    data-toggle="collapse" data-target="#info-collapse" aria-expanded="false"
+                                    aria-controls="info-collapse">
                                     <i class="fa fa-circle-info"></i> Informasi
                                 </button>
                             </div>
