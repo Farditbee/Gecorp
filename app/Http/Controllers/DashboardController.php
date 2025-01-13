@@ -232,8 +232,8 @@ class DashboardController extends Controller
     public function getKomparasiToko(Request $request)
 {
     // Ambil parameter filter tanggal, default ke hari ini
-    $startDate = $request->input('start_date', now()->startOfDay()->toDateString());
-    $endDate = $request->input('end_date', now()->endOfDay()->toDateString());
+    $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
+    $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
     try {
         // Ambil semua toko dan gabungkan dengan transaksi hari ini
