@@ -1,4 +1,4 @@
-function initializeDateRangePicker() {
+function initializeDateRangePicker(isParamater = '#daterange') {
     let monthNames = [
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
@@ -32,22 +32,22 @@ function initializeDateRangePicker() {
         ...datePickerOptions.ranges
     };
 
-    let dateRangePicker = $('#daterange').daterangepicker(datePickerOptions);
+    let dateRangePicker = $(isParamater).daterangepicker(datePickerOptions);
 
-    $('#daterange').attr('placeholder', 'Pilih rentang tanggal');
-    $('#daterange').attr('readonly', true);
+    $(isParamater).attr('placeholder', 'Pilih rentang tanggal');
+    $(isParamater).attr('readonly', true);
 
-    $('#daterange').on('show.daterangepicker', function () {
+    $(isParamater).on('show.daterangepicker', function () {
         setTimeout(function () {
             $('.daterangepicker .ranges').addClass('scrollable-ranges');
         }, 10);
     });
 
-    $('#daterange').on('apply.daterangepicker', function (ev, picker) {
+    $(isParamater).on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
     });
 
-    $('#daterange').on('cancel.daterangepicker', function (ev, picker) {
+    $(isParamater).on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
     });
 

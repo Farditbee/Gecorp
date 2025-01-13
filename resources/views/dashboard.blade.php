@@ -41,12 +41,10 @@
 
             .avatar i {
                 font-size: 1.5rem;
-                /* Smaller icon */
             }
 
             #total-pendapatan {
                 font-size: 1.25rem;
-                /* Smaller text */
             }
         }
 
@@ -99,22 +97,46 @@
                                         <div class="avatar bg-primary text-white mx-2">
                                             <i class="fa fa-dollar-sign fa-2x"></i>
                                         </div>
-                                        <h2 class="text-primary mb-0" id="total-pendapatan">Rp0</h2>
-                                    </div>
-                                    <div class="row align-items-center">
-                                        <div class="col-md-6">
-                                            <div id="omset-chart"></div>
+                                        <div>
+                                            <h2 class="text-primary mb-0" id="total-pendapatan">Rp0</h2>
+                                            <hr class="p-0 m-1">
+                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari ini</b></small>
                                         </div>
-                                        <div class="col-md-6">
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span><i class="fa fa-money-bill mr-1"></i>Laba Kotor:<b class="ml-1"
+                                                id="laba-kotor">Rp0</b></span>
+                                        <button class="btn-dynamic btn btn-outline-primary" type="button"
+                                            data-toggle="collapse" data-target="#filter-collapse3" aria-expanded="false"
+                                            aria-controls="filter-collapse3">
+                                            <i class="fa fa-filter"></i> Filter
+                                        </button>
+                                    </div>
+                                    <div class="collapse" id="filter-collapse3">
+                                        <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
+                                            <form id="custom-filter-omset"
+                                                class="d-flex justify-content-between align-items-center w-100">
+                                                <input class="form-control w-75 mx-2 mb-lg-0" type="text"
+                                                    id="daterange-omset" name="daterange"
+                                                    placeholder="Pilih rentang tanggal">
+
+                                                <button
+                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
+                                                    id="tb-filter" type="submit">
+                                                    <i class="fa fa-magnifying-glass mr-2"></i>Submit
+                                                </button>
+
+                                                <button type="button"
+                                                    class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
+                                                    id="reset-omset">
+                                                    <i class="fa fa-rotate mr-2"></i>Reset
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    {{-- <div class="row align-items-center">
+                                        <div class="col-md-12">
                                             <ul class="list-unstyled">
-                                                <li>
-                                                    <span>Laba Bersih:</span>
-                                                    <br>
-                                                    <div
-                                                        style="display: inline-block; width: 15px; height: 15px; background-color: #1abc9c; border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                                                    </div>
-                                                    <b id="laba-bersih">Rp0</b>
-                                                </li>
                                                 <li>
                                                     <span>Laba Kotor:</span>
                                                     <br>
@@ -125,7 +147,7 @@
                                                 </li>
                                             </ul>
                                         </div>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -200,10 +222,10 @@
                                         <h5 class="mb-2">Komparasi Penjualan Antar Toko</h5>
                                         <div class="row align-items-center">
                                             <div class="col-auto ms-auto">
-                                                <span class="text-muted me-1">
+                                                <small class="me-1">
                                                     <i class="fa fa-circle-info mr-1"></i> <b id="info-komparasi">Data per
                                                         hari ini</b>
-                                                </span>
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -222,15 +244,22 @@
                                         <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
                                             <div class="collapse" id="filter-collapse2">
                                                 <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
-                                                    <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2 w-100">
+                                                    <form id="custom-filter"
+                                                        class="d-flex justify-content-between align-items-center w-100">
                                                         <i class="fa fa-filter"></i>
-                                                        <input class="form-control w-75 mx-2 mb-lg-0" type="text" id="daterange" name="daterange" placeholder="Pilih rentang tanggal">
+                                                        <input class="form-control w-75 mx-2 mb-lg-0" type="text"
+                                                            id="daterange" name="daterange"
+                                                            placeholder="Pilih rentang tanggal">
 
-                                                        <button class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2" id="tb-filter" type="submit">
+                                                        <button
+                                                            class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
+                                                            id="tb-filter" type="submit">
                                                             <i class="fa fa-magnifying-glass mr-2"></i>Submit
                                                         </button>
 
-                                                        <button type="button" class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center" id="reset-komparasi">
+                                                        <button type="button"
+                                                            class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
+                                                            id="reset-komparasi">
                                                             <i class="fa fa-rotate mr-2"></i>Reset
                                                         </button>
                                                     </form>
@@ -351,6 +380,7 @@
         let customFilter = {};
         let customFilter2 = {};
         let customFilter3 = {};
+        let customFilter4 = {};
 
         async function getOmset() {
             let getDataRest = await renderAPI(
@@ -381,60 +411,49 @@
             await $('#total-pendapatan').html(total);
             await $('#laba-bersih').html(formatRupiah(laba_bersih));
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
+        }
 
-            if (laba_bersih === 0 && laba_kotor === 0) {
-                $('#omset-chart').html(`
-                    <div style="display: flex; justify-content: center; align-items: center; height: 180px; color: #999;">
-                        <i class="fas fa-info-circle" style="font-size: 24px; margin-right: 8px;"></i>
-                        <span>Tidak ada data untuk ditampilkan</span>
-                    </div>
-                `);
-                return;
-            }
+        async function filterOmset() {
+            let dateRangePickerList = initializeDateRangePicker('#daterange-omset');
 
-            var options = {
-                series: [laba_bersih, laba_kotor],
-                chart: {
-                    type: 'donut',
-                    height: 300,
-                    events: {
-                        mounted: function(chartContext, config) {
-                            $('#omset-chart').css({
-                                'height': '180px',
-                                'min-height': '180px'
-                            });
-                            $('.apexcharts-legend').remove();
-                        },
-                        updated: function(chartContext, config) {
-                            $('#omset-chart').css({
-                                'height': '180px',
-                                'min-height': '180px'
-                            });
-                            $('.apexcharts-legend').remove();
-                        }
-                    }
-                },
-                labels: ['Laba Bersih', 'Laba Kotor'],
-                colors: ['#1abc9c', '#FF9800'],
-                legend: {
-                    position: 'bottom',
-                    show: true
-                },
-                dataLabels: {
-                    enabled: false
-                },
-                tooltip: {
-                    enabled: true,
-                    y: {
-                        formatter: function(value) {
-                            return formatRupiah(value);
-                        }
-                    }
+            document.getElementById('custom-filter-omset').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
                 }
-            };
 
-            var chart = new ApexCharts(document.querySelector("#omset-chart"), options);
-            chart.render();
+                customFilter4 = {
+                    'startDate': $("#daterange-omset").val() != '' ? startDate : '',
+                    'endDate': $("#daterange-omset").val() != '' ? endDate : ''
+                };
+
+                let startDateFormatted = startDate ? moment(startDate).format('DD-MM-YYYY') : '';
+                let endDateFormatted = endDate ? moment(endDate).format('DD-MM-YYYY') : '';
+
+                if (startDateFormatted && endDateFormatted) {
+                    $('#info-omset').html(
+                        `Omset dari <span style="color: #1abc9c; padding: 2px 5px;">${startDateFormatted}</span> s/d <span style="color: #1abc9c; padding: 2px 5px;">${endDateFormatted}</span>`
+                    );
+                } else {
+                    $('#info-omset').html('Terjadi Kesalahan, Silahkan pilih filter dengan benar');
+                }
+
+                await getOmset(customFilter4);
+            });
+
+            document.getElementById('reset-omset').addEventListener('click', async function() {
+                $('#daterange-omset').val('');
+                customFilter4 = {};
+                $('#info-omset').html('Omset per hari ini');
+                await getOmset(customFilter4);
+            });
         }
 
         async function getLaporanPenjualan() {
@@ -742,7 +761,7 @@
                 ],
                 chart: {
                     height: 400,
-                    type: 'line', // Mixed chart
+                    type: 'line',
                     toolbar: {
                         show: true,
                         tools: {
@@ -844,7 +863,9 @@
                 let endDateFormatted = endDate ? moment(endDate).format('DD-MM-YYYY') : '';
 
                 if (startDateFormatted && endDateFormatted) {
-                    $('#info-komparasi').html(`Data dari <span style="color: #1abc9c; padding: 2px 5px;">${startDateFormatted}</span> s/d <span style="color: #1abc9c; padding: 2px 5px;">${endDateFormatted}</span>`);
+                    $('#info-komparasi').html(
+                        `Data dari <span style="color: #1abc9c; padding: 2px 5px;">${startDateFormatted}</span> s/d <span style="color: #1abc9c; padding: 2px 5px;">${endDateFormatted}</span>`
+                    );
                 } else {
                     $('#info-komparasi').html('Terjadi Kesalahan, Silahkan pilih filter dengan benar');
                 }
@@ -855,7 +876,7 @@
             document.getElementById('reset-komparasi').addEventListener('click', async function() {
                 $('#daterange').val('');
                 customFilter = {};
-                $('#info-komparasi').html('Data per Hari ini');
+                $('#info-komparasi').html('Data per hari ini');
                 await getKomparasiToko(customFilter);
             });
         }
@@ -1104,6 +1125,7 @@
 
         async function initPageLoad() {
             await getOmset();
+            await filterOmset();
             await setDynamicButton();
             await getKomparasiToko(customFilter);
             await filterKomparasiToko();
