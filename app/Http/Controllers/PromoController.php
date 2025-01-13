@@ -126,8 +126,8 @@ class PromoController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'barang' => 'required|exists:barang,id', // Validasi barang harus ada di tabel barang
-            'toko' => 'required|exists:toko,id', // Validasi barang harus ada di tabel toko
+            'id_barang' => 'required|exists:barang,id', // Validasi barang harus ada di tabel barang
+            'id_toko' => 'required|exists:toko,id', // Validasi barang harus ada di tabel toko
             'minimal' => 'required|integer|min:0',
             'jumlah' => 'required|integer|min:0',
             'diskon' => 'required|integer|between:0,100',
