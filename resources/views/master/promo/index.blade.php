@@ -453,10 +453,8 @@
                 $("#modal-form").modal("show");
                 isActionForm = "store";
 
-                // Reset form
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
-                // Initialize Select2 without destroying options
                 $("#toko").select2({
                     placeholder: "Cari Toko",
                     allowClear: true,
@@ -471,7 +469,6 @@
                     dropdownParent: $("#modal-form"),
                 });
 
-                // Set form action URL for adding data
                 $("#form").data("action-url", '{{ route('master.promo.store') }}');
             });
         }
@@ -484,8 +481,8 @@
 
                 let actionUrl = $("#form").data("action-url");
                 let formData = {
-                    toko: $('#toko').val(),
-                    barang: $('#barang').val(),
+                    id_toko: $('#toko').val(),
+                    id_barang: $('#barang').val(),
                     minimal: $('#minimal').val(),
                     jumlah: $('#jumlah').val(),
                     diskon: $('#diskon').val(),
