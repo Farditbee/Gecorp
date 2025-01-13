@@ -42,7 +42,8 @@ class RetureController extends Controller
     public function getDataReture(Request $request)
     {
         $qrcode = $request->input('qrcode');
-
+        $id_member = $request->input('id_member');
+    
         if (empty($qrcode)) {
             return response()->json([
                 "error" => true,
@@ -50,21 +51,28 @@ class RetureController extends Controller
                 "status_code" => 400,
             ], 400);
         }
-
+    
         try {
-            // Cek data di tabel detail_kasir
             $detailKasir = DetailKasir::where('qrcode', $qrcode)->first();
-
+    
             if ($detailKasir) {
                 // Eager loading untuk menghindari banyak query
                 $kasir = Kasir::with(['toko', 'member'])->find($detailKasir->id_kasir);
-
+    
                 if ($kasir) {
+                    if ($kasir->id_member != $id_member) {
+                        return response()->json([
+                            "error" => true,
+                            "message" => "Barang bukan milik anda",
+                            "status_code" => 403,
+                        ], 403);
+                    }
+    
                     $barang = Barang::find($detailKasir->id_barang);
-
+    
                     $diskon = $detailKasir->diskon ?? 0;
                     $reture_qty = $detailKasir->reture_qty ?? 0;
-
+    
                     // Format data untuk dikirim ke FE
                     $data = [
                         "error" => false,
@@ -82,11 +90,11 @@ class RetureController extends Controller
                             "qty" => $detailKasir->qty - $reture_qty,
                         ],
                     ];
-
+    
                     return response()->json($data, 200);
                 }
             }
-
+    
             // Jika data tidak ditemukan
             return response()->json([
                 "error" => true,
@@ -95,7 +103,7 @@ class RetureController extends Controller
             ], 404);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-
+    
             return response()->json([
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server",
@@ -103,13 +111,13 @@ class RetureController extends Controller
             ], 500);
         }
     }
-
+    
     public function store_nota(Request $request)
     {
         $request->validate([
             'no_nota' => 'required|string',
             'tgl_retur' => 'required|date',
-            'id_member' => 'required|integer',
+            'id_member' => 'required|string',
         ]);
 
         $user = Auth::user();
@@ -395,6 +403,8 @@ class RetureController extends Controller
                 'no_nota' => $item['no_nota'],
                 'tgl_retur' => $item['tgl_retur'],
                 'status' => $item['status'],
+                'id_member' => $item['id_member'],
+                'nama_member' => $item['nama_member'],
                 'created_at' => $item['created_at'],
                 'updated_at' => $item['updated_at'],
                 'action' => $action,
@@ -516,11 +526,13 @@ class RetureController extends Controller
         ]);
 
         $metode = $request->metode;
+        $qrcode = $request->qrcode;
         $id_kasir = $request->id_transaksi;
         $id_barang = $request->id_barang;
         $qty = $request->qty;
         $harga = $request->harga;
         $id_retur = $request->id_retur;
+
         $id_users = Auth::user()->id;
 
         try {
@@ -533,7 +545,7 @@ class RetureController extends Controller
                         ->first();
 
                     if ($detailKasir) {
-                        // Update kolom reture dan reture_by
+
                         $detailKasir->reture = true;
                         $detailKasir->reture_by = $id_users;
 

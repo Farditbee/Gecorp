@@ -71,7 +71,12 @@ class MasterController extends Controller
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
         $id_toko = $request->id_toko;
-        $query = Member::where('id_toko', $id_toko);
+
+        if ($id_toko == 1) {
+            $query = Member::query();
+        } else {
+            $query = Member::where('id_toko', $id_toko);
+        }
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));

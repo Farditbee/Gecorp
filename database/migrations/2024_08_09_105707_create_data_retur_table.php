@@ -14,7 +14,7 @@ return new class extends Migration
 			$table->string('id_toko');
 			$table->string('id_pembelian')->nullable();
 			$table->string('id_kasir')->nullable();
-			$table->string('id_member')->nullable();
+			$table->string('id_member');
 			$table->string('id_supplier')->nullable();
 			$table->string('no_nota');
 			$table->date('tgl_retur');
