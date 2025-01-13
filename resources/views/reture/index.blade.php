@@ -334,7 +334,9 @@
                         title="Edit ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'
                         data-nota='${data.no_nota}'
-                        data-tanggal='${data.tgl_retur}'>
+                        data-tanggal='${data.tgl_retur}'
+                        data-nama-member='${data.nama_member}'
+                        data-id-member='${data.id_member}'>
                         <span class="text-dark">Edit</span>
                         <div class="icon text-warning">
                             <i class="fa fa-edit"></i>
@@ -347,7 +349,9 @@
                         title="Detail ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'
                         data-nota='${data.no_nota}'
-                        data-tanggal='${data.tgl_retur}'>
+                        data-tanggal='${data.tgl_retur}'
+                        data-nama-member='${data.nama_member}'
+                        data-id-member='${data.id_member}'>
                         <span class="text-dark">Detail</span>
                         <div class="icon text-info">
                             <i class="fa fa-book"></i>
@@ -420,7 +424,8 @@
                 let id = $(this).attr("data-id");
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
-                let member = $(this).attr("data-member");
+                let nama_member = $(this).attr("data-nama-member");
+                let id_member = $(this).attr("data-id-member");
 
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
@@ -433,7 +438,7 @@
 
                 $("#i_no_nota").html(nota);
                 $("#i_tgl_retur").html(tanggal);
-                $("#i_member").html(member);
+                $("#i_member").html(nama_member);
                 $("#tambah-tab").removeClass("active").addClass("d-none");
                 $("#tambah").removeClass("show active");
                 $("#detail-tab").removeClass("disabled").addClass("active").css({
@@ -474,6 +479,8 @@
                 let id = $(this).attr("data-id");
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
+                let nama_member = $(this).attr("data-nama-member");
+                let id_member = $(this).attr("data-id-member");
 
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
@@ -485,6 +492,7 @@
 
                 $("#i_no_nota").html(nota);
                 $("#i_tgl_retur").html(tanggal);
+                $("#i_member").html(nama_member);
                 $("#tambah-tab").removeClass("active").addClass("d-none");
                 $("#tambah").removeClass("show active");
                 $("#detail-tab").removeClass("disabled").addClass("active").css({
@@ -691,6 +699,9 @@
             if (customFilter2['qrcode']) {
                 filterParams.qrcode = customFilter2['qrcode'];
             }
+            if (customFilter2['id_member']) {
+                filterParams.id_member = customFilter2['id_member'];
+            }
 
             let getDataRest = await renderAPI(
                 'GET',
@@ -876,7 +887,8 @@
                 return;
             }
             customFilter2 = {
-                qrcode: qrcodeValue
+                qrcode: qrcodeValue,
+                id_member: dataTemp.id_member,
             };
             await getData(customFilter2);
         }
@@ -971,6 +983,7 @@
                     let formData = {
                         id_retur: dataTemp.id_retur,
                         no_nota: dataTemp.no_nota,
+                        id_member: dataTemp.id_member,
                         id_transaksi: $("input[name='id_transaksi[]']").map(function() {
                             return $(this).val();
                         }).get(),
