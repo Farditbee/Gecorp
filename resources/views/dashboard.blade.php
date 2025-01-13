@@ -100,7 +100,8 @@
                                         <div>
                                             <h2 class="text-primary mb-0" id="total-pendapatan">Rp0</h2>
                                             <hr class="p-0 m-1">
-                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari ini</b></small>
+                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari
+                                                    ini</b></small>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
@@ -382,11 +383,19 @@
         let customFilter3 = {};
         let customFilter4 = {};
 
-        async function getOmset() {
+        async function getOmset(customFilter4) {
+            let filterParams = {};
+
+            if (customFilter4['startDate'] && customFilter4['endDate']) {
+                filterParams.startDate = customFilter4['startDate'];
+                filterParams.endDate = customFilter4['endDate'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('dashboard.omset') }}', {
                     id_toko: '{{ auth()->user()->id_toko }}',
+                    ...filterParams
                 }
             ).then(function(response) {
                 return response;
@@ -404,11 +413,11 @@
         }
 
         async function setOmsetChart(data) {
-            const total = data?.total ? formatRupiah(data.total) : 0;
+            const total = data?.total ? data?.total : 0;
             const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 0;
             const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 0;
 
-            await $('#total-pendapatan').html(total);
+            await $('#total-pendapatan').html(formatRupiah(total));
             await $('#laba-bersih').html(formatRupiah(laba_bersih));
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
         }
@@ -1124,7 +1133,7 @@
         }
 
         async function initPageLoad() {
-            await getOmset();
+            await getOmset(customFilter4);
             await filterOmset();
             await setDynamicButton();
             await getKomparasiToko(customFilter);
