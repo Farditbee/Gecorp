@@ -230,83 +230,59 @@ class DashboardController extends Controller
     }
 
     public function getKomparasiToko(Request $request)
-    {
-        // Ambil parameter filter tanggal
-        $startDate = $request->input('start_date', now()->startOfMonth()->toDateString());
-        $endDate = $request->input('end_date', now()->endOfMonth()->toDateString());
+{
+    // Ambil parameter filter tanggal, default ke hari ini jika tidak diberikan
+    $startDate = $request->input('start_date', now()->startOfDay()->toDateString());
+    $endDate = $request->input('end_date', now()->endOfDay()->toDateString());
 
-        try {
-            // Query untuk menghitung total transaksi per toko
-            $query = Kasir::with('toko:id,nama_toko')
-                ->selectRaw('id_toko, SUM(total_nilai - total_diskon) as total_transaksi, COUNT(*) as jumlah_transaksi')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->groupBy('id_toko');
+    try {
+        // Query untuk menghitung total nilai dan total diskon per toko
+        $query = Kasir::with('toko:id,singkatan')
+            ->selectRaw('id_toko, SUM(total_nilai) as total_nilai, SUM(total_diskon) as total_diskon, COUNT(*) as jumlah_transaksi')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->groupBy('id_toko');
 
-            $kasirData = $query->get();
+        $kasirData = $query->get();
 
-            // Hitung total omset kecuali id_toko = 1
-            $totalOmset = Kasir::where('id_toko', '!=', 1)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('total_nilai');
+        // Inisialisasi variabel hasil
+        $result = [
+            'singkatan' => [],
+            'total' => 0,
+        ];
 
-            $totalDiskon = Kasir::where('id_toko', '!=', 1)
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->sum('total_diskon');
+        // Iterasi data untuk membangun format hasil
+        foreach ($kasirData as $data) {
+            if ($data->toko) { // Pastikan relasi toko valid
+                // Hitung total omset per toko
+                $totalOmsetPerToko = $data->total_nilai - $data->total_diskon;
 
-            $total = $totalOmset - $totalDiskon;
+                $result['singkatan'][] = [
+                    $data->toko->singkatan => [
+                        'jumlah_transaksi' => (int)$data->jumlah_transaksi,
+                        'total_omset' => $totalOmsetPerToko,
+                    ],
+                ];
 
-            // Inisialisasi variabel hasil
-            $result = [
-                'singkatan_toko' => [],
-                'total' => $total, // Total berdasarkan perhitungan omset
-            ];
-
-            // Iterasi data untuk membangun format hasil
-            foreach ($kasirData as $data) {
-                if ($data->toko) { // Pastikan relasi toko valid
-                    // Buat singkatan dari nama toko
-                    $singkatan = $this->buatSingkatan($data->toko->nama_toko);
-                    $result['singkatan_toko'][] = [
-                        $singkatan => (int)$data->jumlah_transaksi,
-                    ];
-                }
+                // Tambahkan total omset toko ini ke total keseluruhan
+                $result['total'] += $totalOmsetPerToko;
             }
-
-            // Return response JSON
-            return response()->json([
-                'error' => false,
-                'message' => 'Successfully retrieved comparison data',
-                'status_code' => 200,
-                'data' => $result,
-            ]);
-        } catch (\Throwable $th) {
-            // Return JSON response untuk error
-            return response()->json([
-                'error' => true,
-                'message' => 'Error retrieving data',
-                'status_code' => 500,
-                'data' => $th->getMessage(),
-            ]);
-        }
-    }
-
-    /**
-     * Membuat singkatan dari nama toko.
-     *
-     * @param string $namaToko
-     * @return string
-     */
-    private function buatSingkatan($namaToko)
-    {
-        // Pecah nama toko berdasarkan spasi
-        $kata = explode(' ', $namaToko);
-
-        // Ambil huruf pertama dari setiap kata
-        $singkatan = '';
-        foreach ($kata as $k) {
-            $singkatan .= strtoupper(substr($k, 0, 1));
         }
 
-        return $singkatan;
+        // Return response JSON
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully retrieved comparison data',
+            'status_code' => 200,
+            'data' => $result,
+        ]);
+    } catch (\Throwable $th) {
+        // Return JSON response untuk error
+        return response()->json([
+            'error' => true,
+            'message' => 'Error retrieving data',
+            'status_code' => 500,
+            'data' => $th->getMessage(),
+        ]);
     }
+}
 }
