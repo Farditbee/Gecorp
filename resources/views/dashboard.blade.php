@@ -114,15 +114,16 @@
                                         </button>
                                     </div>
                                     <div class="collapse" id="filter-collapse3">
+                                        <hr>
                                         <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
                                             <form id="custom-filter-omset"
                                                 class="d-flex justify-content-between align-items-center w-100">
-                                                <input class="form-control w-75 mx-2 mb-lg-0" type="text"
+                                                <input class="form-control w-75 mb-lg-0" type="text"
                                                     id="daterange-omset" name="daterange"
                                                     placeholder="Pilih rentang tanggal">
 
                                                 <button
-                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
+                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mx-2"
                                                     id="tb-filter" type="submit">
                                                     <i class="fa fa-magnifying-glass mr-2"></i>Submit
                                                 </button>
@@ -251,13 +252,11 @@
                                                         <input class="form-control w-75 mx-2 mb-lg-0" type="text"
                                                             id="daterange" name="daterange"
                                                             placeholder="Pilih rentang tanggal">
-
                                                         <button
                                                             class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
                                                             id="tb-filter" type="submit">
                                                             <i class="fa fa-magnifying-glass mr-2"></i>Submit
                                                         </button>
-
                                                         <button type="button"
                                                             class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
                                                             id="reset-komparasi">
