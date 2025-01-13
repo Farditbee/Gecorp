@@ -136,13 +136,13 @@ class PromoController extends Controller
         ]);
 
         try {
-            $barang = Barang::findOrFail($validatedData['barang']);
-            $toko = Toko::findOrFail($validatedData['toko']);
+            // $barang = Barang::findOrFail($validatedData['barang']);
+            // $toko = Toko::findOrFail($validatedData['toko']);
 
             Promo::create([
-                'id_barang' => $barang->id,
-                'id_toko' => $toko->id,
-                'nama_barang' => $barang->nama_barang,
+                'id_barang' => $validatedData['id_barang'],
+                'id_toko' => $validatedData['id_toko'],
+                // 'nama_barang' => $barang->nama_barang,
                 'minimal' => $validatedData['minimal'],
                 'jumlah' => $validatedData['jumlah'],
                 'diskon' => $validatedData['diskon'],
