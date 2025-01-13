@@ -237,12 +237,12 @@ class DashboardController extends Controller
 
     try {
         // Ambil semua toko dan gabungkan dengan transaksi hari ini
-        $query = Toko::leftJoin('kasirs', function ($join) use ($startDate, $endDate) {
-            $join->on('tokos.id', '=', 'kasirs.id_toko')
-                ->whereBetween('kasirs.created_at', [$startDate, $endDate]);
+        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+            $join->on('toko.id', '=', 'kasir.id_toko')
+                ->whereBetween('kasir.created_at', [$startDate, $endDate]);
         })
-        ->selectRaw('tokos.id, tokos.singkatan, COUNT(kasirs.id) as jumlah_transaksi, SUM(kasirs.total_nilai - kasirs.total_diskon) as total_transaksi')
-        ->groupBy('tokos.id', 'tokos.singkatan');
+        ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
+        ->groupBy('toko.id', 'toko.singkatan');
 
         $tokoData = $query->get();
 
