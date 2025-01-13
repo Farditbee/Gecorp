@@ -211,23 +211,45 @@ class DashboardController extends Controller
     }
 
     public function getOmset(Request $request)
-    {
-        // Hitung total omset kecuali id_toko = 1
-        $totalOmset = Kasir::where('id_toko', '!=', 1)->sum('total_nilai');
+{
+    // Ambil parameter filter tanggal, default ke hari ini
+    $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
+    $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
-        $totalDiskon = Kasir::where('id_toko', '!=', 1)->sum('total_diskon');
+    try {
+        // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
+        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+            $join->on('toko.id', '=', 'kasir.id_toko')
+                ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+        })
+        ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
+        ->selectRaw('toko.id, toko.singkatan, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
+        ->groupBy('toko.id', 'toko.singkatan');
 
-        $total = $totalOmset - $totalDiskon;
+        $omsetData = $query->get();
 
+        // Hitung total omset dari semua toko yang sesuai
+        $totalOmset = $omsetData->sum('total_transaksi');
+
+        // Return response JSON
         return response()->json([
             "error" => false,
             "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
             "status_code" => 200,
             "data" => [
-                'total' => $total,
+                'total' => $totalOmset,
             ],
         ]);
+    } catch (\Throwable $th) {
+        // Return JSON response untuk error
+        return response()->json([
+            "error" => true,
+            "message" => "Error retrieving data",
+            "status_code" => 500,
+            "data" => $th->getMessage(),
+        ]);
     }
+}
 
     public function getKomparasiToko(Request $request)
 {
