@@ -320,20 +320,6 @@
             renderPagination();
         }
 
-        $("#toko").select2({
-            placeholder: "Cari Toko",
-            allowClear: true,
-            width: "100%",
-            dropdownParent: $("#modal-form"),
-        });
-
-        $("#barang").select2({
-            placeholder: "Cari Barang",
-            allowClear: true,
-            width: "100%", // Ensure full width
-            dropdownParent: $("#modal-form"), // Attach dropdown to the modal
-        });
-
         document.getElementById('dari').addEventListener('focus', function() {
             this.showPicker(); // Membuka picker tanggal saat input difokuskan
         });
@@ -400,18 +386,6 @@
             }
         });
 
-        async function addData() {
-            $(document).on("click", ".add-data", function() {
-                $("#modal-title").html(`Form Tambah Promo`);
-                $("#modal-form").modal("show");
-                isActionForm = "store";
-                $("form").find("input, select, textarea").val("").prop("checked", false)
-                    .trigger("change");
-
-                $("#form").data("action-url", '{{ route('master.promo.store') }}');
-            });
-        }
-
         async function editData() {
             $(document).on("click", ".edit-data", async function() {
                 loadingPage(false);
@@ -426,13 +400,10 @@
                 $("#modal-title").html(modalTitle);
                 $("#modal-form").modal("show");
 
+                // Reset form
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
-                if ($.fn.select2) {
-                    $("#toko").select2("destroy").empty();
-                    $("#barang").select2("destroy").empty();
-                }
-
+                // Reinitialize Select2 with placeholder and dropdownParent
                 $("#toko").select2({
                     placeholder: "Cari Toko",
                     allowClear: true,
@@ -447,36 +418,67 @@
                     dropdownParent: $("#modal-form"),
                 });
 
-                let tokoExists = $('#toko option[value="' + element.id_toko + '"]').length > 0;
-                if (!tokoExists) {
-                    let newOption = new Option(element.nama_toko, element.id_toko, true, true);
-                    $("#toko").append(newOption).trigger("change");
+                // Add toko option if not exists
+                if ($('#toko option[value="' + element.id_toko + '"]').length === 0) {
+                    let newOptionToko = new Option(element.nama_toko, element.id_toko, true, true);
+                    $("#toko").append(newOptionToko).trigger("change");
                 } else {
                     $("#toko").val(element.id_toko).trigger("change");
                 }
 
-                let barangExists = $('#barang option[value="' + element.id_barang + '"]').length > 0;
-                if (!barangExists) {
-                    let newOption = new Option(element.nama_barang, element.id_barang, true, true);
-                    $("#barang").append(newOption).trigger("change");
+                // Add barang option if not exists
+                if ($('#barang option[value="' + element.id_barang + '"]').length === 0) {
+                    let newOptionBarang = new Option(element.nama_barang, element.id_barang, true, true);
+                    $("#barang").append(newOptionBarang).trigger("change");
                 } else {
                     $("#barang").val(element.id_barang).trigger("change");
                 }
 
+                // Set form field values
                 $('#minimal').val(element.minimal);
                 $('#jumlah').val(element.jumlah);
                 $('#diskon').val(element.diskon);
                 $('#dari').val(element.dari);
                 $('#sampai').val(element.sampai);
 
-                $("#form").data("action-url", '{{ route('master.promo.store') }}');
+                // Set form data attributes
+                $("#form").data("action-url", '{{ route('master.promo.update') }}');
                 $("#form").data("id_user", id);
             });
-
         }
 
+        async function addData() {
+            $(document).on("click", ".add-data", function() {
+                $("#modal-title").html(`Form Tambah Promo`);
+                $("#modal-form").modal("show");
+                isActionForm = "store";
+
+                // Reset form
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+
+                // Initialize Select2 without destroying options
+                $("#toko").select2({
+                    placeholder: "Cari Toko",
+                    allowClear: true,
+                    width: "100%",
+                    dropdownParent: $("#modal-form"),
+                });
+
+                $("#barang").select2({
+                    placeholder: "Cari Barang",
+                    allowClear: true,
+                    width: "100%",
+                    dropdownParent: $("#modal-form"),
+                });
+
+                // Set form action URL for adding data
+                $("#form").data("action-url", '{{ route('master.promo.store') }}');
+            });
+        }
+
+
         async function submitForm() {
-            $(document).on("submit", "#form", async function(e) {
+            $(document).off("submit").on("submit", "#form", async function(e) {
                 e.preventDefault();
                 loadingPage(true);
 
