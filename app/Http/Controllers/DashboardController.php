@@ -231,18 +231,20 @@ class DashboardController extends Controller
 
     public function getKomparasiToko(Request $request)
 {
-    // Ambil parameter filter tanggal, default ke hari ini jika tidak diberikan
+    // Ambil parameter filter tanggal, default ke hari ini
     $startDate = $request->input('start_date', now()->startOfDay()->toDateString());
     $endDate = $request->input('end_date', now()->endOfDay()->toDateString());
 
     try {
-        // Query untuk menghitung total nilai dan total diskon per toko
-        $query = Kasir::with('toko:id,singkatan')
-            ->selectRaw('id_toko, SUM(total_nilai) as total_nilai, SUM(total_diskon) as total_diskon, COUNT(*) as jumlah_transaksi')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->groupBy('id_toko');
+        // Ambil semua toko dan gabungkan dengan transaksi hari ini
+        $query = Toko::leftJoin('kasirs', function ($join) use ($startDate, $endDate) {
+            $join->on('tokos.id', '=', 'kasirs.id_toko')
+                ->whereBetween('kasirs.created_at', [$startDate, $endDate]);
+        })
+        ->selectRaw('tokos.id, tokos.singkatan, COUNT(kasirs.id) as jumlah_transaksi, SUM(kasirs.total_nilai - kasirs.total_diskon) as total_transaksi')
+        ->groupBy('tokos.id', 'tokos.singkatan');
 
-        $kasirData = $query->get();
+        $tokoData = $query->get();
 
         // Inisialisasi variabel hasil
         $result = [
@@ -251,21 +253,14 @@ class DashboardController extends Controller
         ];
 
         // Iterasi data untuk membangun format hasil
-        foreach ($kasirData as $data) {
-            if ($data->toko) { // Pastikan relasi toko valid
-                // Hitung total omset per toko
-                $totalOmsetPerToko = $data->total_nilai - $data->total_diskon;
-
-                $result['singkatan'][] = [
-                    $data->toko->singkatan => [
-                        'jumlah_transaksi' => (int)$data->jumlah_transaksi,
-                        'total_omset' => $totalOmsetPerToko,
-                    ],
-                ];
-
-                // Tambahkan total omset toko ini ke total keseluruhan
-                $result['total'] += $totalOmsetPerToko;
-            }
+        foreach ($tokoData as $data) {
+            $result['singkatan'][] = [
+                $data->singkatan => [
+                    'jumlah_transaksi' => (int) $data->jumlah_transaksi,
+                    'total_transaksi' => (float) ($data->total_transaksi ?? 0),
+                ],
+            ];
+            $result['total'] += $data->total_transaksi ?? 0;
         }
 
         // Return response JSON
@@ -285,4 +280,5 @@ class DashboardController extends Controller
         ]);
     }
 }
+
 }
