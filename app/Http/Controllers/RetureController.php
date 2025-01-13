@@ -63,7 +63,7 @@ class RetureController extends Controller
                     if ($kasir->id_member != $id_member) {
                         return response()->json([
                             "error" => true,
-                            "message" => "Barang bukan milik anda",
+                            "message" => "Barang bukan milik anda / Tidak ditemukan",
                             "status_code" => 403,
                         ], 403);
                     }
@@ -72,7 +72,16 @@ class RetureController extends Controller
     
                     $diskon = $detailKasir->diskon ?? 0;
                     $reture_qty = $detailKasir->reture_qty ?? 0;
-    
+
+                    // Check if qty - reture_qty equals 0
+                    if ($detailKasir->qty - $reture_qty == 0) {
+                        return response()->json([
+                            "error" => true,
+                            "message" => "Sudah tidak ada barang yang bisa di Reture",
+                            "status_code" => 400,
+                        ], 400);
+                    }
+                    
                     // Format data untuk dikirim ke FE
                     $data = [
                         "error" => false,
@@ -354,6 +363,9 @@ class RetureController extends Controller
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
+        $query->leftJoin('member', 'data_retur.id_member', '=', 'member.id')
+          ->select('data_retur.*', 'member.nama_member');
+
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
@@ -424,7 +436,7 @@ class RetureController extends Controller
     {
         $request->validate([
             'id_retur' => 'required|integer',
-            'no_nota' => 'required|integer',
+            'no_nota' => 'required|string',
             'id_transaksi' => 'required|array',
             'id_barang' => 'required|array',
             'qty' => 'required|array',
@@ -522,7 +534,6 @@ class RetureController extends Controller
             'qty' => 'required|array',
             'harga' => 'required|array',
             'id_retur' => 'required|integer',
-            'id_member' => 'required|integer',
         ]);
 
         $metode = $request->metode;
