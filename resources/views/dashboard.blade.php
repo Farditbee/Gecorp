@@ -100,7 +100,8 @@
                                         <div>
                                             <h2 class="text-primary mb-0" id="total-pendapatan">Rp0</h2>
                                             <hr class="p-0 m-1">
-                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari ini</b></small>
+                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari
+                                                    ini</b></small>
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-between align-items-center">
@@ -113,15 +114,16 @@
                                         </button>
                                     </div>
                                     <div class="collapse" id="filter-collapse3">
+                                        <hr>
                                         <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
                                             <form id="custom-filter-omset"
                                                 class="d-flex justify-content-between align-items-center w-100">
-                                                <input class="form-control w-75 mx-2 mb-lg-0" type="text"
+                                                <input class="form-control w-75 mb-lg-0" type="text"
                                                     id="daterange-omset" name="daterange"
                                                     placeholder="Pilih rentang tanggal">
 
                                                 <button
-                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
+                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mx-2"
                                                     id="tb-filter" type="submit">
                                                     <i class="fa fa-magnifying-glass mr-2"></i>Submit
                                                 </button>
@@ -250,13 +252,11 @@
                                                         <input class="form-control w-75 mx-2 mb-lg-0" type="text"
                                                             id="daterange" name="daterange"
                                                             placeholder="Pilih rentang tanggal">
-
                                                         <button
                                                             class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
                                                             id="tb-filter" type="submit">
                                                             <i class="fa fa-magnifying-glass mr-2"></i>Submit
                                                         </button>
-
                                                         <button type="button"
                                                             class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
                                                             id="reset-komparasi">
@@ -382,11 +382,19 @@
         let customFilter3 = {};
         let customFilter4 = {};
 
-        async function getOmset() {
+        async function getOmset(customFilter4) {
+            let filterParams = {};
+
+            if (customFilter4['startDate'] && customFilter4['endDate']) {
+                filterParams.startDate = customFilter4['startDate'];
+                filterParams.endDate = customFilter4['endDate'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('dashboard.omset') }}', {
                     id_toko: '{{ auth()->user()->id_toko }}',
+                    ...filterParams
                 }
             ).then(function(response) {
                 return response;
@@ -404,11 +412,11 @@
         }
 
         async function setOmsetChart(data) {
-            const total = data?.total ? formatRupiah(data.total) : 0;
+            const total = data?.total ? data?.total : 0;
             const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 0;
             const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 0;
 
-            await $('#total-pendapatan').html(total);
+            await $('#total-pendapatan').html(formatRupiah(total));
             await $('#laba-bersih').html(formatRupiah(laba_bersih));
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
         }
@@ -1124,7 +1132,7 @@
         }
 
         async function initPageLoad() {
-            await getOmset();
+            await getOmset(customFilter4);
             await filterOmset();
             await setDynamicButton();
             await getKomparasiToko(customFilter);
