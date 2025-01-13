@@ -244,19 +244,31 @@ class DashboardController extends Controller
 
             $kasirData = $query->get();
 
+            // Hitung total omset kecuali id_toko = 1
+            $totalOmset = Kasir::where('id_toko', '!=', 1)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('total_nilai');
+
+            $totalDiskon = Kasir::where('id_toko', '!=', 1)
+                ->whereBetween('created_at', [$startDate, $endDate])
+                ->sum('total_diskon');
+
+            $total = $totalOmset - $totalDiskon;
+
             // Inisialisasi variabel hasil
             $result = [
-                'nama_toko' => [],
-                'total' => 0,
+                'singkatan_toko' => [],
+                'total' => $total, // Total berdasarkan perhitungan omset
             ];
 
             // Iterasi data untuk membangun format hasil
             foreach ($kasirData as $data) {
                 if ($data->toko) { // Pastikan relasi toko valid
-                    $result['nama_toko'][] = [
-                        $data->toko->nama_toko => (int)$data->jumlah_transaksi,
+                    // Buat singkatan dari nama toko
+                    $singkatan = $this->buatSingkatan($data->toko->nama_toko);
+                    $result['singkatan_toko'][] = [
+                        $singkatan => (int)$data->jumlah_transaksi,
                     ];
-                    $result['total'] += $data->total_transaksi;
                 }
             }
 
@@ -276,5 +288,25 @@ class DashboardController extends Controller
                 'data' => $th->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Membuat singkatan dari nama toko.
+     *
+     * @param string $namaToko
+     * @return string
+     */
+    private function buatSingkatan($namaToko)
+    {
+        // Pecah nama toko berdasarkan spasi
+        $kata = explode(' ', $namaToko);
+
+        // Ambil huruf pertama dari setiap kata
+        $singkatan = '';
+        foreach ($kata as $k) {
+            $singkatan .= strtoupper(substr($k, 0, 1));
+        }
+
+        return $singkatan;
     }
 }
