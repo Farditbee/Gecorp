@@ -262,6 +262,7 @@
             let elementData = JSON.stringify(data);
             let status = '';
             let edit_button = '';
+            let status_button = '';
             if (data.status == 'Sukses') {
                 status =
                     `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>${data.status}</span>`;
@@ -281,14 +282,49 @@
                         <i class="fa fa-edit"></i>
                     </div>
                 </button>`;
+                status_button = `
+                <button class="p-1 btn status-data action_button"
+                    data-id='${data.id}'
+                    data-name='${data.nama_barang} / ${data.nama_toko}'>
+                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Ubah Status ${title}: ${data.nama_barang}">Selesai</span>
+                    <div class="icon text-success" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Selesaikan ${title}: ${data.nama_barang}">
+                        <i class="fa fa-circle-check"></i>
+                    </div>
+                </button>`;
             } else if (data.status == 'Antrean') {
                 status =
                     `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>${data.status}</span>`;
                 edit_button = '-';
+                status_button = `
+                <button class="p-1 btn status-data action_button"
+                    data-id='${data.id}'
+                    data-name='${data.nama_barang} / ${data.nama_toko}'>
+                    <span class="text-dark" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Selesaikan ${title}: ${data.nama_barang}">Selesai</span>
+                    <div class="icon text-success" data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Ubah Status ${title}: ${data.nama_barang}">
+                        <i class="fa fa-circle-check"></i>
+                    </div>
+                </button>`;
             } else {
                 status =
                     `<span class="badge badge-secondary"><i class="fa fa-circle-check mr-1"></i>Tidak Diketahui</span>`;
                 edit_button = '-';
+                status_button = ''
+            }
+
+            let action_buttons = '';
+            if (edit_button || status_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-center">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${status_button ? `<div class="hovering p-1">${status_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-danger">Tidak Ada Aksi</span>`;
             }
 
             return {
@@ -301,7 +337,7 @@
                 dari: data?.dari ?? '-',
                 sampai: data?.sampai ?? '-',
                 status,
-                edit_button,
+                action_buttons,
             };
         }
 
@@ -325,13 +361,7 @@
                         <td class="${classCol}">${element.dari}</td>
                         <td class="${classCol}">${element.sampai}</td>
                         <td class="${classCol}">${element.status}</td>
-                        <td class="${classCol}">
-                            <div class="d-flex justify-content-center w-100">
-                                <div class="hovering p-1">
-                                    ${element.edit_button}
-                                </div>
-                            </div>
-                        </td>
+                        <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
             });
 
@@ -370,42 +400,6 @@
                     errorMessage.style.display = "none";
                 }
             }, doneTypingInterval);
-        });
-
-        document.getElementById('form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-
-            const saveButton = document.getElementById('save-btn');
-            saveButton.disabled = true;
-            saveButton.querySelector('span').textContent = 'Menyimpan...';
-
-            const formData = new FormData(this);
-
-            let postData = await renderAPI(
-                this.method, this.action, formData
-            ).then(function(
-                response) {
-                return response;
-            }).catch(function(error) {
-                let resp = error.response;
-                return resp;
-            }).finally(() => {
-                saveButton.disabled = false;
-                saveButton.querySelector('span').innerHTML =
-                    '<i class="fa fa-save"></i> Simpan';
-            });
-
-            loadingPage(false);
-            if (postData.status >= 200 && postData.status < 300) {
-                notificationAlert('success', 'Berhasil', 'Data Promo Ditambahkan');
-                setTimeout(async function() {
-                    await getListData(defaultLimitPage, currentPage, defaultAscending,
-                        defaultSearch, customFilter);
-                }, 500);
-                $("#modal-form").modal("hide");
-            } else {
-                notificationAlert('info', 'Pemberitahuan', 'Terjadi kesalahan');
-            }
         });
 
         async function editData() {
@@ -450,13 +444,10 @@
                 $("#modal-title").html(`Form Tambah Promo`);
                 $("#modal-form").modal("show");
                 isActionForm = "store";
-
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
-
                 $("#form").data("action-url", '{{ route('master.promo.store') }}');
             });
         }
-
 
         async function submitForm() {
             $(document).off("submit").on("submit", "#form", async function(e) {
@@ -509,12 +500,55 @@
             });
         }
 
+        async function updateStatus() {
+            $(document).off('click', '.status-data').on('click', '.status-data', async function(event) {
+                event.preventDefault();
+                swal({
+                    title: `Selesaikan ${title}: ${$(this).attr("data-name")}`,
+                    text: "Perubahan Status tidak dapat diubah kembali!",
+                    type: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Ubah Status!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then(async (result) => {
+
+                    let formData = {
+                        id: $(this).attr("data-id"),
+                    };
+                    let postData = await renderAPI('PUT',
+                            '{{ route('master.promo.update-status') }}', formData)
+                        .then(function(response) {
+                            return response;
+                        })
+                        .catch(function(error) {
+                            let resp = error.response;
+                            notificationAlert('error', 'Pemberitahuan', resp.data
+                                .message);
+                            return resp;
+                        });
+                    if (postData.status === 200) {
+                        let rest = postData.data;
+                        $('#modal-form').modal('hide');
+                        notificationAlert('success', 'Berhasil', rest.message);
+                        setTimeout(() => {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                    }
+                }).catch(swal.noop);
+            });
+        }
+
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await selectData(selectOptions);
             await searchList();
             await addData();
             await editData();
+            await updateStatus();
             await submitForm();
         }
     </script>

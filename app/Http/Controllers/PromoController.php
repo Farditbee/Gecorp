@@ -198,12 +198,14 @@ class PromoController extends Controller
         ], 200);
     }
 
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(Request $request)
     {
-        // Validasi input
+        // Validasi ID input
         $validatedData = $request->validate([
-            'status' => 'required|string|in:done,ongoing,queue', // Status yang diperbolehkan
+            'id' => 'required|integer|exists:promo,id', // Pastikan ID ada dalam tabel promos
         ]);
+
+        $id = $validatedData['id'];
 
         // Cari promo berdasarkan ID
         $promo = Promo::find($id);
@@ -216,21 +218,23 @@ class PromoController extends Controller
             ], 404);
         }
 
-        // Periksa apakah status yang diinginkan adalah "done" atau lainnya
-        $newStatus = $validatedData['status'];
+        // Periksa apakah status saat ini bukan "done"
+        if ($promo->status !== 'done') {
+            // Update status menjadi "done"
+            $promo->status = 'done';
+            $promo->save();
 
-        // Update status
-        $promo->status = $newStatus;
-        $promo->save();
+            return response()->json([
+                'status_code' => 200,
+                'errors' => false,
+                'message' => 'Status berhasil diperbarui',
+            ], 200);
+        }
 
         return response()->json([
             'status_code' => 200,
             'errors' => false,
-            'message' => 'Status berhasil diperbarui',
-            'data' => [
-                'id' => $promo->id,
-                'status' => $promo->status,
-            ],
+            'message' => 'Status sudah "done", tidak ada perubahan yang dilakukan',
         ], 200);
     }
 }
