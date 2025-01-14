@@ -168,6 +168,7 @@ class PromoController extends Controller
         $id = $request->id;
         $validatedData = $request->validate([
             'id_barang' => 'nullable|exists:barang,id',
+            'nama_barang' => 'nullable',
             'id_toko' => 'nullable|exists:toko,id',
             'minimal' => 'nullable|integer|min:0',
             'diskon' => 'nullable|numeric|min:0|max:100',
