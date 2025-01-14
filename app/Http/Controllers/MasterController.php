@@ -18,7 +18,7 @@ class MasterController extends Controller
 
         $query = Toko::query();
 
-        if (!empty($request['id_toko'])) {
+        if (!empty($request['is_admin'])) {
             $query->where('id', '!=', 1);
         }
 

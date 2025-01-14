@@ -205,6 +205,7 @@
             id: '#f_toko',
             isFilter: {
                 id_toko: '{{ auth()->user()->id_toko }}',
+                is_admin: true,
             },
             isUrl: '{{ route('master.toko') }}',
             placeholder: 'Pilih Toko',
