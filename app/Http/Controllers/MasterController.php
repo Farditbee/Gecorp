@@ -18,6 +18,10 @@ class MasterController extends Controller
 
         $query = Toko::query();
 
+        if (!empty($request['id_toko'])) {
+            $query->where('id', '!=', 1);
+        }
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
@@ -26,6 +30,8 @@ class MasterController extends Controller
                 $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
             });
         }
+
+        $query->orderBy('id', $meta['orderBy']);
 
         $data = $query->paginate($meta['limit']);
 
@@ -60,7 +66,7 @@ class MasterController extends Controller
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
-            'errors' => true,
+            'errors' => false,
             'message' => 'Berhasil',
             'pagination' => $data['meta']
         ], 200);

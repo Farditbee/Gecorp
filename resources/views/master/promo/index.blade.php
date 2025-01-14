@@ -118,68 +118,71 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-body">
-                    <form id="form">
+                <form id="form">
+                    <div class="modal-body mb">
                         <div class="row">
-                            <div class="col-3">
+                            <div class="col-6">
                                 <div class="form-group">
                                     <label for="toko" class="form-control-label">Nama toko</label>
-                                    <select name="toko" id="toko" class="form-select select2">
-                                        <option value="" selected>Pilih Toko</option>
-                                        @foreach ($toko as $tk)
-                                            <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
-                                        @endforeach
+                                    <select name="toko" id="f_toko" class="form-select select2">
                                     </select>
                                 </div>
+                            </div>
+                            <div class="col-6">
                                 <div class="form-group">
                                     <label for="barang" class="form-control-label">Nama Barang</label>
-                                    <select name="barang" id="barang" class="form-select select2">
-                                        <option value="" selected>Pilih Barang</option>
-                                        @foreach ($barang as $brg)
-                                            <option value="{{ $brg->id }}">{{ $brg->nama_barang }}</option>
-                                        @endforeach
+                                    <select name="barang" id="f_barang" class="form-select select2">
                                     </select>
                                 </div>
                             </div>
-
-                            <div class="col-3">
-                                <label for="minimal" class="form-control-label">Minimal</label>
-                                <input class="form-control" type="number" min='1' name="minimal"
-                                    id="minimal">
+                        </div>
+                        <div class="row">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="minimal" class="form-control-label">Minimal</label>
+                                    <input class="form-control" type="number" min='1' name="minimal"
+                                        id="minimal">
+                                </div>
                             </div>
-
-                            <div class="col-3">
-                                <label for="id_supplier" class="form-control-label">Jumlah</label>
-                                <input class="form-control" type="number" min='0' name="jumlah"
-                                    id="jumlah">
-                                <small id="jumlah-error" style="color: red; display: none;">Jumlah harus kelipatan
-                                    dari minimal</small>
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="id_supplier" class="form-control-label">Jumlah</label>
+                                    <input class="form-control" type="number" min='0' name="jumlah"
+                                        id="jumlah">
+                                    <small id="jumlah-error" style="color: red; display: none;">Jumlah harus kelipatan
+                                        dari minimal</small>
+                                </div>
                             </div>
-
-                            <div class="col-3">
-                                <label for="id_supplier" class="form-control-label">Diskon</label>
-                                <input class="form-control" type="number" min='0' max='100' name="diskon"
-                                    id="diskon">
+                            <div class="col-4">
+                                <div class="form-group">
+                                    <label for="id_supplier" class="form-control-label">Diskon</label>
+                                    <input class="form-control" type="number" min='0' max='100'
+                                        name="diskon" id="diskon">
+                                </div>
                             </div>
                         </div>
-
                         <div class="row">
                             <div class="col-6">
-                                <label for="id_supplier" class="form-control-label">Dari</label>
-                                <input class="form-control" type="datetime-local" name="dari" id="dari">
+                                <div class="form-group">
+                                    <label for="id_supplier" class="form-control-label">Dari</label>
+                                    <input class="form-control" type="datetime-local" name="dari" id="dari">
+                                </div>
                             </div>
                             <div class="col-6">
-                                <label for="id_supplier" class="form-control-label">Sampai</label>
-                                <input class="form-control" type="datetime-local" name="sampai" id="sampai">
+                                <div class="form-group">
+                                    <label for="id_supplier" class="form-control-label">Sampai</label>
+                                    <input class="form-control" type="datetime-local" name="sampai" id="sampai">
+                                </div>
                             </div>
-                        </div><br>
-                        <button type="submit" style="float: right" id="save-btn" class="btn btn-primary">
-                            <span id="save-btn-text"><i class="fa fa-save"></i> Simpan</span>
-                        </button>
-                    </form>
-                </div>
+                        </div>
+                    </div>
+                    <button type="submit" style="float: right" id="save-btn" class="btn btn-primary mr-3 mb-3">
+                        <span id="save-btn-text"><i class="fa fa-save"></i> Simpan</span>
+                    </button>
+                </form>
             </div>
         </div>
+    </div>
     </div>
 @endsection
 
@@ -197,6 +200,24 @@
         let defaultSearch = '';
         let customFilter = {};
         let isActionForm = "store";
+
+        let selectOptions = [{
+            id: '#f_toko',
+            isFilter: {
+                id_toko: '{{ auth()->user()->id_toko }}',
+            },
+            isUrl: '{{ route('master.toko') }}',
+            placeholder: 'Pilih Toko',
+            isModal: '#modal-form'
+        }, {
+            id: '#f_barang',
+            isFilter: {
+                id_toko: '{{ auth()->user()->id_toko }}',
+            },
+            isUrl: '{{ route('master.barang') }}',
+            placeholder: 'Pilih Barang',
+            isModal: '#modal-form'
+        }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -400,48 +421,24 @@
                 $("#modal-title").html(modalTitle);
                 $("#modal-form").modal("show");
 
-                // Reset form
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
-                // Reinitialize Select2 with placeholder and dropdownParent
-                $("#toko").select2({
-                    placeholder: "Cari Toko",
-                    allowClear: true,
-                    width: "100%",
-                    dropdownParent: $("#modal-form"),
-                });
-
-                $("#barang").select2({
-                    placeholder: "Cari Barang",
-                    allowClear: true,
-                    width: "100%",
-                    dropdownParent: $("#modal-form"),
-                });
-
-                // Add toko option if not exists
-                if ($('#toko option[value="' + element.id_toko + '"]').length === 0) {
-                    let newOptionToko = new Option(element.nama_toko, element.id_toko, true, true);
-                    $("#toko").append(newOptionToko).trigger("change");
-                } else {
-                    $("#toko").val(element.id_toko).trigger("change");
+                if (element.id_toko) {
+                    let tokoOption = new Option(element.nama_toko, element.id_toko, true, true);
+                    $('#f_toko').append(tokoOption).trigger('change');
                 }
 
-                // Add barang option if not exists
-                if ($('#barang option[value="' + element.id_barang + '"]').length === 0) {
-                    let newOptionBarang = new Option(element.nama_barang, element.id_barang, true, true);
-                    $("#barang").append(newOptionBarang).trigger("change");
-                } else {
-                    $("#barang").val(element.id_barang).trigger("change");
+                if (element.id_barang) {
+                    let barangOption = new Option(element.nama_barang, element.id_barang, true, true);
+                    $('#f_barang').append(barangOption).trigger('change');
                 }
 
-                // Set form field values
                 $('#minimal').val(element.minimal);
                 $('#jumlah').val(element.jumlah);
                 $('#diskon').val(element.diskon);
                 $('#dari').val(element.dari);
                 $('#sampai').val(element.sampai);
 
-                // Set form data attributes
                 $("#form").data("action-url", '{{ route('master.promo.update') }}');
                 $("#form").data("id_user", id);
             });
@@ -455,20 +452,6 @@
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
-                $("#toko").select2({
-                    placeholder: "Cari Toko",
-                    allowClear: true,
-                    width: "100%",
-                    dropdownParent: $("#modal-form"),
-                });
-
-                $("#barang").select2({
-                    placeholder: "Cari Barang",
-                    allowClear: true,
-                    width: "100%",
-                    dropdownParent: $("#modal-form"),
-                });
-
                 $("#form").data("action-url", '{{ route('master.promo.store') }}');
             });
         }
@@ -481,8 +464,8 @@
 
                 let actionUrl = $("#form").data("action-url");
                 let formData = {
-                    id_toko: $('#toko').val(),
-                    id_barang: $('#barang').val(),
+                    id_toko: $('#f_toko').val(),
+                    id_barang: $('#f_barang').val(),
                     minimal: $('#minimal').val(),
                     jumlah: $('#jumlah').val(),
                     diskon: $('#diskon').val(),
@@ -527,6 +510,7 @@
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await selectData(selectOptions);
             await searchList();
             await addData();
             await editData();
