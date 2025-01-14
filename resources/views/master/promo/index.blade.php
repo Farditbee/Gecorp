@@ -266,7 +266,7 @@
             if (data.status == 'Sukses') {
                 status =
                     `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>${data.status}</span>`;
-                edit_button = `<span class="badge badge-success"><i class="fa fa-circle-check"></i></span>`;
+                edit_button = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Promo Selesai</span>`;
             } else if (data.status == 'On Going') {
                 status = `<span class="badge badge-warning"><i class="fa fa-spinner mr-1"></i>${data.status}</span>`;
                 edit_button = `
