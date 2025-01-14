@@ -106,21 +106,21 @@ class PromoController extends Controller
     {
         $menu = [$this->title[0], $this->label[0]];
         // Ambil ID barang yang memiliki promo dengan status "ongoing"
-        $ongoingPromoBarangIds = Promo::where('status', 'ongoing')
-            ->pluck('id_barang')
-            ->toArray();
-        $promo = Promo::all();
-        $toko = Toko::where('id', '!=', 1)->get();
-        $barang = Barang::all();
+        // $ongoingPromoBarangIds = Promo::where('status', 'ongoing')
+        //     ->pluck('id_barang')
+        //     ->toArray();
+        // $promo = Promo::all();
+        // $toko = Toko::where('id', '!=', 1)->get();
+        // $barang = Barang::all();
 
-        // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
-        $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
-            ->orWhereHas('promo', function ($query) {
-                $query->where('status', '!=', 'ongoing');
-            })
-            ->get();
+        // // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
+        // $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
+        //     ->orWhereHas('promo', function ($query) {
+        //         $query->where('status', '!=', 'ongoing');
+        //     })
+        //     ->get();
 
-        return view('master.promo.index', compact('menu', 'barang', 'promo', 'toko'));
+        return view('master.promo.index', compact('menu'));
     }
 
     public function store(Request $request)
