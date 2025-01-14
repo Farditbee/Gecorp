@@ -48,6 +48,7 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Tanggal Reture</th>
+                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
@@ -227,7 +228,7 @@
                                                                             </table>
                                                                         </div>
                                                                         <div class="form-group mt-2" style="float: right">
-                                                                            <button type="submit"
+                                                                            <button id="submit-reture" type="submit"
                                                                                 class="btn btn-success">
                                                                                 <i class="fa fa-save mr-2"></i>Simpan
                                                                             </button>
@@ -350,6 +351,7 @@
                         title="Detail ${title} No. Nota: ${data.no_nota}"
                         data-id='${data.id}'
                         data-nota='${data.no_nota}'
+                        data-status='${data.status}'
                         data-tanggal='${data.tgl_retur}'
                         data-nama-member='${data.nama_member}'
                         data-id-member='${data.id_member}'>
@@ -378,7 +380,7 @@
             let action_buttons = '';
             if (edit_button || delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-start">
+                <div class="d-flex justify-content-center">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
@@ -387,10 +389,18 @@
                 <span class="badge badge-danger">Tidak Ada Aksi</span>`;
             }
 
+            let status = ''
+            if (data.status == 'done') {
+                status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
+            } else if (data.status == 'pending') {
+                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>On going</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 no_nota: data?.no_nota ?? '-',
                 tgl_retur: data?.tgl_retur ?? '-',
+                status,
                 action_buttons,
             };
         }
@@ -409,6 +419,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.no_nota}</td>
                         <td class="${classCol}">${element.tgl_retur}</td>
+                        <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
             });
@@ -448,7 +459,7 @@
                     "opacity": "1",
                 });
                 $("#detail").addClass("show active");
-
+                $("#submit-reture").removeClass("d-none");
                 try {
                     const response = await renderAPI('GET', '{{ route('get.temporary.items') }}', {
                         id_retur: id
@@ -481,6 +492,7 @@
                 let id = $(this).attr("data-id");
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
+                let status = $(this).attr("data-status");
                 let nama_member = $(this).attr("data-nama-member");
                 let id_member = $(this).attr("data-id-member");
 
@@ -502,7 +514,11 @@
                     "opacity": "1",
                 });
                 $("#detail").addClass("show active");
-
+                if (status == 'done') {
+                    $("#submit-reture").addClass("d-none");
+                } else {
+                    $("#submit-reture").removeClass("d-none");
+                }
                 try {
                     const response = await renderAPI('GET', '{{ route('get.retureItems') }}', {
                         id_retur: id
@@ -526,7 +542,7 @@
                     notificationAlert('error', 'Kesalahan', errorMessage);
                     handleEmptyState();
                 }
-                updateTableHeaders('detail');
+                updateTableHeaders('detail', status);
                 submitMultiForm('origin', '{{ route('create.updateNotaReture') }}');
             });
         }
@@ -547,7 +563,7 @@
                     "opacity": "0.6"
                 });
                 $("#detail").removeClass("show active");
-
+                $("#submit-reture").removeClass("d-none");
                 updateTableHeaders('edit');
                 submitMultiForm('temporary', '{{ route('reture.permStore') }}');
             });
@@ -609,6 +625,7 @@
         function rowTableDetailData(data) {
             const tbody = document.getElementById('listData');
             const loadingRow = document.querySelector('#listData .loading-row');
+            let status = '';
             if (loadingRow) {
                 tbody.removeChild(loadingRow);
             }
@@ -617,14 +634,16 @@
             const tr = document.createElement('tr');
             const rowId = `row-${rowCount}`;
             tr.id = rowId;
-
+            if (data.status == 'success') {
+                status = `<span class="badge badge-success">Sukses</span>`;
+            } else {
+                status = `<select name="metode[]" class="form form-select select2 select-member">
+                                <option value="Cash" selected>Cash</option>
+                            </select>`;
+            }
             tr.innerHTML = `
                 <td class="text-wrap align-top text-center">${rowCount}</td>
-                <td class="text-wrap align-top text-center">
-                    <select name="metode[]" class="form form-select select2 select-member">
-                        <option value="Cash" selected>Cash</option>
-                    </select>
-                </td>
+                <td class="text-wrap align-top text-center">${status}</td>
                 <td class="text-wrap align-top text-center">${data.qty || 0}</td>
                 <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
                 <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
@@ -640,7 +659,7 @@
             tbody.appendChild(tr);
         }
 
-        function updateTableHeaders(action) {
+        function updateTableHeaders(action, status = null) {
             const table = document.querySelector('.table-custom');
             const thead = table.querySelector('thead tr');
             const ths = thead.querySelectorAll('th');
@@ -657,8 +676,13 @@
                 if (scanData) scanData.style.display = 'none';
 
                 if (ths[1]) {
-                    ths[1].textContent = 'Metode';
-                    ths[1].style.width = '20%';
+                    if (status == 'done') {
+                        ths[1].textContent = 'Status';
+                        ths[1].style.width = '20%';
+                    } else {
+                        ths[1].textContent = 'Metode';
+                        ths[1].style.width = '20%';
+                    }
                 }
 
                 if (ths[ths.length - 1] && ths[ths.length - 1].textContent.trim() === '#') {
