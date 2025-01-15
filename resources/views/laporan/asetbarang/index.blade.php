@@ -38,7 +38,7 @@
                         <div class="content">
                             <div class="collapse mt-2 pl-4" id="filter-collapse">
                                 <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
+                                    <input class="form-control w-25 mb-2" type="text" id="daterange"
                                         name="daterange" placeholder="Pilih rentang tanggal">
                                     <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
@@ -147,7 +147,7 @@
 
         async function handleData(data) {
             return {
-                id: data?.id ?? '-',
+                id: data?.id_toko ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
                 total_qty: data?.total_qty ?? 0,
                 total_harga: data?.total_harga ?? 0,
@@ -161,20 +161,39 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
+            let getFooterTable = '';
             let classCol = 'align-center text-dark text-wrap';
+
             dataList.forEach((element, index) => {
-                getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.total_qty}</td>
-                        <td class="${classCol}">${formatRupiah(element.total_harga)}</td>
-                    </tr>`;
+                if (element.id === "ALL") {
+                    getFooterTable = `
+                <tr class="bg-primary font-weight-bold">
+                    <td colspan="2" class="${classCol} text-start"><span class="text-white ml-4">${element.nama_toko}</span></td>
+                    <td class="${classCol}"><span class="text-white">${element.total_qty}</span></td>
+                    <td class="${classCol}"><span class="text-white">${formatRupiah(element.total_harga)}</span></td>
+                </tr>`;
+                } else {
+                    getDataTable += `
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
+                    <td class="${classCol}">${element.total_qty}</td>
+                    <td class="${classCol}">${formatRupiah(element.total_harga)}</td>
+                </tr>`;
+                }
             });
 
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+
+            if (getFooterTable) {
+                if (!$('#listData').closest('table').find('tfoot').length) {
+                    $('#listData').closest('table').append('<tfoot></tfoot>');
+                }
+                $('#listData').closest('table').find('tfoot').html(getFooterTable);
+            }
+
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
