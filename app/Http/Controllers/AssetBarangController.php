@@ -28,14 +28,16 @@ class AssetBarangController extends Controller
         try {
             // Query utama untuk data aset per toko
             $query = DB::table('detail_toko')
-                ->join('toko', 'detail_toko.id_toko', '=', 'toko.id') // Join dengan tabel toko
-                ->selectRaw(
-                    'detail_toko.id_toko,
-                toko.nama_toko,
-                SUM(detail_toko.qty) as total_qty,
-                SUM(detail_toko.harga) as total_harga'
-                )
-                ->groupBy('detail_toko.id_toko', 'toko.nama_toko');
+    ->select(
+        'detail_toko.id_toko',
+        'toko.nama_toko',
+        'toko.wilayah', // Tambahkan wilayah ke dalam query
+        DB::raw('SUM(detail_toko.qty) as total_qty'),
+        DB::raw('SUM(detail_toko.harga) as total_harga')
+    )
+    ->join('toko', 'detail_toko.id_toko', '=', 'toko.id')
+    ->groupBy('detail_toko.id_toko', 'toko.nama_toko', 'toko.wilayah');
+
 
             // Tambahkan filter berdasarkan tanggal
             if (!empty($startDate) && !empty($endDate)) {
@@ -62,11 +64,12 @@ class AssetBarangController extends Controller
             $mappedData = collect($dataAsset->items())->map(function ($item) {
                 return [
                     'id_toko' => $item->id_toko,
-                    'nama_toko' => $item->nama_toko . ' (' . $item->wilayah . ')',
+                    'nama_toko' => $item->nama_toko . ' (' . $item->wilayah . ')', // Menggabungkan nama_toko dengan wilayah
                     'total_qty' => $item->total_qty,
                     'total_harga' => $item->total_harga,
                 ];
             });
+
 
             // Tambahkan total keseluruhan ke dalam hasil
             $mappedData->push([
