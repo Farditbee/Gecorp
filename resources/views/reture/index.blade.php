@@ -1196,6 +1196,7 @@
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
+            await searchList();
             await selectData(selectOptions);
             await addData();
             await editData();
