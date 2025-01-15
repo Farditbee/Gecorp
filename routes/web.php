@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AssetBarangController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
@@ -175,6 +176,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/laprating', [RatingController::class, 'index'])->name('laporan.rating.index');
         Route::post('/get-barang-jual', [RatingController::class, 'getBarangJual'])->name('get-barang-jual');
         Route::get('/get-barang-jual', [RatingController::class, 'getBarangJual']);
+        Route::get('/getaset', [AssetBarangController::class, 'getAssetBarang'])->name('laporan.asetbarang.index');
 
         Route::get('/reture', [RetureController::class, 'index'])->name('reture.index');
         Route::get('/reture/create', [RetureController::class, 'create'])->name('reture.create');
