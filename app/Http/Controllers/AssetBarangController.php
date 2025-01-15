@@ -62,7 +62,7 @@ class AssetBarangController extends Controller
             $mappedData = collect($dataAsset->items())->map(function ($item) {
                 return [
                     'id_toko' => $item->id_toko,
-                    'nama_toko' => $item->nama_toko,
+                    'nama_toko' => $item->nama_toko . ' (' . $item->wilayah . ')',
                     'total_qty' => $item->total_qty,
                     'total_harga' => $item->total_harga,
                 ];
