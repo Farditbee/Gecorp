@@ -20,8 +20,8 @@ class AssetBarangController extends Controller
     public function getAssetBarang(Request $request)
     {
         // Ambil parameter filter tanggal, default ke hari ini
-        $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
-        $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
 
         try {
             // Query utama untuk data aset per toko
