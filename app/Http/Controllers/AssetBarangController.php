@@ -19,7 +19,9 @@ class AssetBarangController extends Controller
 
     public function getAssetBarang(Request $request)
     {
-        // Ambil parameter filter tanggal, default ke hari ini
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
         $startDate = $request->input('startDate');
         $endDate = $request->input('endDate');
 
@@ -35,54 +37,67 @@ class AssetBarangController extends Controller
                 )
                 ->groupBy('detail_toko.id_toko', 'toko.nama_toko');
 
-            // Tambahkan filter berdasarkan startDate dan endDate jika ada
+            // Tambahkan filter berdasarkan tanggal
             if (!empty($startDate) && !empty($endDate)) {
                 $query->whereBetween('detail_toko.created_at', [$startDate, $endDate]);
             }
 
-            // Eksekusi query untuk mendapatkan data aset per toko
-            $dataAsset = $query->get();
+            // Tambahkan sorting
+            $query->orderBy('total_harga', $meta['orderBy']);
+
+            // Eksekusi query dengan pagination
+            $dataAsset = $query->paginate($meta['limit']);
 
             // Hitung total qty dan total harga dari semua toko
-            $totalQty = 0;
-            $totalHarga = 0;
+            $totalsQuery = DB::table('detail_toko')
+                ->selectRaw('SUM(qty) as total_qty_all, SUM(harga) as total_harga_all');
 
-            foreach ($dataAsset as $item) {
-                $totalQty += $item->total_qty ?? 0;
-                $totalHarga += $item->total_harga ?? 0;
+            if (!empty($startDate) && !empty($endDate)) {
+                $totalsQuery->whereBetween('created_at', [$startDate, $endDate]);
             }
 
-            // Format hasil
-            $result = [
-                'per_toko' => $dataAsset,
-                'total' => [
-                    'total_qty_all' => $totalQty,
-                    'total_harga_all' => $totalHarga,
-                ],
+            $totals = $totalsQuery->first();
+
+            // Format data untuk response
+            $mappedData = collect($dataAsset->items())->map(function ($item) {
+                return [
+                    'id_toko' => $item->id_toko,
+                    'nama_toko' => $item->nama_toko,
+                    'total_qty' => $item->total_qty,
+                    'total_harga' => $item->total_harga,
+                ];
+            });
+
+            // Tambahkan total keseluruhan ke dalam hasil
+            $mappedData->push([
+                'id_toko' => 'ALL',
+                'nama_toko' => 'Total',
+                'total_qty' => $totals->total_qty_all,
+                'total_harga' => $totals->total_harga_all,
+            ]);
+
+            // Buat metadata pagination
+            $paginationMeta = [
+                'total' => $dataAsset->total(),
+                'per_page' => $dataAsset->perPage(),
+                'current_page' => $dataAsset->currentPage(),
+                'total_pages' => $dataAsset->lastPage(),
             ];
 
-            // Return response JSON
             return response()->json([
-                "error" => false,
-                "message" => !empty($dataAsset) ? "Data retrieved successfully" : "No data found",
-                "status_code" => 200,
-                "data" => $result,
-            ]);
+                'data' => $mappedData,
+                'status_code' => 200,
+                'errors' => false,
+                'message' => 'Data retrieved successfully',
+                'pagination' => $paginationMeta,
+            ], 200);
         } catch (\Throwable $th) {
-            // Return JSON response untuk error
             return response()->json([
-                "error" => true,
-                "message" => "Error retrieving data",
-                "status_code" => 500,
-                "data" => $th->getMessage(),
+                'error' => true,
+                'message' => 'Error retrieving data',
+                'status_code' => 500,
+                'data' => $th->getMessage(),
             ]);
         }
-    }
-
-    public function index(Request $request)
-    {
-        $menu = [$this->title[0], $this->label[2]];
-
-        return view('laporan.asetbarang.index', compact('menu'));
     }
 }
