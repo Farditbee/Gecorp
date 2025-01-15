@@ -60,7 +60,7 @@ class AssetBarangController extends Controller
 
             $totals = $totalsQuery->first();
 
-            // Format data untuk response
+            // Format data untuk responses
             $mappedData = collect($dataAsset->items())->map(function ($item) {
                 return [
                     'id_toko' => $item->id_toko,
