@@ -65,7 +65,7 @@ class AssetBarangController extends Controller
             ];
         });
 
-        // Tambahkan total keseluruhan ke dalam hasil
+        // Tambahkan total keseluruhan ke dalam hasils
         $data->push([
             'id_toko' => 'ALL',
             'nama_toko' => 'Total',
