@@ -1,12 +1,13 @@
 @extends('layouts.main')
 
 @section('title')
-    Asset Barang
+    Rating Member
 @endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
 @endsection
 
 @section('content')
@@ -17,7 +18,12 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <span id="time-report" class="font-weight-bold"></span>
+                            <div class="d-flex gap-1">
+                                <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
+                                    data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 150px;">
@@ -48,9 +54,12 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Area/Nama Toko</th>
-                                                <th class="text-wrap align-top">Jumlah Item</th>
-                                                <th class="text-wrap align-top">Total Nilai</th>
+                                                <th class="text-wrap align-top">Nama Member</th>
+                                                <th class="text-wrap align-top">Area</th>
+                                                <th class="text-wrap align-top">Jml Trx</th>
+                                                <th class="text-wrap align-top">Jml Item</th>
+                                                <th class="text-wrap align-top">Jml Nominal</th>
+                                                <th class="text-wrap align-top">Jml Laba</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -80,12 +89,15 @@
 @endsection
 
 @section('asset_js')
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+    <script src="{{ asset('js/daterange-custom.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
 @endsection
 
 @section('js')
     <script>
-        let title = 'Laporan Asset Barang';
+        let title = 'Rating Member';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -98,9 +110,14 @@
 
             let filterParams = {};
 
+            if (customFilter['startDate'] && customFilter['endDate']) {
+                filterParams.startDate = customFilter['startDate'];
+                filterParams.endDate = customFilter['endDate'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('dashboard.asset') }}', {
+                '{{ route('laporan.ratingmember') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -133,10 +150,13 @@
 
         async function handleData(data) {
             return {
-                id: data?.id_toko ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
-                total_qty: data?.total_qty ?? 0,
-                total_harga: data?.total_harga ?? 0,
+                id: data?.id ?? '-',
+                nama_member: data?.nama_member ?? '-',
+                area: data?.area ?? '-',
+                trx: data?.trx ?? 0,
+                item: data?.item ?? 0,
+                nominal: data?.nominal ?? 0,
+                laba: data?.laba ?? 0,
             };
         }
 
@@ -147,27 +167,19 @@
             let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
 
             let getDataTable = '';
-            let getFooterTable = '';
             let classCol = 'align-center text-dark text-wrap';
 
             dataList.forEach((element, index) => {
-                if (element.id === "ALL") {
-                    getFooterTable = `
-                <tr class="bg-primary font-weight-bold">
-                    <td class="${classCol} text-center"><i class="fa fa-hashtag text-white"></i></td>
-                    <td class="${classCol}"><span class="text-white">${element.nama_toko}</span></td>
-                    <td class="${classCol}"><span class="text-white">${element.total_qty}</span></td>
-                    <td class="${classCol}"><span class="text-white">${formatRupiah(element.total_harga)}</span></td>
-                </tr>`;
-                } else {
-                    getDataTable += `
+                getDataTable += `
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
-                    <td class="${classCol}">${element.nama_toko}</td>
-                    <td class="${classCol}">${element.total_qty}</td>
-                    <td class="${classCol}">${formatRupiah(element.total_harga)}</td>
+                    <td class="${classCol}">${element.nama_member}</td>
+                    <td class="${classCol}">${element.area}</td>
+                    <td class="${classCol}">${element.trx}</td>
+                    <td class="${classCol}">${element.item}</td>
+                    <td class="${classCol}">${element.nominal}</td>
+                    <td class="${classCol}">${element.laba}</td>
                 </tr>`;
-                }
             });
 
             $('#listData').html(getDataTable);
@@ -185,14 +197,41 @@
             renderPagination();
         }
 
-        async function initPageLoad() {
-            const now = new Date();
-            const formattedNow =
-                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
 
-            $('#time-report').html(`<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${formattedNow}</b>)`);
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
+                }
+
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
+        async function initPageLoad() {
+            await setDynamicButton();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
+            await filterList();
         }
     </script>
 @endsection
