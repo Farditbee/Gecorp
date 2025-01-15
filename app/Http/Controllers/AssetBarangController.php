@@ -100,4 +100,11 @@ class AssetBarangController extends Controller
             ]);
         }
     }
+
+    public function index(Request $request)
+    {
+        $menu = [$this->title[0], $this->label[2]];
+
+        return view('laporan.asetbarang.index', compact('menu'));
+    }
 }
