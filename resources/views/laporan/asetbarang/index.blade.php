@@ -168,7 +168,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_toko}</td>
                         <td class="${classCol}">${element.total_qty}</td>
-                        <td class="${classCol}">${element.total_harga}</td>
+                        <td class="${classCol}">${formatRupiah(element.total_harga)}</td>
                     </tr>`;
             });
 
