@@ -211,97 +211,160 @@ class DashboardController extends Controller
     }
 
     public function getOmset(Request $request)
-{
-    // Ambil parameter filter tanggal, default ke hari ini
-    $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
-    $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
+    {
+        // Ambil parameter filter tanggal, default ke hari ini
+        $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
+        $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
-    try {
-        // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
-        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
-            $join->on('toko.id', '=', 'kasir.id_toko')
-                ->whereBetween('kasir.created_at', [$startDate, $endDate]);
-        })
-        ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko=1
-        ->selectRaw('toko.id, toko.singkatan, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
-        ->groupBy('toko.id', 'toko.singkatan');
+        try {
+            // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
+            $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+                $join->on('toko.id', '=', 'kasir.id_toko')
+                    ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+            })
+                ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko=1
+                ->selectRaw('toko.id, toko.singkatan, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
+                ->groupBy('toko.id', 'toko.singkatan');
 
-        $omsetData = $query->get();
+            $omsetData = $query->get();
 
-        // Hitung total omset dari semua toko yang sesuai
-        $totalOmset = $omsetData->sum('total_transaksi');
+            // Hitung total omset dari semua toko yang sesuai
+            $totalOmset = $omsetData->sum('total_transaksi');
 
-        // Return response JSON
-        return response()->json([
-            "error" => false,
-            "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
-            "status_code" => 200,
-            "data" => [
-                'total' => $totalOmset,
-            ],
-        ]);
-    } catch (\Throwable $th) {
-        // Return JSON response untuk error
-        return response()->json([
-            "error" => true,
-            "message" => "Error retrieving data",
-            "status_code" => 500,
-            "data" => $th->getMessage(),
-        ]);
+            // Return response JSON
+            return response()->json([
+                "error" => false,
+                "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
+                "status_code" => 200,
+                "data" => [
+                    'total' => $totalOmset,
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            // Return JSON response untuk error
+            return response()->json([
+                "error" => true,
+                "message" => "Error retrieving data",
+                "status_code" => 500,
+                "data" => $th->getMessage(),
+            ]);
+        }
     }
-}
 
     public function getKomparasiToko(Request $request)
-{
-    // Ambil parameter filter tanggal, default ke hari ini
-    $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
-    $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
+    {
+        // Ambil parameter filter tanggal, default ke hari ini
+        $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
+        $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
-    try {
-        // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
-        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
-            $join->on('toko.id', '=', 'kasir.id_toko')
-                ->whereBetween('kasir.created_at', [$startDate, $endDate]);
-        })
-        ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
-        ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
-        ->groupBy('toko.id', 'toko.singkatan');
+        try {
+            // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
+            $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+                $join->on('toko.id', '=', 'kasir.id_toko')
+                    ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+            })
+                ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
+                ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
+                ->groupBy('toko.id', 'toko.singkatan');
 
-        $tokoData = $query->get();
+            $tokoData = $query->get();
 
-        // Inisialisasi variabel hasil
-        $result = [
-            'singkatan' => [],
-            'total' => 0,
-        ];
-
-        // Iterasi data untuk membangun format hasil
-        foreach ($tokoData as $data) {
-            $result['singkatan'][] = [
-                $data->singkatan => [
-                    'jumlah_transaksi' => (int) $data->jumlah_transaksi,
-                    'total_transaksi' => (float) ($data->total_transaksi ?? 0),
-                ],
+            // Inisialisasi variabel hasil
+            $result = [
+                'singkatan' => [],
+                'total' => 0,
             ];
-            $result['total'] += $data->total_transaksi ?? 0;
+
+            // Iterasi data untuk membangun format hasil
+            foreach ($tokoData as $data) {
+                $result['singkatan'][] = [
+                    $data->singkatan => [
+                        'jumlah_transaksi' => (int) $data->jumlah_transaksi,
+                        'total_transaksi' => (float) ($data->total_transaksi ?? 0),
+                    ],
+                ];
+                $result['total'] += $data->total_transaksi ?? 0;
+            }
+
+            // Return response JSON
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully retrieved comparison data',
+                'status_code' => 200,
+                'data' => $result,
+            ]);
+        } catch (\Throwable $th) {
+            // Return JSON response untuk error
+            return response()->json([
+                'error' => true,
+                'message' => 'Error retrieving data',
+                'status_code' => 500,
+                'data' => $th->getMessage(),
+            ]);
+        }
+    }
+
+    public function getAssetBarang(Request $request)
+    {
+        $startDate = $request->input('startDate'); // Ambil startDate dari request
+        $endDate = $request->input('endDate'); // Ambil endDate dari request
+
+        // Query utama untuk data per toko
+        $query = DB::table('detail_toko')
+            ->select(
+                'detail_toko.id_toko',
+                'toko.nama_toko',
+                DB::raw('SUM(detail_toko.qty) as total_qty'),
+                DB::raw('SUM(detail_toko.harga) as total_harga')
+            )
+            ->join('toko', 'detail_toko.id_toko', '=', 'toko.id') // Join dengan tabel toko
+            ->groupBy('detail_toko.id_toko', 'toko.nama_toko'); // Grupkan berdasarkan id_toko dan nama_toko
+
+        // Tambahkan filter berdasarkan startDate dan endDate jika ada
+        if (!empty($startDate) && !empty($endDate)) {
+            $query->whereBetween('detail_toko.created_at', [$startDate, $endDate]);
         }
 
-        // Return response JSON
-        return response()->json([
-            'error' => false,
-            'message' => 'Successfully retrieved comparison data',
-            'status_code' => 200,
-            'data' => $result,
+        // Eksekusi query untuk mendapatkan data per toko
+        $dataAsset = $query->orderBy('total_harga', 'desc')->get();
+
+        // Query untuk menghitung total keseluruhan
+        $totalsQuery = DB::table('detail_toko')
+            ->select(
+                DB::raw('SUM(qty) as total_qty_all'),
+                DB::raw('SUM(harga) as total_harga_all')
+            );
+
+        // Tambahkan filter berdasarkan startDate dan endDate untuk total keseluruhan
+        if (!empty($startDate) && !empty($endDate)) {
+            $totalsQuery->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $totals = $totalsQuery->first();
+
+        // Format data menjadi array yang sesuai
+        $data = $dataAsset->map(function ($item) {
+            return [
+                'id_toko' => $item->id_toko,
+                'nama_toko' => $item->nama_toko,
+                'total_qty' => $item->total_qty,
+                'total_harga' => $item->total_harga,
+            ];
+        });
+
+        // Tambahkan total keseluruhan ke dalam hasil
+        $data->push([
+            'id_toko' => 'ALL',
+            'nama_toko' => 'Total',
+            'total_qty' => $totals->total_qty_all,
+            'total_harga' => $totals->total_harga_all,
         ]);
-    } catch (\Throwable $th) {
-        // Return JSON response untuk error
+
         return response()->json([
-            'error' => true,
-            'message' => 'Error retrieving data',
-            'status_code' => 500,
-            'data' => $th->getMessage(),
+            "error" => false,
+            "message" => $data->isEmpty() ? "No data found" : "Data retrieved successfully",
+            "status_code" => 200,
+            "data" => $data
         ]);
     }
-}
-
 }

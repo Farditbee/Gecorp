@@ -32,6 +32,7 @@ Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->n
 Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->name('dashboard.rating');
 Route::get('/get-member', [DashboardController::class, 'getMember'])->name('dashboard.member');
 Route::get('/get-omset', [DashboardController::class, 'getOmset'])->name('dashboard.omset');
+Route::get('/get-asset', [DashboardController::class, 'getAssetBarang'])->name('dashboard.asset');
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
