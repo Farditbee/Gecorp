@@ -17,7 +17,8 @@
                     </a>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}"><span
+                    <a href="javascript::void(0)"
+                        class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}"><span
                             class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Data
                             Master</span></a>
                     <ul class="pcoded-submenu">
@@ -29,8 +30,8 @@
                         <li><a class="dropdown-item" href="{{ route('master.member.index') }}"><i
                                     class="fa fa-user"></i> Data Member</a></li>
                         @if (Auth::user()->id_level == 1)
-                        <li><a class="dropdown-item" href="{{ route('master.supplier.index') }}"><i
-                                    class="fa fa-download"></i> Data Supplier</a></li>
+                            <li><a class="dropdown-item" href="{{ route('master.supplier.index') }}"><i
+                                        class="fa fa-download"></i> Data Supplier</a></li>
                         @endif
                         <li class="font-weight-bold mt-2">Barang</li>
                         @if (Auth::user()->id_level == 1)
@@ -44,11 +45,11 @@
                         <li><a class="dropdown-item" href="{{ route('master.stockbarang.index') }}"><i
                                     class="fa fa-tasks"></i> Stock Barang</a></li>
                         @if (Auth::user()->id_level == 1)
-                        <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
-                                    class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
+                            <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
+                                        class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
                         @endif
                         @if (Auth::user()->id_level == 1)
-                        <li class="font-weight-bold mt-2">Pengaturan</li>
+                            <li class="font-weight-bold mt-2">Pengaturan</li>
                             <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
                                         class="fa fa-laptop"></i> Level User</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.levelharga.index') }}"><i
@@ -59,13 +60,15 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
-                                class="icon feather icon-shopping-cart"></i></span><span class="pcoded-mtext">Data
+                    <a href="javascript::void(0)"
+                        class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span
+                            class="pcoded-micon"><i class="icon feather icon-shopping-cart"></i></span><span
+                            class="pcoded-mtext">Data
                             Transaksi</span></a>
                     <ul class="pcoded-submenu">
                         @if (Auth::user()->id_level == 1)
-                        <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
-                            class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
+                            <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
+                                        class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
                         @endif
                         <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
                                     class="fa fa-truck"></i> Pengiriman Barang</a></li>
@@ -74,8 +77,9 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
-                                class="icon feather icon-file-text"></i></span><span
+                    <a href="javascript::void(0)"
+                        class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}"><span
+                            class="pcoded-micon"><i class="icon feather icon-file-text"></i></span><span
                             class="pcoded-mtext">Laporan</span></a>
                     <ul class="pcoded-submenu">
                         <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index') }}"><i
@@ -84,6 +88,8 @@
                                     class="fa fa-book"></i> Laporan Pengiriman</a></li>
                         <li><a class="dropdown-item" href="{{ route('laporan.rating.index') }}"><i
                                     class="fa fa-star"></i> Rating Barang</a></li>
+                        <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
+                                    class="fa fa-box"></i> Asset Barang</a></li>
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
@@ -92,7 +98,8 @@
                             class="pcoded-mtext">Reture</span></a>
                     <ul class="pcoded-submenu">
                         <li>
-                            <a href="{{ route('reture.index') }}" class="dropdown-item"><i class="icon feather icon-rotate-cw"></i> Data Reture</a>
+                            <a href="{{ route('reture.index') }}" class="dropdown-item"><i
+                                    class="icon feather icon-rotate-cw"></i> Data Reture</a>
                         </li>
                     </ul>
                 </li>

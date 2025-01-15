@@ -83,17 +83,8 @@ class AssetBarangController extends Controller
 
     public function index(Request $request)
     {
-        // Ambil parameter startDate dan endDate dari request
-        $startDate = $request->input('startDate');
-        $endDate = $request->input('endDate');
+        $menu = [$this->title[0], $this->label[2]];
 
-        // Panggil fungsi getAssetBarang dengan filter tanggal
-        $response = $this->getAssetBarang($request);
-
-        return view('laporan.asetbarang.index', [
-            'data' => $response->original['data'], // Data dari getAssetBarang
-            'startDate' => $startDate,
-            'endDate' => $endDate
-        ]);
+        return view('laporan.asetbarang.index', compact('menu'));
     }
 }
