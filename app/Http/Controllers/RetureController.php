@@ -627,14 +627,14 @@ class RetureController extends Controller
     public function getRetureBarcode(Request $request)
     {
         try {
-            $qrcode = $request->input('qrcode');
+            $barcode = $request->input('barcode');
             $id_toko = $request->input('id_toko');
     
-            // Cek apakah qrcode ada di tabel barang
-            $barang = Barang::where('qrcode', $qrcode)->first();
+            // Cek apakah barcode ada di tabel barang
+            $barang = Barang::where('barcode', $barcode)->first();
     
             if (!$barang) {
-                return response()->json(['message' => 'Tidak ada qrcode atau barang yang ditemukan'], 404);
+                return response()->json(['message' => 'Tidak ada barcode atau barang yang ditemukan'], 404);
             }
     
             $id_barang = $barang->id;
@@ -668,7 +668,7 @@ class RetureController extends Controller
                     'id_barang' => $stock_toko->id_barang,
                     'nama_barang' => $barang->nama_barang,
                     'stock_toko_qty' => $stock_toko->qty,
-                    'hpp' => $stock->hpp,
+                    'hpp_baru' => $stock->hpp_baru,
                 ],
             ]);
         } catch (\Exception $e) {
