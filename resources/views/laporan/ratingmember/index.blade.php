@@ -117,7 +117,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('laporan.ratingmember') }}', {
+                '{{ route('dashboard.ratingmember') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
