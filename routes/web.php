@@ -16,6 +16,7 @@ use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
+use App\Http\Controllers\RatingMemberController;
 use App\Http\Controllers\RetureController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\StockOpnameController;
@@ -177,6 +178,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/get-barang-jual', [RatingController::class, 'getBarangJual'])->name('get-barang-jual');
         Route::get('/get-barang-jual', [RatingController::class, 'getBarangJual']);
         Route::get('/asetbarang', [AssetBarangController::class, 'index'])->name('laporan.asetbarang.index');
+        Route::get('/ratingmember', [RatingMemberController::class, 'index'])->name('laporan.ratingmember.index');
 
         Route::get('/reture', [RetureController::class, 'index'])->name('reture.index');
         Route::get('/reture/create', [RetureController::class, 'create'])->name('reture.create');
