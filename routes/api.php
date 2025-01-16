@@ -14,6 +14,8 @@ use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\RatingController;
+use App\Http\Controllers\RatingMemberController;
 use App\Http\Controllers\RetureController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
@@ -34,6 +36,7 @@ Route::get('/get-barang-jual', [DashboardController::class, 'getBarangJual'])->n
 Route::get('/get-member', [DashboardController::class, 'getMember'])->name('dashboard.member');
 Route::get('/get-omset', [DashboardController::class, 'getOmset'])->name('dashboard.omset');
 Route::get('/get-asset', [AssetBarangController::class, 'getAssetBarang'])->name('dashboard.asset');
+Route::get('/get-ratingmember', [RatingMemberController::class, 'getMember'])->name('dashboard.ratingmember');
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
