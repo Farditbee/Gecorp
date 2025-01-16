@@ -6,8 +6,10 @@ use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailRetur;
+use App\Models\DetailToko;
 use App\Models\Kasir;
 use App\Models\Member;
+use App\Models\StockBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -537,11 +539,9 @@ class RetureController extends Controller
         ]);
 
         $metode = $request->metode;
-        $qrcode = $request->qrcode;
         $id_kasir = $request->id_transaksi;
-        $id_barang = $request->id_barang;
+        $id_barang = $request->id_barang; 
         $qty = $request->qty;
-        $harga = $request->harga;
         $id_retur = $request->id_retur;
 
         $id_users = Auth::user()->id;
@@ -600,7 +600,8 @@ class RetureController extends Controller
                         ->update([
                             'total_item' => $totalItem,
                             'total_harga' => $totalHarga,
-                            'status' => 'done'
+                            'status' => 'done',
+                            'tipe_transaksi' => 'kasir'
                         ]);
 
             DB::commit();
@@ -622,4 +623,61 @@ class RetureController extends Controller
         }
     }
 
+
+    public function getRetureBarcode(Request $request)
+    {
+        try {
+            $qrcode = $request->input('qrcode');
+            $id_toko = $request->input('id_toko');
+    
+            // Cek apakah qrcode ada di tabel barang
+            $barang = Barang::where('qrcode', $qrcode)->first();
+    
+            if (!$barang) {
+                return response()->json(['message' => 'Tidak ada qrcode atau barang yang ditemukan'], 404);
+            }
+    
+            $id_barang = $barang->id;
+    
+            // Cek stok barang di tabel DetailToko
+            $stock_toko = DetailToko::where('id_toko', $id_toko)
+                                    ->where('id_barang', $id_barang)
+                                    ->first();
+    
+            if (!$stock_toko) {
+                return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+            }
+    
+            if ($stock_toko->qty == 0) {
+                return response()->json(['message' => 'Barang sedang kosong'], 200);
+            }
+    
+            // Cek stok barang di tabel StockBarang
+            $stock = StockBarang::where('id_barang', $stock_toko->id_barang)
+                                ->first();
+    
+            if (!$stock) {
+                return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+            }
+    
+            return response()->json([
+                'error' => false,
+                'message' => 'Data ditemukan!',
+                'status_code' => 200,
+                'data' => [
+                    'id_barang' => $stock_toko->id_barang,
+                    'nama_barang' => $barang->nama_barang,
+                    'stock_toko_qty' => $stock_toko->qty,
+                    'hpp' => $stock->hpp,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan pada server'. $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+    
 }

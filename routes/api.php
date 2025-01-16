@@ -50,8 +50,9 @@ Route::get('/getlevelharga', [LevelHargaController::class, 'getlevelharga'])->na
 Route::get('/getpromo', [PromoController::class, 'getpromo'])->name('master.getpromo');
 Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master.getbarangs');
 Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');
-Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
 Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name('master.getplanorder');
+Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
+Route::get('/getRetureBarcode', [RetureController::class, 'getRetureBarcode'])->name('master.getreturebarcode');
 
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
