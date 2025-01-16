@@ -55,7 +55,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Nama Member</th>
-                                                <th class="text-wrap align-top">Area</th>
+                                                <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Jml Trx</th>
                                                 <th class="text-wrap align-top">Jml Item</th>
                                                 <th class="text-wrap align-top">Jml Nominal</th>
@@ -152,10 +152,10 @@
             return {
                 id: data?.id ?? '-',
                 nama_member: data?.nama_member ?? '-',
-                area: data?.area ?? '-',
+                nama_toko: data?.nama_toko ?? '-',
                 trx: data?.trx ?? 0,
-                item: data?.item ?? 0,
-                nominal: data?.nominal ?? 0,
+                total_barang_dibeli: data?.total_barang_dibeli ?? 0,
+                total_pembayaran: data?.total_pembayaran ?? 0,
                 laba: data?.laba ?? 0,
             };
         }
@@ -174,10 +174,10 @@
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.nama_member}</td>
-                    <td class="${classCol}">${element.area}</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.trx}</td>
-                    <td class="${classCol}">${element.item}</td>
-                    <td class="${classCol}">${element.nominal}</td>
+                    <td class="${classCol}">${element.total_barang_dibeli}</td>
+                    <td class="${classCol}">${formatRupiah(element.total_pembayaran)}</td>
                     <td class="${classCol}">${element.laba}</td>
                 </tr>`;
             });
