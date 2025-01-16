@@ -90,6 +90,8 @@
                                     class="fa fa-star"></i> Rating Barang</a></li>
                         <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
                                     class="fa fa-box"></i> Asset Barang</a></li>
+                        <li><a class="dropdown-item" href="{{ route('laporan.ratingmember.index') }}"><i
+                                    class="fa fa-box"></i> Rating Member</a></li>
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
