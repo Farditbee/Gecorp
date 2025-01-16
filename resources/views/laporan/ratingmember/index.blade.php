@@ -185,14 +185,6 @@
             $('#listData').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
-
-            if (getFooterTable) {
-                if (!$('#listData').closest('table').find('tfoot').length) {
-                    $('#listData').closest('table').append('<tfoot></tfoot>');
-                }
-                $('#listData').closest('table').find('tfoot').html(getFooterTable);
-            }
-
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
@@ -222,6 +214,16 @@
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#daterange').val('');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
