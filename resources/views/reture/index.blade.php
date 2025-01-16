@@ -602,7 +602,7 @@
                     </button>
                 </td>
                 <td class="text-wrap align-top">
-                    <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
+                    <input type="number" name="qty[]" value="1" max="${data.qty || 0}" class="form-control" required>
                     <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
                 </td>
                 <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
@@ -626,6 +626,7 @@
             const tbody = document.getElementById('listData');
             const loadingRow = document.querySelector('#listData .loading-row');
             let status = '';
+
             if (loadingRow) {
                 tbody.removeChild(loadingRow);
             }
@@ -634,29 +635,64 @@
             const tr = document.createElement('tr');
             const rowId = `row-${rowCount}`;
             tr.id = rowId;
-            if (data.status == 'success') {
+
+            if (data.status === 'success') {
                 status = `<span class="badge badge-success">Sukses</span>`;
             } else {
-                status = `<select name="metode[]" class="form form-select select2 select-member">
-                                <option value="Cash" selected>Cash</option>
-                            </select>`;
+                status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}')">
+                      <option value="Cash" selected>Cash</option>
+                      <option value="Barang">Barang</option>
+                  </select>`;
             }
+
             tr.innerHTML = `
-                <td class="text-wrap align-top text-center">${rowCount}</td>
-                <td class="text-wrap align-top text-center">${status}</td>
-                <td class="text-wrap align-top text-center">${data.qty || 0}</td>
-                <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
-                <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
-                <td class="text-wrap align-top"><span>${data.no_nota || ''}</span></td>
-                <td class="text-wrap align-top"><span>${data.nama_member || 'Guest'}</span></td>
-                <td class="text-wrap align-top"><span>${data.harga || 0}</span></td>
-                <td class="text-wrap align-top">
-                    <span>${data.nama_barang || ''}</span>
-                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
-                </td>
-            `;
+        <td class="text-wrap align-top text-center">${rowCount}</td>
+        <td class="text-wrap align-top">
+            ${status}
+            <div class="barang-input" style="display: none;">
+                <input type="text" name="barcode_barang[]" class="form-control mt-2" placeholder="Masukkan Barcode Barang baru" required>
+                <small class="text-danger">Silahkan masukkan Barcode</small>
+            </div>
+        </td>
+        <td class="text-wrap align-top">
+            <div class="qty-awal">
+                ${data.qty || 0}
+            </div>
+            <div class="qty-input" style="display: none;">
+                <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
+                <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
+            </div>
+        </td>
+        <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
+        <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
+        <td class="text-wrap align-top"><span>${data.no_nota || ''}</span></td>
+        <td class="text-wrap align-top"><span>${data.nama_member || 'Guest'}</span></td>
+        <td class="text-wrap align-top"><span>${data.harga || 0}</span></td>
+        <td class="text-wrap align-top">
+            <span>${data.nama_barang || ''}</span>
+            <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+        </td>
+    `;
 
             tbody.appendChild(tr);
+        }
+
+        function handleMetodeChange(event, rowId) {
+            const selectedValue = event.target.value;
+            const row = document.getElementById(rowId);
+            const barangInput = row.querySelector('.barang-input');
+            const qtyInput = row.querySelector('.qty-input');
+            const qtyText = row.querySelector('.qty-awal');
+
+            if (selectedValue === 'Barang') {
+                barangInput.style.display = 'block';
+                qtyInput.style.display = 'block';
+                qtyText.style.display = 'none';
+            } else {
+                barangInput.style.display = 'none';
+                qtyInput.style.display = 'none';
+                qtyText.style.display = 'block';
+            }
         }
 
         function updateTableHeaders(action, status = null) {
@@ -1065,7 +1101,21 @@
                             return $(this).val();
                         }).get(),
                         qty: $("#listData tr").map(function() {
-                            return $(this).find('td:nth-child(3)').text().trim();
+                            const metode = $(this).find("select[name='metode[]']").val();
+                            if (metode === "Barang") {
+                                return $(this).find("input[name='qty_barang[]']").val() || 0;
+                            } else {
+                                return $(this).find(".qty-awal").text().trim();
+                            }
+                        }).get(),
+                        barcode: $("#listData tr").map(function() {
+                            const metode = $(this).find("select[name='metode[]']").val();
+                            if (metode === "Barang") {
+                                return $(this).find("input[name='barcode_barang[]']").val() ||
+                                    null;
+                            } else {
+                                return null;
+                            }
                         }).get(),
                         id_transaksi: $("#listData tr").map(function() {
                             return $(this).find('td:nth-child(4) span').text().trim();
