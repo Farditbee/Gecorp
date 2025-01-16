@@ -153,7 +153,7 @@
                 id: data?.id ?? '-',
                 nama_member: data?.nama_member ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
-                trx: data?.trx ?? 0,
+                total_trx: data?.total_trx ?? 0,
                 total_barang_dibeli: data?.total_barang_dibeli ?? 0,
                 total_pembayaran: data?.total_pembayaran ?? 0,
                 laba: data?.laba ?? 0,
@@ -175,7 +175,7 @@
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.nama_member}</td>
                     <td class="${classCol}">${element.nama_toko}</td>
-                    <td class="${classCol}">${element.trx}</td>
+                    <td class="${classCol}">${element.total_trx}</td>
                     <td class="${classCol}">${element.total_barang_dibeli}</td>
                     <td class="${classCol}">${formatRupiah(element.total_pembayaran)}</td>
                     <td class="${classCol}">${element.laba}</td>

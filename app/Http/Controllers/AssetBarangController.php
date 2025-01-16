@@ -47,6 +47,16 @@ class AssetBarangController extends Controller
             // Tambahkan sorting
             $query->orderBy('total_harga', $meta['orderBy']);
 
+            if (!empty($request['search'])) {
+                $searchTerm = trim(strtolower($request['search']));
+
+                $query->where(function ($query) use ($searchTerm) {
+                    // Pencarian pada kolom langsung
+                    $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                    $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
+                });
+            }
+
             // Eksekusi query dengan pagination
             $dataAsset = $query->paginate($meta['limit']);
 
