@@ -18,11 +18,13 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex gap-1">
-                                <button class="btn-dynamic btn btn-outline-primary" type="button" data-toggle="collapse"
-                                    data-target="#filter-collapse" aria-expanded="false" aria-controls="filter-collapse">
+                            <div class="d-flex gap-1 align-items-center">
+                                <button class="btn-dynamic btn btn-outline-primary mr-2" type="button"
+                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                    aria-controls="filter-collapse">
                                     <i class="fa fa-filter"></i> Filter
                                 </button>
+                                <span id="time-report" class="font-weight-bold"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
@@ -97,7 +99,7 @@
 
 @section('js')
     <script>
-        let title = 'Rating Member';
+        let title = 'Laporan Rating Member';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -201,8 +203,8 @@
                     startDate = null;
                     endDate = null;
                 } else {
-                    startDate = startDate.startOf('day').toISOString();
-                    endDate = endDate.endOf('day').toISOString();
+                    startDate = startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss');
+                    endDate = endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss');
                 }
 
                 customFilter = {
@@ -214,9 +216,14 @@
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
+                $('#time-report').html(
+                    `<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${startDate}</b> s/d <b class="text-primary">${endDate}</b>)`
+                );
+
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
+
 
             document.getElementById('tb-reset').addEventListener('click', async function() {
                 $('#daterange').val('');
@@ -224,12 +231,24 @@
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
+                await setTimeReport();
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
         }
 
+        function setTimeReport() {
+            const now = new Date();
+            const formattedNow =
+                `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
+
+            $('#time-report').html(
+                `<i class="fa fa-file-text mr-1"></i><b>${title}</b> sampai saat ini (<b class="text-primary">${formattedNow}</b>)`
+            );
+        }
+
         async function initPageLoad() {
+            await setTimeReport();
             await setDynamicButton();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
