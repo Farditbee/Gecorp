@@ -212,7 +212,7 @@ class DashboardController extends Controller
 
     public function getOmset(Request $request)
     {
-        // Ambil parameter filter tanggal, default ke hari ini
+        // Ambil parameter filter tanggal, default ke hari inis
         $startDate = $request->input('startDate', now()->toDateString());
         $endDate = $request->input('endDate', now()->toDateString());
 
