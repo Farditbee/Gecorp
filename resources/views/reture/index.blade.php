@@ -264,6 +264,7 @@
 @section('js')
     <script>
         let customFilter2 = {};
+        let customFilter3 = {};
         let rowCount = 0;
         let dataTemp = {};
         let globalIdMember = null;
@@ -427,7 +428,6 @@
             $('#listDataTable').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
-            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 
@@ -640,58 +640,97 @@
                 status = `<span class="badge badge-success">Sukses</span>`;
             } else {
                 status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}')">
-                      <option value="Cash" selected>Cash</option>
-                      <option value="Barang">Barang</option>
-                  </select>`;
+                    <option value="Cash" selected>Cash</option>
+                    <option value="Barang">Barang</option>
+                </select>`;
             }
 
             tr.innerHTML = `
-        <td class="text-wrap align-top text-center">${rowCount}</td>
-        <td class="text-wrap align-top">
-            ${status}
-            <div class="barang-input" style="display: none;">
-                <input type="text" name="barcode_barang[]" class="form-control mt-2" placeholder="Masukkan Barcode Barang baru" required>
-                <small class="text-danger">Silahkan masukkan Barcode</small>
-            </div>
-        </td>
-        <td class="text-wrap align-top">
-            <div class="qty-awal">
-                ${data.qty || 0}
-            </div>
-            <div class="qty-input" style="display: none;">
-                <input type="number" name="qty[]" value="${data.qty || 0}" max="${data.qty || 0}" class="form-control" required>
-                <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
-            </div>
-        </td>
-        <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
-        <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
-        <td class="text-wrap align-top"><span>${data.no_nota || ''}</span></td>
-        <td class="text-wrap align-top"><span>${data.nama_member || 'Guest'}</span></td>
-        <td class="text-wrap align-top"><span>${data.harga || 0}</span></td>
-        <td class="text-wrap align-top">
-            <span>${data.nama_barang || ''}</span>
-            <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
-        </td>
-    `;
+                <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top">
+                    ${status}
+                    <div class="barang-input" style="display: none;">
+                        <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
+                        <div class="d-flex align-items-center">
+                            <input id="barcode-${rowId}" type="text" name="barcode_barang[]" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
+                            <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
+                                title="Submit Pencarian Barcode Barang">
+                                <i class="fa fa-magnifying-glass"></i>Cari
+                            </button>
+                        </div>
+                    </div>
+                </td>
+
+                <td class="text-wrap align-top">
+                    <span class="qty-awal">${data.qty || 0}</span>
+                </td>
+                <td class="text-wrap align-top"><span>${data.id_transaksi || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.nama_toko || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.no_nota || ''}</span></td>
+                <td class="text-wrap align-top"><span>${data.nama_member || 'Guest'}</span></td>
+                <td class="text-wrap align-top"><span>${data.harga || 0}</span></td>
+                <td class="text-wrap align-top">
+                    <span>${data.nama_barang || ''}</span>
+                    <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                </td>
+            `;
 
             tbody.appendChild(tr);
+
+            const searchButton = document.getElementById(`barcode-search-${rowId}`);
+            searchButton.addEventListener('click', async () => {
+                const barcodeInput = document.getElementById(`barcode-${rowId}`);
+                const barcode = barcodeInput.value;
+
+                if (barcode.trim()) {
+                    const customFilter3 = {
+                        barcode: barcode
+                    };
+                    await getDataBarcode(customFilter3);
+                } else {
+                    alert('Masukkan barcode terlebih dahulu.');
+                }
+            });
         }
 
-        function handleMetodeChange(event, rowId) {
+        async function handleMetodeChange(event, rowId) {
             const selectedValue = event.target.value;
             const row = document.getElementById(rowId);
             const barangInput = row.querySelector('.barang-input');
-            const qtyInput = row.querySelector('.qty-input');
-            const qtyText = row.querySelector('.qty-awal');
 
             if (selectedValue === 'Barang') {
                 barangInput.style.display = 'block';
-                qtyInput.style.display = 'block';
-                qtyText.style.display = 'none';
             } else {
                 barangInput.style.display = 'none';
-                qtyInput.style.display = 'none';
-                qtyText.style.display = 'block';
+            }
+        }
+
+        async function getDataBarcode(customFilter3 = {}) {
+            let filterParams = {};
+
+            if (customFilter3['barcode']) {
+                filterParams.barcode = customFilter3['barcode'];
+            }
+
+            let getDataRest = await renderAPI(
+                'GET',
+                '{{ route('master.getreturebarcode') }}', {
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    ...filterParams
+                }
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status === 200) {
+                let data = getDataRest.data.data;
+                if (data) {}
+            } else {
+                let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
+                notificationAlert('error', 'Kesalahan', errorMessage);
             }
         }
 
@@ -1102,20 +1141,7 @@
                         }).get(),
                         qty: $("#listData tr").map(function() {
                             const metode = $(this).find("select[name='metode[]']").val();
-                            if (metode === "Barang") {
-                                return $(this).find("input[name='qty_barang[]']").val() || 0;
-                            } else {
-                                return $(this).find(".qty-awal").text().trim();
-                            }
-                        }).get(),
-                        barcode: $("#listData tr").map(function() {
-                            const metode = $(this).find("select[name='metode[]']").val();
-                            if (metode === "Barang") {
-                                return $(this).find("input[name='barcode_barang[]']").val() ||
-                                    null;
-                            } else {
-                                return null;
-                            }
+                            return $(this).find(".qty-awal").text().trim();
                         }).get(),
                         id_transaksi: $("#listData tr").map(function() {
                             return $(this).find('td:nth-child(4) span').text().trim();
