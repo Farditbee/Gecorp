@@ -268,6 +268,7 @@
         let rowCount = 0;
         let dataTemp = {};
         let globalIdMember = null;
+        let barcodeResponses = {};
 
         let title = 'Reture';
         let defaultLimitPage = 10;
@@ -660,7 +661,6 @@
                         </div>
                     </div>
                 </td>
-
                 <td class="text-wrap align-top">
                     <span class="qty-awal">${data.qty || 0}</span>
                 </td>
@@ -683,14 +683,25 @@
                 const barcode = barcodeInput.value;
 
                 if (barcode.trim()) {
+                    const id_barang = data.id_barang || '';
                     const customFilter3 = {
-                        barcode: barcode
+                        barcode: barcode,
+                        id_barang: id_barang,
+                        rowId: rowId
                     };
-                    await getDataBarcode(customFilter3);
+
+                    const response = await getDataBarcode(customFilter3);
+
+                    if (response && response?.status === 200) {
+                        barcodeResponses[rowId] = response.data.data;
+                    } else {
+                        notificationAlert('error', 'Error', response.message);
+                    }
                 } else {
-                    alert('Masukkan barcode terlebih dahulu.');
+                    notificationAlert('error', 'Error', 'Silahkan masukkan Barcode Barang terlebih dahulu');
                 }
             });
+
         }
 
         async function handleMetodeChange(event, rowId) {
@@ -712,6 +723,10 @@
                 filterParams.barcode = customFilter3['barcode'];
             }
 
+            if (customFilter3['id_barang']) {
+                filterParams.id_barang = customFilter3['id_barang'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getreturebarcode') }}', {
@@ -727,7 +742,23 @@
 
             if (getDataRest && getDataRest.status === 200) {
                 let data = getDataRest.data.data;
-                if (data) {}
+                if (data) {
+                    const rowId = customFilter3.rowId;
+                    const row = document.getElementById(rowId);
+
+                    const barangInput = row.querySelector('.barang-input');
+
+                    let stockElement = barangInput.querySelector('.stock-info');
+                    if (!stockElement) {
+                        stockElement = document.createElement('small');
+                        stockElement.classList.add('font-weight-bold', 'text-primary', 'stock-info');
+                        barangInput.appendChild(stockElement);
+                    }
+
+                    stockElement.textContent = `Stok Barang Tersisa: ${data.stock_toko_qty}`;
+
+                    return getDataRest;
+                }
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 notificationAlert('error', 'Kesalahan', errorMessage);
@@ -1134,13 +1165,19 @@
                 } else if (action === 'origin') {
                     let url = actionUrl;
 
+                    let barcodeDataArray = {
+                        id_barang: [],
+                        nama_barang: [],
+                        stock_toko_qty: [],
+                        hpp_baru: []
+                    };
+
                     let formData = {
                         id_retur: dataTemp.id_retur,
                         metode: $("select[name='metode[]']").map(function() {
                             return $(this).val();
                         }).get(),
                         qty: $("#listData tr").map(function() {
-                            const metode = $(this).find("select[name='metode[]']").val();
                             return $(this).find(".qty-awal").text().trim();
                         }).get(),
                         id_transaksi: $("#listData tr").map(function() {
@@ -1154,9 +1191,38 @@
                         }).get(),
                     };
 
-                    let method = 'POST';
+                    formData.metode.forEach((metode, index) => {
+                        if (metode === 'Barang') {
+                            const rowId = `row-${index + 1}`;
+                            const barcodeData = barcodeResponses[rowId];
+
+                            if (barcodeData) {
+                                barcodeDataArray.id_barang.push(barcodeData.id_barang || '');
+                                barcodeDataArray.nama_barang.push(barcodeData.nama_barang || '');
+                                barcodeDataArray.stock_toko_qty.push(barcodeData.stock_toko_qty ||
+                                    0);
+                                barcodeDataArray.hpp_baru.push(barcodeData.hpp_baru || 0);
+                            } else {
+                                barcodeDataArray.id_barang.push('');
+                                barcodeDataArray.nama_barang.push('');
+                                barcodeDataArray.stock_toko_qty.push(0);
+                                barcodeDataArray.hpp_baru.push(0);
+                            }
+                        } else {
+                            barcodeDataArray.id_barang.push('');
+                            barcodeDataArray.nama_barang.push('');
+                            barcodeDataArray.stock_toko_qty.push(0);
+                            barcodeDataArray.hpp_baru.push(0);
+                        }
+                    });
+
+                    formData = {
+                        ...formData,
+                        ...barcodeDataArray
+                    };
+
                     try {
-                        let postData = await renderAPI(method, url, formData);
+                        let postData = await renderAPI('POST', url, formData);
 
                         loadingPage(false);
                         if (postData.status >= 200 && postData.status < 300) {
@@ -1164,8 +1230,7 @@
                                 'Berhasil');
                             setTimeout(async function() {
                                 await getListData(defaultLimitPage, currentPage,
-                                    defaultAscending,
-                                    defaultSearch, customFilter);
+                                    defaultAscending, defaultSearch, customFilter);
                             }, 500);
                             $("#modal-form").modal("hide");
                         } else {

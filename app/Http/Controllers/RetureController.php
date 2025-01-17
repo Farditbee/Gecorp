@@ -45,7 +45,7 @@ class RetureController extends Controller
     {
         $qrcode = $request->input('qrcode');
         $id_member = $request->input('id_member');
-    
+
         if (empty($qrcode)) {
             return response()->json([
                 "error" => true,
@@ -53,14 +53,14 @@ class RetureController extends Controller
                 "status_code" => 400,
             ], 400);
         }
-    
+
         try {
             $detailKasir = DetailKasir::where('qrcode', $qrcode)->first();
-    
+
             if ($detailKasir) {
                 // Eager loading untuk menghindari banyak query
                 $kasir = Kasir::with(['toko', 'member'])->find($detailKasir->id_kasir);
-    
+
                 if ($kasir) {
                     if ($kasir->id_member != $id_member) {
                         return response()->json([
@@ -69,9 +69,9 @@ class RetureController extends Controller
                             "status_code" => 403,
                         ], 403);
                     }
-    
+
                     $barang = Barang::find($detailKasir->id_barang);
-    
+
                     $diskon = $detailKasir->diskon ?? 0;
                     $reture_qty = $detailKasir->reture_qty ?? 0;
 
@@ -83,7 +83,7 @@ class RetureController extends Controller
                             "status_code" => 400,
                         ], 400);
                     }
-                    
+
                     // Format data untuk dikirim ke FE
                     $data = [
                         "error" => false,
@@ -101,11 +101,11 @@ class RetureController extends Controller
                             "qty" => $detailKasir->qty - $reture_qty,
                         ],
                     ];
-    
+
                     return response()->json($data, 200);
                 }
             }
-    
+
             // Jika data tidak ditemukan
             return response()->json([
                 "error" => true,
@@ -114,7 +114,7 @@ class RetureController extends Controller
             ], 404);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-    
+
             return response()->json([
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server",
@@ -122,7 +122,7 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
     public function store_nota(Request $request)
     {
         $request->validate([
@@ -540,7 +540,7 @@ class RetureController extends Controller
 
         $metode = $request->metode;
         $id_kasir = $request->id_transaksi;
-        $id_barang = $request->id_barang; 
+        $id_barang = $request->id_barang;
         $qty = $request->qty;
         $id_retur = $request->id_retur;
         $hpp = $request->hpp;
@@ -655,7 +655,7 @@ class RetureController extends Controller
             $barcode = $request->input('barcode');
             $id_toko = $request->input('id_toko');
             $id_barang = $request->input('id_barang');
-    
+
             // Cek apakah barcode ada di tabel barang
             $barang = Barang::where('barcode', $barcode)
                             ->first();
@@ -668,12 +668,12 @@ class RetureController extends Controller
             if ($barang->id != $id_barang) {
                 return response()->json(['message' => 'Barcode tidak sesuai dengan barang'], 400);
             }
-            
+
             if ($id_toko == 1){
                 // Cek stok barang di tabel StockBarang
                 $stock = StockBarang::where('id_barang', $id_barang)
                                     ->first();
-    
+
                 if (!$stock) {
                     return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
                 }
@@ -688,22 +688,22 @@ class RetureController extends Controller
                 $stock_toko = DetailToko::where('id_toko', $id_toko)
                                     ->where('id_barang', $id_barang)
                                     ->first();
-                    
+
                 if (!$stock_toko) {
                     return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
                 }
-                
+
                 if ($stock_toko->qty == 0) {
                     return response()->json(['message' => 'Barang sedang kosong'], 200);
                 }
-                
+
                 // Ambil hpp_baru dari tabel StockBarang
                 $stock = StockBarang::where('id_barang', $id_barang)->first();
-                
+
                 if (!$stock) {
                     return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
                 }
-                
+
                 $response_data = [
                     'id_barang' => $stock_toko->id_barang,
                     'nama_ba rang' => $barang->nama_barang,
@@ -713,7 +713,7 @@ class RetureController extends Controller
             } else {
                 return response()->json(['message' => 'Toko tidak ditemukan'], 404);
             }
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Data ditemukan!',
@@ -728,5 +728,5 @@ class RetureController extends Controller
             ], 500);
         }
     }
-    
+
 }
