@@ -639,37 +639,56 @@ class RetureController extends Controller
     
             $id_barang = $barang->id;
     
-            // Cek stok barang di tabel DetailToko
-            $stock_toko = DetailToko::where('id_toko', $id_toko)
-                                    ->where('id_barang', $id_barang)
+            if ($id_toko == 1){
+                // Cek stok barang di tabel StockBarang
+                $stock = StockBarang::where('id_barang', $id_barang->id_barang)
                                     ->first();
     
-            if (!$stock_toko) {
-                return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
-            }
-    
-            if ($stock_toko->qty == 0) {
-                return response()->json(['message' => 'Barang sedang kosong'], 200);
-            }
-    
-            // Cek stok barang di tabel StockBarang
-            $stock = StockBarang::where('id_barang', $stock_toko->id_barang)
-                                ->first();
-    
-            if (!$stock) {
-                return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+                if (!$stock) {
+                    return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+                }
+
+                $response_data = [
+                    'id_barang' => $stock->id_barang,
+                    'nama_barang' => $barang->nama_barang,
+                    'stock_toko_qty' => $stock->qty,
+                    'hpp_baru' => $stock->hpp_baru,
+                ];
+            } elseif ($id_toko != 1) {
+                $stock_toko = DetailToko::where('id_toko', $id_toko)
+                                    ->where('id_barang', $id_barang)
+                                    ->first();
+                    
+                if (!$stock_toko) {
+                    return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+                }
+                
+                if ($stock_toko->qty == 0) {
+                    return response()->json(['message' => 'Barang sedang kosong'], 200);
+                }
+                
+                // Ambil hpp_baru dari tabel StockBarang
+                $stock = StockBarang::where('id_barang', $id_barang)->first();
+                
+                if (!$stock) {
+                    return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
+                }
+                
+                $response_data = [
+                'id_barang' => $stock_toko->id_barang,
+                'nama_barang' => $barang->nama_barang,
+                'stock_toko_qty' => $stock_toko->qty,
+                'hpp_baru' => $stock->hpp_baru,
+                ];
+            } else {
+                return response()->json(['message' => 'Toko tidak ditemukan'], 404);
             }
     
             return response()->json([
                 'error' => false,
                 'message' => 'Data ditemukan!',
                 'status_code' => 200,
-                'data' => [
-                    'id_barang' => $stock_toko->id_barang,
-                    'nama_barang' => $barang->nama_barang,
-                    'stock_toko_qty' => $stock_toko->qty,
-                    'hpp_baru' => $stock->hpp_baru,
-                ],
+                'data' => $response_data,
             ]);
         } catch (\Exception $e) {
             return response()->json([
