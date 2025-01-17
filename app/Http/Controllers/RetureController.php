@@ -632,7 +632,7 @@ class RetureController extends Controller
     
             // Cek apakah barcode ada di tabel barang
             $barang = Barang::where('barcode', $barcode)->first();
-    
+
             if (!$barang) {
                 return response()->json(['message' => 'Tidak ada barcode atau barang yang ditemukan'], 404);
             }
@@ -641,7 +641,7 @@ class RetureController extends Controller
     
             if ($id_toko == 1){
                 // Cek stok barang di tabel StockBarang
-                $stock = StockBarang::where('id_barang', $id_barang->id_barang)
+                $stock = StockBarang::where('id_barang', $id_barang)
                                     ->first();
     
                 if (!$stock) {
@@ -651,7 +651,7 @@ class RetureController extends Controller
                 $response_data = [
                     'id_barang' => $stock->id_barang,
                     'nama_barang' => $barang->nama_barang,
-                    'stock_toko_qty' => $stock->qty,
+                    'stock_toko_qty' => $stock->stock,
                     'hpp_baru' => $stock->hpp_baru,
                 ];
             } elseif ($id_toko != 1) {
@@ -675,10 +675,10 @@ class RetureController extends Controller
                 }
                 
                 $response_data = [
-                'id_barang' => $stock_toko->id_barang,
-                'nama_barang' => $barang->nama_barang,
-                'stock_toko_qty' => $stock_toko->qty,
-                'hpp_baru' => $stock->hpp_baru,
+                    'id_barang' => $stock_toko->id_barang,
+                    'nama_ba rang' => $barang->nama_barang,
+                    'stock_toko_qty' => $stock_toko->qty,
+                    'hpp_baru' => $stock->hpp_baru,
                 ];
             } else {
                 return response()->json(['message' => 'Toko tidak ditemukan'], 404);
