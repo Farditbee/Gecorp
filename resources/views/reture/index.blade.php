@@ -694,6 +694,7 @@
 
                     if (response && response?.status === 200) {
                         barcodeResponses[rowId] = response.data.data;
+                        $('.qty-input').attr('max', data.qty || 0);
                     } else {
                         notificationAlert('error', 'Error', response.message);
                     }
@@ -754,8 +755,30 @@
                         stockElement.classList.add('font-weight-bold', 'text-primary', 'stock-info');
                         barangInput.appendChild(stockElement);
                     }
-
                     stockElement.textContent = `Stok Barang Tersisa: ${data.stock_toko_qty}`;
+
+                    let qtyLabel = barangInput.querySelector('.qty-label');
+                    if (!qtyLabel) {
+                        qtyLabel = document.createElement('label');
+                        qtyLabel.classList.add('qty-label', 'mt-2',
+                            'd-block');
+                        qtyLabel.textContent = 'Masukkan Jumlah Barang (Qty):';
+                        barangInput.appendChild(qtyLabel);
+                    }
+
+                    let qtyElement = barangInput.querySelector('.qty-input');
+                    if (!qtyElement) {
+                        qtyElement = document.createElement('input');
+                        qtyElement.type = 'number';
+                        qtyElement.min = '1';
+                        // qtyElement.max = data.stock_toko_qty;
+                        qtyElement.value = '1';
+                        qtyElement.name = `qty_barang[]`;
+                        qtyElement.classList.add('form-control', 'qty-input');
+                        qtyElement.placeholder = 'Masukkan Qty';
+
+                        barangInput.appendChild(qtyElement);
+                    }
 
                     return getDataRest;
                 }
@@ -1169,7 +1192,8 @@
                         id_barang: [],
                         nama_barang: [],
                         stock_toko_qty: [],
-                        hpp_baru: []
+                        hpp_baru: [],
+                        stock_qty: []
                     };
 
                     let formData = {
@@ -1196,23 +1220,33 @@
                             const rowId = `row-${index + 1}`;
                             const barcodeData = barcodeResponses[rowId];
 
+                            // Ambil elemen qty-input berdasarkan rowId
+                            const rowElement = document.getElementById(rowId);
+                            const qtyInput = rowElement ? rowElement.querySelector('.qty-input') :
+                                null;
+
                             if (barcodeData) {
                                 barcodeDataArray.id_barang.push(barcodeData.id_barang || '');
                                 barcodeDataArray.nama_barang.push(barcodeData.nama_barang || '');
                                 barcodeDataArray.stock_toko_qty.push(barcodeData.stock_toko_qty ||
                                     0);
                                 barcodeDataArray.hpp_baru.push(barcodeData.hpp_baru || 0);
+                                barcodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
+                                    .value) || 0 : 0);
                             } else {
                                 barcodeDataArray.id_barang.push('');
                                 barcodeDataArray.nama_barang.push('');
                                 barcodeDataArray.stock_toko_qty.push(0);
                                 barcodeDataArray.hpp_baru.push(0);
+                                barcodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
+                                    .value) || 0 : 0);
                             }
                         } else {
                             barcodeDataArray.id_barang.push('');
                             barcodeDataArray.nama_barang.push('');
                             barcodeDataArray.stock_toko_qty.push(0);
                             barcodeDataArray.hpp_baru.push(0);
+                            barcodeDataArray.stock_qty.push(0);
                         }
                     });
 
