@@ -66,14 +66,18 @@
                             class="pcoded-mtext">Data
                             Transaksi</span></a>
                     <ul class="pcoded-submenu">
-                        @if (Auth::user()->id_level == 1)
-                            <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
-                                        class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
+                            @if (Auth::user()->id_level == 1)
+                                <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
+                                            class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
+                            @endif
+                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                                <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
+                                            class="fa fa-truck"></i> Pengiriman Barang</a></li>
+                            @endif
+                            <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
+                                        class="fa fa-laptop"></i> Transaksi Kasir</a></li>
                         @endif
-                        <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
-                                    class="fa fa-truck"></i> Pengiriman Barang</a></li>
-                        <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
-                                    class="fa fa-laptop"></i> Transaksi Kasir</a></li>
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">

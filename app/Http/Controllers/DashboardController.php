@@ -212,24 +212,24 @@ class DashboardController extends Controller
 
     public function getOmset(Request $request)
     {
-        // Ambil parameter filter tanggal, default ke hari ini
-        $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
-        $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
+        // Ambil parameter filter tanggal, default ke hari inis
+        $startDate = $request->input('startDate', now()->toDateString());
+        $endDate = $request->input('endDate', now()->toDateString());
 
         try {
             // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
             $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
-                    ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+                    ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
             })
                 ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko=1
-                ->selectRaw('toko.id, toko.singkatan, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
-                ->groupBy('toko.id', 'toko.singkatan');
+                ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai') // Jumlahkan total_nilai dari semua transaksi
+                ->groupBy('toko.id'); // Mengelompokkan berdasarkan id_toko
 
-            $omsetData = $query->get();
+            $omsetData = $query->first(); // Ambil hasil pertama (karena hanya satu total omset yang ingin dihitung)
 
-            // Hitung total omset dari semua toko yang sesuai
-            $totalOmset = $omsetData->sum('total_transaksi');
+            // Ambil total omset dari hasil query
+            $totalOmset = $omsetData->total_nilai ?? 0;
 
             // Return response JSON
             return response()->json([
@@ -261,7 +261,7 @@ class DashboardController extends Controller
             // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
             $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
-                    ->whereBetween('kasir.created_at', [$startDate, $endDate]);
+                    ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
             })
                 ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
                 ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')

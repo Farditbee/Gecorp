@@ -5,7 +5,7 @@
 @endsection
 
 @section('css')
-{{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> --}}
+{{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">s --}}
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
@@ -35,7 +35,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                @if (Auth::user()->id_level != 1)
+                                @if (Auth::user()->id_level == 3)
 
                                 <a id="btn-tambah" class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
                                 data-target=".bd-example-modal-lg">
