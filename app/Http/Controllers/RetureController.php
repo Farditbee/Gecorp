@@ -543,6 +543,7 @@ class RetureController extends Controller
         $id_barang = $request->id_barang; 
         $qty = $request->qty;
         $id_retur = $request->id_retur;
+        $hpp = $request->hpp;
 
         $id_users = Auth::user()->id;
 
@@ -571,6 +572,30 @@ class RetureController extends Controller
                         return response()->json([
                             'error' => true,
                             'message' => 'Data tidak ditemukan untuk id_transaksi: ' . $idKasir . ' dan id_barang: ' . $id_barang[$index],
+                            'status_code' => 404,
+                        ], 404);
+                    }
+                } elseif ($metode[$index] === 'Barang') {
+                    $detailKasir = DetailKasir::where('id_kasir', $idKasir)
+                        ->where('id_barang', $id_barang[$index])
+                        ->first();
+
+                    if ($detailKasir) {
+
+                        $detailKasir->reture = true;
+                        $detailKasir->reture_by = $id_users;
+
+                        if (is_null($detailKasir->reture_qty)) {
+                            $detailKasir->reture_qty = 0;
+                        }
+
+                        $detailKasir->reture_qty += $qty[$index];
+
+                        $detailKasir->save();
+                    } else {
+                        return response()->json([
+                            'error' => true,
+                            'message' => 'Stok tidak ditemukan untuk id_barang: ' . $id_barang[$index],
                             'status_code' => 404,
                         ], 404);
                     }
@@ -629,16 +654,21 @@ class RetureController extends Controller
         try {
             $barcode = $request->input('barcode');
             $id_toko = $request->input('id_toko');
+            $id_barang = $request->input('id_barang');
     
             // Cek apakah barcode ada di tabel barang
-            $barang = Barang::where('barcode', $barcode)->first();
+            $barang = Barang::where('barcode', $barcode)
+                            ->first();
 
             if (!$barang) {
                 return response()->json(['message' => 'Tidak ada barcode atau barang yang ditemukan'], 404);
             }
-    
-            $id_barang = $barang->id;
-    
+
+            // Cek apakah id_barang sesuai dengan barcode
+            if ($barang->id != $id_barang) {
+                return response()->json(['message' => 'Barcode tidak sesuai dengan barang'], 400);
+            }
+            
             if ($id_toko == 1){
                 // Cek stok barang di tabel StockBarang
                 $stock = StockBarang::where('id_barang', $id_barang)
