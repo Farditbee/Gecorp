@@ -144,6 +144,7 @@ class BarangController extends Controller
             'id_jenis_barang' => 'required|exists:jenis_barang,id',
             'id_brand_barang' => 'required|exists:brand,id',
             'barcode' => 'nullable|string|max:255',
+            'garansi' => 'nullable|string|max:255',
             'gambar_barang' => 'nullable|image|max:2048',
         ]);
 
@@ -205,7 +206,7 @@ class BarangController extends Controller
             $barang->barcode = $barcodeValue;
             $barang->barcode_path = $barcodeFilename;
             $barang->gambar_path = $gambarPath;
-            $barang->garansi = $request->garansi;
+            $barang->garansi = $request->garansi ?: 'No';
             $barang->save();
 
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');

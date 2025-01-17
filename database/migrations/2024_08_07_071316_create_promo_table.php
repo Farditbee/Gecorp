@@ -12,7 +12,6 @@ return new class extends Migration
         Schema::create('promo', function (Blueprint $table) {
             $table->id('id')->primary();
             $table->string('id_barang');
-            $table->string('id_toko');
             $table->string('nama_barang');
             $table->integer('minimal')->default(1);
             $table->integer('diskon')->nullable();
