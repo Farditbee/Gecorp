@@ -646,9 +646,10 @@
                 } else {
                     info = 'badge-danger';
                 }
-                status = `<span class="badge badge-secondary"><i class="fa fa-circle-check mr-1 text-success"></i>Sukses dengan Metode <b class="badge ${info}">${data.metode || 'Tidak Valid'}</b></span>`;
+                status =
+                    `<span class="badge badge-secondary"><i class="fa fa-circle-check mr-1 text-success"></i>Sukses dengan Metode <b class="badge ${info}">${data.metode || 'Tidak Valid'}</b></span>`;
             } else {
-                status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}')">
+                status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}', '${data.id_barang}', '${data.qty}')">
                     <option value="Cash" selected>Cash</option>
                     <option value="Barang">Barang</option>
                 </select>`;
@@ -677,7 +678,7 @@
             tbody.appendChild(tr);
         }
 
-        async function handleMetodeChange(event, rowId) {
+        async function handleMetodeChange(event, rowId, data_id_barang, data_qty) {
             const selectedValue = event.target.value;
             const row = document.getElementById(rowId);
             const barangContainer = row.querySelector('.barang-container');
@@ -704,7 +705,7 @@
                     const barcode = barcodeInput.value;
 
                     if (barcode.trim()) {
-                        const id_barang = data.id_barang || '';
+                        const id_barang = data_id_barang || '';
                         const customFilter3 = {
                             barcode: barcode,
                             id_barang: id_barang,
@@ -715,7 +716,7 @@
 
                         if (response && response?.status === 200) {
                             barcodeResponses[rowId] = response.data.data;
-                            $('.qty-input').attr('max', data.qty || 0);
+                            $('.qty-input').attr('max', data_qty || 0);
                         } else {
                             notificationAlert('error', 'Error', response.message);
                         }
@@ -757,8 +758,16 @@
                     const rowId = customFilter3.rowId;
                     const row = document.getElementById(rowId);
 
-                    const barangInput = row.querySelector('.barang-input');
+                    // Check if .barang-input exists, if not, create it
+                    let barangInput = row.querySelector('.barang-input');
+                    if (!barangInput) {
+                        barangInput = document.createElement('div');
+                        barangInput.classList.add('barang-input', 'mt-2');
+                        row.querySelector('td:nth-child(2)').appendChild(
+                        barangInput); // Append to the correct table cell
+                    }
 
+                    // Update or create the stock info
                     let stockElement = barangInput.querySelector('.stock-info');
                     if (!stockElement) {
                         stockElement = document.createElement('small');
@@ -767,15 +776,16 @@
                     }
                     stockElement.textContent = `Stok Barang Tersisa: ${data.stock_toko_qty}`;
 
+                    // Update or create the qty label
                     let qtyLabel = barangInput.querySelector('.qty-label');
                     if (!qtyLabel) {
                         qtyLabel = document.createElement('label');
-                        qtyLabel.classList.add('qty-label', 'mt-2',
-                            'd-block');
+                        qtyLabel.classList.add('qty-label', 'mt-2', 'd-block');
                         qtyLabel.textContent = 'Masukkan Jumlah Barang (Qty):';
                         barangInput.appendChild(qtyLabel);
                     }
 
+                    // Update or create the qty input
                     let qtyElement = barangInput.querySelector('.qty-input');
                     if (!qtyElement) {
                         qtyElement = document.createElement('input');
@@ -796,6 +806,7 @@
                 notificationAlert('error', 'Kesalahan', errorMessage);
             }
         }
+
 
         function updateTableHeaders(action, status = null) {
             const table = document.querySelector('.table-custom');
