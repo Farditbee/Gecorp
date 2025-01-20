@@ -5,7 +5,6 @@
 @endsection
 
 @section('css')
-{{-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">s --}}
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
@@ -36,20 +35,19 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
                                 @if (Auth::user()->id_level == 3)
-
-                                <a id="btn-tambah" class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
-                                data-target=".bd-example-modal-lg">
-                                <i class="fa fa-plus-circle"></i> Tambah
-                                </a>
+                                    <a id="btn-tambah" class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
+                                        data-target=".bd-example-modal-lg">
+                                        <i class="fa fa-plus-circle"></i> Tambah
+                                    </a>
                                 @endif
-
-                                <form id="custom-filter" class="d-flex align-items-center flex-grow-1">
-                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
-                                        name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Filter Transaksi Kasir">
-                                        <i class="fa fa-filter"></i> Filter
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
+                                    <input class="form-control w-50 mb-2" type="text" id="daterange" name="daterange"
+                                        placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-info h-100 mb-2 mx-2" id="tb-filter" type="submit">
+                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <button type="button" class="btn btn-secondary h-100 mb-2" id="tb-reset">
+                                        <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
                                 </form>
                             </div>
@@ -63,19 +61,6 @@
                                 <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
                                     name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
                             </div>
-                            {{-- @if (request('startDate') && request('endDate'))
-                                <p class="text-muted mt-2 mb-0 w-100 text-left font-weight-bold">
-                                    Data dimuat dalam periode dari tanggal
-                                    <span class="text-danger">
-                                        {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
-                                        {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
-                                    </span>
-                                </p>
-                            @else
-                                <p class="text-muted mt-2 mb-0 w-100 text-left font-weight-bold">
-                                    Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
-                                </p>
-                            @endif --}}
                         </div>
                         <div class="content">
                             <x-adminlte-alerts />
@@ -743,9 +728,17 @@
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#daterange').val('');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
         }
-
-
 
         function cetakStruk(id_kasir) {
             const url = `{{ route('cetak.struk', ':id_kasir') }}`.replace(':id_kasir', id_kasir);
@@ -874,12 +867,16 @@
             }
         });
 
-        document.getElementById('btn-tambah').addEventListener('click', function() {
-            // Tunggu modal tampil
-            setTimeout(function() {
-                document.getElementById('search-barang').focus();
-            }, 1000); // Penyesuaian waktu, sesuai animasi modal
-        });
+        function add() {
+            if ('{{ Auth::user()->id_level }}' == 3) {
+                document.getElementById('btn-tambah').addEventListener('click', function() {
+                    // Tunggu modal tampil
+                    setTimeout(function() {
+                        document.getElementById('search-barang').focus();
+                    }, 1000); // Penyesuaian waktu, sesuai animasi modal
+                });
+            }
+        }
 
         $('.bd-example-modal-lg').on('shown.bs.modal', function() {
             const searchBarangInput = document.getElementById('search-barang');
@@ -1120,6 +1117,7 @@
 
 
         async function initPageLoad() {
+            await add();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();

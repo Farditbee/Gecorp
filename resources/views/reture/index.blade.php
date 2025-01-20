@@ -1220,7 +1220,6 @@
                             const rowId = `row-${index + 1}`;
                             const barcodeData = barcodeResponses[rowId];
 
-                            // Ambil elemen qty-input berdasarkan rowId
                             const rowElement = document.getElementById(rowId);
                             const qtyInput = rowElement ? rowElement.querySelector('.qty-input') :
                                 null;

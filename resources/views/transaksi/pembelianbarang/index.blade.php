@@ -25,16 +25,12 @@
                                     <span data-container="body" data-toggle="tooltip" data-placement="top"
                                         title="Tambah Pembelian Barang"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
                                 </a>
-
-                                <form id="custom-filter" class="d-flex justify-content-between align-items-center mx-2">
-                                    <input class="form-control w-75 mx-1 mb-lg-0" type="text" id="daterange"
-                                        name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning ml-1 w-50" id="tb-filter" type="submit"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Filter Pembelian Barang">
-                                        <i class="fa fa-filter"></i> Filter
-                                    </button>
-                                </form>
+                                <button class="btn-dynamic btn btn-outline-primary mx-2" type="button"
+                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                    aria-controls="filter-collapse"data-container="body" data-toggle="tooltip" data-placement="top"
+                                    title="Filter Pembelian Barang">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
@@ -50,6 +46,18 @@
                         </div>
                         <div class="content">
                             <x-adminlte-alerts />
+                            <div class="collapse mt-2 pl-4" id="filter-collapse">
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
+                                    <input class="form-control w-25 mb-2" type="text" id="daterange" name="daterange"
+                                        placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
+                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
+                                        <i class="fa fa-rotate mr-2"></i>Reset
+                                    </button>
+                                </form>
+                            </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-striped m-0">
@@ -496,6 +504,16 @@
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#daterange').val('');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
         }
 
         async function addData() {
@@ -895,6 +913,7 @@
         }
 
         async function initPageLoad() {
+            await setDynamicButton();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();
