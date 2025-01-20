@@ -54,91 +54,91 @@ class KasirController extends Controller
             } else {
                 // Secara default, jangan tampilkan transaksi dengan id_toko = 1
                 $query->where('id_toko', '!=', 1);
-        }
+            }
 
-        // Pencarian
-        if (!empty($request['search'])) {
-            $searchTerm = trim(strtolower($request['search']));
+            // Pencarian
+            if (!empty($request['search'])) {
+                $searchTerm = trim(strtolower($request['search']));
 
-            $query->where(function ($query) use ($searchTerm) {
-                if ($searchTerm === 'guest') {
-                    // Jika pencarian adalah "Guest", cari data dengan id_member = 0
-                    $query->where('id_member', 0);
-                } else {
-                    // Logika pencarian normal
-                    $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
-                    $query->orWhereRaw("LOWER(metode) LIKE ?", ["%$searchTerm%"]);
+                $query->where(function ($query) use ($searchTerm) {
+                    if ($searchTerm === 'guest') {
+                        // Jika pencarian adalah "Guest", cari data dengan id_member = 0
+                        $query->where('id_member', 0);
+                    } else {
+                        // Logika pencarian normal
+                        $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+                        $query->orWhereRaw("LOWER(metode) LIKE ?", ["%$searchTerm%"]);
 
-                    $query->orWhereHas('member', function ($subquery) use ($searchTerm) {
-                        $subquery->whereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
-                    });
-                    $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
-                        $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                    });
-                    $query->orWhereHas('users', function ($subquery) use ($searchTerm) {
-                        $subquery->whereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
-                    });
-                }
-            });
-        }
+                        $query->orWhereHas('member', function ($subquery) use ($searchTerm) {
+                            $subquery->whereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                        });
+                        $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                            $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                        });
+                        $query->orWhereHas('users', function ($subquery) use ($searchTerm) {
+                            $subquery->whereRaw("LOWER(nama) LIKE ?", ["%$searchTerm%"]);
+                        });
+                    }
+                });
+            }
 
-        // Filter berdasarkan tanggal
-        if ($request->has('startDate') && $request->has('endDate')) {
-            $startDate = $request->input('startDate');
-            $endDate = $request->input('endDate');
+            // Filter berdasarkan tanggal
+            if ($request->has('startDate') && $request->has('endDate')) {
+                $startDate = $request->input('startDate');
+                $endDate = $request->input('endDate');
 
-            $query->whereBetween('tgl_transaksi', [$startDate, $endDate]);
-        }
+                $query->whereBetween('tgl_transaksi', [$startDate, $endDate]);
+            }
 
-        $data = $query->paginate($meta['limit']);
+            $data = $query->paginate($meta['limit']);
 
-        $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
-        ];
-
-        $data = [
-            'data' => $data->items(),
-            'meta' => $paginationMeta
-        ];
-
-        if (empty($data['data'])) {
-            return response()->json([
-                'status_code' => 400,
-                'errors' => true,
-                'message' => 'Tidak ada data'
-            ], 400);
-        }
-
-        $mappedData = collect($data['data'])->map(function ($item) {
-            return [
-                'id' => $item['id'],
-                'nama_member' => $item['member']->nama_member ?? "Guest",
-                'status' => match ($item->status) {
-                    'success' => 'Sukses',
-                    'failed' => 'Gagal',
-                    default => $item->status,
-                },
-                'nama_toko' => $item['toko']->nama_toko ?? null,
-                'nama' => $item['users']->nama ?? null,
-                'tgl_transaksi' => \Carbon\Carbon::parse($item->tgl_transaksi)->format('d-m-Y'),
-                'no_nota' => $item->no_nota,
-                'total_item' => $item->total_item,
-                'metode' => $item->metode,
-                'total_nilai' => 'Rp. ' . number_format($item->total_nilai - $item->total_diskon, 0, '.', '.'),
+            $paginationMeta = [
+                'total'        => $data->total(),
+                'per_page'     => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'total_pages'  => $data->lastPage()
             ];
-        });
 
-        return response()->json([
-            'data' => $mappedData,
-            'status_code' => 200,
-            'errors' => false,
-            'message' => 'Sukses',
-            'pagination' => $data['meta']
-        ], 200);
-    }
+            $data = [
+                'data' => $data->items(),
+                'meta' => $paginationMeta
+            ];
+
+            if (empty($data['data'])) {
+                return response()->json([
+                    'status_code' => 400,
+                    'errors' => true,
+                    'message' => 'Tidak ada data'
+                ], 400);
+            }
+
+            $mappedData = collect($data['data'])->map(function ($item) {
+                return [
+                    'id' => $item['id'],
+                    'nama_member' => $item['member']->nama_member ?? "Guest",
+                    'status' => match ($item->status) {
+                        'success' => 'Sukses',
+                        'failed' => 'Gagal',
+                        default => $item->status,
+                    },
+                    'nama_toko' => $item['toko']->nama_toko ?? null,
+                    'nama' => $item['users']->nama ?? null,
+                    'tgl_transaksi' => \Carbon\Carbon::parse($item->tgl_transaksi)->format('d-m-Y'),
+                    'no_nota' => $item->no_nota,
+                    'total_item' => $item->total_item,
+                    'metode' => $item->metode,
+                    'total_nilai' => 'Rp. ' . number_format($item->total_nilai - $item->total_diskon, 0, '.', '.'),
+                ];
+            });
+
+            return response()->json([
+                'data' => $mappedData,
+                'status_code' => 200,
+                'errors' => false,
+                'message' => 'Sukses',
+                'pagination' => $data['meta']
+            ], 200);
+        }
     }
 
     public function cetakStruk($id_kasir)
@@ -378,20 +378,24 @@ class KasirController extends Controller
 
                 // Generate QR Code
                 $qrCode = QrCode::create($qrCodeValue)
-                        ->setEncoding(new Encoding('UTF-8'))
-                        ->setSize(200)
-                        ->setMargin(10);
+                    ->setEncoding(new Encoding('UTF-8'))
+                    ->setSize(200)
+                    ->setMargin(10);
 
-                    $writer = new PngWriter();
-                    $result = $writer->write(
-                        $qrCode,
-                        null,
-                        Label::create("{$qrCodeValue}")
-                            ->setFont(new NotoSans(12))
-                    );
+                $writer = new PngWriter();
+                $result = $writer->write(
+                    $qrCode,
+                    null,
+                    Label::create("{$qrCodeValue}")
+                        ->setFont(new NotoSans(12))
+                );
 
-                    // Simpan file QR Code
-                    $result->saveToFile($fullPath);
+                // Simpan file QR Code
+                $result->saveToFile($fullPath);
+
+                // Ambil hpp_baru dari tabel stock_barang
+                $stock = StockBarang::where('id_barang', $id_barang)->first();
+                $hpp_jual = $stock ? $stock->hpp_baru : 0;
 
                 // Simpan detail kasir
                 $detail = DetailKasir::create([
@@ -403,6 +407,7 @@ class KasirController extends Controller
                     'total_harga' => $qty * $harga_barang,
                     'qrcode' => $qrCodeValue,
                     'qrcode_path' => $qrCodePath,
+                    'hpp_jual' => $hpp_jual,
                 ]);
 
                 // Update stok berdasarkan toko
