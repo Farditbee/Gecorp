@@ -603,7 +603,7 @@
                     </button>
                 </td>
                 <td class="text-wrap align-top">
-                    <input type="number" name="qty[]" value="1" max="${data.qty || 0}" class="form-control" required>
+                    <input type="number" name="qty[]" value="1" min="1" max="${data.qty || 0}" class="form-control" required>
                     <small class="text-danger"><b>Maksimal Qty: ${data.qty || 0}</b></small>
                 </td>
                 <td class="text-wrap align-top"><input type="text" name="id_transaksi[]" value="${data.id_transaksi || ''}" class="form-control" readonly required></td>
@@ -627,6 +627,7 @@
             const tbody = document.getElementById('listData');
             const loadingRow = document.querySelector('#listData .loading-row');
             let status = '';
+            let info = '';
 
             if (loadingRow) {
                 tbody.removeChild(loadingRow);
@@ -638,7 +639,14 @@
             tr.id = rowId;
 
             if (data.status === 'success') {
-                status = `<span class="badge badge-success">Sukses</span>`;
+                if (data.metode && data.metode == 'Cash') {
+                    info = 'badge-success';
+                } else if (data.metode && data.metode == 'Barang') {
+                    info = 'badge-info';
+                } else {
+                    info = 'badge-danger';
+                }
+                status = `<span class="badge badge-secondary"><i class="fa fa-circle-check mr-1 text-success"></i>Sukses dengan Metode <b class="badge ${info}">${data.metode || 'Tidak Valid'}</b></span>`;
             } else {
                 status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}')">
                     <option value="Cash" selected>Cash</option>
@@ -773,7 +781,6 @@
                         qtyElement = document.createElement('input');
                         qtyElement.type = 'number';
                         qtyElement.min = '1';
-                        // qtyElement.max = data.stock_toko_qty;
                         qtyElement.value = '1';
                         qtyElement.name = `qty_barang[]`;
                         qtyElement.classList.add('form-control', 'qty-input');
