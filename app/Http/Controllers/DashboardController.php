@@ -212,24 +212,41 @@ class DashboardController extends Controller
 
     public function getOmset(Request $request)
     {
-        // Ambil parameter filter tanggal, default ke hari inis
-        $startDate = $request->input('startDate', now()->toDateString());
-        $endDate = $request->input('endDate', now()->toDateString());
+        // Gunakan tanggal hari ini sebagai default filter
+        $today = now()->toDateString();
+
+        // Ambil id_toko dari request
+        $idTokoLogin = $request->input('id_toko', 1); // Default ke 1 jika tidak ada input
 
         try {
-            // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
-            $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+            // Hitung total omset berdasarkan kondisi id_toko dari request
+            $query = Toko::leftJoin('kasir', function ($join) use ($today) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
-                    ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
+                    ->whereDate('kasir.tgl_transaksi', $today); // Filter khusus tanggal hari ini
             })
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    // Jika id_toko yang diterima bukan 1, filter hanya untuk toko tersebut
+                    return $query->where('toko.id', $idTokoLogin);
+                })
                 ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko=1
-                ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai') // Jumlahkan total_nilai dari semua transaksi
-                ->groupBy('toko.id'); // Mengelompokkan berdasarkan id_toko
+                ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai');
 
-            $omsetData = $query->first(); // Ambil hasil pertama (karena hanya satu total omset yang ingin dihitung)
+            $omsetData = $query->first(); // Ambil hasil pertama
 
             // Ambil total omset dari hasil query
             $totalOmset = $omsetData->total_nilai ?? 0;
+
+            // Hitung total laba kotor (total hpp_jual) dari tabel detail_kasir
+            $labakotorquery = DetailKasir::join('kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
+                ->whereDate('kasir.tgl_transaksi', $today) // Filter khusus tanggal hari ini
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    // Jika id_toko yang diterima bukan 1, filter hanya untuk toko tersebut
+                    return $query->where('kasir.id_toko', $idTokoLogin);
+                })
+                ->where('kasir.id_toko', '!=', 1) // Abaikan toko dengan id_toko=1
+                ->sum('detail_kasir.hpp_jual');
+
+            $laba_kotor = $labakotorquery ?? 0;
 
             // Return response JSON
             return response()->json([
@@ -238,6 +255,7 @@ class DashboardController extends Controller
                 "status_code" => 200,
                 "data" => [
                     'total' => $totalOmset,
+                    'laba_kotor' => $laba_kotor,
                 ],
             ]);
         } catch (\Throwable $th) {
