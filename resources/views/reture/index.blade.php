@@ -650,16 +650,7 @@
                 <td class="text-wrap align-top text-center">${rowCount}</td>
                 <td class="text-wrap align-top">
                     ${status}
-                    <div class="barang-input" style="display: none;">
-                        <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
-                        <div class="d-flex align-items-center">
-                            <input id="barcode-${rowId}" type="text" name="barcode_barang[]" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
-                            <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
-                                title="Submit Pencarian Barcode Barang">
-                                <i class="fa fa-magnifying-glass"></i>Cari
-                            </button>
-                        </div>
-                    </div>
+                    <div class="barang-container"></div>
                 </td>
                 <td class="text-wrap align-top">
                     <span class="qty-awal">${data.qty || 0}</span>
@@ -676,44 +667,55 @@
             `;
 
             tbody.appendChild(tr);
-
-            const searchButton = document.getElementById(`barcode-search-${rowId}`);
-            searchButton.addEventListener('click', async () => {
-                const barcodeInput = document.getElementById(`barcode-${rowId}`);
-                const barcode = barcodeInput.value;
-
-                if (barcode.trim()) {
-                    const id_barang = data.id_barang || '';
-                    const customFilter3 = {
-                        barcode: barcode,
-                        id_barang: id_barang,
-                        rowId: rowId
-                    };
-
-                    const response = await getDataBarcode(customFilter3);
-
-                    if (response && response?.status === 200) {
-                        barcodeResponses[rowId] = response.data.data;
-                        $('.qty-input').attr('max', data.qty || 0);
-                    } else {
-                        notificationAlert('error', 'Error', response.message);
-                    }
-                } else {
-                    notificationAlert('error', 'Error', 'Silahkan masukkan Barcode Barang terlebih dahulu');
-                }
-            });
-
         }
 
         async function handleMetodeChange(event, rowId) {
             const selectedValue = event.target.value;
             const row = document.getElementById(rowId);
-            const barangInput = row.querySelector('.barang-input');
+            const barangContainer = row.querySelector('.barang-container');
+
+            barangContainer.innerHTML = '';
 
             if (selectedValue === 'Barang') {
-                barangInput.style.display = 'block';
-            } else {
-                barangInput.style.display = 'none';
+                const barangInputHtml = `
+                    <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
+                    <div class="d-flex align-items-center">
+                        <input id="barcode-${rowId}" type="text" name="barcode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
+                        <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
+                            title="Submit Pencarian Barcode Barang">
+                            <i class="fa fa-magnifying-glass"></i>Cari
+                        </button>
+                    </div>
+                `;
+
+                barangContainer.innerHTML = barangInputHtml;
+
+                const searchButton = document.getElementById(`barcode-search-${rowId}`);
+                searchButton.addEventListener('click', async () => {
+                    const barcodeInput = document.getElementById(`barcode-${rowId}`);
+                    const barcode = barcodeInput.value;
+
+                    if (barcode.trim()) {
+                        const id_barang = data.id_barang || '';
+                        const customFilter3 = {
+                            barcode: barcode,
+                            id_barang: id_barang,
+                            rowId: rowId
+                        };
+
+                        const response = await getDataBarcode(customFilter3);
+
+                        if (response && response?.status === 200) {
+                            barcodeResponses[rowId] = response.data.data;
+                            $('.qty-input').attr('max', data.qty || 0);
+                        } else {
+                            notificationAlert('error', 'Error', response.message);
+                        }
+                    } else {
+                        notificationAlert('error', 'Error',
+                            'Silahkan masukkan Barcode Barang terlebih dahulu');
+                    }
+                });
             }
         }
 
@@ -1189,7 +1191,6 @@
                     let url = actionUrl;
 
                     let barcodeDataArray = {
-                        id_barang: [],
                         nama_barang: [],
                         stock_toko_qty: [],
                         hpp_baru: [],
@@ -1225,7 +1226,6 @@
                                 null;
 
                             if (barcodeData) {
-                                barcodeDataArray.id_barang.push(barcodeData.id_barang || '');
                                 barcodeDataArray.nama_barang.push(barcodeData.nama_barang || '');
                                 barcodeDataArray.stock_toko_qty.push(barcodeData.stock_toko_qty ||
                                     0);
@@ -1233,7 +1233,6 @@
                                 barcodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
                             } else {
-                                barcodeDataArray.id_barang.push('');
                                 barcodeDataArray.nama_barang.push('');
                                 barcodeDataArray.stock_toko_qty.push(0);
                                 barcodeDataArray.hpp_baru.push(0);
@@ -1241,7 +1240,6 @@
                                     .value) || 0 : 0);
                             }
                         } else {
-                            barcodeDataArray.id_barang.push('');
                             barcodeDataArray.nama_barang.push('');
                             barcodeDataArray.stock_toko_qty.push(0);
                             barcodeDataArray.hpp_baru.push(0);
