@@ -19,6 +19,76 @@
 
     @include('layouts.css.style_css')
     <style>
+        .floating-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background-color: #25D366;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .floating-button img {
+            width: 32px;
+            height: 32px;
+        }
+
+        .dropdown-container {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            padding: 15px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .dropdown-container.show {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .dropdown-container textarea {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .dropdown-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #25D366;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .dropdown-container button:hover {
+            background-color: #20b357;
+        }
+
         .loader {
             top: calc(50% - 32px);
             left: calc(50% - 32px);
@@ -332,6 +402,15 @@
 </head>
 
 <body>
+    <div class="floating-button" id="whatsappButton">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+    </div>
+
+    <div class="dropdown-container" id="dropdownContainer">
+        <textarea id="customMessage"></textarea>
+        <button onclick="sendMessage()"><i class="fa fa-paper-plane mr-2"></i>Kirim Pesan</button>
+    </div>
+
     <div>
         <!-- [ navigation menu ] start -->
         @include('layouts.navbar')
@@ -580,10 +659,69 @@ Saya ingin menanyakan beberapa hal.
 Terima kasih.
 `.trim();
 
+
             const encodedMessage = encodeURIComponent(message);
 
             const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
             window.open(whatsappURL, "_blank");
+        }
+
+        const whatsappButton = document.getElementById('whatsappButton');
+        const dropdownContainer = document.getElementById('dropdownContainer');
+        const customMessage = document.getElementById('customMessage');
+
+        const now = new Date();
+        const hours = now.getHours();
+        let greeting = "Pagi";
+        if (hours >= 12 && hours < 15) {
+            greeting = "Siang";
+        } else if (hours >= 15 && hours < 18) {
+            greeting = "Sore";
+        } else if (hours >= 18 || hours < 4) {
+            greeting = "Malam";
+        }
+        const defaultMessage = `Selamat ${greeting} Admin GSS,\nSaya ingin menanyakan beberapa hal.\nTerima kasih.`;
+        customMessage.value = defaultMessage;
+
+        whatsappButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (dropdownContainer.classList.contains('show')) {
+                dropdownContainer.classList.remove('show');
+                setTimeout(() => {
+                    dropdownContainer.style.display = 'none';
+                }, 300);
+            } else {
+                dropdownContainer.style.display = 'flex';
+                setTimeout(() => {
+                    dropdownContainer.classList.add('show');
+                }, 10);
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!dropdownContainer.contains(e.target) && e.target !== whatsappButton) {
+                if (dropdownContainer.classList.contains('show')) {
+                    dropdownContainer.classList.remove('show');
+                    setTimeout(() => {
+                        dropdownContainer.style.display = 'none';
+                    }, 300);
+                }
+            }
+        });
+
+        function sendMessage() {
+            const phoneNumber = '{{ env('NO_WA') }}' || '6289518775924';
+            const message = customMessage.value.trim();
+            const encodedMessage = encodeURIComponent(message);
+            const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+            window.open(whatsappURL, "_blank");
+
+            if (dropdownContainer.classList.contains('show')) {
+                dropdownContainer.classList.remove('show');
+                setTimeout(() => {
+                    dropdownContainer.style.display = 'none';
+                }, 300);
+            }
         }
     </script>
     <!-- Required Js -->

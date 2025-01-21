@@ -180,7 +180,7 @@
                     <td class="${classCol}">${element.total_trx}</td>
                     <td class="${classCol}">${element.total_barang_dibeli}</td>
                     <td class="${classCol}">${formatRupiah(element.total_pembayaran)}</td>
-                    <td class="${classCol}">${element.laba}</td>
+                    <td class="${classCol}">${formatRupiah(element.laba)}</td>
                 </tr>`;
             });
 
