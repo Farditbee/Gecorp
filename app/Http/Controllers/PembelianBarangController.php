@@ -461,4 +461,35 @@ class PembelianBarangController extends Controller
             return redirect()->back()->with('error', 'Failed to delete pembelian barang. ' . $e->getMessage());
         }
     }
+
+    public function storeTemp(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_barang' => 'required|exists:barang,id',
+                'nama_barang' => 'required|string',
+                'qty' => 'required|numeric|min:1',
+                'harga_barang' => 'required|numeric|min:1',
+            ]);
+
+            $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
+                'id_barang' => $request->id_barang,
+                'nama_barang' => $request->nama_barang,
+                'qty' => $request->qty,
+                'harga_barang' => $request->harga_barang,
+                'total_harga' => $request->qty * $request->harga_barang,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil disimpan',
+                'data' => $tempDetail
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
