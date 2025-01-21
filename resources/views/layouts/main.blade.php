@@ -585,8 +585,9 @@
                     id,
                     isUrl,
                     placeholder,
-                    isModal,
-                    isFilter
+                    isModal = null,
+                    isFilter = {},
+                    isDisabled = false,
                 }
                 of optionsArray) {
                 let selectOption = {
@@ -598,14 +599,12 @@
                             Authorization: `Bearer ` + auth_token
                         },
                         data: function(params) {
-                            const filterParams = isFilter || {};
-
                             let query = {
                                 search: params.term,
                                 page: params.page || 1,
                                 limit: 30,
                                 ascending: 1,
-                                ...filterParams,
+                                ...isFilter,
                             };
                             return query;
                         },
@@ -625,14 +624,12 @@
                             };
                         },
                     },
-                    dropdownParent: $(isModal),
+                    dropdownParent: isModal ? $(isModal) : null,
                     allowClear: true,
                     placeholder: placeholder,
                     dropdownAutoWidth: true,
                     width: '100%',
-                    // escapeMarkup: function(markup) {
-                    //     return markup;
-                    // },
+                    disabled: isDisabled ? $(isDisabled) : false,
                 };
 
                 await $(id).select2(selectOption);

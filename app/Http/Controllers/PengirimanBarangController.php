@@ -185,28 +185,27 @@ class PengirimanBarangController extends Controller
     {
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $toko = Toko::all();
-        // $user = User::all();
         $detail_toko = DetailToko::all();
-        // $barang = Barang::all();
         $stock = StockBarang::all();
-        // $barangs = collect();
 
-        // $pengiriman = PengirimanBarang::where('id', $id)->first();
+        $myToko = $toko->where('id', Auth::user()->id_toko)->first();
 
-        return view('transaksi.pengirimanbarang.create', compact('menu', 'toko', 'stock', 'detail_toko'));
+        return view('transaksi.pengirimanbarang.create', compact('menu', 'toko', 'stock', 'detail_toko', 'myToko'));
     }
 
     public function store(Request $request)
     {
-        try {
+        // try {
+            $toko = Toko::all();
+            $myToko = $toko->where('id', Auth::user()->id_toko)->first();
             DB::beginTransaction();
             // dd($request);
 
             // Simpan data dasar pengiriman
             $pengiriman_barang = PengirimanBarang::create([
                 'no_resi' => $request->no_resi,
-                'toko_pengirim' => $request->toko_pengirim,
-                'nama_pengirim' => $request->nama_pengirim,
+                'toko_pengirim' => $myToko->id,
+                'nama_pengirim' => Auth::user()->nama,
                 'ekspedisi' => $request->ekspedisi,
                 'toko_penerima' => $request->toko_penerima,
                 'tgl_kirim' => $request->tgl_kirim
@@ -219,10 +218,10 @@ class PengirimanBarangController extends Controller
                 ->with('pengiriman_barang', $pengiriman_barang);
             // ->with('stock', $stock);
 
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return redirect()->back()->with('error', $th->getMessage());
-        }
+        // } catch (\Throwable $th) {
+        //     DB::rollBack();
+        //     return redirect()->back()->with('error', $th->getMessage());
+        // }
     }
 
     public function getUsersByToko($id_toko)

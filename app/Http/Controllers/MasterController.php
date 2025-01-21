@@ -22,6 +22,10 @@ class MasterController extends Controller
             $query->where('id', '!=', 1);
         }
 
+        if (!empty($request['is_delete'])) {
+            $query->where('id', '!=', $request['is_delete']);
+        }
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 

@@ -42,7 +42,6 @@
                                             @csrf
                                             <div class="row">
                                                 <div class="col-6">
-                                                    <!-- Nama Supplier -->
                                                     <div class="form-group">
                                                         <label for="no_resi" class=" form-control-label">Nomor Resi<span
                                                                 style="color: red">*</span></label>
@@ -52,38 +51,45 @@
                                                 </div>
 
                                                 <div class="col-6">
-                                                    <label for="tgl_kirim" class="form-control-label">Tanggal Kirim</label>
-                                                    <input class="form-control" type="date" name="tgl_kirim"
-                                                        id="tgl_kirim">
+                                                    <div class="form-group">
+                                                        <label for="tgl_kirim" class="form-control-label">Tanggal
+                                                            Kirim</label>
+                                                        <input class="form-control" type="date" name="tgl_kirim"
+                                                            id="tgl_kirim">
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div class="form-group">
-                                                <label class=" form-control-label">Toko Pengirim<span
-                                                        style="color: red">*</span></label>
-                                                <select name="toko_pengirim" id="toko_pengirim" style="display: block;">
-                                                    <option class="" required>~Pilih Nama Toko~</option>
-                                                    @foreach ($toko as $tk)
-                                                        <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
-                                                    @endforeach
-                                                </select>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <div class="form-group">
+                                                        <label class=" form-control-label">Toko Pengirim<span
+                                                                style="color: red">*</span></label>
+                                                        <select class="form-control select2" name="toko_pengirim"
+                                                            id="toko_pengirim" style="display: block;">
+                                                            <option value="{{ $myToko->id }}">{{ $myToko->nama_toko }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6">
+                                                    <div class="form-group">
+                                                        <label for="nama_pengirim" class=" form-control-label">Nama Pengirim
+                                                            (Admin
+                                                            Toko)<span style="color: red">*</span></label>
+                                                        <select name="nama_pengirim" id="nama_pengirim"
+                                                            class="form-control select2">
+                                                            <option value="{{ auth()->user()->nama }}">
+                                                                {{ auth()->user()->nama }}
+                                                            </option>
+                                                        </select>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="form-group">
                                                 <label class=" form-control-label">Toko Penerima<span
                                                         style="color: red">*</span></label>
-                                                <select name="toko_penerima" id="toko_penerima" style="display: block;">
-                                                    <option class="" required>~Pilih Nama Toko~</option>
-                                                    @foreach ($toko as $tk)
-                                                        <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="nama_pengirim" class=" form-control-label">Nama Pengirim (Admin
-                                                    Toko)<span style="color: red">*</span></label>
-                                                <select name="nama_pengirim" id="nama_pengirim" class="form-control"
-                                                    data-placeholder="~Silahkan Pilih Nama~" tabindex="1">
-                                                    <option class="" required>~Pilih Toko Pengirim Terlebih Dahulu~
-                                                    </option>
+                                                <select class="form-control select2" name="toko_penerima" id="toko_penerima"
+                                                    style="display: block;">
                                                 </select>
                                             </div>
                                             <div class="form-group">
@@ -141,7 +147,7 @@
                                                         </div>
                                                         <div class="col">
                                                             <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->user->nama }}</span>
+                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->nama_pengirim }}</span>
                                                         </div>
                                                     </div>
                                                 </li>
@@ -201,10 +207,10 @@
                                                                 <div class="form-group">
                                                                     <label for="id_barang" class="form-control-label">Nama
                                                                         Barang<span style="color: red">*</span></label>
-                                                                    <select name="id_barang" id="id_barang">
-                                                                        <option value="" disabled selected required>
-                                                                            ~Pilih Barang~</option>
-
+                                                                    <select class="form-control select2" name="id_barang"
+                                                                        id="id_barang">
+                                                                        <option value=""></option>
+                                                                        <!-- Opsi kosong untuk placeholder -->
                                                                         @if ($pengiriman_barang->toko_pengirim == 1)
                                                                             {{-- Jika toko_pengirim adalah 1, ambil data dari StockBarang --}}
                                                                             @if ($stock->isEmpty())
@@ -247,6 +253,7 @@
                                                                         @endif
                                                                     </select>
                                                                 </div>
+
                                                             </div>
                                                         </div>
                                                         <div class="row">
@@ -349,82 +356,70 @@
 
 @section('js')
     <script>
-        async function initPageLoad() {
+        let selectOptions = [{
+            id: '#toko_penerima',
+            isUrl: '{{ route('master.toko') }}',
+            isFilter: {
+                is_delete: '{{ auth()->user()->id_toko }}',
+            },
+            placeholder: 'Pilih Nama Toko',
+        }];
+        let subtotal = 0;
+        let addedItems = new Set();
+        let lastDeletedItem = null;
+        const tglKirim = document.getElementById('tgl_kirim');
+        if (tglKirim) {
+            tglKirim.addEventListener('focus', function() {
+                this.showPicker();
+            });
+        }
 
-            // Ensure elements exist before adding event listeners
-            const tglKirim = document.getElementById('tgl_kirim');
-            if (tglKirim) {
-                tglKirim.addEventListener('focus', function() {
-                    this.showPicker(); // Open the date picker when the input is focused
-                });
+        function updateNumbers() {
+            let rows = document.querySelectorAll('tbody tr');
+            rows.forEach((row, index) => {
+                row.querySelector('.numbered').textContent = index + 1;
+            });
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('id-ID', {
+                minimumFractionDigits: 0
+            }).format(num);
+        }
+
+        function toggleInputFields(disabled) {
+            document.getElementById('jml_item').disabled = disabled;
+            document.getElementById('harga').disabled = disabled;
+            if (disabled) {
+                document.getElementById('jml_item').value = '';
+                document.getElementById('harga').value = '';
+            }
+        }
+
+        function checkInputFields() {
+            let idBarang = document.getElementById('id_barang').value;
+            let isItemAdded = addedItems.has(idBarang);
+            toggleInputFields(isItemAdded);
+        }
+
+        function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
+            if (!$(isParameter).find('option[value=""]').length) {
+                $(isParameter).prepend('<option value=""></option>');
             }
 
-            // Initialize Tom Select for #toko_pengirim and #toko_penerima
-            new TomSelect("#toko_pengirim", {
+            $(isParameter).select2({
+                disabled: isDisabled,
+                dropdownAutoWidth: true,
+                width: '100%',
+                placeholder: isPlaceholder,
                 allowClear: true,
-                create: false
             });
+        }
 
-            const tokoPenerimaSelect = new TomSelect("#toko_penerima", {
-                placeholder: "Pilih Toko Penerima",
-                allowClear: true
-            });
-
-            // Event for when toko_pengirim is selected
-            $('#toko_pengirim').change(function() {
-                var idToko = $(this).val();
-
-                if (idToko) {
-                    $.ajax({
-                        url: '/admin/get-users-by-toko/' + idToko,
-                        type: "GET",
-                        dataType: "json",
-                        success: function(data) {
-                            console.log('Data received:',
-                                data); // Log data for debugging
-                            $('#nama_pengirim').empty().append(
-                                '<option value="">~Pilih Nama Pengirim~</option>');
-                            $.each(data, function(key, value) {
-                                $('#nama_pengirim').append('<option value="' +
-                                    value
-                                    .id + '">' + value.nama + '</option>');
-                            });
-                        },
-                        error: function(xhr, status, error) {
-                            if (xhr.status === 404) {
-                                $('#nama_pengirim').empty().append(
-                                    '<option value="">Toko Tidak ada Admin</option>'
-                                );
-                            } else {
-                                console.error(xhr.responseText);
-                            }
-                        }
-                    });
-
-                    // Clear and refresh toko_penerima options
-                    tokoPenerimaSelect.clearOptions();
-                    $('#toko_penerima option').each(function() {
-                        if ($(this).val() != idToko) {
-                            tokoPenerimaSelect.addOption({
-                                value: $(this).val(),
-                                text: $(this).text()
-                            });
-                        }
-                    });
-                    tokoPenerimaSelect.refreshOptions();
-                } else {
-                    $('#nama_pengirim').empty().append(
-                        '<option value="">~Nama Pengirim Tidak Ditemukan~</option>');
-                }
-            });
-
-            // Event for when #id_barang changes
+        function setCreate() {
             $('#id_barang').change(function() {
                 var idBarang = $(this).val();
-                var idToko = $('#tk_pengirim').val(); // Get id_toko from hidden input
-
-                console.log("Selected idBarang: ", idBarang);
-                console.log("Selected idToko: ", idToko);
+                var idToko = $('#tk_pengirim').val();
 
                 if (idBarang) {
                     $.ajax({
@@ -450,36 +445,6 @@
                 }
             });
 
-            // Function to format number with thousand separator
-            function formatNumber(num) {
-                return new Intl.NumberFormat('id-ID', {
-                    minimumFractionDigits: 0
-                }).format(num);
-            }
-
-            // Initialize other functionality after DOM is ready
-            let subtotal = 0;
-            let addedItems = new Set();
-            let lastDeletedItem = null;
-
-            // Toggle input fields for item quantity and price
-            function toggleInputFields(disabled) {
-                document.getElementById('jml_item').disabled = disabled;
-                document.getElementById('harga').disabled = disabled;
-                if (disabled) {
-                    document.getElementById('jml_item').value = '';
-                    document.getElementById('harga').value = '';
-                }
-            }
-
-            // Check input fields to prevent duplicates
-            function checkInputFields() {
-                let idBarang = document.getElementById('id_barang').value;
-                let isItemAdded = addedItems.has(idBarang);
-                toggleInputFields(isItemAdded);
-            }
-
-            // Add item to table on click
             document.getElementById('add-item-detail')?.addEventListener('click', function() {
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
@@ -581,15 +546,6 @@
                 }
             });
 
-            // Update item numbering after a row is added or removed
-            function updateNumbers() {
-                let rows = document.querySelectorAll('tbody tr');
-                rows.forEach((row, index) => {
-                    row.querySelector('.numbered').textContent = index + 1;
-                });
-            }
-
-            // Update stock and price information based on selected item
             document.getElementById('id_barang')?.addEventListener('change', function() {
                 let idBarang = this.value;
 
@@ -615,7 +571,14 @@
 
                 checkInputFields();
             });
+        }
 
+        async function initPageLoad() {
+            await selectData(selectOptions);
+            await selectFormat('#toko_pengirim', 'Pilih Toko');
+            await selectFormat('#nama_pengirim', 'Pilih Pengirim');
+            await selectFormat('#id_barang', 'Pilih Barang', false);
+            await setCreate();
         }
     </script>
 @endsection
