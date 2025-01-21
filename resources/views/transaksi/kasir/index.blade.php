@@ -679,7 +679,7 @@
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
-                            <tr class="text-dark">
+                            <tr class="text-dark clickable-row" data-toggle="modal" data-target="#mediumModal-${element.id}">
                                 <td class="${classCol} text-center">${display_from + index}.</td>
                                 <td class="${classCol}">${element.no_nota}</td>
                                 <td class="${classCol}">${element.tgl_transaksi}</td>

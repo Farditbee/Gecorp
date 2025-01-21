@@ -451,7 +451,7 @@
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
-                            <tr class="text-dark">
+                            <tr class="text-dark clickable-row" data-id="${element.id}">
                                 <td class="${classCol} text-center">${display_from + index}.</td>
                                 <td class="${classCol}">${element.status}</td>
                                 <td class="${classCol}">${element.no_nota}</td>
@@ -474,6 +474,13 @@
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
+
+            $('.clickable-row').on('click', function() {
+                let id = $(this).data('id');
+                if (id) {
+                    window.location.href = `pembelianbarang/${id}/edit`;
+                }
+            });
         }
 
         async function filterList() {
