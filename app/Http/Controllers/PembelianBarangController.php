@@ -321,8 +321,8 @@ class PembelianBarangController extends Controller
 
                     $stockBarang->stock = $stock_awal + $detail->qty;
                     $stockBarang->hpp_awal = $hpp_awal;
-                    $stockBarang->hpp_baru = $hpp_baru;
-                    $stockBarang->nilai_total = $hpp_baru * $stockBarang->stock;
+                    $stockBarang->hpp_baru = round($hpp_baru);
+                    $stockBarang->nilai_total = round($hpp_baru * $stockBarang->stock);
                     $stockBarang->nama_barang = $barang->nama_barang;
                     $stockBarang->save();
 
