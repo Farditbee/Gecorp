@@ -212,17 +212,18 @@ class DashboardController extends Controller
 
     public function getOmset(Request $request)
     {
-        // Gunakan tanggal hari ini sebagai default filter
-        $today = now()->toDateString();
+        // Ambil tanggal dari request, default ke hari ini jika tidak ada input
+        $startDate = $request->input('startDate', now()->toDateString());
+        $endDate = $request->input('endDate', now()->toDateString());
 
         // Ambil id_toko dari request
         $idTokoLogin = $request->input('id_toko', 1); // Default ke 1 jika tidak ada input
 
         try {
             // Hitung total omset berdasarkan kondisi id_toko dari request
-            $query = Toko::leftJoin('kasir', function ($join) use ($today) {
+            $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
-                    ->whereDate('kasir.tgl_transaksi', $today); // Filter khusus tanggal hari ini
+                    ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]); // Filter berdasarkan rentang tanggal
             })
                 ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
                     // Jika id_toko yang diterima bukan 1, filter hanya untuk toko tersebut
@@ -238,7 +239,7 @@ class DashboardController extends Controller
 
             // Hitung total laba kotor (total hpp_jual) dari tabel detail_kasir
             $labakotorquery = DetailKasir::join('kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
-                ->whereDate('kasir.tgl_transaksi', $today) // Filter khusus tanggal hari ini
+                ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]) // Filter berdasarkan rentang tanggal
                 ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
                     // Jika id_toko yang diterima bukan 1, filter hanya untuk toko tersebut
                     return $query->where('kasir.id_toko', $idTokoLogin);
