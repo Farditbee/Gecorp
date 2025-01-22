@@ -470,6 +470,8 @@ class PembelianBarangController extends Controller
                 'nama_barang' => 'required|string',
                 'qty' => 'required|numeric|min:1',
                 'harga_barang' => 'required|numeric|min:1',
+                'level_harga' => 'array',
+                'level_harga.*' => 'string',
             ]);
 
             $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
@@ -478,6 +480,7 @@ class PembelianBarangController extends Controller
                 'qty' => $request->qty,
                 'harga_barang' => $request->harga_barang,
                 'total_harga' => $request->qty * $request->harga_barang,
+                'level_harga' => json_encode($request->level_harga),
             ]);
 
             return response()->json([

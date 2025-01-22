@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
-use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
-use App\Models\LevelUser;
-use App\Models\PembelianBarang;
 use App\Models\PengirimanBarang;
 use App\Models\StockBarang;
 use App\Models\Toko;
@@ -218,11 +215,6 @@ class PengirimanBarangController extends Controller
                 ->with('tab', 'detail')
                 ->with('pengiriman_barang', $pengiriman_barang);
             // ->with('stock', $stock);
-
-        // } catch (\Throwable $th) {
-        //     DB::rollBack();
-        //     return redirect()->back()->with('error', $th->getMessage());
-        // }
     }
 
     public function getUsersByToko($id_toko)
@@ -355,6 +347,14 @@ class PengirimanBarangController extends Controller
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
 
         return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
+    }
+
+    public function editBarang($id)
+    {
+        $menu = [$this->title[0], $this->label[0], $this->title[3]];
+        $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
+
+        return view('transaksi.pengirimanbarang.edit_barang', compact('menu', 'pengiriman_barang',));
     }
 
     public function updateStatus(Request $request, $id)
