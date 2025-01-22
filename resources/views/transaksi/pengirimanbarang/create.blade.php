@@ -361,6 +361,7 @@
             isUrl: '{{ route('master.toko') }}',
             isFilter: {
                 is_delete: '{{ auth()->user()->id_toko }}',
+                is_admin : true,
             },
             placeholder: 'Pilih Nama Toko',
         }];
