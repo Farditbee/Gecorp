@@ -66,6 +66,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-stock/{id_barang}', [PembelianBarangController::class, 'getStock'])->name('transaksi.pembelian.getstock');
         Route::post('/pembelianbarang/update_status/{id}', [PembelianBarangController::class, 'updateStatus'])->name('transaksi.pembelianbarang.update_status');
         Route::get('/pembelian-barang/level-harga/{barangId}', [PembelianBarangController::class, 'getLevelHarga']);
+        Route::post('/pembelian-barang/store-temp', [PembelianBarangController::class, 'storeTemp']);
 
         // Toko Controller
         Route::get('/toko', [TokoController::class, 'index'])->name('master.toko.index');
