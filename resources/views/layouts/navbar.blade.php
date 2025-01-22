@@ -63,8 +63,8 @@
                     <a href="javascript::void(0)"
                         class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span
                             class="pcoded-micon"><i class="icon feather icon-shopping-cart"></i></span><span
-                            class="pcoded-mtext">Data
-                            Transaksi</span></a>
+                            class="pcoded-mtext">Transaksi</span>
+                    </a>
                     <ul class="pcoded-submenu">
                         @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
                             @if (Auth::user()->id_level == 1)
@@ -99,13 +99,28 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link "><span class="pcoded-micon"><i
+                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('reture.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
                                 class="icon feather icon-rotate-ccw"></i></span><span
                             class="pcoded-mtext">Reture</span></a>
                     <ul class="pcoded-submenu">
                         <li>
                             <a href="{{ route('reture.index') }}" class="dropdown-item"><i
                                     class="icon feather icon-rotate-cw"></i> Data Reture</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="nav-item pcoded-hasmenu">
+                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
+                                class="icon feather icon-folder"></i></span><span
+                            class="pcoded-mtext">Laporan Keuangan</span></a>
+                    <ul class="pcoded-submenu">
+                        <li>
+                            <a href="{{ route('laporankeuangan.aruskas.index') }}" class="dropdown-item"><i
+                                    class="icon feather icon-file-text"></i> Arus Kas</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('laporankeuangan.labarugi.index') }}" class="dropdown-item"><i
+                                    class="icon feather icon-file-minus"></i> Laba Rugi</a>
                         </li>
                     </ul>
                 </li>

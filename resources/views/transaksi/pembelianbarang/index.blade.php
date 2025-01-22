@@ -187,8 +187,8 @@
                                                                 class="badge badge-secondary pull-right"></span></h5>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h5><i class="fa fa-map-marker"></i> &nbsp;Tanggal Nota <span
-                                                                id="tgl_nota"
+                                                        <h5><i class="fa fa-calendar-day"></i> &nbsp;Tanggal Nota <span
+                                                                id="tgl-nota"
                                                                 class="badge badge-secondary pull-right"></span></h5>
                                                     </li>
                                                 </ul>
@@ -667,7 +667,7 @@
                         formData);
 
                     if (postData.status >= 200 && postData.status < 300) {
-                        const response = postData.data.data;
+                        // const response = postData.data.data;
                         setTimeout(async function() {
                             await getListData(defaultLimitPage, currentPage, defaultAscending,
                                 defaultSearch, customFilter);

@@ -6,6 +6,8 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
+use App\Http\Controllers\LaporanKeuangan\ArusKasController;
+use App\Http\Controllers\LaporanKeuangan\LabaRugiController;
 use App\Http\Controllers\LapPembelianController;
 use App\Http\Controllers\LapPengirimanController;
 use App\Http\Controllers\LevelHargaController;
@@ -192,5 +194,14 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
         Route::get('/retureItem', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
         Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
+
+        Route::prefix('laporan-keuangan')->as('laporankeuangan.')->group(function () {
+            Route::prefix('arus-kas')->as('aruskas.')->group(function () {
+                Route::get('/', [ArusKasController::class, 'index'])->name('index');
+            });
+            Route::prefix('laba-rugi')->as('labarugi.')->group(function () {
+                Route::get('/', [LabaRugiController::class, 'index'])->name('index');
+            });
+        });
     });
 });

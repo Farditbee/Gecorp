@@ -6,6 +6,6 @@ abstract class Controller
 {
     protected array $title = [];
     protected array $label = [
-        'Data Master', 'Data Transaksi', 'Laporan', 'Reture'
+        'Data Master', 'Data Transaksi', 'Laporan', 'Reture', 'Laporan Keuangan'
     ];
 }
