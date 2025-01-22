@@ -9,6 +9,14 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <style>
+        #tgl_nota[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -27,8 +35,8 @@
                                 </a>
                                 <button class="btn-dynamic btn btn-outline-primary mx-2" type="button"
                                     data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                    aria-controls="filter-collapse"data-container="body" data-toggle="tooltip" data-placement="top"
-                                    title="Filter Pembelian Barang">
+                                    aria-controls="filter-collapse"data-container="body" data-toggle="tooltip"
+                                    data-placement="top" title="Filter Pembelian Barang">
                                     <i class="fa fa-filter"></i> Filter
                                 </button>
                             </div>
@@ -114,7 +122,7 @@
                                                     aria-selected="true">Tambah Pembelian</a>
                                                 <a class="nav-item nav-link disabled" id="detail-tab" data-toggle="tab"
                                                     href="#detail" role="tab" aria-controls="detail"
-                                                    aria-selected="false">Detail Pembelian</a>
+                                                    aria-selected="true">Detail Pembelian</a>
                                             </div>
                                         </nav>
                                         <div class="tab-content pl-3 pt-2" id="nav-tabContent">
@@ -144,8 +152,9 @@
                                                         <div class="col-6">
                                                             <label for="id_supplier" class="form-control-label">Tanggal
                                                                 Nota</label>
-                                                            <input class="form-control" type="date" name="tgl_nota"
-                                                                id="tgl_nota">
+                                                            <input class="form-control tgl_nota" type="text"
+                                                                name="tgl_nota" id="tgl_nota"
+                                                                placeholder="Pilih tanggal" readonly>
                                                         </div>
                                                     </div>
 
@@ -189,12 +198,10 @@
                                                     method="POST">
                                                     @csrf
                                                     @method('PUT')
-                                                    <!-- Item Container -->
                                                     <div id="item-container">
                                                         <div class="item-group">
                                                             <div class="row">
                                                                 <div class="col-12">
-                                                                    <!-- Jenis Barang -->
                                                                     <div class="form-group">
                                                                         <label for="id_barang"
                                                                             class="form-control-label">Nama Barang<span
@@ -227,7 +234,6 @@
                                                                 </div>
 
                                                                 <div class="col-6">
-                                                                    <!-- Harga Barang -->
                                                                     <div class="form-group">
                                                                         <label for="harga_barang"
                                                                             class="form-control-label">Harga Barang<span
@@ -242,7 +248,6 @@
                                                         </div>
                                                     </div>
                                                     <br><br>
-
                                                     <div class="row">
                                                         <div class="col-6">
                                                             <div class="card border border-primary">
@@ -345,17 +350,11 @@
     <script src="{{ asset('js/daterange-picker.js') }}"></script>
     <script src="{{ asset('js/daterange-custom.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/flatpickr.js') }}"></script>
 @endsection
 
 @section('js')
     <script>
-        const tglNota = document.getElementById('tgl_nota');
-        if (tglNota) {
-            tglNota.addEventListener('focus', function() {
-                this.showPicker(); // Open the date picker when the input is focused
-            });
-        }
-
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -523,6 +522,31 @@
             });
         }
 
+        async function setDatePicker() {
+            flatpickr("#tgl_nota", {
+                dateFormat: "Y-m-d",
+                defaultDate: new Date(),
+                minDate: "today",
+                allowInput: true,
+                appendTo: document.querySelector('.modal-body'),
+                position: "above",
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                    dayElem.addEventListener('click', () => {
+                        fp.calendarContainer.querySelectorAll('.selected').forEach(el => {
+                            el.style.backgroundColor = "#1abc9c";
+                            el.style.color = "#fff";
+                        });
+                    });
+                }
+            });
+
+            const inputField = document.querySelector("#tgl_nota");
+            inputField.setAttribute("readonly", true);
+
+            inputField.style.backgroundColor = "";
+            inputField.style.cursor = "pointer";
+        }
+
         async function addData() {
             let subtotal = 0;
             let addedItems = new Set();
@@ -547,23 +571,24 @@
             }
 
             document.getElementById('add-item-detail').addEventListener('click', function() {
+                addTemporaryField();
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
                 let qty = parseInt(document.getElementById('jml_item').value);
                 let harga = parseInt(document.getElementById('harga_barang').value);
 
                 if (!idBarang) {
-                    alert('Silakan pilih barang terlebih dahulu.');
+                    notificationAlert('error', 'Pemberitahuan', 'Silakan pilih barang terlebih dahulu.');
                     return;
                 }
 
                 if (addedItems.has(idBarang)) {
-                    alert('Barang ini sudah ditambahkan sebelumnya.');
+                    notificationAlert('error', 'Pemberitahuan', 'Barang ini sudah ditambahkan sebelumnya.');
                     return;
                 }
 
                 if (!qty || !harga) {
-                    alert('Jumlah dan harga barang harus diisi.');
+                    notificationAlert('error', 'Pemberitahuan', 'Jumlah dan harga barang harus diisi.');
                     return;
                 }
 
@@ -575,27 +600,22 @@
                 });
 
                 if (!allLevelsFilled) {
-                    alert('Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
+                    notificationAlert('error', 'Pemberitahuan',
+                        'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
                     return;
                 }
 
                 addedItems.add(idBarang);
-
-                // Menyembunyikan pilihan barang yang sudah ditambahkan
                 document.querySelector(`#id_barang option[value="${idBarang}"]`).setAttribute('hidden',
                     true);
-
                 let totalHarga = qty * harga;
                 subtotal += totalHarga;
-
-                // Generate hidden input fields for level prices
                 let levelHargaInputs = '';
                 document.querySelectorAll('.level-harga').forEach((input, index) => {
                     const levelHarga = input.value;
                     levelHargaInputs +=
                         `<input type="hidden" name="level_harga[${idBarang}][]" value="${levelHarga}">`;
                 });
-
                 let row = `
                         <tr>
                             <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
@@ -613,15 +633,55 @@
                 document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
                     `Rp ${subtotal.toLocaleString('id-ID')}`;
 
-                // Disable input fields after adding
                 toggleInputFields(true);
-
                 document.getElementById('id_barang').value = '';
-
                 resetFields();
-
                 updateNumbers();
             });
+
+            async function addTemporaryField() {
+                let idBarang = document.getElementById('id_barang').value;
+                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
+                let qty = parseInt(document.getElementById('jml_item').value);
+                let hargaBarang = parseInt(document.getElementById('harga_barang').value);
+                let levelHarga = Array.from(document.querySelectorAll('.level-harga')).map((input, index) => {
+                    return `Level ${index + 1} : ${input.value}`;
+                });
+
+                if (!idBarang || !qty || !hargaBarang) {
+                    notificationAlert('error', 'Pemberitahuan',
+                        'Pastikan semua data telah diisi dengan benar.');
+                    return;
+                }
+
+                let formData = {
+                    id_barang: idBarang,
+                    nama_barang: namaBarang,
+                    qty: qty,
+                    harga_barang: hargaBarang,
+                    level_harga: levelHarga
+                };
+
+                try {
+                    const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}',
+                        formData);
+
+                    if (postData.status >= 200 && postData.status < 300) {
+                        const response = postData.data.data;
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    const resp = error.response || {};
+                    notificationAlert('error', 'Kesalahan', resp.data?.message ||
+                        'Terjadi kesalahan saat menyimpan data.');
+                }
+            }
 
             document.querySelector('.table-bordered tbody').addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-item')) {
@@ -921,6 +981,7 @@
 
         async function initPageLoad() {
             await setDynamicButton();
+            await setDatePicker();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();

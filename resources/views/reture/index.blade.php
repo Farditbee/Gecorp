@@ -764,7 +764,7 @@
                         barangInput = document.createElement('div');
                         barangInput.classList.add('barang-input', 'mt-2');
                         row.querySelector('td:nth-child(2)').appendChild(
-                        barangInput); // Append to the correct table cell
+                            barangInput); // Append to the correct table cell
                     }
 
                     // Update or create the stock info
@@ -1079,7 +1079,8 @@
         async function setDatePicker() {
             flatpickr("#tgl_retur", {
                 dateFormat: "Y-m-d",
-                defaultDate: null,
+                defaultDate: new Date(),
+                minDate: "today",
                 allowInput: true,
                 appendTo: document.querySelector('.modal-body'),
                 position: "above",
@@ -1385,13 +1386,13 @@
         }
 
         async function initPageLoad() {
+            await setDatePicker();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await selectData(selectOptions);
             await addData();
             await editData();
             await detailData();
-            await setDatePicker();
             await searchData();
             await setSortable();
             await resetModal();
