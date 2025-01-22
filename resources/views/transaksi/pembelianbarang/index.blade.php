@@ -28,11 +28,10 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
-                                    <span data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Pembelian Barang"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
-                                </a>
+                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data" data-container="body"
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Data Pembelian Barang">
+                                    <i class="fa fa-plus-circle"></i> Tambah
+                                </button>
                                 <button class="btn-dynamic btn btn-outline-primary mx-2" type="button"
                                     data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
                                     aria-controls="filter-collapse"data-container="body" data-toggle="tooltip"
@@ -103,14 +102,14 @@
                     </div>
                 </div>
 
-                <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
-                    aria-labelledby="myLargeModalLabel" aria-hidden="true">
+                <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+                    aria-labelledby="modal-title" aria-hidden="true">
                     <div class="modal-dialog modal-lgs">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title h4" id="myLargeModalLabel">Pembelian Barang</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                        aria-hidden="true">&times;</span></button>
+                                <h5 class="modal-title h4" id="modal-title"></h5>
+                                <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                                    aria-label="Close"><i class="fa fa-xmark"></i></button>
                             </div>
                             <div class="modal-body">
                                 <div class="card-body">
@@ -176,20 +175,22 @@
                                             <div class="tab-pane fade" id="detail" role="tabpanel"
                                                 aria-labelledby="detail-tab">
                                                 <br>
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item">
-                                                        <h5><i class="fa fa-home"></i> Nomor Nota <span id="no-nota"
-                                                                class="badge badge-secondary pull-right"></span></h5>
+                                                <ul class="list-group list-group-flush my-4">
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <h5><i class="fa fa-home"></i> Nomor Nota</h5> <span
+                                                            id="no-nota" class="badge badge-secondary"></span>
                                                     </li>
-                                                    <li class="list-group-item">
-                                                        <h5><i class="fa fa-globe"></i> Nama Supplier <span
-                                                                id="nama-supplier"
-                                                                class="badge badge-secondary pull-right"></span></h5>
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <h5><i class="fa fa-globe"></i> Nama Supplier</h5> <span
+                                                            id="nama-supplier" class="badge badge-secondary"></span>
+
                                                     </li>
-                                                    <li class="list-group-item">
-                                                        <h5><i class="fa fa-calendar-day"></i> &nbsp;Tanggal Nota <span
-                                                                id="tgl-nota"
-                                                                class="badge badge-secondary pull-right"></span></h5>
+                                                    <li
+                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                        <h5><i class="fa fa-calendar-day"></i> &nbsp;Tanggal Nota</h5>
+                                                        <span id="tgl-nota" class="badge badge-secondary"></span>
                                                     </li>
                                                 </ul>
                                                 <br>
@@ -417,8 +418,19 @@
                 status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
             }
 
+            let edit_button = `
+            <a button class="p-1 btn edit-data action_button"
+                data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
+                title="Edit Data Nomor Nota: ${data.no_nota}"
+                data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
+                <span class="text-dark">Edit</span>
+                <div class="icon text-warning">
+                    <i class="fa fa-edit"></i>
+                </div>
+            </a>`;
+
             let detail_button = `
-            <a href="pembelianbarang/${data.id}/edit" class="p-1 btn edit-data action_button"
+            <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
                 data-container="body" data-toggle="tooltip" data-placement="top"
                 title="Detail Data Nomor Nota: ${data.no_nota}"
                 data-id='${data.id}'>
@@ -428,6 +440,18 @@
                 </div>
             </a>`;
 
+            let action_buttons = '';
+            if (edit_button || detail_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-center">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 status,
@@ -436,7 +460,7 @@
                 no_nota: data?.no_nota ?? '-',
                 total_item: data?.total_item ?? '-',
                 total_nilai: data?.total_nilai ?? '-',
-                detail_button,
+                action_buttons,
             };
         }
 
@@ -458,13 +482,7 @@
                                 <td class="${classCol}">${element.nama_supplier}</td>
                                 <td class="${classCol}">${element.total_item}</td>
                                 <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">
-                                    <div class="d-flex justify-content-center">
-                                        <div class="hovering p-1">
-                                            ${element.detail_button}
-                                        </div>
-                                    </div>
-                                </td>
+                                <td class="${classCol}">${element.action_buttons}</td>
                             </tr>`;
             });
 
@@ -474,10 +492,76 @@
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
 
-            $('.clickable-row').on('click', function() {
+            $('.clickable-row').on('click', function(e) {
+                if ($(e.target).closest('.edit-data').length) {
+                    return;
+                }
+                if ($(e.target).closest('.detail-data').length) {
+                    return;
+                }
+
                 let id = $(this).data('id');
                 if (id) {
                     window.location.href = `pembelianbarang/${id}/edit`;
+                }
+            });
+        }
+
+        async function showData() {
+            $(document).on("click", ".add-data", function() {
+                $("#modal-title").html(`Form Pembelian Barang`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("#form").data("action-url", '{{ route('reture.storeNota') }}');
+
+                $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
+                $("#tambah").addClass("show active");
+
+                $("#detail-tab").addClass("disabled").removeClass("active").attr("aria-selected", "false").css({
+                    "pointer-events": "none",
+                    "opacity": "0.6"
+                });
+                $("#detail").removeClass("show active");
+            });
+        }
+
+        async function editData() {
+            $(document).on("click", ".edit-data", async function() {
+                let id = $(this).attr("data-id");
+                let nota = $(this).attr("data-nota");
+                let tanggal = $(this).attr("data-tanggal");
+                let nama = $(this).attr("data-name");
+
+                $("#modal-title").html(`Form Edit Pembelian No. Nota: ${nota}`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+
+                $("#no-nota").html(nota);
+                $("#tgl-nota").html(tanggal);
+                $("#nama-supplier").html(nama);
+                $("#tambah-tab").removeClass("active").addClass("d-none");
+                $("#tambah").removeClass("show active");
+                $("#detail-tab").removeClass("disabled").addClass("active").css({
+                    "pointer-events": "auto",
+                    "opacity": "1",
+                });
+                $("#detail").addClass("show active");
+                $("#submit-reture").removeClass("d-none");
+                try {
+                    const response = await renderAPI('GET', '{{ route('master.temppembelian.get') }}', {
+                        id_pembelian: id
+                    });
+                    if (response && response.status === 200) {
+                        const dataItems = response.data.data;
+
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
+                    }
+                } catch (error) {
+                    const errorMessage = error?.response?.data?.message ||
+                        'Terjadi kesalahan saat memuat data sementara.';
                 }
             });
         }
@@ -986,6 +1070,8 @@
             await searchList();
             await filterList();
             await addData();
+            await showData();
+            await editData();
         }
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#id_supplier", {
