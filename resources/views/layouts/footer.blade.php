@@ -18,12 +18,9 @@
     </div>
     <div class="footer_bottom">
         <div class="row align-items-center">
-            <div class="col-lg-6 col-sm-7">
+            <div class="col-lg-12 col-sm-12">
                 <p class="mb-0 f_400">&copy; Copyright {{ now()->year }}
                     {{ env('APP_NAME') ?? 'GSS' }}</p>
-            </div>
-            <div class="col-lg-6 col-sm-5 text-right">
-                <p>Made with <i class="fa fa-heart"></i> in <span class="text-primary">GSS</span></p>
             </div>
         </div>
     </div>

@@ -52,7 +52,7 @@
                                         <h5 class="mb-0"><i class="fa fa-tag"></i> Nama Pengirim</h5>
                                     </div>
                                     <div class="col">
-                                        <span class="badge badge-pill badge-secondary">{{ $pengiriman_barang->user->nama }}</span>
+                                        <span class="badge badge-pill badge-secondary">{{ $pengiriman_barang->nama_pengirim }}</span>
                                     </div>
                                 </div>
                             </li>

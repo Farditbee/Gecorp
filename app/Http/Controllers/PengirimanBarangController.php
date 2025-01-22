@@ -108,6 +108,7 @@ class PengirimanBarangController extends Controller
                 'id' => $item['id'],
                 'no_resi' => $item->no_resi,
                 'ekspedisi' => $item->ekspedisi,
+                'id_toko_pengirim' => $item->toko->id ?? null,
                 'toko_pengirim' => $item->toko->nama_toko ?? null, // Mengambil nama toko pengirim
                 'nama_pengirim' => $item->user->nama ?? null, // Mengambil nama pengirim dari relasi user
                 'toko_penerima' => $item->tokos->nama_toko ?? null, // Mengambil nama toko penerima

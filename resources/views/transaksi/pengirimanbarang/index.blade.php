@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 @endsection
 
 @section('content')
@@ -205,31 +206,15 @@
                 </a>`;
             }
 
-            let delete_button = '';
-            if (data?.status == 'Sukses') {
-                delete_button = `
-                <a class="p-1 btn hapus-data action_button"
-                    data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Hapus Data Nomor Resi: ${data.no_resi}"
-                    data-id='${data.id}'
-                    data-name='${data.no_resi}'>
-                    <span class="text-dark">Hapus</span>
-                    <div class="icon text-danger">
-                        <i class="fa fa-trash"></i>
-                    </div>
-                </a>`;
-            }
-
             let action_buttons = '';
-            if (edit_button || delete_button) {
+            if (edit_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
-                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
-                <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
 
             return {
@@ -290,7 +275,11 @@
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
 
-            $('.clickable-row').on('click', function() {
+            $('.clickable-row').on('click', function(e) {
+                if ($(e.target).closest('.hapus-data').length) {
+                    return;
+                }
+
                 let id = $(this).data('id');
                 if (id) {
                     window.location.href = `pengirimanbarang/detail/${id}`;
@@ -340,12 +329,11 @@
 
         async function deleteData() {
             $(document).on("click", ".hapus-data", async function() {
-                isActionForm = "destroy";
                 let id = $(this).attr("data-id");
                 let name = $(this).attr("data-name");
 
                 swal({
-                    title: `Hapus User ${name}`,
+                    title: `Hapus Pengiriman No Resi: ${name}`,
                     text: "Apakah anda yakin?",
                     type: "warning",
                     showCancelButton: true,
