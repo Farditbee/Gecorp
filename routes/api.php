@@ -39,6 +39,7 @@ Route::get('/get-asset', [AssetBarangController::class, 'getAssetBarang'])->name
 Route::get('/get-ratingmember', [RatingMemberController::class, 'getMember'])->name('dashboard.ratingmember');
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
+Route::get('/gettemppembelian', [PembelianBarangController::class, 'gettemppembelian'])->name('master.temppembelian.get');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
 Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 

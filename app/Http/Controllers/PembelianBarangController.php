@@ -495,4 +495,29 @@ class PembelianBarangController extends Controller
             ], 500);
         }
     }
+
+    public function gettemppembelian()
+{
+    try {
+        // Ambil data dari tabel temp_detail_pembelian_barang
+        $tempDetails = DB::table('temp_detail_pembelian_barang')->get();
+
+        // Decode kolom level_harga dari JSON ke array
+        foreach ($tempDetails as $detail) {
+            $detail->level_harga = json_decode($detail->level_harga);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil diambil',
+            'data' => $tempDetails,
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
+
 }
