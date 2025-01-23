@@ -381,6 +381,7 @@
         let customFilter2 = {};
         let customFilter3 = {};
         let customFilter4 = {};
+        let customFilter5 = {};
 
         async function getOmset(customFilter4) {
             let filterParams = {};
@@ -469,18 +470,18 @@
 
             if ('{{ auth()->user()->id_toko != 1 }}') {
                 filterParams.nama_toko = '{{ auth()->user()->id_toko }}';
-            } else if (customFilter['nama_toko']) {
-                filterParams.nama_toko = customFilter['nama_toko'];
+            } else if (customFilter5['nama_toko']) {
+                filterParams.nama_toko = customFilter5['nama_toko'];
             }
 
-            if (customFilter['period']) {
-                filterParams.period = customFilter['period'];
+            if (customFilter5['period']) {
+                filterParams.period = customFilter5['period'];
             }
-            if (customFilter['month'] && customFilter['period'] === 'daily') {
-                filterParams.month = customFilter['month'];
+            if (customFilter5['month'] && customFilter5['period'] === 'daily') {
+                filterParams.month = customFilter5['month'];
             }
-            if (customFilter['year']) {
-                filterParams.year = customFilter['year'];
+            if (customFilter5['year']) {
+                filterParams.year = customFilter5['year'];
             }
 
             let getDataRest = await renderAPI(
@@ -677,42 +678,6 @@
             });
 
             setActiveChartButton('chart-bar');
-        }
-
-        function setDefaultMonth() {
-            const filterMonth = document.getElementById('filter-month');
-            const currentMonth = new Date().getMonth() + 1;
-
-            for (let option of filterMonth.options) {
-                if (parseInt(option.value) === currentMonth) {
-                    option.selected = true;
-                    break;
-                }
-            }
-        }
-
-        function populateYearOptions() {
-            const filterYear = document.getElementById('filter-year');
-            const currentYear = new Date().getFullYear();
-            const startYear = 2000;
-
-            let selectedYear = filterYear.value;
-
-            if (!selectedYear) {
-                selectedYear = currentYear;
-            }
-
-            for (let year = currentYear; year >= startYear; year--) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-
-                if (year == selectedYear) {
-                    option.selected = true;
-                }
-
-                filterYear.appendChild(option);
-            }
         }
 
         async function getKomparasiToko(customFilter) {

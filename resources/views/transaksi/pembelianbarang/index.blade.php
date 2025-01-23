@@ -134,7 +134,6 @@
                                                     @csrf
                                                     <div class="row">
                                                         <div class="col-6">
-                                                            <!-- Nama Supplier -->
                                                             <div class="form-group">
                                                                 <label for="id_supplier" class="form-control-label">Nama
                                                                     Supplier</label>
@@ -308,7 +307,7 @@
                                                                         <th scope="col">Total Harga</th>
                                                                     </tr>
                                                                 </thead>
-                                                                <tbody>
+                                                                <tbody id="tempData">
                                                                 </tbody>
                                                                 <tfoot>
                                                                     <tr>
@@ -512,9 +511,6 @@
                 $("#modal-title").html(`Form Pembelian Barang`);
                 $("#modal-form").modal("show");
 
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
-                $("#form").data("action-url", '{{ route('reture.storeNota') }}');
-
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
                 $("#tambah").addClass("show active");
 
@@ -566,69 +562,48 @@
             });
         }
 
-        async function filterList() {
-            let dateRangePickerList = initializeDateRangePicker();
+        async function addTemporaryField() {
+            let idBarang = document.getElementById('id_barang').value;
+            let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
+            let qty = parseInt(document.getElementById('jml_item').value);
+            let hargaBarang = parseInt(document.getElementById('harga_barang').value);
+            let levelHarga = Array.from(document.querySelectorAll('.level-harga')).map((input, index) => {
+                return `Level ${index + 1} : ${input.value}`;
+            });
 
-            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                let startDate = dateRangePickerList.data('daterangepicker').startDate;
-                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+            if (!idBarang || !qty || !hargaBarang) {
+                notificationAlert('error', 'Pemberitahuan',
+                    'Pastikan semua data telah diisi dengan benar.');
+                return;
+            }
 
-                if (!startDate || !endDate) {
-                    startDate = null;
-                    endDate = null;
+            let formData = {
+                id_barang: idBarang,
+                nama_barang: namaBarang,
+                qty: qty,
+                harga_barang: hargaBarang,
+                level_harga: levelHarga
+            };
+
+            try {
+                const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}',
+                    formData);
+
+                if (postData.status >= 200 && postData.status < 300) {
+                    // const response = postData.data.data;
+                    setTimeout(async function() {
+                        await getListData(defaultLimitPage, currentPage, defaultAscending,
+                            defaultSearch, customFilter);
+                    }, 500);
                 } else {
-                    startDate = startDate.startOf('day').toISOString();
-                    endDate = endDate.endOf('day').toISOString();
+                    notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
                 }
-
-                customFilter = {
-                    'startDate': $("#daterange").val() != '' ? startDate : '',
-                    'endDate': $("#daterange").val() != '' ? endDate : ''
-                };
-
-                defaultSearch = $('.tb-search').val();
-                defaultLimitPage = $("#limitPage").val();
-                currentPage = 1;
-
-                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                    customFilter);
-            });
-
-            document.getElementById('tb-reset').addEventListener('click', async function() {
-                $('#daterange').val('');
-                customFilter = {};
-                defaultSearch = $('.tb-search').val();
-                defaultLimitPage = $("#limitPage").val();
-                currentPage = 1;
-                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
-                    customFilter);
-            });
-        }
-
-        async function setDatePicker() {
-            flatpickr("#tgl_nota", {
-                dateFormat: "Y-m-d",
-                defaultDate: new Date(),
-                minDate: "today",
-                allowInput: true,
-                appendTo: document.querySelector('.modal-body'),
-                position: "above",
-                onDayCreate: (dObj, dStr, fp, dayElem) => {
-                    dayElem.addEventListener('click', () => {
-                        fp.calendarContainer.querySelectorAll('.selected').forEach(el => {
-                            el.style.backgroundColor = "#1abc9c";
-                            el.style.color = "#fff";
-                        });
-                    });
-                }
-            });
-
-            const inputField = document.querySelector("#tgl_nota");
-            inputField.setAttribute("readonly", true);
-
-            inputField.style.backgroundColor = "";
-            inputField.style.cursor = "pointer";
+            } catch (error) {
+                loadingPage(false);
+                const resp = error.response || {};
+                notificationAlert('error', 'Kesalahan', resp.data?.message ||
+                    'Terjadi kesalahan saat menyimpan data.');
+            }
         }
 
         async function addData() {
@@ -723,50 +698,6 @@
                 updateNumbers();
             });
 
-            async function addTemporaryField() {
-                let idBarang = document.getElementById('id_barang').value;
-                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
-                let qty = parseInt(document.getElementById('jml_item').value);
-                let hargaBarang = parseInt(document.getElementById('harga_barang').value);
-                let levelHarga = Array.from(document.querySelectorAll('.level-harga')).map((input, index) => {
-                    return `Level ${index + 1} : ${input.value}`;
-                });
-
-                if (!idBarang || !qty || !hargaBarang) {
-                    notificationAlert('error', 'Pemberitahuan',
-                        'Pastikan semua data telah diisi dengan benar.');
-                    return;
-                }
-
-                let formData = {
-                    id_barang: idBarang,
-                    nama_barang: namaBarang,
-                    qty: qty,
-                    harga_barang: hargaBarang,
-                    level_harga: levelHarga
-                };
-
-                try {
-                    const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}',
-                        formData);
-
-                    if (postData.status >= 200 && postData.status < 300) {
-                        // const response = postData.data.data;
-                        setTimeout(async function() {
-                            await getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                    } else {
-                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
-                    }
-                } catch (error) {
-                    loadingPage(false);
-                    const resp = error.response || {};
-                    notificationAlert('error', 'Kesalahan', resp.data?.message ||
-                        'Terjadi kesalahan saat menyimpan data.');
-                }
-            }
-
             document.querySelector('.table-bordered tbody').addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-item')) {
                     let row = e.target.closest('tr');
@@ -789,17 +720,14 @@
                         console.log(`Opsi dengan id ${idBarang} tidak ditemukan di dropdown.`);
                     }
 
-                    // Update subtotal display
                     document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
                         `Rp ${subtotal.toLocaleString('id-ID')}`;
 
                     updateNumbers();
 
-                    // Enable input fields if no items are added
                     if (!addedItems.size) {
                         toggleInputFields(false);
                     } else {
-                        // Recheck if the currently selected item is in the added items
                         checkInputFields();
                     }
                 }
@@ -817,12 +745,10 @@
                     fetch(`/admin/get-stock-details/${idBarang}`)
                         .then(response => response.json())
                         .then(data => {
-                            // Simpan nilai awal yang diterima dari server
                             initialHppBaru = data.hpp_baru || 0;
                             initialStock = data.stock || 0;
                             initialHppAwal = data.hpp_awal || 0;
 
-                            // Tampilkan nilai dari server
                             document.querySelector('.card-text strong.stock').textContent = initialStock
                                 .toLocaleString('id-ID');
                             document.querySelector('.card-text strong.hpp-awal').textContent =
@@ -830,17 +756,14 @@
                             document.querySelector('.card-text strong.hpp-baru').textContent =
                                 `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
-                            // Set data-hpp-baru di input level harga
                             document.querySelectorAll('.level-harga').forEach(function(input) {
                                 input.setAttribute('data-hpp-baru', initialHppBaru);
                             });
 
-                            // Simpan nilai level harga asli dari server
                             originalLevelHarga = {
                                 ...data.level_harga
-                            }; // Simpan salinan level harga asli
+                            };
 
-                            // Mengisi nilai level harga dari server dan menghitung persentase
                             document.querySelectorAll('input[name="level_nama[]"]').forEach(function(
                                 namaLevelInput, index) {
                                 const namaLevel = namaLevelInput.value;
@@ -849,7 +772,6 @@
                                 const persenElement = document.querySelector(
                                     `#persen_${index}`);
 
-                                // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
                                 if (data.level_harga.hasOwnProperty(namaLevel)) {
                                     inputField.value = data.level_harga[namaLevel];
                                     let levelHarga = parseFloat(inputField.value) || 0;
@@ -860,7 +782,7 @@
                                     }
                                     persenElement.textContent = `${persen.toFixed(2)}%`;
                                 } else {
-                                    inputField.value = ''; // Biarkan kosong jika tidak ada data
+                                    inputField.value = '';
                                     persenElement.textContent = '0%';
                                 }
                             });
@@ -871,7 +793,6 @@
                             console.error('Error:', error);
                         });
                 } else {
-                    // Reset tampilan jika tidak ada barang yang dipilih
                     resetFields();
                 }
             });
@@ -884,11 +805,9 @@
 
                     let persen = 0;
 
-                    // Jika harga barang belum diisi, gunakan hpp_awal
                     if (hppBaru === 0 && hppAwal > 0) {
                         persen = ((levelHarga - hppAwal) / hppAwal) * 100;
                     } else if (hppBaru > 0) {
-                        // Jika harga barang sudah diisi, gunakan hpp_baru
                         persen = ((levelHarga - hppBaru) / hppBaru) * 100;
                     }
 
@@ -900,7 +819,6 @@
                 });
             });
 
-            // Fungsi untuk mendengarkan perubahan input jumlah dan harga
             function setupInputListeners(totalHarga, totalQty) {
                 document.querySelectorAll('.jumlah-item, .harga-barang').forEach(function(input) {
                     input.addEventListener('input', function() {
@@ -913,7 +831,7 @@
                 input.addEventListener('input', function() {
                     calculateHPP(0,
                         0
-                    ); // Asumsikan barang baru jika tidak ada total harga atau qty dari database
+                    );
                 });
             });
 
@@ -1044,23 +962,85 @@
                 });
             }
 
-            // Tambahkan event listener pada tombol reset
             document.getElementById('reset').addEventListener('click', function() {
                 let idBarang = document.getElementById('id_barang').value;
                 if (idBarang) {
-                    // Jika ada barang yang dipilih, kembalikan nilai asli dari server
                     resetFieldsToOriginal();
                 } else {
-                    // Jika tidak ada barang yang dipilih, reset semua field menjadi kosong
                     resetFields();
                 }
             });
 
             document.getElementById('cancel-button').addEventListener('click', function(event) {
-                event.preventDefault(); // Mencegah event default jika ada
-                location.reload(); // Reload halaman
+                event.preventDefault();
+                location.reload();
             });
 
+        }
+
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
+
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').toISOString();
+                    endDate = endDate.endOf('day').toISOString();
+                }
+
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#daterange').val('');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
+        async function setDatePicker() {
+            flatpickr("#tgl_nota", {
+                dateFormat: "Y-m-d",
+                defaultDate: new Date(),
+                minDate: "today",
+                allowInput: true,
+                appendTo: document.querySelector('.modal-body'),
+                position: "above",
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                    dayElem.addEventListener('click', () => {
+                        fp.calendarContainer.querySelectorAll('.selected').forEach(el => {
+                            el.style.backgroundColor = "#1abc9c";
+                            el.style.color = "#fff";
+                        });
+                    });
+                }
+            });
+
+            const inputField = document.querySelector("#tgl_nota");
+            inputField.setAttribute("readonly", true);
+
+            inputField.style.backgroundColor = "";
+            inputField.style.cursor = "pointer";
         }
 
         async function initPageLoad() {
