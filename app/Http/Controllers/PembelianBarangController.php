@@ -497,27 +497,28 @@ class PembelianBarangController extends Controller
     }
 
     public function gettemppembelian()
-{
-    try {
-        // Ambil data dari tabel temp_detail_pembelian_barang
-        $tempDetails = DB::table('temp_detail_pembelian_barang')->get();
+    {
+        try {
+            // Ambil hanya kolom yang diperlukan dari tabel temp_detail_pembelian_barang
+            $tempDetails = DB::table('temp_detail_pembelian_barang')
+                ->select('id_pembelian_barang', 'id_barang', 'nama_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
+                ->get();
 
-        // Decode kolom level_harga dari JSON ke array
-        foreach ($tempDetails as $detail) {
-            $detail->level_harga = json_decode($detail->level_harga);
+            // Decode kolom level_harga dari JSON ke array
+            foreach ($tempDetails as $detail) {
+                $detail->level_harga = json_decode($detail->level_harga);
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diambil',
+                'data' => $tempDetails,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Data berhasil diambil',
-            'data' => $tempDetails,
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $e->getMessage(),
-        ], 500);
     }
-}
-
 }
