@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
+    let id_pembelian_post = null;
     (function() {
         if ($('#layout-sidenav').hasClass('sidenav-horizontal') || window.layoutHelpers.isSmallScreen()) {
             return;
@@ -210,6 +211,7 @@
 
                     // Pastikan Anda mendapatkan id_pembelian dari respons
                     var id_pembelian = response.id_pembelian;
+                    id_pembelian_post = response.id_pembelian;
                     // Ganti URL action form untuk update
                     var updateFormAction =
                         "{{ route('transaksi.pembelianbarang.update', ':id') }}";

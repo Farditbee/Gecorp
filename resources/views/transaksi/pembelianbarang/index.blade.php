@@ -570,63 +570,48 @@
         }
 
         async function addTemporaryField() {
-            let idBarang = document.getElementById('id_barang').value;
-            let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
-            let qty = parseInt(document.getElementById('jml_item').value);
-            let hargaBarang = parseInt(document.getElementById('harga_barang').value);
-            let levelHarga = Array.from(document.querySelectorAll('.level-harga')).map((input, index) => {
-                return `Level ${index + 1} : ${input.value}`;
-            });
-
-            if (!idBarang || !qty || !hargaBarang) {
-                notificationAlert('error', 'Pemberitahuan',
-                    'Pastikan semua data telah diisi dengan benar.');
-                return;
-            }
-
-            let formData = {
-                id_barang: idBarang,
-                nama_barang: namaBarang,
-                qty: qty,
-                harga_barang: hargaBarang,
-                level_harga: levelHarga
-            };
-
             try {
-                const response = await renderAPI('GET', '{{ route('master.temppembelian.get') }}', {
-                    id_pembelian: id
+                // Ambil data dari elemen input
+                let idBarang = document.getElementById('id_barang').value;
+                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
+                let qty = parseInt(document.getElementById('jml_item').value);
+                let hargaBarang = parseInt(document.getElementById('harga_barang').value);
+                let levelHarga = Array.from(document.querySelectorAll('.level-harga')).map((input, index) => {
+                    return `Level ${index + 1} : ${input.value}`;
                 });
-                if (response && response.status === 200) {
-                    const dataItems = response.data.data;
-                    console.log('dataItems:', dataItems);
 
-                    dataItems.forEach(item => {
-                        const idBarang = item.id_barang;
-                        const namaBarang = item.nama_barang;
-                        const qty = item.qty;
-                        const harga = item.harga_barang;
-                        const totalHarga = qty * harga;
-                        const levelHargaInputs = '';
+                // Validasi sebelum mengirim data
+                if (!idBarang || !qty || !hargaBarang) {
+                    notificationAlert('error', 'Pemberitahuan', 'Pastikan semua data telah diisi dengan benar.');
+                    return;
+                }
 
-                        let row = `
-                            <tr>
-                                <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
-                                <td class="numbered">${document.querySelectorAll('#tempData tr').length + 1}</td>
-                                <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                                <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                                <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                                <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                                ${levelHargaInputs}
-                            </tr>`;
+                // Siapkan formData sesuai format yang diminta
+                let formData = {
+                    id_pembelian: id_pembelian_post,
+                    id_barang: idBarang,
+                    nama_barang: namaBarang,
+                    qty: qty,
+                    harga_barang: hargaBarang,
+                    level_harga: levelHarga
+                };
 
-                        document.querySelector('#tempData').insertAdjacentHTML('beforeend', row);
-                    });
+                // Kirim data menggunakan API
+                const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}', formData);
+
+                if (postData.status >= 200 && postData.status < 300) {
+                    const response = postData.data.data;
+                    setTimeout(async function() {
+                        await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                            customFilter);
+                    }, 500);
                 } else {
-                    notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
+                    notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
                 }
             } catch (error) {
-                const errorMessage = error?.response?.data?.message || 'Terjadi kesalahan saat memuat data sementara.';
-                console.error(errorMessage);
+                loadingPage(false);
+                const resp = error.response || {};
+                notificationAlert('error', 'Kesalahan', resp.data?.message || 'Terjadi kesalahan saat menyimpan data.');
             }
         }
 
@@ -653,8 +638,8 @@
                 toggleInputFields(isItemAdded);
             }
 
-            document.getElementById('add-item-detail').addEventListener('click', function() {
-                addTemporaryField();
+            document.getElementById('add-item-detail').addEventListener('click', async function() {
+                await addTemporaryField(id_pembelian_post);
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
                 let qty = parseInt(document.getElementById('jml_item').value);
