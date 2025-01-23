@@ -466,6 +466,7 @@ class PembelianBarangController extends Controller
     {
         try {
             $request->validate([
+                'id_pembelian' => 'required|exists:pembelian_barang,id',
                 'id_barang' => 'required|exists:barang,id',
                 'nama_barang' => 'required|string',
                 'qty' => 'required|numeric|min:1',
@@ -475,6 +476,7 @@ class PembelianBarangController extends Controller
             ]);
 
             $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
+                'id_pembelian' => $request->id_pembelian,
                 'id_barang' => $request->id_barang,
                 'nama_barang' => $request->nama_barang,
                 'qty' => $request->qty,
