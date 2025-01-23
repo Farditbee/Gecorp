@@ -476,7 +476,7 @@ class PembelianBarangController extends Controller
             ]);
 
             $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
-                'id_pembelian' => $request->id_pembelian,
+                'id_pembelian_barang' => $request->id_pembelian,
                 'id_barang' => $request->id_barang,
                 'nama_barang' => $request->nama_barang,
                 'qty' => $request->qty,
