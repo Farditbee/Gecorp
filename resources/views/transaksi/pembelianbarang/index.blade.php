@@ -184,7 +184,6 @@
                                                         class="list-group-item d-flex justify-content-between align-items-center">
                                                         <h5><i class="fa fa-globe"></i> Nama Supplier</h5> <span
                                                             id="nama-supplier" class="badge badge-secondary"></span>
-
                                                     </li>
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
@@ -511,6 +510,11 @@
                 $("#modal-title").html(`Form Pembelian Barang`);
                 $("#modal-form").modal("show");
 
+                $("form").find("input:not(#tgl_nota):not([type='hidden']), select, textarea")
+                    .val("")
+                    .prop("checked", false)
+                    .trigger("change");
+
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
                 $("#tambah").addClass("show active");
 
@@ -532,7 +536,10 @@
                 $("#modal-title").html(`Form Edit Pembelian No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("form").find("input:not(#tgl_nota):not([type='hidden']), select, textarea")
+                    .val("")
+                    .prop("checked", false)
+                    .trigger("change");
 
                 $("#no-nota").html(nota);
                 $("#tgl-nota").html(tanggal);
@@ -551,7 +558,7 @@
                     });
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
-
+                        console.log('dataItems:', dataItems)
                     } else {
                         notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
                     }
@@ -586,23 +593,40 @@
             };
 
             try {
-                const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}',
-                    formData);
+                const response = await renderAPI('GET', '{{ route('master.temppembelian.get') }}', {
+                    id_pembelian: id
+                });
+                if (response && response.status === 200) {
+                    const dataItems = response.data.data;
+                    console.log('dataItems:', dataItems);
 
-                if (postData.status >= 200 && postData.status < 300) {
-                    // const response = postData.data.data;
-                    setTimeout(async function() {
-                        await getListData(defaultLimitPage, currentPage, defaultAscending,
-                            defaultSearch, customFilter);
-                    }, 500);
+                    dataItems.forEach(item => {
+                        const idBarang = item.id_barang;
+                        const namaBarang = item.nama_barang;
+                        const qty = item.qty;
+                        const harga = item.harga_barang;
+                        const totalHarga = qty * harga;
+                        const levelHargaInputs = '';
+
+                        let row = `
+                            <tr>
+                                <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                                <td class="numbered">${document.querySelectorAll('#tempData tr').length + 1}</td>
+                                <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+                                <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                                <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+                                <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                                ${levelHargaInputs}
+                            </tr>`;
+
+                        document.querySelector('#tempData').insertAdjacentHTML('beforeend', row);
+                    });
                 } else {
-                    notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
+                    notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
                 }
             } catch (error) {
-                loadingPage(false);
-                const resp = error.response || {};
-                notificationAlert('error', 'Kesalahan', resp.data?.message ||
-                    'Terjadi kesalahan saat menyimpan data.');
+                const errorMessage = error?.response?.data?.message || 'Terjadi kesalahan saat memuat data sementara.';
+                console.error(errorMessage);
             }
         }
 
