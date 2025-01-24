@@ -13,7 +13,7 @@ class RetureSuplierController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Reture Supllier',
+            'Reture Suplier',
         ];
     }
 

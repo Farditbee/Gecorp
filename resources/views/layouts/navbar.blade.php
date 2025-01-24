@@ -109,7 +109,7 @@
                         </li>
                         <li>
                             <a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-rotate-cw"></i> Reture Suplier</a>
+                                    class="icon feather icon-corner-down-left"></i> Reture Suplier</a>
                         </li>
                     </ul>
                 </li>
