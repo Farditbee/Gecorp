@@ -40,6 +40,7 @@ Route::get('/get-ratingmember', [RatingMemberController::class, 'getMember'])->n
 
 Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembelianbarang'])->name('master.pembelian.get');
 Route::get('/gettemppembelian', [PembelianBarangController::class, 'gettemppembelian'])->name('master.temppembelian.get');
+Route::delete('/hapustemp', [PembelianBarangController::class, 'hapusTemp'])->name('master.temppembelian.hapus');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
 Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 

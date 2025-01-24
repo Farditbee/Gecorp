@@ -529,4 +529,36 @@ class PembelianBarangController extends Controller
             ], 500);
         }
     }
+
+    public function hapusTemp(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_pembelian' => 'required|exists:temp_detail_pembelian_barang,id_pembelian_barang',
+                'id_barang' => 'required|exists:temp_detail_pembelian_barang,id_barang'
+            ]);
+
+            $deleted = DB::table('temp_detail_pembelian_barang')
+                    ->where('id_pembelian_barang', $request->id_pembelian)
+                    ->where('id_barang', $request->id_barang)
+                    ->delete();
+
+            if ($deleted){
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data Berhasil diEdit'
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data tidak ditemukan atau sudah diHapus'
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
 }
