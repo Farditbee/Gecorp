@@ -360,6 +360,7 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let idPembelianEdit = null;
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -532,6 +533,7 @@
                 let nota = $(this).attr("data-nota");
                 let tanggal = $(this).attr("data-tanggal");
                 let nama = $(this).attr("data-name");
+                idPembelianEdit = id;
 
                 $("#modal-title").html(`Form Edit Pembelian No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
@@ -540,6 +542,8 @@
                     .val("")
                     .prop("checked", false)
                     .trigger("change");
+
+                $("#tempData").empty();
 
                 $("#no-nota").html(nota);
                 $("#tgl-nota").html(tanggal);
@@ -552,26 +556,41 @@
                 });
                 $("#detail").addClass("show active");
                 $("#submit-reture").removeClass("d-none");
+
                 try {
                     const response = await renderAPI('GET', '{{ route('master.temppembelian.get') }}', {
                         id_pembelian: id
                     });
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
-                        console.log('dataItems:', dataItems)
+
+                        dataItems.forEach(item => {
+                            const totalHarga = item.qty * item.harga_barang;
+
+                            $("#tempData").append(`
+                        <tr>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td class="numbered">${$("#tempData tr").length + 1}</td>
+                            <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
+                            <td><input type="hidden" name="qty[]" value="${item.qty}">${item.qty}</td>
+                            <td><input type="hidden" name="harga_barang[]" value="${item.harga_barang}">Rp ${item.harga_barang.toLocaleString('id-ID')}</td>
+                            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `);
+                        });
                     } else {
                         notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
                     }
                 } catch (error) {
                     const errorMessage = error?.response?.data?.message ||
                         'Terjadi kesalahan saat memuat data sementara.';
+                    notificationAlert('danger', 'Error', errorMessage);
                 }
             });
         }
 
         async function addTemporaryField() {
             try {
-                // Ambil data dari elemen input
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
                 let qty = parseInt(document.getElementById('jml_item').value);
@@ -580,15 +599,13 @@
                     return `Level ${index + 1} : ${input.value}`;
                 });
 
-                // Validasi sebelum mengirim data
                 if (!idBarang || !qty || !hargaBarang) {
                     notificationAlert('error', 'Pemberitahuan', 'Pastikan semua data telah diisi dengan benar.');
                     return;
                 }
 
-                // Siapkan formData sesuai format yang diminta
                 let formData = {
-                    id_pembelian: id_pembelian_post,
+                    id_pembelian: id_pembelian_post || idPembelianEdit,
                     id_barang: idBarang,
                     nama_barang: namaBarang,
                     qty: qty,
