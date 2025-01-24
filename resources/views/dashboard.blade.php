@@ -85,9 +85,9 @@
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
             <div class="row">
-                <div class="col-xxl-6 col-md-3">
+                <div class="col-12 col-lg-4">
                     <div class="row">
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card statistics-card-1 position-relative">
                                 <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
                                     style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;">
@@ -136,24 +136,10 @@
                                             </form>
                                         </div>
                                     </div>
-                                    {{-- <div class="row align-items-center">
-                                        <div class="col-md-12">
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <span>Laba Kotor:</span>
-                                                    <br>
-                                                    <div
-                                                        style="display: inline-block; width: 15px; height: 15px; background-color: #FF9800; border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                                                    </div>
-                                                    <b id="laba-kotor">Rp0</b>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div> --}}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 10 Penjualan</h5>
@@ -183,7 +169,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 10 Member</h5>
@@ -215,9 +201,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xxl-6 col-md-9">
+                <div class="col-12 col-lg-8">
                     <div class="row">
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div>
@@ -271,7 +257,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div>
