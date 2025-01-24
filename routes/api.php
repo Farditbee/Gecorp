@@ -16,6 +16,7 @@ use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RatingMemberController;
+use App\Http\Controllers\Reture\RetureSuplierController;
 use App\Http\Controllers\RetureController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\SupplierController;
@@ -58,6 +59,8 @@ Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])-
 Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name('master.getplanorder');
 Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
 Route::get('/getRetureBarcode', [RetureController::class, 'getRetureBarcode'])->name('master.getreturebarcode');
+
+Route::get('/getRetureSupplier', [RetureSuplierController::class, 'get'])->name('master.getreturesupplier');
 
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
