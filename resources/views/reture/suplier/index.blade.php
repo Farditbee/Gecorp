@@ -47,7 +47,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
-                                                <th class="text-wrap align-top">Tanggal Reture</th>
+                                                <th class="text-wrap align-top">Nama Suplier</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
@@ -276,7 +276,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('get.tempoData') }}', {
+                '{{ route('master.getreturesupplier') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -316,12 +316,7 @@
                 edit_button = `
                     <button class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit ${title} No. Nota: ${data.no_nota}"
-                        data-id='${data.id}'
-                        data-nota='${data.no_nota}'
-                        data-tanggal='${data.tgl_retur}'
-                        data-nama-member='${data.nama_member}'
-                        data-id-member='${data.id_member}'>
+                        title="Edit ${title} No. Nota: ${data.no_nota}">
                         <span class="text-dark">Edit</span>
                         <div class="icon text-warning">
                             <i class="fa fa-edit"></i>
@@ -331,13 +326,7 @@
                 edit_button = `
                     <button class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Detail ${title} No. Nota: ${data.no_nota}"
-                        data-id='${data.id}'
-                        data-nota='${data.no_nota}'
-                        data-status='${data.status}'
-                        data-tanggal='${data.tgl_retur}'
-                        data-nama-member='${data.nama_member}'
-                        data-id-member='${data.id_member}'>
+                        title="Detail ${title} No. Nota: ${data.no_nota}">
                         <span class="text-dark">Detail</span>
                         <div class="icon text-info">
                             <i class="fa fa-book"></i>
@@ -351,9 +340,7 @@
             let delete_button = `
             <a class="p-1 btn hapus-data action_button"
                 data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama_barang}"
-                data-id='${data.id}'
-                data-name='${data.nama_barang}'>
+                title="Hapus ${title}: ${data.nama_barang}">
                 <span class="text-dark">Hapus</span>
                 <div class="icon text-danger">
                     <i class="fa fa-trash"></i>
@@ -382,7 +369,7 @@
             return {
                 id: data?.id ?? '-',
                 no_nota: data?.no_nota ?? '-',
-                tgl_retur: data?.tgl_retur ?? '-',
+                nama_supplier: data?.nama_supplier ?? '-',
                 status,
                 action_buttons,
             };
@@ -401,7 +388,7 @@
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.no_nota}</td>
-                        <td class="${classCol}">${element.tgl_retur}</td>
+                        <td class="${classCol}">${element.nama_supplier}</td>
                         <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
