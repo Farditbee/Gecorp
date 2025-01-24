@@ -54,7 +54,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
-                                                <th class="text-wrap align-top">Nama Suplier</th>
+                                                <th class="text-wrap align-top">Nama Supplier</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
