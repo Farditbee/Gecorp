@@ -183,6 +183,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/asetbarang', [AssetBarangController::class, 'index'])->name('laporan.asetbarang.index');
         Route::get('/ratingmember', [RatingMemberController::class, 'index'])->name('laporan.ratingmember.index');
 
+        // Reture Controller
         Route::get('/reture', [RetureController::class, 'index'])->name('reture.index');
         Route::get('/reture/create', [RetureController::class, 'create'])->name('reture.create');
         Route::post('/reture/storeNota', [RetureController::class, 'store_nota'])->name('reture.storeNota');
@@ -194,6 +195,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
         Route::get('/retureItem', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
         Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
+        Route::post('/reture/storeNotaSupplier', [RetureController::class, 'storeNotaSupplier'])->name('create.NoteReture');
 
         Route::prefix('laporan-keuangan')->as('laporankeuangan.')->group(function () {
             Route::prefix('arus-kas')->as('aruskas.')->group(function () {
