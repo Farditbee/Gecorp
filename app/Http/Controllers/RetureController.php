@@ -24,7 +24,6 @@ class RetureController extends Controller
         $this->menu;
         $this->title = [
             'Reture',
-            'Tambah Reture',
         ];
     }
 
@@ -668,7 +667,7 @@ class RetureController extends Controller
                                 'qty_acc' => $stock[$index],
                                 'metode' => $metode[$index],
                             ]);
-                    
+
                 } else {
                     return response()->json([
                         'error' => true,
@@ -819,7 +818,7 @@ class RetureController extends Controller
             ]);
 
             $id_retur = $retur->id;
-    
+
             // Ambil data dari tabel detail_kasir berdasarkan id_transaksi di detail_retur
             $detailTransaksi = DetailKasir::join('detail_retur', 'detail_kasir.id_kasir', '=', 'detail_retur.id_transaksi')
                 ->where('detail_retur.id_retur', $id_retur)
@@ -827,7 +826,7 @@ class RetureController extends Controller
                 ->where('detail_kasir.id_supplier', $request->id_supplier)
                 ->select('detail_retur.*')
                 ->get();
-            
+
             // Return JSON response
             return response()->json([
                 'error' => false,
