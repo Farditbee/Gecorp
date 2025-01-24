@@ -424,6 +424,16 @@
                 status =
                     `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
             } else {
+                edit_button = `
+                <a button class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
+                    title="Edit Data Nomor Nota: ${data.no_nota}"
+                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
                 status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
             }
 

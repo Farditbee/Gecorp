@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             "wilayah" => "Jakarta",
             "alamat" => 'Jakpus',
         ]);
-
+//  k
         // User::create([
         //     "id" => Uuid::uuid4()->getHex(),
         //     "nama" => "Warga",
