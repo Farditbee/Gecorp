@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Barang Reture
+    Reture Member
 @endsection
 
 @section('css')
@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <style>
+        #tgl_retur[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -115,7 +122,7 @@
                                                         </div>
                                                         <div class="col-4">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
-                                                                Reture</label>
+                                                                Reture <span class="text-danger">*</span></label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
@@ -553,7 +560,10 @@
                 $("#modal-title").html(`Form Tambah Reture`);
                 $("#modal-form").modal("show");
 
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("form").find("input:not(#tgl_retur), select, textarea")
+                    .val("")
+                    .prop("checked", false)
+                    .trigger("change");
                 $("#form").data("action-url", '{{ route('reture.storeNota') }}');
 
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
@@ -687,15 +697,14 @@
 
             if (selectedValue === 'Barang') {
                 const barangInputHtml = `
-                    <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
-                    <div class="d-flex align-items-center">
-                        <input id="barcode-${rowId}" type="text" name="barcode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
-                        <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
-                            title="Submit Pencarian Barcode Barang">
-                            <i class="fa fa-magnifying-glass"></i>Cari
-                        </button>
-                    </div>
-                `;
+                <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
+                <div class="d-flex align-items-center">
+                    <input id="barcode-${rowId}" type="text" name="barcode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
+                    <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Submit Pencarian Barcode Barang">
+                        <i class="fa fa-magnifying-glass"></i>Cari
+                    </button>
+                </div>`;
 
                 barangContainer.innerHTML = barangInputHtml;
 
@@ -727,8 +736,9 @@
                             'Silahkan masukkan Barcode Barang terlebih dahulu');
                     }
                 });
-            }
+            } else if (selectedValue === 'Cash') {}
         }
+
 
         async function getDataBarcode(customFilter3 = {}) {
             let filterParams = {};
@@ -1102,7 +1112,10 @@
                 e.preventDefault();
                 const saveButton = document.getElementById('save-btn');
                 saveButton.disabled = true;
-                saveButton.querySelector('span').textContent = 'Menyimpan...';
+
+                const originalContent = saveButton.innerHTML;
+                saveButton.innerHTML =
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
 
                 loadingPage(true);
 
@@ -1148,7 +1161,7 @@
                         'Terjadi kesalahan saat menyimpan data.');
                 } finally {
                     saveButton.disabled = false;
-                    saveButton.querySelector('span').textContent = 'Simpan';
+                    saveButton.innerHTML = originalContent;
                 }
             });
         }

@@ -23,13 +23,13 @@ class RetureController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Reture',
+            'Reture Member',
         ];
     }
 
     public function index()
     {
-        $menu = [$this->title[0]];
+        $menu = [$this->title[0], $this->label[3]];
         $reture = DataReture::all();
         return view('reture.index', compact('menu', 'reture'));
     }

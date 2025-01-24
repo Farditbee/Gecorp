@@ -22,7 +22,7 @@ class RetureSuplierController extends Controller
 
     public function index()
     {
-        $menu = [$this->title[0]];
+        $menu = [$this->title[0], $this->label[3]];
         return view('reture.suplier.index', compact('menu'));
     }
 

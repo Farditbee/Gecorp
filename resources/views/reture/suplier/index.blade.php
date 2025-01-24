@@ -11,6 +11,13 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <style>
+        #tgl_retur[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -107,15 +114,15 @@
                                                 <form id="form">
                                                     <div class="row">
                                                         <div class="col-4">
-                                                            <label for="f_suplier" class=" form-control-label">Nama
+                                                            <label for="f_supplier" class=" form-control-label">Nama
                                                                 Suplier <span class="text-danger">*</span></label>
                                                             <select class="form-select select2" name="suplier"
-                                                                id="f_suplier">
+                                                                id="f_supplier">
                                                             </select>
                                                         </div>
                                                         <div class="col-4">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
-                                                                Reture</label>
+                                                                Reture <span class="text-danger">*</span></label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
@@ -248,7 +255,7 @@
         let customFilter3 = {};
         let rowCount = 0;
         let dataTemp = {};
-        let globalIdMember = null;
+        let globalIdSupplier = null;
         let barcodeResponses = {};
 
         let title = 'Reture';
@@ -260,7 +267,7 @@
         let customFilter = {};
 
         let selectOptions = [{
-            id: '#f_suplier',
+            id: '#f_supplier',
             isFilter: {
                 id_toko: '{{ auth()->user()->id_toko }}',
             },
@@ -405,7 +412,10 @@
                 $("#modal-title").html(`Form Tambah Reture Suplier`);
                 $("#modal-form").modal("show");
 
-                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("form").find("input:not(#tgl_retur), select, textarea")
+                    .val("")
+                    .prop("checked", false)
+                    .trigger("change");
                 $("#form").data("action-url", '{{ route('create.NoteReture') }}');
 
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
@@ -417,6 +427,65 @@
                 });
                 $("#detail").removeClass("show active");
                 $("#submit-reture").removeClass("d-none");
+            });
+        }
+
+        async function submitForm() {
+            $(document).on("submit", "#form", async function(e) {
+                e.preventDefault();
+                const saveButton = document.getElementById('save-btn');
+                saveButton.disabled = true;
+
+                const originalContent = saveButton.innerHTML;
+                saveButton.innerHTML =
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+
+                loadingPage(true);
+
+                const actionUrl = $("#form").data("action-url");
+                const formData = {
+                    id_supplier: $('#f_supplier').select2('data').length > 0 ? $('#f_supplier').select2(
+                        'data')[0].id : null,
+                    tgl_retur: $('#tgl_retur').val(),
+                    no_nota: $('#no_nota').val(),
+                };
+
+                const method = 'POST';
+                try {
+                    const postData = await renderAPI(method, actionUrl, formData);
+
+                    loadingPage(false);
+
+                    if (postData.status >= 200 && postData.status < 300) {
+                        const rest_data = postData.data.data;
+
+                        $('#nav-tab a[href="#detail"]').tab('show');
+                        $('#i_no_nota').text(rest_data.no_nota);
+                        $('#i_tgl_retur').text(rest_data.tgl_retur);
+                        $('#i_member').text(rest_data.nama_supplier);
+
+                        $('#tambah-tab').removeAttr('style');
+                        $('#detail-tab').removeAttr('style');
+
+                        dataTemp = rest_data;
+                        globalIdSupplier = rest_data.id_supplier;
+
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    const resp = error.response || {};
+                    notificationAlert('error', 'Kesalahan', resp.data?.message ||
+                        'Terjadi kesalahan saat menyimpan data.');
+                } finally {
+                    saveButton.disabled = false;
+                    saveButton.innerHTML = originalContent;
+                }
             });
         }
 
@@ -535,6 +604,7 @@
             await selectData(selectOptions);
             await resetModal();
             await addData();
+            await submitForm();
         }
     </script>
 @endsection

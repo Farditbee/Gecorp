@@ -105,11 +105,11 @@
                     <ul class="pcoded-submenu">
                         <li>
                             <a href="{{ route('reture.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-rotate-cw"></i> Data Reture</a>
+                                    class="icon feather icon-rotate-cw"></i> Reture Member</a>
                         </li>
                         <li>
                             <a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-corner-down-left"></i> Reture Suplier</a>
+                                    class="icon feather icon-corner-down-left"></i> Reture Supplier</a>
                         </li>
                     </ul>
                 </li>
