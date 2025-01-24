@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Reture Suplier
+    Reture Supplier
 @endsection
 
 @section('css')
@@ -150,7 +150,7 @@
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
                                                         <h5><i class="fa fa-user-tie mr-2"></i>Nama Suplier</h5>
-                                                        <span id="i_suplier" class="badge badge-secondary"></span>
+                                                        <span id="i_supplier" class="badge badge-secondary"></span>
                                                     </li>
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
@@ -462,7 +462,7 @@
                         $('#nav-tab a[href="#detail"]').tab('show');
                         $('#i_no_nota').text(rest_data.no_nota);
                         $('#i_tgl_retur').text(rest_data.tgl_retur);
-                        $('#i_member').text(rest_data.nama_supplier);
+                        $('#i_supplier').text(rest_data.nama_supplier);
 
                         $('#tambah-tab').removeAttr('style');
                         $('#detail-tab').removeAttr('style');
