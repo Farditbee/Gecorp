@@ -18,6 +18,7 @@ class DataReture extends Model
         'no_nota',
         'tgl_retur',
         'id_member',
+        'id_supplier',
     ];
 
     protected $keyType = 'string';

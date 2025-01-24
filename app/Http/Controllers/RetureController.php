@@ -10,6 +10,7 @@ use App\Models\DetailToko;
 use App\Models\Kasir;
 use App\Models\Member;
 use App\Models\StockBarang;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -801,9 +802,9 @@ class RetureController extends Controller
     public function storeNotaSupplier(Request $request)
     {
         $request->validate([
-            'no_nota' => 'required|string',
-            'tgl_retur' => 'required|date',
             'id_supplier' => 'required|string',
+            'tgl_retur' => 'required|date',
+            'no_nota' => 'required|string',
         ]);
 
         $user = Auth::user();
@@ -817,15 +818,22 @@ class RetureController extends Controller
                 'id_supplier' => $request->id_supplier,
             ]);
 
-            $id_retur = $retur->id;
+            $supplier = Supplier::find($request->id_supplier);
 
-            // Ambil data dari tabel detail_kasir berdasarkan id_transaksi di detail_retur
-            $detailTransaksi = DetailKasir::join('detail_retur', 'detail_kasir.id_kasir', '=', 'detail_retur.id_transaksi')
-                ->where('detail_retur.id_retur', $id_retur)
-                ->where('detail_retur.status_reture', 'pending')
-                ->where('detail_kasir.id_supplier', $request->id_supplier)
-                ->select('detail_retur.*')
-                ->get();
+            $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
+
+            if ($detailKasir->isEmpty()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Data tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
+            } else {
+                $detailTransaksi = DetailRetur::whereIn('id_transaksi', $detailKasir->pluck('id_kasir'))
+                                                ->where('status', 'success')
+                                                ->where('status_reture', 'pending')
+                                                ->get();
+            }
 
             // Return JSON response
             return response()->json([
@@ -836,7 +844,7 @@ class RetureController extends Controller
                     'id_retur' => $retur->id,
                     'no_nota' => $retur->no_nota,
                     'tgl_retur' => $retur->tgl_retur,
-                    'id_supplier' => $retur->id_supplier,
+                    'nama_supplier' => $supplier->nama_supplier,
                 ],
                 'detail_retur' => $detailTransaksi,
                 ]);
@@ -845,7 +853,7 @@ class RetureController extends Controller
 
             return response()->json([
                 "error" => true,
-                "message" => "Terjadi kesalahan pada server",
+                "message" => "Terjadi kesalahan pada server". $th->getMessage(),
                 "status_code" => 500,
             ], 500);
         }

@@ -30,42 +30,44 @@ class RetureSuplierController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-
+    
         $query = DataReture::where('id_supplier', '!=', null);
-
+    
         $query->orderBy('id', $meta['orderBy']);
-
+    
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-
+    
             $query->where(function ($query) use ($searchTerm) {
                 // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(nama_jenis_barang) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(id_supplier) LIKE ?", ["%$searchTerm%"]);
             });
         }
-
+    
         if ($request->has('startDate') && $request->has('endDate')) {
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
-
-            // Lakukan filter berdasarkan tanggal
+            
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
+        $query->join('supplier', 'data_retur.id_supplier', '=', 'supplier.id')
+                ->select('data_retur.*', 'supplier.nama_supplier');
+    
         $data = $query->paginate($meta['limit']);
-
+    
         $paginationMeta = [
             'total'        => $data->total(),
             'per_page'     => $data->perPage(),
             'current_page' => $data->currentPage(),
             'total_pages'  => $data->lastPage()
         ];
-
+    
         $data = [
             'data' => $data->items(),
             'meta' => $paginationMeta
         ];
-
+    
         if (empty($data['data'])) {
             return response()->json([
                 'status_code' => 400,
@@ -73,20 +75,20 @@ class RetureSuplierController extends Controller
                 'message' => 'Tidak ada data'
             ], 400);
         }
-
+    
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
                 'nama_supplier' => $item['nama_supplier'],
                 'no_nota' => $item['no_nota'],
-                'status_reture' => $item['status_reture'],
+                'status' => $item['status'],
             ];
         });
-
+    
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
-            'errors' => true,
+            'errors' => false,
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
