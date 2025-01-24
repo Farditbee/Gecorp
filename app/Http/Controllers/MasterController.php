@@ -190,7 +190,7 @@ class MasterController extends Controller
         ], 200);
     }
 
-    public function getSupplier(Request $request)
+    public function getSuplier(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
@@ -215,7 +215,7 @@ class MasterController extends Controller
           })
           ->select('supplier.*')
           ->distinct();
-        
+
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
