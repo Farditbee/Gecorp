@@ -8,7 +8,6 @@
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 <script>
-    let id_pembelian_post = null;
     (function() {
         if ($('#layout-sidenav').hasClass('sidenav-horizontal') || window.layoutHelpers.isSmallScreen()) {
             return;
@@ -189,61 +188,5 @@
             // Logika pagination (jika ada)
             updateDataCount(); // Perbarui jumlah data yang terlihat
         });
-
-        // Ketika form tambah pembelian disubmit
-        $('#form-tambah-pembelian').on('submit', function(e) {
-            e.preventDefault(); // Menghentikan proses form biasa
-
-            // Ubah tombol menjadi spinner
-            $('#save-btn-text').hide(); // Sembunyikan teks "Lanjut"
-            $('#save-btn-spinner').show(); // Tampilkan spinner
-            $('#save-btn').prop('disabled',
-                true); // Nonaktifkan tombol submit agar tidak diklik dua kali
-
-            var formData = $(this).serialize(); // Mengambil data form
-
-            $.ajax({
-                url: $(this).attr('action'),
-                method: $(this).attr('method'),
-                data: formData,
-                success: function(response) {
-                    console.log(response);
-
-                    // Pastikan Anda mendapatkan id_pembelian dari respons
-                    var id_pembelian = response.id_pembelian;
-                    id_pembelian_post = response.id_pembelian;
-                    // Ganti URL action form untuk update
-                    var updateFormAction =
-                        "{{ route('transaksi.pembelianbarang.update', ':id') }}";
-                    updateFormAction = updateFormAction.replace(':id', id_pembelian);
-                    $('#form-update-pembelian').attr('action', updateFormAction);
-                    // console.log('URL action untuk update telah diganti menjadi: ', updateFormAction);
-
-                    // Update detail pada tab Detail Pembelian menggunakan ID
-                    $('#no-nota').text(response.no_nota); // No Nota
-                    $('#nama-supplier').text(response.nama_supplier); // Nama Supplier
-                    $('#tgl-nota').text(response.tgl_nota); // Tanggal Nota
-
-                    // Kembalikan tombol ke kondisi semula
-                    $('#save-btn-text').show(); // Tampilkan teks "Lanjut" lagi
-                    $('#save-btn-spinner').hide(); // Sembunyikan spinner
-                    $('#save-btn').prop('disabled',
-                        false); // Aktifkan kembali tombol submit
-
-                    $('#tambah-tab').addClass('disabled');
-                    $('#tambah-tab').removeClass('active');
-                    $('#tambah').removeClass('show active');
-                    $('#detail').addClass('show active');
-                    $('#detail-tab').addClass('active');
-                    $('#detail-tab').removeClass('disabled');
-
-                },
-                error: function(xhr) {
-                    // Tangani error di sini
-                    alert('Terjadi kesalahan: ' + xhr.responseText);
-                }
-            });
-        });
-
     });
 </script>

@@ -77,7 +77,7 @@
                                                 <th class="text-wrap align-top">Supplier</th>
                                                 <th class="text-wrap align-top">Total Item</th>
                                                 <th class="text-wrap align-top">Total Harga</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -220,7 +220,6 @@
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-6">
-                                                                    <!-- Jumlah Item -->
                                                                     <div class="form-group">
                                                                         <label for="jml_item"
                                                                             class="form-control-label">Jumlah Item<span
@@ -231,7 +230,6 @@
                                                                             class="form-control jumlah-item">
                                                                     </div>
                                                                 </div>
-
                                                                 <div class="col-6">
                                                                     <div class="form-group">
                                                                         <label for="harga_barang"
@@ -360,6 +358,7 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let id_pembelian_post = null;
         let idPembelianEdit = null;
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
@@ -407,26 +406,27 @@
 
         async function handleData(data) {
             let status = '';
+            let edit_button = '';
             if (data?.status === 'Sukses') {
                 status =
                     `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
             } else if (data?.status === 'Gagal') {
+                edit_button = `
+                <a button class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
+                    title="Edit Data Nomor Nota: ${data.no_nota}"
+                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
                 status =
                     `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
             } else {
                 status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
             }
 
-            let edit_button = `
-            <a button class="p-1 btn edit-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
-                title="Edit Data Nomor Nota: ${data.no_nota}"
-                data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
-                <span class="text-dark">Edit</span>
-                <div class="icon text-warning">
-                    <i class="fa fa-edit"></i>
-                </div>
-            </a>`;
 
             let detail_button = `
             <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
@@ -442,7 +442,7 @@
             let action_buttons = '';
             if (edit_button || detail_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-start">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                 </div>`;
@@ -516,6 +516,8 @@
                     .prop("checked", false)
                     .trigger("change");
 
+                $("#tempData").empty();
+
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
                 $("#tambah").addClass("show active");
 
@@ -542,7 +544,10 @@
                     .val("")
                     .prop("checked", false)
                     .trigger("change");
-
+                var updateFormAction =
+                    "{{ route('transaksi.pembelianbarang.update', ':id') }}";
+                updateFormAction = updateFormAction.replace(':id', id);
+                $('#form-update-pembelian').attr('action', updateFormAction);
                 $("#tempData").empty();
 
                 $("#no-nota").html(nota);
@@ -569,7 +574,7 @@
 
                             $("#tempData").append(`
                         <tr>
-                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td><button onclick="removeRow({id_pembelian: '${idPembelianEdit}', id_barang: '${item.id_barang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
                             <td class="numbered">${$("#tempData tr").length + 1}</td>
                             <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
                             <td><input type="hidden" name="qty[]" value="${item.qty}">${item.qty}</td>
@@ -613,7 +618,6 @@
                     level_harga: levelHarga
                 };
 
-                // Kirim data menggunakan API
                 const postData = await renderAPI('POST', '{{ route('transaksi.temp.pembelianbarang') }}', formData);
 
                 if (postData.status >= 200 && postData.status < 300) {
@@ -629,6 +633,33 @@
                 loadingPage(false);
                 const resp = error.response || {};
                 notificationAlert('error', 'Kesalahan', resp.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+            }
+        }
+
+        function removeRow(rowData) {
+            const {
+                id_pembelian,
+                id_barang
+            } = rowData;
+
+            deleteRowTable({
+                id_pembelian,
+                id_barang
+            });
+        }
+
+        async function deleteRowTable(data) {
+            try {
+                const postDataRest = await renderAPI(
+                    'DELETE',
+                    '{{ route('master.temppembelian.hapus') }}',
+                    data
+                );
+                if (postDataRest && postDataRest.status === 200) {}
+            } catch (error) {
+                const resp = error.response;
+                const errorMessage = resp?.data?.message || 'Terjadi kesalahan saat menghapus data.';
+                notificationAlert('error', 'Kesalahan', errorMessage);
             }
         }
 
@@ -703,7 +734,7 @@
                 });
                 let row = `
                         <tr>
-                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
                             <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
                             <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
                             <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
@@ -724,6 +755,60 @@
                 updateNumbers();
             });
 
+            $('#form-tambah-pembelian').on('submit', function(e) {
+                e.preventDefault(); // Menghentikan proses form biasa
+
+                $('#save-btn-text').hide();
+                $('#save-btn-spinner').show(); // Tampilkan spinner
+                $('#save-btn').prop('disabled',
+                    true);
+
+                var formData = $(this).serialize(); // Mengambil data form
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    method: $(this).attr('method'),
+                    data: formData,
+                    success: function(response) {
+                        var id_pembelian = response.id_pembelian;
+                        id_pembelian_post = response.id_pembelian;
+                        var updateFormAction =
+                            "{{ route('transaksi.pembelianbarang.update', ':id') }}";
+                        updateFormAction = updateFormAction.replace(':id', id_pembelian);
+                        $('#form-update-pembelian').attr('action', updateFormAction);
+
+                        $('#no-nota').text(response.no_nota); // No Nota
+                        $('#nama-supplier').text(response.nama_supplier); // Nama Supplier
+                        $('#tgl-nota').text(response.tgl_nota); // Tanggal Nota
+
+                        $('#save-btn-text').show(); // Tampilkan teks "Lanjut" lagi
+                        $('#save-btn-spinner').hide(); // Sembunyikan spinner
+                        $('#save-btn').prop('disabled',
+                            false); // Aktifkan kembali tombol submit
+
+                        $('#tambah-tab').addClass('disabled');
+                        $('#tambah-tab').removeClass('active');
+                        $('#tambah').removeClass('show active');
+                        $('#detail').addClass('show active');
+                        $('#detail-tab').addClass('active');
+                        $('#detail-tab').removeClass('disabled');
+
+                        notificationAlert('success', 'Pemberitahuan', response.data.message ||
+                            'Berhasil');
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage,
+                                defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        $("#modal-form").modal("hide");
+                    },
+                    error: function(xhr) {
+                        notificationAlert('error', 'Pemberitahuan', response.data.message ||
+                            'Terjadi Kesalahan');
+                    }
+                });
+            });
+
             document.querySelector('.table-bordered tbody').addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-item')) {
                     let row = e.target.closest('tr');
@@ -733,7 +818,6 @@
                     let totalHarga = parseInt(row.querySelector('td:nth-child(6)').textContent.replace(
                         /\D/g, ''));
 
-                    // Update subtotal by subtracting the total price of the removed item
                     subtotal -= totalHarga;
                     row.remove();
 
@@ -865,46 +949,35 @@
                 let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
                 let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
 
-                let hppAwal = initialHppAwal || 0; // Ambil HPP awal dari server
+                let hppAwal = initialHppAwal || 0;
 
                 if (jumlah > 0 && harga > 0) {
                     let totalHargaBaru = jumlah * harga;
-
-                    // Hitung total keseluruhan harga dan total qty
                     let totalKeseluruhanHarga = totalHargaBaru + totalHarga;
                     let totalKeseluruhanQty = jumlah + totalQty;
-
-                    // Hitung HPP baru
                     let finalHpp = totalKeseluruhanHarga / totalKeseluruhanQty;
 
-                    // Tampilkan hasil HPP baru
                     document.querySelector('.card-text strong.hpp-baru').textContent =
                         `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
 
-                    // Set nilai HPP baru di setiap input level harga
                     document.querySelectorAll('.level-harga').forEach(function(input) {
                         input.setAttribute('data-hpp-baru', finalHpp);
                     });
 
-                    // Hitung ulang persentase menggunakan HPP baru
                     updatePercentages(finalHpp);
 
                 } else {
-                    // Jika input jumlah atau harga dikosongkan, gunakan HPP awal dari server
                     document.querySelector('.card-text strong.hpp-baru').textContent =
                         `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
-                    // Set HPP awal dari server di setiap input level harga
                     document.querySelectorAll('.level-harga').forEach(function(input) {
                         input.setAttribute('data-hpp-baru', initialHppAwal);
                     });
 
-                    // Hitung ulang persentase menggunakan HPP awal
                     updatePercentages(initialHppAwal);
                 }
             }
 
-            // Fungsi untuk memperbarui persentase
             function updatePercentages(hpp) {
                 document.querySelectorAll('.level-harga').forEach(function(input) {
                     let levelHarga = parseFloat(input.value) || 0;
@@ -928,12 +1001,10 @@
             }
 
             function resetFields() {
-                // Kosongkan tampilan HPP, stock, dan level harga
                 document.querySelector('.card-text strong.stock').textContent = '0';
                 document.querySelector('.card-text strong.hpp-awal').textContent = 'Rp 0';
                 document.querySelector('.card-text strong.hpp-baru').textContent = 'Rp 0';
 
-                // Kosongkan nilai level harga
                 document.querySelectorAll('.level-harga').forEach(function(input) {
                     input.value = '';
                     const persenElement = document.getElementById(
@@ -944,20 +1015,15 @@
                 });
             }
 
-            // Fungsi untuk mereset nilai ke nilai asli dari server
             function resetFieldsToOriginal() {
-                // Cek apakah sudah ada HPP baru
                 let currentHppBaru = parseFloat(document.querySelector('.card-text strong.hpp-baru').textContent
                     .replace(/\D/g, ''));
+                let hppUntukPerhitungan = initialHppAwal;
 
-                let hppUntukPerhitungan = initialHppAwal; // Default gunakan HPP awal
-
-                // Jika HPP baru sudah dihitung, gunakan HPP baru
                 if (currentHppBaru && currentHppBaru > 0) {
                     hppUntukPerhitungan = currentHppBaru;
                 }
 
-                // Kembalikan nilai HPP dan stock dari server
                 document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString(
                     'id-ID');
                 document.querySelector('.card-text strong.hpp-awal').textContent =
@@ -965,16 +1031,14 @@
                 document.querySelector('.card-text strong.hpp-baru').textContent =
                     `Rp ${hppUntukPerhitungan.toLocaleString('id-ID')}`;
 
-                // Kembalikan nilai level harga ke nilai asli dari server
                 document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
                     const namaLevel = namaLevelInput.value;
                     const inputField = document.querySelectorAll('input[name="level_harga[]"]')[index];
                     const persenElement = document.querySelector(`#persen_${index}`);
 
-                    // Jika level ada di data server, tampilkan, jika tidak biarkan kosong
                     if (originalLevelHarga.hasOwnProperty(namaLevel)) {
                         inputField.value = originalLevelHarga[namaLevel] ||
-                            ''; // Kembalikan nilai asli jika ada
+                            '';
                         let levelHarga = parseFloat(inputField.value) || 0;
                         let persen = 0;
                         if (hppUntukPerhitungan > 0) {
@@ -982,7 +1046,7 @@
                         }
                         persenElement.textContent = `${persen.toFixed(2)}%`;
                     } else {
-                        inputField.value = ''; // Kosongkan jika tidak ada data
+                        inputField.value = '';
                         persenElement.textContent = '0%';
                     }
                 });
@@ -1082,8 +1146,8 @@
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#id_supplier", {
                 placeholder: "Pilih Supplier",
-                allowClear: true, // Menambahkan tombol clear jika Anda membutuhkannya
-                create: false // Agar user hanya bisa memilih dari opsi yang ada, bukan membuat opsi baru
+                allowClear: true,
+                create: false
             });
         });
         document.addEventListener('DOMContentLoaded', function() {
@@ -1091,10 +1155,10 @@
                 placeholder: "Pilih Barang",
                 allowClear: true,
                 create: false,
-                valueField: "value", // ID barang akan menjadi nilai yang dipilih
-                labelField: "text", // Nama barang akan ditampilkan di daftar
-                searchField: ["text", "barcode"], // Cari berdasarkan nama barang atau barcode
-                plugins: ['clear_button'], // Opsi tambahan, misalnya tombol clear
+                valueField: "value",
+                labelField: "text",
+                searchField: ["text", "barcode"],
+                plugins: ['clear_button'],
                 onInitialize: function() {
                     const options = [];
                     document.querySelectorAll("#id_barang option").forEach(opt => {

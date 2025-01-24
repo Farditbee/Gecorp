@@ -764,16 +764,14 @@
                     const rowId = customFilter3.rowId;
                     const row = document.getElementById(rowId);
 
-                    // Check if .barang-input exists, if not, create it
                     let barangInput = row.querySelector('.barang-input');
                     if (!barangInput) {
                         barangInput = document.createElement('div');
                         barangInput.classList.add('barang-input', 'mt-2');
                         row.querySelector('td:nth-child(2)').appendChild(
-                            barangInput); // Append to the correct table cell
+                            barangInput);
                     }
 
-                    // Update or create the stock info
                     let stockElement = barangInput.querySelector('.stock-info');
                     if (!stockElement) {
                         stockElement = document.createElement('small');
@@ -782,7 +780,6 @@
                     }
                     stockElement.textContent = `Stok Barang Tersisa: ${data.stock_toko_qty}`;
 
-                    // Update or create the qty label
                     let qtyLabel = barangInput.querySelector('.qty-label');
                     if (!qtyLabel) {
                         qtyLabel = document.createElement('label');
@@ -791,7 +788,6 @@
                         barangInput.appendChild(qtyLabel);
                     }
 
-                    // Update or create the qty input
                     let qtyElement = barangInput.querySelector('.qty-input');
                     if (!qtyElement) {
                         qtyElement = document.createElement('input');
