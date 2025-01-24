@@ -706,7 +706,7 @@ class RetureController extends Controller
 
             return response()->json([
                 'error' => true,
-                'message' => 'Terjadi kesalahan saat mengupdate data.',
+                'message' => 'Terjadi kesalahan saat mengupdate data.' . $e->getMessage(),
                 'status_code' => 500,
             ], 500);
         }
