@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Reture;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataReture;
+use App\Models\DetailRetur;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 
@@ -29,7 +31,7 @@ class RetureSuplierController extends Controller
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = Supplier::query();
+        $query = DataReture::where('id_supplier', '!=', null);
 
         $query->orderBy('id', $meta['orderBy']);
 
@@ -51,15 +53,6 @@ class RetureSuplierController extends Controller
         }
 
         $data = $query->paginate($meta['limit']);
-
-        $query->join('detail_kasir', 'supplier.id', '=', 'detail_kasir.id_supplier')
-          ->join('detail_retur', function($join) {
-              $join->on('detail_kasir.id_kasir', '=', 'detail_retur.id_transaksi')
-                   ->where('detail_retur.status', '=', 'success')
-                   ->where('detail_retur.status_reture', '=', 'pending');
-          })
-          ->select('detail_retur.*', 'supplier.*')
-          ->distinct();
 
         $paginationMeta = [
             'total'        => $data->total(),
