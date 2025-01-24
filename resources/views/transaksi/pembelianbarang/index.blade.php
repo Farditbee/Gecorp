@@ -422,7 +422,7 @@
                     </div>
                 </a>`;
                 status =
-                    `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
+                    `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
             } else {
                 edit_button = `
                 <a button class="p-1 btn edit-data action_button"
@@ -434,7 +434,7 @@
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>`;
-                status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
+                status = `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
             }
 
 
@@ -453,8 +453,8 @@
             if (edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
