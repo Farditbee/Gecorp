@@ -177,41 +177,21 @@
                                                                                         <th
                                                                                             class="text-wrap align-top text-center">
                                                                                             No</th>
-                                                                                        <th
-                                                                                            class="text-wrap align-top text-center">
-                                                                                            #</th>
+                                                                                        <th class="text-wrap align-top">
+                                                                                            Metode</th>
                                                                                         <th class="text-wrap align-top">Qty
                                                                                         </th>
-                                                                                        <th class="text-wrap align-top">ID
-                                                                                            Transaksi</th>
-                                                                                        <th class="text-wrap align-top">
-                                                                                            Nama Toko</th>
                                                                                         <th class="text-wrap align-top">No
                                                                                             Nota</th>
                                                                                         <th class="text-wrap align-top">
-                                                                                            Nama Member</th>
-                                                                                        <th class="text-wrap align-top">
-                                                                                            Harga Jual (Rp)</th>
+                                                                                            Nama Toko</th>
                                                                                         <th class="text-wrap align-top">
                                                                                             Nama Barang</th>
-                                                                                        <th
-                                                                                            class="text-wrap align-top text-center">
-                                                                                            #</th>
+                                                                                        <th class="text-wrap align-top">
+                                                                                            Harga Jual (Rp)</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody id="listData">
-                                                                                    <tr class="empty-row">
-                                                                                        <td colspan="10"
-                                                                                            class="text-center font-weight-bold">
-                                                                                            <span class="badge badge-info"
-                                                                                                style="font-size: 14px;">
-                                                                                                <i
-                                                                                                    class="fa fa-circle-info mr-2"></i>Silahkan
-                                                                                                masukkan QR-Code
-                                                                                                terlebih dahulu.
-                                                                                            </span>
-                                                                                        </td>
-                                                                                    </tr>
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
@@ -339,9 +319,6 @@
                             <i class="fa fa-book"></i>
                         </div>
                     </button>`;
-            } else {
-                edit_button = `
-                    <span class="badge badge-danger">Tidak Ada Aksi</span>`;
             }
 
             let delete_button = `
@@ -370,7 +347,7 @@
             if (data.status == 'done') {
                 status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
             } else if (data.status == 'pending') {
-                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>On going</span>`;
+                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>Pending</span>`;
             }
 
             return {
@@ -458,6 +435,7 @@
 
                     if (postData.status >= 200 && postData.status < 300) {
                         const rest_data = postData.data.data;
+                        const dataItems = postData.data.detail_retur;
 
                         $('#nav-tab a[href="#detail"]').tab('show');
                         $('#i_no_nota').text(rest_data.no_nota);
@@ -469,6 +447,11 @@
 
                         dataTemp = rest_data;
                         globalIdSupplier = rest_data.id_supplier;
+
+                        if (Array.isArray(dataItems) && dataItems.length > 0) {
+                            $("#listData").empty();
+                            dataItems.forEach(item => addRowToTable(item));
+                        }
 
                         setTimeout(async function() {
                             await getListData(defaultLimitPage, currentPage, defaultAscending,
@@ -487,6 +470,27 @@
                     saveButton.innerHTML = originalContent;
                 }
             });
+        }
+
+        function addRowToTable(data) {
+            const tbody = document.getElementById('listData');
+
+            rowCount++;
+            const tr = document.createElement('tr');
+            const rowId = `row-${rowCount}`;
+            tr.id = rowId;
+
+            tr.innerHTML = `
+                <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top">${data.metode || ''}</td>
+                <td class="text-wrap align-top">${data.qty_acc || 0}</td>
+                <td class="text-wrap align-top">${data.no_nota || ''}</td>
+                <td class="text-wrap align-top">${data.nama_toko || 'Guest'}</td>
+                <td class="text-wrap align-top">${data.nama_barang || 0}</td>
+                <td class="text-wrap align-top">${data.hpp_jual || 0}</td>
+            `;
+
+            tbody.appendChild(tr);
         }
 
         async function setDatePicker() {
@@ -522,19 +526,6 @@
                 badges.forEach((badge) => {
                     badge.textContent = '';
                 });
-
-                const listData = document.getElementById('listData');
-                if (listData) {
-                    listData.innerHTML = `
-                    <tr class="empty-row">
-                        <td colspan="10" class="text-center font-weight-bold">
-                            <span class="badge badge-info" style="font-size: 14px;">
-                                <i class="fa fa-circle-info mr-2"></i>Silahkan masukkan QR-Code terlebih dahulu.
-                            </span>
-                        </td>
-                    </tr>
-                `;
-                }
 
                 const inputs = modal.querySelectorAll('input, textarea');
                 inputs.forEach((input) => {

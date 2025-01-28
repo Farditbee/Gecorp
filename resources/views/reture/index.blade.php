@@ -402,7 +402,7 @@
             if (data.status == 'done') {
                 status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
             } else if (data.status == 'pending') {
-                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>On going</span>`;
+                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>Pending</span>`;
             }
 
             return {
