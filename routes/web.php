@@ -19,6 +19,7 @@ use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RatingMemberController;
+use App\Http\Controllers\Reture\RetureSuplierController;
 use App\Http\Controllers\RetureController;
 use App\Http\Controllers\StockBarangController;
 use App\Http\Controllers\StockOpnameController;
@@ -183,6 +184,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/asetbarang', [AssetBarangController::class, 'index'])->name('laporan.asetbarang.index');
         Route::get('/ratingmember', [RatingMemberController::class, 'index'])->name('laporan.ratingmember.index');
 
+        // Reture Controller
         Route::get('/reture', [RetureController::class, 'index'])->name('reture.index');
         Route::get('/reture/create', [RetureController::class, 'create'])->name('reture.create');
         Route::post('/reture/storeNota', [RetureController::class, 'store_nota'])->name('reture.storeNota');
@@ -194,6 +196,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/reture/deleteTemp', [RetureController::class, 'deleteRowTable'])->name('delete.tempData');
         Route::get('/retureItem', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
         Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
+        Route::post('/reture/storeNotaSupplier', [RetureController::class, 'storeNotaSupplier'])->name('create.NoteReture');
+
+        Route::prefix('reture')->as('reture.')->group(function () {
+            Route::prefix('suplier')->as('suplier.')->group(function () {
+                Route::get('/', [RetureSuplierController::class, 'index'])->name('index');
+            });
+        });
 
         Route::prefix('laporan-keuangan')->as('laporankeuangan.')->group(function () {
             Route::prefix('arus-kas')->as('aruskas.')->group(function () {

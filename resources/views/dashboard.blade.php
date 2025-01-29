@@ -85,9 +85,9 @@
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
             <div class="row">
-                <div class="col-xxl-6 col-md-3">
+                <div class="col-12 col-lg-4">
                     <div class="row">
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card statistics-card-1 position-relative">
                                 <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
                                     style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;">
@@ -118,9 +118,8 @@
                                         <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
                                             <form id="custom-filter-omset"
                                                 class="d-flex justify-content-between align-items-center w-100">
-                                                <input class="form-control w-75 mb-lg-0" type="text"
-                                                    id="daterange-omset" name="daterange"
-                                                    placeholder="Pilih rentang tanggal">
+                                                <input class="form-control w-75 mb-lg-0" type="text" id="daterange-omset"
+                                                    name="daterange" placeholder="Pilih rentang tanggal">
 
                                                 <button
                                                     class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mx-2"
@@ -136,24 +135,10 @@
                                             </form>
                                         </div>
                                     </div>
-                                    {{-- <div class="row align-items-center">
-                                        <div class="col-md-12">
-                                            <ul class="list-unstyled">
-                                                <li>
-                                                    <span>Laba Kotor:</span>
-                                                    <br>
-                                                    <div
-                                                        style="display: inline-block; width: 15px; height: 15px; background-color: #FF9800; border-radius: 20%; border: 3px solid #ffffff; margin-right: 5px;">
-                                                    </div>
-                                                    <b id="laba-kotor">Rp0</b>
-                                                </li>
-                                            </ul>
-                                        </div>
-                                    </div> --}}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 10 Penjualan</h5>
@@ -183,7 +168,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card table-card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <h5>Top 10 Member</h5>
@@ -215,9 +200,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xxl-6 col-md-9">
+                <div class="col-12 col-lg-8">
                     <div class="row">
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div>
@@ -271,7 +256,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-xxl-12 col-md-12">
+                        <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
                                     <div>
@@ -465,7 +450,26 @@
             });
         }
 
-        async function getLaporanPenjualan() {
+        function populateYearOptions() {
+            const filterYear = document.getElementById('filter-year');
+            const currentYear = new Date().getFullYear();
+            const startYear = 2000;
+            const selectedYear = customFilter.year || currentYear;
+
+            filterYear.innerHTML = '';
+
+            for (let year = currentYear; year >= startYear; year--) {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                if (parseInt(year) === parseInt(selectedYear)) {
+                    option.selected = true;
+                }
+                filterYear.appendChild(option);
+            }
+        };
+
+        async function getLaporanPenjualan(customFilter5 = {}) {
             let filterParams = {};
 
             if ('{{ auth()->user()->id_toko != 1 }}') {
@@ -484,34 +488,31 @@
                 filterParams.year = customFilter5['year'];
             }
 
-            let getDataRest = await renderAPI(
-                'GET',
-                '{{ route('master.index.kasir') }}', {
-                    ...filterParams
-                }
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                let resp = error.response;
-                return resp;
-            });
+            try {
+                const getDataRest = await renderAPI(
+                    'GET',
+                    '{{ route('master.index.kasir') }}',
+                    filterParams
+                );
 
-            if (getDataRest && getDataRest.status === 200) {
-                const responseData = getDataRest.data?.data?.[0] || {
-                    nama_toko: "All",
-                    daily: {},
-                    monthly: {},
-                    yearly: {},
-                    totals: 0
-                };
-                await setLaporanPenjualan(responseData, filterParams.period || 'monthly');
-            } else {
-                console.error(getDataRest?.data?.message || "Error retrieving data.");
+                if (getDataRest && getDataRest.status === 200) {
+                    const responseData = getDataRest.data?.data?.[0] || {
+                        nama_toko: "All",
+                        daily: {},
+                        monthly: {},
+                        yearly: {},
+                        totals: 0
+                    };
+                    await setLaporanPenjualan(responseData, filterParams.period || 'monthly');
+                } else {
+                    console.error(getDataRest?.data?.message || "Error retrieving data.");
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
             }
         }
 
         async function setLaporanPenjualan(apiResponse, period) {
-            const filterPeriod = document.getElementById('filter-period');
             const filterMonthContainer = document.getElementById('filter-month-container');
             const filterMonth = document.getElementById('filter-month');
             const filterYearContainer = document.getElementById('filter-year-container');
@@ -519,141 +520,21 @@
             const total = document.getElementById('total-penjualan');
             const chartContainer = document.getElementById('laporan-chart');
 
-            let currentChartType = 'bar';
-            const defaultYear = filterYear.value || new Date().getFullYear();
+            filterMonthContainer.style.display = (period === 'daily') ? 'block' : 'none';
+            filterYearContainer.style.display = (period === 'daily' || period === 'monthly' || period === 'yearly') ?
+                'block' : 'none';
 
-            const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth() + 1;
 
-            const updateChart = (period, year, chartType) => {
-                let penjualan = [];
-                const month = parseInt(filterMonth.value, 10);
+            if (!filterYear.value) filterYear.value = currentYear;
+            if (!filterMonth.value) filterMonth.value = currentMonth;
 
-                if (period === 'daily') {
-                    const daysInMonth = getDaysInMonth(year, month);
-                    const dailyData = apiResponse.daily?.[year]?.[month] || Array(daysInMonth).fill(0);
-                    penjualan = dailyData;
-                } else if (period === 'monthly') {
-                    penjualan = apiResponse.monthly?.[year] || Array(12).fill(0);
-                } else if (period === 'yearly') {
-                    penjualan = Object.values(apiResponse.yearly || {});
-                }
+            const activeYear = parseInt(filterYear.value, 10);
+            const activeMonth = parseInt(filterMonth.value, 10);
 
-                total.textContent = formatRupiah(apiResponse.totals || 0);
-
-                const categories = {
-                    daily: Array.from({
-                        length: penjualan.length
-                    }, (_, i) => `${i + 1}`),
-                    monthly: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus',
-                        'September', 'Oktober', 'November', 'Desember'
-                    ],
-                    yearly: Object.keys(apiResponse.yearly || {}).map(year => year),
-                };
-
-                const chartOptions = {
-                    series: [{
-                        name: 'Penjualan',
-                        data: penjualan,
-                    }],
-                    chart: {
-                        height: 350,
-                        type: chartType,
-                        toolbar: {
-                            show: true,
-                            tools: {
-                                download: true,
-                            },
-                        },
-                    },
-                    dataLabels: {
-                        enabled: false,
-                    },
-                    stroke: {
-                        curve: chartType === 'line' ? 'smooth' : 'straight',
-                        width: 2,
-                        colors: ['#1abc9c'],
-                    },
-                    xaxis: {
-                        categories: categories[period],
-                    },
-                    colors: ['#1abc9c'],
-                    legend: {
-                        position: 'top',
-                    },
-                    fill: {
-                        type: 'solid',
-                        colors: ['#1abc9c'],
-                    },
-                    markers: {
-                        size: 5,
-                        colors: ['#1abc9c'],
-                        strokeWidth: 2,
-                    },
-                };
-
-                chartContainer.innerHTML = '';
-                const chart = new ApexCharts(chartContainer, chartOptions);
-                chart.render();
-            };
-
-            const setDefaultMonth = () => {
-                const currentMonth = new Date().getMonth() + 1;
-                for (let option of filterMonth.options) {
-                    if (parseInt(option.value) === currentMonth) {
-                        option.selected = true;
-                        break;
-                    }
-                }
-            };
-
-            const populateYearOptions = () => {
-                const currentYear = new Date().getFullYear();
-                const startYear = 2000;
-                const selectedYear = customFilter.year || currentYear;
-
-                filterYear.innerHTML = '';
-
-                for (let year = currentYear; year >= startYear; year--) {
-                    const option = document.createElement('option');
-                    option.value = year;
-                    option.textContent = year;
-                    if (parseInt(year) === parseInt(selectedYear)) {
-                        option.selected = true;
-                    }
-                    filterYear.appendChild(option);
-                }
-            };
-
-            populateYearOptions();
-            setDefaultMonth();
-
-            updateChart(period, defaultYear, currentChartType);
-
-            filterPeriod.addEventListener('change', () => {
-                const selectedPeriod = filterPeriod.value;
-                filterMonthContainer.style.display = selectedPeriod === 'daily' ? 'block' : 'none';
-
-                if (selectedPeriod === 'daily') {
-                    setDefaultMonth();
-                }
-
-                updateChart(selectedPeriod, filterYear.value, parseInt(filterMonth.value, 10),
-                    currentChartType);
-            });
-
-            filterMonth.addEventListener('change', () => {
-                if (filterPeriod.value === 'daily') {
-                    updateChart(filterPeriod.value, filterYear.value, parseInt(filterMonth.value, 10),
-                        currentChartType);
-                }
-            });
-
-            filterYear.addEventListener('change', () => {
-                const selectedYear = filterYear.value;
-                const selectedMonth = parseInt(filterMonth.value, 10);
-
-                updateChart(filterPeriod.value, selectedYear, selectedMonth, currentChartType);
-            });
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            updateChart(apiResponse, period, activeYear, activeMonth, 'bar');
 
             const chartTypeMapping = {
                 'chart-area': 'area',
@@ -671,13 +552,114 @@
 
             Object.keys(chartTypeMapping).forEach((id) => {
                 document.getElementById(id).addEventListener('click', () => {
-                    currentChartType = chartTypeMapping[id];
-                    updateChart(filterPeriod.value, filterYear.value, currentChartType);
+                    const chartType = chartTypeMapping[id];
+                    updateChart(apiResponse, period, activeYear, activeMonth, chartType);
                     setActiveChartButton(id);
                 });
             });
 
             setActiveChartButton('chart-bar');
+        }
+
+
+        const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
+
+        function updateChart(apiResponse, period, year, month, chartType) {
+            let penjualan = [];
+            const total = document.getElementById('total-penjualan');
+            const chartContainer = document.getElementById('laporan-chart');
+
+            let categories = [];
+
+            if (period === 'daily') {
+                const daysInMonth = getDaysInMonth(year, month);
+                const dailyData = apiResponse.daily?.[year]?.[month] || Array(daysInMonth).fill(0);
+                penjualan = dailyData;
+                categories = Array.from({
+                    length: daysInMonth
+                }, (_, i) => `${i + 1}`);
+            } else if (period === 'monthly') {
+                penjualan = apiResponse.monthly?.[year] || Array(12).fill(0);
+                categories = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
+                    'Oktober', 'November', 'Desember'
+                ];
+            } else if (period === 'yearly') {
+                penjualan = Object.values(apiResponse.yearly || {});
+                categories = Object.keys(apiResponse.yearly || {}).length > 0 ?
+                    Object.keys(apiResponse.yearly) : [year.toString()];
+            }
+
+            total.textContent = formatRupiah(apiResponse.totals || 0);
+
+            const chartOptions = {
+                series: [{
+                    name: 'Penjualan',
+                    data: penjualan,
+                }],
+                chart: {
+                    height: 350,
+                    type: chartType,
+                    toolbar: {
+                        show: true,
+                        tools: {
+                            download: true,
+                        },
+                    },
+                },
+                dataLabels: {
+                    enabled: false,
+                },
+                stroke: {
+                    curve: chartType === 'line' ? 'smooth' : 'straight',
+                    width: 2,
+                    colors: ['#1abc9c'],
+                },
+                xaxis: {
+                    categories: categories,
+                },
+                colors: ['#1abc9c'],
+                legend: {
+                    position: 'top',
+                },
+                fill: {
+                    type: 'solid',
+                    colors: ['#1abc9c'],
+                },
+                markers: {
+                    size: 5,
+                    colors: ['#1abc9c'],
+                    strokeWidth: 2,
+                },
+            };
+
+            chartContainer.innerHTML = '';
+            const chart = new ApexCharts(chartContainer, chartOptions);
+            chart.render();
+        }
+
+        function filterLaporanPenjualan() {
+            const filterPeriod = document.getElementById('filter-period');
+            const filterMonth = document.getElementById('filter-month');
+            const filterYear = document.getElementById('filter-year');
+
+            const updateFilterAndFetch = () => {
+                customFilter5['period'] = filterPeriod.value;
+                customFilter5['month'] = filterMonth.value;
+                customFilter5['year'] = filterYear.value;
+                getLaporanPenjualan(customFilter5);
+            };
+
+            let debounceTimeout;
+            const debounce = (callback, delay = 500) => {
+                clearTimeout(debounceTimeout);
+                debounceTimeout = setTimeout(callback, delay);
+            };
+
+            [filterPeriod, filterMonth, filterYear].forEach((filterElement) => {
+                filterElement.addEventListener('change', () => {
+                    debounce(updateFilterAndFetch);
+                });
+            });
         }
 
         async function getKomparasiToko(customFilter) {
@@ -1066,11 +1048,11 @@
                     if (!value) {
                         allSelected = false;
                     }
-                    customFilter[select.name] = value;
+                    customFilter5[select.name] = value;
                 });
 
                 if (allSelected) {
-                    await getLaporanPenjualan(customFilter);
+                    await getLaporanPenjualan(customFilter5);
                 }
             }
 
@@ -1097,12 +1079,14 @@
         }
 
         async function initPageLoad() {
+            await populateYearOptions();
             await getOmset(customFilter4);
             await filterOmset();
             await setDynamicButton();
             await getKomparasiToko(customFilter);
             await filterKomparasiToko();
             await getLaporanPenjualan();
+            await filterLaporanPenjualan();
             await getTopPenjualan();
             await getTopMember();
             if ('{{ auth()->user()->id_toko == 1 }}') {
