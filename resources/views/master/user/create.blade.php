@@ -138,27 +138,37 @@
             const form = passwordInput.closest('form');
 
             passwordInput.addEventListener('input', function() {
-                if (passwordInput.value.length < 8) {
-                    passwordWarning.textContent = 'Password harus memiliki minimal 8 karakter.';
-                    passwordWarning.style.color = 'red';
+                const passwordValue = passwordInput.value;
+                const hasNumber = /\d/.test(passwordValue);
+
+                if (passwordValue.length < 8) {
                     passwordWarning.innerHTML = '❌ Password harus memiliki minimal 8 karakter.';
+                    passwordWarning.style.color = 'red';
+                    passwordWarning.style.display = 'block';
+                } else if (!hasNumber) {
+                    passwordWarning.innerHTML = '❌ Password harus memiliki minimal 1 angka.';
+                    passwordWarning.style.color = 'red';
                     passwordWarning.style.display = 'block';
                 } else {
-                    passwordWarning.textContent = 'Password valid';
-                    passwordWarning.style.color = 'green';
                     passwordWarning.innerHTML = '✅ Password valid';
+                    passwordWarning.style.color = 'green';
                     passwordWarning.style.display = 'block';
                 }
             });
 
             form.addEventListener('submit', function(event) {
-                if (passwordInput.value.length < 8) {
+                const passwordValue = passwordInput.value;
+                const hasNumber = /\d/.test(passwordValue);
+
+                if (passwordValue.length < 8 || !hasNumber) {
                     event.preventDefault();
-                    notificationAlert('error', 'Pemberitahuan', 'Pastikan password valid!');
-                    passwordWarning.textContent = 'Password harus memiliki minimal 8 karakter.';
+                    const errorMessage = passwordValue.length < 8 ?
+                        '❌ Password harus memiliki minimal 8 karakter.' :
+                        '❌ Password harus memiliki minimal 1 angka.';
+                    passwordWarning.innerHTML = errorMessage;
                     passwordWarning.style.color = 'red';
-                    passwordWarning.innerHTML = '❌ Password harus memiliki minimal 8 karakter.';
                     passwordWarning.style.display = 'block';
+                    notificationAlert('error', 'Pemberitahuan', errorMessage);
                 }
             });
         });
