@@ -134,7 +134,6 @@
                                                                 placeholder="Contoh : 001" class="form-control">
                                                         </div>
                                                     </div>
-
                                                     <button type="submit" style="float: right" id="save-btn"
                                                         class="btn btn-primary mt-4">
                                                         <span id="save-btn-text"><i class="fa fa-save"></i> Lanjut</span>
@@ -178,17 +177,17 @@
                                                                                             class="text-wrap align-top text-center">
                                                                                             No</th>
                                                                                         <th class="text-wrap align-top">
-                                                                                            Metode</th>
+                                                                                            Metode Supplier</th>
+                                                                                        <th class="text-wrap align-top">
+                                                                                            Metode Member</th>
                                                                                         <th class="text-wrap align-top">Qty
                                                                                         </th>
                                                                                         <th class="text-wrap align-top">No
                                                                                             Nota</th>
                                                                                         <th class="text-wrap align-top">
-                                                                                            Nama Toko</th>
-                                                                                        <th class="text-wrap align-top">
                                                                                             Nama Barang</th>
                                                                                         <th class="text-wrap align-top">
-                                                                                            Harga Jual (Rp)</th>
+                                                                                            HPP Jual (Rp)</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody id="listData">
@@ -235,6 +234,7 @@
         let customFilter3 = {};
         let rowCount = 0;
         let dataTemp = {};
+        let dataTempDetail = [];
         let globalIdSupplier = null;
         let barcodeResponses = {};
 
@@ -404,6 +404,7 @@
                 });
                 $("#detail").removeClass("show active");
                 $("#submit-reture").removeClass("d-none");
+                submitMultiForm('{{ route('reture.suplier.store') }}');
             });
         }
 
@@ -446,6 +447,8 @@
                         $('#detail-tab').removeAttr('style');
 
                         dataTemp = rest_data;
+                        dataTempDetail = dataItems;
+                        console.log('dataTempDetail:', dataTempDetail)
                         globalIdSupplier = rest_data.id_supplier;
 
                         if (Array.isArray(dataItems) && dataItems.length > 0) {
@@ -474,7 +477,6 @@
 
         function addRowToTable(data) {
             const tbody = document.getElementById('listData');
-
             rowCount++;
             const tr = document.createElement('tr');
             const rowId = `row-${rowCount}`;
@@ -482,15 +484,87 @@
 
             tr.innerHTML = `
                 <td class="text-wrap align-top text-center">${rowCount}</td>
+                <td class="text-wrap align-top">
+                    <select name="metode_reture[]" class="form form-select select2 select-metode" placeholder="Pilih Metode">
+                        <option value="" disabled selected>Pilih Metode</option>
+                        <option value="Cash">Cash</option>
+                        <option value="Barang">Barang</option>
+                    </select>
+                </td>
                 <td class="text-wrap align-top">${data.metode || ''}</td>
                 <td class="text-wrap align-top">${data.qty_acc || 0}</td>
                 <td class="text-wrap align-top">${data.no_nota || ''}</td>
-                <td class="text-wrap align-top">${data.nama_toko || 'Guest'}</td>
                 <td class="text-wrap align-top">${data.nama_barang || 0}</td>
                 <td class="text-wrap align-top">${data.hpp_jual || 0}</td>
             `;
 
             tbody.appendChild(tr);
+
+            $(`#${rowId} .select-metode`).select2({
+                placeholder: "Pilih Metode",
+                allowClear: true,
+                width: "100%",
+                dropdownParent: $("#modal-form"),
+            });
+        }
+
+        async function submitMultiForm(actionUrl) {
+            $("#retureForm").off("submit").on("submit", async function(e) {
+                e.preventDefault();
+                loadingPage(true);
+
+                if (!dataTemp.id_retur || !dataTemp.no_nota) {
+                    loadingPage(false);
+                    notificationAlert('error', 'Pemberitahuan', 'ID Retur dan No Nota wajib diisi.');
+                    return;
+                }
+
+                let url = actionUrl;
+
+                let metodeRetureValues = $("select[name='metode_reture[]']").map(function() {
+                    return $(this).val();
+                }).get().filter(value => value !== "");
+
+                if (metodeRetureValues.length === 0) {
+                    notificationAlert('error', 'Pemberitahuan', 'Metode Reture wajib dipilih.');
+                    loadingPage(false);
+                    return;
+                }
+
+                let formData = {
+                    id_retur: dataTempDetail.map(item => item.id_retur),
+                    no_nota: dataTemp.no_nota,
+                    id_supplier: dataTemp.id_supplier,
+                    id_transaksi: dataTempDetail.map(item => item.id_transaksi),
+                    id_barang: dataTempDetail.map(item => item.id_barang),
+                    qty_acc: dataTempDetail.map(item => item.qty_acc),
+                    metode_reture: metodeRetureValues,
+                };
+
+                let method = 'POST';
+                try {
+                    let postData = await renderAPI(method, url, formData);
+
+                    loadingPage(false);
+                    if (postData.status >= 200 && postData.status < 300) {
+                        notificationAlert('success', 'Pemberitahuan', postData.data.message ||
+                            'Berhasil');
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage,
+                                defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        $("#modal-form").modal("hide");
+                    } else {
+                        notificationAlert('error', 'Pemberitahuan', postData.message ||
+                            'Terjadi kesalahan');
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    let resp = error.response || {};
+                    notificationAlert('error', 'Pemberitahuan', resp.message || 'Terjadi kesalahan');
+                }
+            });
         }
 
         async function setDatePicker() {
