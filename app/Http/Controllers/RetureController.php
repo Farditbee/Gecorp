@@ -847,6 +847,7 @@ class RetureController extends Controller
             $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
                 return [
                     'id_transaksi' => $item->id_transaksi,
+                    'id_retur' => $item->id_retur,
                     'id_barang' => $item->id_barang,
                     'nama_barang' => $namaBarang[$item->id_barang] ?? null,
                     'no_nota' => $item->no_nota,
