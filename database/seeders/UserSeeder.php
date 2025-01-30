@@ -26,12 +26,34 @@ class UserSeeder extends Seeder
             "no_hp" => 8527571268,
         ]);
 
+        // Level User Seeder
         LevelUser::create([
             "id" => 1,
             "nama_level" => "Super Admin",
             "informasi" => "Saitama",
         ]);
+        LevelUser::create([
+            "id" => 2,
+            "nama_level" => "Admin",
+            "informasi" => "Mengontrol Toko",
+        ]);
+        LevelUser::create([
+            "id" => 3,
+            "nama_level" => "Karyawan",
+            "informasi" => "Melakukan Transaksi Kasir",
+        ]);
+        LevelUser::create([
+            "id" => 4,
+            "nama_level" => "Mitra",
+            "informasi" => "Contoh Mitra",
+        ]);
+        LevelUser::create([
+            "id" => 5,
+            "nama_level" => "Akunting",
+            "informasi" => "Contoh Akunting",
+        ]);
 
+        // Toko Seeder
         Toko::create([
             "id" => 1,
             "nama_toko" => "GSS",
@@ -39,14 +61,13 @@ class UserSeeder extends Seeder
             "wilayah" => "Jakarta",
             "alamat" => 'Jakpus',
         ]);
-//  k
-        // User::create([
-        //     "id" => Uuid::uuid4()->getHex(),
-        //     "nama" => "Warga",
-        //     "email" => "warga@gmail.com",
-        //     "password" => bcrypt("warga01"),
-        //     "role" => "warga",
-        //     "status" => 1
-        // ]);
+        Toko::create([
+            "id" => 2,
+            "nama_toko" => "Global Phone Shop",
+            "singkatan" => "GPS",
+            "id_level_harga" => json_encode(["5", "2"]),
+            "wilayah" => "Plumbon",
+            "alamat" => "Jl. Pangeran Antasari No.8 Plumbon",
+        ]);
     }
 }
