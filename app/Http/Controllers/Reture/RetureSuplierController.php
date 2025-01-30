@@ -126,14 +126,16 @@ class RetureSuplierController extends Controller
                         'status_reture' => 'success',
                     ]);
     
-                // Update stok di tabel stock_barang
-                StockBarang::where('id_barang', $idBarang)
-                            ->increment('stock', $qtyAcc);
+                // Jika metode_reture adalah Barang, update stok di tabel stock_barang
+                if ($metodeReture === 'Barang') {
+                    StockBarang::where('id_barang', $idBarang)
+                                ->increment('stock', $qtyAcc);
+                }
             }
     
             // Update status di tabel data_retur
             DataReture::where('no_nota', $request->no_nota)
-                        ->update(['status' => 'done']);
+                ->update(['status' => 'done']);
     
             DB::commit();
     
@@ -149,7 +151,7 @@ class RetureSuplierController extends Controller
             return response()->json([
                 'status_code' => 500,
                 'errors' => true,
-                'message' => 'Terjadi kesalahan saat mengupdate data'. $e->getMessage(),
+                'message' => 'Terjadi kesalahan saat mengupdate data: ' . $e->getMessage(),
             ], 500);
         }
     }
