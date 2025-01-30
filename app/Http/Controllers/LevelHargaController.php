@@ -22,6 +22,8 @@ class LevelHargaController extends Controller
 
     public function getlevelharga(Request $request)
     {
+
+        // Tes Con
         $meta['orderBy'] = $request->descending ? 'desc' : 'asc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
