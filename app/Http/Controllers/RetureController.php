@@ -806,9 +806,9 @@ class RetureController extends Controller
             'tgl_retur' => 'required|date',
             'no_nota' => 'required|string',
         ]);
-
+    
         $user = Auth::user();
-
+    
         try {
             $retur = DataReture::create([
                 'id_users' => $user->id,
@@ -817,11 +817,11 @@ class RetureController extends Controller
                 'tgl_retur' => $request->tgl_retur,
                 'id_supplier' => $request->id_supplier,
             ]);
-
+    
             $supplier = Supplier::find($request->id_supplier);
-
+    
             $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
-
+    
             if ($detailKasir->isEmpty()) {
                 return response()->json([
                     'error' => true,
@@ -830,11 +830,32 @@ class RetureController extends Controller
                 ], 404);
             } else {
                 $detailTransaksi = DetailRetur::whereIn('id_transaksi', $detailKasir->pluck('id_kasir'))
-                                                ->where('status', 'success')
-                                                ->where('status_reture', 'pending')
-                                                ->get();
+                    ->where('status', 'success')
+                    ->where('status_reture', 'pending')
+                    ->get();
             }
-
+    
+            // Ambil data barang berdasarkan id_barang dari detailTransaksi
+            $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
+    
+            // Map nama_barang dari koleksi Barang
+            $namaBarang = $barang->mapWithKeys(function ($item) {
+                return [$item->id => $item->nama_barang];
+            });
+    
+            // Map detailTransaksi untuk menambahkan nama_barang
+            $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
+                return [
+                    'id_transaksi' => $item->id_transaksi,
+                    'id_barang' => $item->id_barang,
+                    'nama_barang' => $namaBarang[$item->id_barang] ?? null,
+                    'no_nota' => $item->no_nota,
+                    'qty_acc' => $item->qty_acc,
+                    'metode' => $item->metode,
+                    'hpp_jual' => $item->hpp_jual,
+                ];
+            });
+    
             // Return JSON response
             return response()->json([
                 'error' => false,
@@ -847,13 +868,13 @@ class RetureController extends Controller
                     'nama_supplier' => $supplier->nama_supplier,
                 ],
                 'detail_retur' => $detailTransaksi,
-                ]);
+            ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-
+    
             return response()->json([
                 "error" => true,
-                "message" => "Terjadi kesalahan pada server". $th->getMessage(),
+                "message" => "Terjadi kesalahan pada server: " . $th->getMessage(),
                 "status_code" => 500,
             ], 500);
         }
