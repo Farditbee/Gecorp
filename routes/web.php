@@ -201,6 +201,7 @@ Route::middleware(['auth'])->group(function () {
         Route::prefix('reture')->as('reture.')->group(function () {
             Route::prefix('suplier')->as('suplier.')->group(function () {
                 Route::get('/', [RetureSuplierController::class, 'index'])->name('index');
+                Route::post('/store', [RetureSuplierController::class, 'store'])->name('store');
             });
         });
 
