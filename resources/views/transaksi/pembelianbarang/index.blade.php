@@ -582,7 +582,7 @@
                 updateFormAction = updateFormAction.replace(':id', id);
                 $('#form-update-pembelian').attr('action', updateFormAction);
                 $("#tempData").empty();
-
+                $('#subtotal').empty();
                 $("#no-nota").html(nota);
                 $("#tgl-nota").html(tanggal);
                 $("#nama-supplier").html(nama);
@@ -719,9 +719,13 @@
                 id_barang
             } = rowData;
 
+            // Menghapus baris di tabel setelah penghapusan data melalui API
             deleteRowTable({
                 id_pembelian,
                 id_barang
+            }).then(() => {
+                // Mengupdate subtotal setelah penghapusan baris
+                updateSubtotalAfterRemoval();
             });
         }
 
@@ -732,12 +736,42 @@
                     '{{ route('master.temppembelian.hapus') }}',
                     data
                 );
-                if (postDataRest && postDataRest.status === 200) {}
+                if (postDataRest && postDataRest.status === 200) {
+                    // Hapus baris di DOM setelah berhasil dihapus dari API
+                    const row = document.querySelector(`tr[data-id="${data.id_barang}"]`);
+                    if (row) {
+                        row.remove();
+                    }
+                }
             } catch (error) {
                 const resp = error.response;
                 const errorMessage = resp?.data?.message || 'Terjadi kesalahan saat menghapus data.';
                 notificationAlert('error', 'Kesalahan', errorMessage);
             }
+        }
+
+        // Fungsi untuk menghitung ulang subtotal setelah baris dihapus
+        function updateSubtotalAfterRemoval() {
+            let subtotal = 0;
+            document.querySelectorAll('.table-bordered tbody tr').forEach((row) => {
+                // Menambah subtotal dengan harga total dari setiap baris
+                let hargaPerItem = parseInt(row.children[5].textContent.replace(/\D/g, '')) ||
+                0; // Harga total per item
+                subtotal += hargaPerItem; // Menambahkan harga ke subtotal
+            });
+
+            // Update total harga di footer tabel
+            document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
+                `Rp ${subtotal.toLocaleString('id-ID')}`;
+        }
+
+
+        function updateSubTotal() {
+            let subtotal = 0;
+            $(".total-harga").each(function() {
+                subtotal += parseInt($(this).data("harga"));
+            });
+            $("#subtotal").html(formatRupiah(subtotal));
         }
 
         async function addData() {
@@ -767,8 +801,7 @@
                 let btn = this;
                 btn.disabled = true;
                 let originalText = btn.innerHTML;
-                btn.innerHTML =
-                `<i class="fa fa-spinner fa-spin"></i> Proses...`;
+                btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Proses...`;
 
                 await addTemporaryField(id_pembelian_post);
                 let idBarang = document.getElementById('id_barang').value;
@@ -815,30 +848,46 @@
                 addedItems.add(idBarang);
                 document.querySelector(`#id_barang option[value="${idBarang}"]`).setAttribute('hidden',
                     true);
-                let totalHarga = qty * harga;
-                subtotal += totalHarga;
+
+                // Hitung ulang subtotal sebelum menambahkan item baru
+                let subtotal = 0;
+                document.querySelectorAll('.table-bordered tbody tr').forEach((row) => {
+                    let hargaPerItem = parseInt(row.children[5].textContent.replace(/\D/g, '')) ||
+                        0; // Harga total per item
+                    subtotal += hargaPerItem; // Menambahkan harga ke subtotal
+                });
+
+                let totalHarga = qty * harga; // Total harga untuk item baru
+                subtotal += totalHarga; // Update subtotal dengan item baru
+
+                // Generate input untuk level harga
                 let levelHargaInputs = '';
                 document.querySelectorAll('.level-harga').forEach((input) => {
                     levelHargaInputs +=
                         `<input type="hidden" name="level_harga[${idBarang}][]" value="${input.value}">`;
                 });
 
+                // Menambahkan baris baru ke tabel
                 let row = `
-                    <tr>
-                        <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
-                        <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
-                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                        <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                        <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                        <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                        ${levelHargaInputs}
-                    </tr>
-                `;
+        <tr>
+            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
+            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
+            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+            ${levelHargaInputs}
+        </tr>
+    `;
 
+                // Menyisipkan baris baru ke dalam tabel
                 document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
+
+                // Update total harga di footer tabel
                 document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
                     `Rp ${subtotal.toLocaleString('id-ID')}`;
 
+                // Menonaktifkan input dan reset formulir
                 toggleInputFields(true);
                 document.getElementById('id_barang').value = '';
                 const tomSelect = document.getElementById('id_barang').tomselect;
@@ -853,6 +902,7 @@
                 btn.innerHTML = originalText; // Kembalikan teks asli
                 btn.disabled = false; // Aktifkan kembali tombol
             });
+
 
             $('#form-tambah-pembelian').on('submit', function(e) {
                 e.preventDefault();
