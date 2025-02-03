@@ -132,7 +132,7 @@ class PembelianBarangController extends Controller
         $request->validate([
             'id_supplier' => 'required|exists:supplier,id',
             'tgl_nota' => 'required|date',
-            'no_nota' => 'required|numeric',
+            'no_nota' => 'required|numeric|unique:pembelian_barang,no_nota',
         ]);
 
         try {
