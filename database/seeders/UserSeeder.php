@@ -30,25 +30,30 @@ class UserSeeder extends Seeder
         LevelUser::create([
             "id" => 1,
             "nama_level" => "Super Admin",
-            "informasi" => "Saitama",
+            "informasi" => "Mengontrol dan Akses semua Sistem",
         ]);
         LevelUser::create([
             "id" => 2,
+            "nama_level" => "Admin GSS",
+            "informasi" => "Mengontrol Toko GSS",
+        ]);
+        LevelUser::create([
+            "id" => 3,
             "nama_level" => "Admin",
             "informasi" => "Mengontrol Toko",
         ]);
         LevelUser::create([
-            "id" => 3,
+            "id" => 4,
             "nama_level" => "Karyawan",
             "informasi" => "Melakukan Transaksi Kasir",
         ]);
         LevelUser::create([
-            "id" => 4,
+            "id" => 5,
             "nama_level" => "Mitra",
             "informasi" => "Contoh Mitra",
         ]);
         LevelUser::create([
-            "id" => 5,
+            "id" => 6,
             "nama_level" => "Akunting",
             "informasi" => "Contoh Akunting",
         ]);
