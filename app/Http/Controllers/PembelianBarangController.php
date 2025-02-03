@@ -351,6 +351,7 @@ class PembelianBarangController extends Controller
     }
 }
 
+// Konz
     public function delete($id)
     {
         DB::beginTransaction();
