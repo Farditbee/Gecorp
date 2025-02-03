@@ -31,83 +31,82 @@ class PembelianBarangController extends Controller
             'Detail Data'
         ];
     }
+
     public function getpembelianbarang(Request $request)
-    {
-        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+{
+    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = PembelianBarang::query();
+    $query = PembelianBarang::query();
 
-        $query->with(['barang', 'supplier', 'level_harga'])->orderBy('id', $meta['orderBy']);
+    $query->with(['barang', 'supplier', 'level_harga'])->orderBy('id', $meta['orderBy']);
 
-        if (!empty($request['search'])) {
-            $searchTerm = trim(strtolower($request['search']));
+    if (!empty($request['search'])) {
+        $searchTerm = trim(strtolower($request['search']));
 
-            $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
-
-                // Pencarian pada relasi 'supplier->nama_supplier'
-                $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
-                    $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
-                });
+        $query->where(function ($query) use ($searchTerm) {
+            $query->orWhereRaw("LOWER(no_nota) LIKE ?", ["%$searchTerm%"]);
+            $query->orWhereHas('supplier', function ($subquery) use ($searchTerm) {
+                $subquery->whereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
             });
-        }
-
-        if ($request->has('startDate') && $request->has('endDate')) {
-            $startDate = $request->input('startDate');
-            $endDate = $request->input('endDate');
-
-            // Lakukan filter berdasarkan tanggal
-            $query->whereBetween('tgl_nota', [$startDate, $endDate]);
-        }
-
-        $data = $query->paginate($meta['limit']);
-
-        $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
-        ];
-
-        $data = [
-            'data' => $data->items(),
-            'meta' => $paginationMeta
-        ];
-
-        if (empty($data['data'])) {
-            return response()->json([
-                'status_code' => 400,
-                'errors' => true,
-                'message' => 'Tidak ada data'
-            ], 400);
-        }
-
-        $mappedData = collect($data['data'])->map(function ($item) {
-            return [
-                'id' => $item['id'],
-                'nama_supplier' => $item['supplier']->nama_supplier,
-                'status' => match ($item->status) {
-                    'success' => 'Sukses',
-                    'failed' => 'Gagal',
-                    default => $item->status,
-                },
-                'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
-                'no_nota' => $item->no_nota,
-                'total_item' => $item->total_item,
-                'total_nilai' => 'Rp. ' . number_format($item->total_nilai, 0, ',', '.'),
-            ];
         });
-
-        return response()->json([
-            'data' => $mappedData,
-            'status_code' => 200,
-            'errors' => true,
-            'message' => 'Sukses',
-            'pagination' => $data['meta']
-        ], 200);
     }
+
+    if ($request->has('startDate') && $request->has('endDate')) {
+        $startDate = $request->input('startDate');
+        $endDate = $request->input('endDate');
+
+        $query->whereBetween('tgl_nota', [$startDate, $endDate]);
+    }
+
+    $data = $query->paginate($meta['limit']);
+
+    $paginationMeta = [
+        'total'        => $data->total(),
+        'per_page'     => $data->perPage(),
+        'current_page' => $data->currentPage(),
+        'total_pages'  => $data->lastPage()
+    ];
+
+    $mappedData = collect($data->items())->map(function ($item) {
+        // Jika status "progress", ambil total_item dan total_nilai dari temp_detail_pembelian_barang
+        if ($item->status === 'progress') {
+            $tempData = DB::table('temp_detail_pembelian_barang')
+                ->where('id_pembelian_barang', $item->id)
+                ->selectRaw('SUM(qty) as total_item, SUM(harga_barang * qty) as total_nilai')
+                ->first();
+
+            $totalItem = $tempData->total_item ?? 0;
+            $totalNilai = $tempData->total_nilai ?? 0;
+        } else {
+            $totalItem = $item->total_item;
+            $totalNilai = $item->total_nilai;
+        }
+
+        return [
+            'id' => $item->id,
+            'nama_supplier' => $item->supplier->nama_supplier,
+            'status' => match ($item->status) {
+                'success' => 'Sukses',
+                'failed' => 'Gagal',
+                default => $item->status,
+            },
+            'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
+            'no_nota' => $item->no_nota,
+            'total_item' => $totalItem,
+            'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, ',', '.'),
+        ];
+    });
+
+    return response()->json([
+        'data' => $mappedData,
+        'status_code' => 200,
+        'errors' => false,
+        'message' => 'Sukses',
+        'pagination' => $paginationMeta
+    ], 200);
+}
+
 
     public function index(Request $request)
     {
@@ -235,7 +234,6 @@ class PembelianBarangController extends Controller
                     continue;
                 }
 
-                // Update DetailPembelianBarang
                 if ($id_barang && $qty > 0 && $harga_barang > 0) {
                     $barang = Barang::findOrFail($id_barang);
 
@@ -249,12 +247,11 @@ class PembelianBarangController extends Controller
                     $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
                     $fullPath = storage_path('app/public/' . $qrCodePath);
 
-                    // Buat folder jika belum ada
                     if (!file_exists(dirname($fullPath))) {
                         mkdir(dirname($fullPath), 0755, true);
                     }
 
-                    // Generate QR Code dengan endroid/qr-code
+                    // Generate QR Code
                     $qrCode = QrCode::create($qrCodeValue)
                         ->setEncoding(new Encoding('UTF-8'))
                         ->setSize(200)
@@ -268,7 +265,6 @@ class PembelianBarangController extends Controller
                             ->setFont(new NotoSans(12))
                     );
 
-                    // Simpan file QR Code
                     $result->saveToFile($fullPath);
 
                     $detail = DetailPembelianBarang::updateOrCreate(
@@ -281,8 +277,8 @@ class PembelianBarangController extends Controller
                             'qty' => $qty,
                             'harga_barang' => $harga_barang,
                             'total_harga' => $qty * $harga_barang,
-                            'qrcode' => $qrCodeValue, // Simpan QR Code Value
-                            'qrcode_path' => $qrCodePath, // Simpan Path QR Code
+                            'qrcode' => $qrCodeValue,
+                            'qrcode_path' => $qrCodePath,
                         ]
                     );
 
@@ -335,6 +331,9 @@ class PembelianBarangController extends Controller
             $pembelian->status = 'success';
             $pembelian->save();
 
+            // Hapus data dari tabel temp_detail_pembelian_barang setelah pembelian berhasil disimpan
+            DB::table('temp_detail_pembelian_barang')->where('id_pembelian_barang', $pembelian->id)->delete();
+
             DB::commit();
 
             return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
@@ -343,102 +342,6 @@ class PembelianBarangController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $e->getMessage()]);
         }
     }
-
-    public function updateStatus(Request $request, $id)
-    {
-        // Ambil data pembelian
-        $pembelian = PembelianBarang::findOrFail($id);
-
-        $detail_ids = $request->input('detail_ids', []);
-        $statuses = $request->input('status_detail', []);
-        $level_nama = $request->input('level_nama', []);
-        $level_hargas = $request->input('level_harga', []);
-
-        foreach ($detail_ids as $key => $detail_id) {
-            $detail = DetailPembelianBarang::findOrFail($detail_id);
-
-            if (isset($statuses[$key]) && $statuses[$key] == 'failed') {
-                // Update the status in detail pembelian to failed
-                $detail->status = 'failed';
-                $detail->save();
-            }
-
-            if (isset($statuses[$key]) && $statuses[$key] == 'success') {
-
-                // Update the status in detail pembelian
-                $detail->status = 'success';
-                $detail->save();
-
-                // Process the level harga data
-                $levelHargaData = [];
-
-                if (isset($level_hargas[$key])) {
-                    foreach ($level_hargas[$key] as $index => $nilai) {
-                        $namaLevel = $level_nama[$index]; // Nama level dari array level_nama
-                        $levelHargaData[] = "{$namaLevel} : {$nilai}";
-                    }
-                }
-
-                // Convert level harga array to JSON format
-                $levelHargaJson = json_encode($levelHargaData);
-
-                // Check if stock already exists
-                $existingStock = StockBarang::where('id_barang', $detail->id_barang)->first();
-
-                $barang = Barang::where('id', $detail->id_barang)->first();
-
-                if ($existingStock) {
-                    $successfulDetails = DetailPembelianBarang::where('id_barang', $detail->id_barang)
-                        ->where('status', 'success')
-                        ->get();
-
-                    $totalHargaSemua = $successfulDetails->sum('total_harga');
-                    $totalQtySemua = $successfulDetails->sum('qty');
-
-                    // Hitung HPP baru
-                    $hppBaru = $totalHargaSemua / $totalQtySemua;
-
-                    $existingStock->stock += $detail->qty;
-                    $existingStock->harga_satuan = $detail->harga_barang;
-                    $existingStock->hpp_baru = $hppBaru;
-
-                    $barang->level_harga = $levelHargaJson;
-                    $barang->save();
-
-                    $existingStock->save();
-                } else {
-                    // Insert new stock record
-                    $newStock = new StockBarang();
-                    $newStock->id_barang = $detail->id_barang;
-                    $newStock->nama_barang = $detail->barang->nama_barang;
-                    $newStock->harga_satuan = $detail->harga_barang;
-                    $newStock->hpp_awal = $detail->harga_barang;
-                    $newStock->hpp_baru = $detail->total_harga / $detail->qty;
-                    $newStock->stock = $detail->qty;
-                    $newStock->nilai_total = $detail->qty;
-
-                    $barang->level_harga = $levelHargaJson;
-                    $barang->save();
-
-                    $newStock->save();
-                }
-            }
-        }
-
-        $hasFailed = $pembelian->detail()->where('status', 'failed')->count() > 0;
-        $allSuccess = $pembelian->detail()->where('status', '!=', 'success')->count() === 0;
-
-        if ($allSuccess) {
-            $pembelian->status = 'success';
-        } elseif ($hasFailed) {
-            $pembelian->status = 'mixed';
-        }
-
-        $pembelian->save();
-
-        return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
-    }
-
 
     public function delete($id)
     {
@@ -463,19 +366,38 @@ class PembelianBarangController extends Controller
     }
 
     public function storeTemp(Request $request)
-    {
-        try {
-            $request->validate([
-                'id_pembelian' => 'required|exists:pembelian_barang,id',
-                'id_barang' => 'required|exists:barang,id',
-                'nama_barang' => 'required|string',
-                'qty' => 'required|numeric|min:1',
-                'harga_barang' => 'required|numeric|min:1',
-                'level_harga' => 'array',
-                'level_harga.*' => 'string',
-            ]);
+{
+    try {
+        $request->validate([
+            'id_pembelian' => 'required|exists:pembelian_barang,id',
+            'id_barang' => 'required|exists:barang,id',
+            'nama_barang' => 'required|string',
+            'qty' => 'required|numeric|min:1',
+            'harga_barang' => 'required|numeric|min:1',
+            'level_harga' => 'array',
+            'level_harga.*' => 'string',
+        ]);
 
-            $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
+        // Cek apakah barang sudah ada di temp_detail_pembelian_barang
+        $existingTemp = DB::table('temp_detail_pembelian_barang')
+            ->where('id_pembelian_barang', $request->id_pembelian)
+            ->where('id_barang', $request->id_barang)
+            ->first();
+
+        if ($existingTemp) {
+            // Jika sudah ada, update qty dan total_harga
+            DB::table('temp_detail_pembelian_barang')
+                ->where('id_pembelian_barang', $request->id_pembelian)
+                ->where('id_barang', $request->id_barang)
+                ->update([
+                    'qty' => $request->qty,
+                    'harga_barang' => $request->harga_barang,
+                    'total_harga' => $request->qty * $request->harga_barang,
+                    'level_harga' => json_encode($request->level_harga),
+                ]);
+        } else {
+            // Jika belum ada, lakukan insert
+            DB::table('temp_detail_pembelian_barang')->insert([
                 'id_pembelian_barang' => $request->id_pembelian,
                 'id_barang' => $request->id_barang,
                 'nama_barang' => $request->nama_barang,
@@ -484,19 +406,19 @@ class PembelianBarangController extends Controller
                 'total_harga' => $request->qty * $request->harga_barang,
                 'level_harga' => json_encode($request->level_harga),
             ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => $tempDetail
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage()
-            ], 500);
         }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil disimpan'
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
 
     public function gettemppembelian(Request $request)
     {
@@ -539,11 +461,11 @@ class PembelianBarangController extends Controller
             ]);
 
             $deleted = DB::table('temp_detail_pembelian_barang')
-                    ->where('id_pembelian_barang', $request->id_pembelian)
-                    ->where('id_barang', $request->id_barang)
-                    ->delete();
+                ->where('id_pembelian_barang', $request->id_pembelian)
+                ->where('id_barang', $request->id_barang)
+                ->delete();
 
-            if ($deleted){
+            if ($deleted) {
                 return response()->json([
                     'status' => 'success',
                     'message' => 'Data Berhasil diEdit'
