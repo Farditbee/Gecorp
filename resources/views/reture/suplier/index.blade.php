@@ -296,23 +296,13 @@
         }
 
         async function handleData(data) {
-            let elementData = JSON.stringify(data);
-            let edit_button = '';
+            let elementData = encodeURIComponent(JSON.stringify(data));
+            let detail_button = '';
 
-            if (data.action === 'edit_temp') {
-                edit_button = `
-                    <button class="p-1 btn edit-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit ${title} No. Nota: ${data.no_nota}">
-                        <span class="text-dark">Edit</span>
-                        <div class="icon text-warning">
-                            <i class="fa fa-edit"></i>
-                        </div>
-                    </button>`;
-            } else if (data.action === 'edit_detail') {
-                edit_button = `
+            if (data.status === 'pending') {
+                detail_button = `
                     <button class="p-1 btn detail-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        data-container="body" data-toggle="tooltip" data-placement="top" element-data="${elementData}"
                         title="Detail ${title} No. Nota: ${data.no_nota}">
                         <span class="text-dark">Detail</span>
                         <div class="icon text-info">
@@ -324,7 +314,7 @@
             let delete_button = `
             <a class="p-1 btn hapus-data action_button"
                 data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama_barang}">
+                title="Hapus ${title} No.Nota: ${data.no_nota}">
                 <span class="text-dark">Hapus</span>
                 <div class="icon text-danger">
                     <i class="fa fa-trash"></i>
@@ -332,10 +322,10 @@
             </a>`;
 
             let action_buttons = '';
-            if (edit_button || delete_button) {
+            if (detail_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-center">
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -381,6 +371,7 @@
             $('#listDataTable').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
 
@@ -409,6 +400,61 @@
                 });
                 $("#detail").removeClass("show active");
                 $("#submit-reture").removeClass("d-none");
+                submitMultiForm('{{ route('reture.suplier.store') }}');
+            });
+        }
+
+        async function detailData() {
+            $(document).on("click", ".detail-data", async function() {
+                let rawData = $(this).attr("element-data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                $("#modal-title").html(`Form Detail Reture Supplier No. Nota: ${data.no_nota}`);
+                $("#modal-form").modal("show");
+
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+
+                $("#i_no_nota").html(data.no_nota);
+                $("#i_tgl_retur").html(data.tanggal);
+                $("#i_supplier").html(data.nama_supplier);
+
+                $("#tambah-tab").removeClass("active").addClass("d-none");
+                $("#tambah").removeClass("show active");
+                $("#detail-tab").removeClass("disabled").addClass("active").css({
+                    "pointer-events": "auto",
+                    "opacity": "1",
+                });
+                $("#detail").addClass("show active");
+
+                if (data.status == 'done') {
+                    $("#submit-reture").addClass("d-none");
+                } else {
+                    $("#submit-reture").removeClass("d-none");
+                }
+
+                try {
+                    const response = await renderAPI('GET', '{{ route('master.detailReture') }}', {
+                        id_supplier: data.id_supplier
+                    });
+
+                    if (response && response.status === 200) {
+                        const dataItems = response.data.data;
+
+                        if (Array.isArray(dataItems) && dataItems.length > 0) {
+                            $("#listData").empty();
+                            dataItems.forEach(item => addRowToTable(item));
+                        } else {
+                            handleEmptyState();
+                        }
+                    } else {
+                        notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
+                    }
+                } catch (error) {
+                    const errorMessage = error?.response?.data?.message ||
+                        'Terjadi kesalahan saat memuat data sementara.';
+                    notificationAlert('error', 'Kesalahan', errorMessage);
+                }
+
                 submitMultiForm('{{ route('reture.suplier.store') }}');
             });
         }
@@ -677,6 +723,7 @@
             await selectData(selectOptions);
             await resetModal();
             await addData();
+            await detailData();
             await submitForm();
         }
     </script>
