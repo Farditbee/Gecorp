@@ -362,6 +362,7 @@
         let customFilter = {};
         let id_pembelian_post = null;
         let idPembelianEdit = null;
+        let rowGlobal = [];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -601,6 +602,7 @@
                     });
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
+                        rowGlobal = dataItems;
                         let totalHargaAll = 0;
 
                         dataItems.forEach(item => {
@@ -756,7 +758,7 @@
             document.querySelectorAll('.table-bordered tbody tr').forEach((row) => {
                 // Menambah subtotal dengan harga total dari setiap baris
                 let hargaPerItem = parseInt(row.children[5].textContent.replace(/\D/g, '')) ||
-                0; // Harga total per item
+                    0; // Harga total per item
                 subtotal += hargaPerItem; // Menambahkan harga ke subtotal
             });
 
@@ -803,12 +805,18 @@
                 let originalText = btn.innerHTML;
                 btn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> Proses...`;
 
-                await addTemporaryField(id_pembelian_post);
                 let idBarang = document.getElementById('id_barang').value;
                 let namaBarang = document.getElementById('id_barang').selectedOptions[0]?.text || '';
                 let qty = parseInt(document.getElementById('jml_item').value);
                 let harga = parseInt(document.getElementById('harga_barang').value);
+                let isBarangExist = rowGlobal.some(row => row.id_barang === idBarang);
 
+                if (isBarangExist) {
+                    notificationAlert('error', 'Pemberitahuan', 'Barang dengan ID yang sama sudah ada!');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    return;
+                }
                 if (!idBarang) {
                     notificationAlert('error', 'Pemberitahuan', 'Silakan pilih barang terlebih dahulu.');
                     btn.innerHTML = originalText;
@@ -839,12 +847,13 @@
 
                 if (!allLevelsFilled) {
                     notificationAlert('error', 'Pemberitahuan',
-                        'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
+                    'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
                 }
 
+                await addTemporaryField(id_pembelian_post);
                 addedItems.add(idBarang);
                 document.querySelector(`#id_barang option[value="${idBarang}"]`).setAttribute('hidden',
                     true);
@@ -869,16 +878,16 @@
 
                 // Menambahkan baris baru ke tabel
                 let row = `
-        <tr>
-            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
-            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
-            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-            ${levelHargaInputs}
-        </tr>
-    `;
+                    <tr>
+                        <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
+                        <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
+                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+                        <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                        <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+                        <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                        ${levelHargaInputs}
+                    </tr>
+                `;
 
                 // Menyisipkan baris baru ke dalam tabel
                 document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
