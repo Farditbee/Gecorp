@@ -92,10 +92,16 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="mediumModalLabel-{{ $stk->id }}">
-                            {{ $stk->barang->nama_barang }} : @php
+                            {{ $stk->barang->nama_barang }}
+                            @php
                                 $stokBarang = $stock->where('id_barang', $stk->id_barang)->first();
                             @endphp
-                            Rp. {{ number_format($stokBarang->hpp_baru, 0, ',', '.') }}</h5>
+
+                            @if (in_array(Auth::user()->id_level, [1, 2]))
+                                : Rp. {{ number_format($stokBarang->hpp_baru, 0, ',', '.') }}
+                            @endif
+                        </h5>
+
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -549,7 +555,7 @@
 
         function handleSort(orderBy) {
             const currentSearch = document.getElementById('searchInput')?.value ||
-            ''; // Adjust based on your search input ID
+                ''; // Adjust based on your search input ID
             const currentPage = 1; // Reset to the first page when sorting
             getListData(defaultLimitPage, currentPage, orderBy === 'asc' ? 1 : 0, currentSearch);
         }
