@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <style>
         #tgl_nota[readonly] {
             background-color: white !important;
@@ -310,7 +311,7 @@
                                                                     <tr>
                                                                         <th scope="col" colspan="5"
                                                                             style="text-align:right">SubTotal</th>
-                                                                        <th scope="col">Rp </th>
+                                                                        <th scope="col" id="subtotal">Rp </th>
                                                                     </tr>
                                                                 </tfoot>
                                                             </table>
@@ -578,9 +579,11 @@
                     });
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
+                        let totalHargaAll = 0; // Variable to accumulate the total price
 
                         dataItems.forEach(item => {
                             const totalHarga = item.qty * item.harga_barang;
+                            totalHargaAll += totalHarga; // Accumulate the total price
 
                             $("#tempData").append(`
                         <tr>
@@ -589,10 +592,13 @@
                             <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
                             <td><input type="hidden" name="qty[]" value="${item.qty}">${item.qty}</td>
                             <td><input type="hidden" name="harga_barang[]" value="${item.harga_barang}">Rp ${item.harga_barang.toLocaleString('id-ID')}</td>
-                            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                            <td>${formatRupiah(totalHarga)}</td>
                         </tr>
                     `);
                         });
+
+                        // Update the subtotal element with the total price
+                        $("#subtotal").html(formatRupiah(totalHargaAll));
                     } else {
                         notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
                     }
@@ -603,6 +609,7 @@
                 }
             });
         }
+
 
         async function addTemporaryField() {
             try {
