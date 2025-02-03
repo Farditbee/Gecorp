@@ -55,8 +55,9 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Nama Supplier</th>
+                                                <th class="text-wrap align-top">Tgl Reture</th>
                                                 <th class="text-wrap align-top">Status</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listDataTable">
@@ -324,7 +325,7 @@
             let action_buttons = '';
             if (detail_button || delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-start">
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
@@ -344,6 +345,7 @@
                 id: data?.id ?? '-',
                 no_nota: data?.no_nota ?? '-',
                 nama_supplier: data?.nama_supplier ?? '-',
+                tgl_retur: data?.tgl_retur ?? '-',
                 status,
                 action_buttons,
             };
@@ -363,6 +365,7 @@
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.no_nota}</td>
                         <td class="${classCol}">${element.nama_supplier}</td>
+                        <td class="${classCol}">${element.tgl_retur}</td>
                         <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
@@ -409,13 +412,16 @@
                 let rawData = $(this).attr("element-data");
                 let data = JSON.parse(decodeURIComponent(rawData));
 
+                dataTemp.id_retur = data.id;
+                dataTemp.no_nota = data.no_nota;
+
                 $("#modal-title").html(`Form Detail Reture Supplier No. Nota: ${data.no_nota}`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
 
                 $("#i_no_nota").html(data.no_nota);
-                $("#i_tgl_retur").html(data.tanggal);
+                $("#i_tgl_retur").html(data.tgl_retur);
                 $("#i_supplier").html(data.nama_supplier);
 
                 $("#tambah-tab").removeClass("active").addClass("d-none");
@@ -439,6 +445,7 @@
 
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
+                        dataTempDetail = dataItems;
 
                         if (Array.isArray(dataItems) && dataItems.length > 0) {
                             $("#listData").empty();
