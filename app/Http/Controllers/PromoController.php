@@ -17,7 +17,7 @@ class PromoController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Data Promo',
+            'Promo',
         ];
     }
 

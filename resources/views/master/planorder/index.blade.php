@@ -318,14 +318,15 @@
 
             let tableHeaders = `
             <tr class="tb-head">
-                <th class="text-center text-wrap align-top">No</th>
-                <th class="text-wrap align-top">Nama Barang</th>
+                <th class="text-center text-wrap align-top" style="width: 10px;">No</th>
+                <th class="text-wrap align-top" style="width: 150px;">Nama Barang</th>
                 ${dynamicHeaders}
             </tr>
             <tr class="tb-subhead">
                 <th colspan="2"></th>
                 ${subHeaders}
             </tr>`;
+
             $('thead').html(tableHeaders);
 
             let getDataTable = '';

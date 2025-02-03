@@ -55,7 +55,7 @@
                             <li><a class="dropdown-item" href="{{ route('master.levelharga.index') }}"><i
                                         class="fa fa-sitemap"></i> Level Harga</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.promo.index') }}"><i
-                                        class="fa fa-star"></i> Data Promo</a></li>
+                                        class="fa fa-star"></i> Promo</a></li>
                         @endif
                     </ul>
                 </li>
