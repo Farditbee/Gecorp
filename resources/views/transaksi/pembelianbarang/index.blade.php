@@ -206,7 +206,7 @@
                                                                         <label for="id_barang"
                                                                             class="form-control-label">Nama Barang<span
                                                                                 style="color: red">*</span></label>
-                                                                        <select name="id_barang[]" id="id_barang"
+                                                                        <select name="id_barangs[]" id="id_barang"
                                                                             data-placeholder="Pilih Barang...">
                                                                             <option value="" disabled selected
                                                                                 required>Pilih Barang</option>
@@ -597,7 +597,6 @@
                     `);
                         });
 
-                        // Update the subtotal element with the total price
                         $("#subtotal").html(formatRupiah(totalHargaAll));
                     } else {
                         notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');

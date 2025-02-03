@@ -303,7 +303,7 @@
             if (data.status === 'pending') {
                 detail_button = `
                     <button class="p-1 btn detail-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top" element-data="${elementData}"
+                        data-container="body" data-toggle="tooltip" data-placement="top" data="${elementData}"
                         title="Detail ${title} No. Nota: ${data.no_nota}">
                         <span class="text-dark">Detail</span>
                         <div class="icon text-info">
@@ -313,9 +313,9 @@
             }
 
             let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
+            <a class="p-1 btn delete-data action_button"
                 data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title} No.Nota: ${data.no_nota}">
+                title="Hapus ${title} No.Nota: ${data.no_nota}" data="${elementData}">
                 <span class="text-dark">Hapus</span>
                 <div class="icon text-danger">
                     <i class="fa fa-trash"></i>
@@ -409,7 +409,7 @@
 
         async function detailData() {
             $(document).on("click", ".detail-data", async function() {
-                let rawData = $(this).attr("element-data");
+                let rawData = $(this).attr("data");
                 let data = JSON.parse(decodeURIComponent(rawData));
 
                 dataTemp.id_retur = data.id;
@@ -464,6 +464,50 @@
 
                 submitMultiForm('{{ route('reture.suplier.store') }}');
             });
+        }
+
+        async function deleteData() {
+            $(document).on("click", ".delete-data", async function() {
+                let rawData = $(this).attr("data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                swal({
+                    title: `Hapus ${title} No Nota: ${data.no_nota}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        '{{ route('reture.suplier.delete') }}', {
+                            id_retur: data.id,
+                            id_supplier: data.id_supplier,
+                            no_nota: data.no_nota,
+                        }
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
         }
 
         async function submitForm() {
@@ -701,26 +745,6 @@
                 detailTab.classList.add('disabled');
                 detailTab.style.pointerEvents = 'none';
                 detailTab.style.opacity = '0.6';
-
-                // saveButton.addEventListener('click', function(event) {
-                //     event.preventDefault();
-
-                //     if (form.checkValidity()) {
-                //         detailTab.classList.remove('disabled');
-                //         detailTab.style.pointerEvents = 'auto';
-                //         detailTab.style.opacity = '1';
-
-                //         tambahTab.classList.remove('active');
-                //         detailTab.classList.add('active');
-
-                //         const tambahPane = document.getElementById('tambah');
-                //         const detailPane = document.getElementById('detail');
-                //         tambahPane.classList.remove('show', 'active');
-                //         detailPane.classList.add('show', 'active');
-                //     } else {
-                //         form.reportValidity();
-                //     }
-                // });
             });
         }
 
@@ -731,6 +755,7 @@
             await resetModal();
             await addData();
             await detailData();
+            await deleteData();
             await submitForm();
         }
     </script>
