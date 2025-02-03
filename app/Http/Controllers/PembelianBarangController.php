@@ -351,6 +351,38 @@ class PembelianBarangController extends Controller
     }
 }
 
+public function gettemppembelian(Request $request)
+    {
+        try {
+            // Ambil id_pembelian dari request
+            $id_pembelian = $request->input('id_pembelian');
+
+            // Ambil data dari tabel berdasarkan id_pembelian
+            $tempDetails = DB::table('temp_detail_pembelian_barang')
+                ->select('id_pembelian_barang', 'id_barang', 'nama_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
+                ->where('id_pembelian_barang', $id_pembelian)
+                ->get();
+
+            // Decode kolom level_harga dari JSON ke array
+            foreach ($tempDetails as $detail) {
+                $detail->level_harga = json_decode($detail->level_harga);
+            }
+
+            // Kirimkan response JSON
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil diambil',
+                'data' => $tempDetails,
+            ]);
+        } catch (\Exception $e) {
+            // Tangani error dan kirimkan response JSON
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 // Konz
     public function delete($id)
     {
@@ -405,38 +437,6 @@ class PembelianBarangController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function gettemppembelian(Request $request)
-    {
-        try {
-            // Ambil id_pembelian dari request
-            $id_pembelian = $request->input('id_pembelian');
-
-            // Ambil data dari tabel berdasarkan id_pembelian
-            $tempDetails = DB::table('temp_detail_pembelian_barang')
-                ->select('id_pembelian_barang', 'id_barang', 'nama_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
-                ->where('id_pembelian_barang', $id_pembelian)
-                ->get();
-
-            // Decode kolom level_harga dari JSON ke array
-            foreach ($tempDetails as $detail) {
-                $detail->level_harga = json_decode($detail->level_harga);
-            }
-
-            // Kirimkan response JSON
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil diambil',
-                'data' => $tempDetails,
-            ]);
-        } catch (\Exception $e) {
-            // Tangani error dan kirimkan response JSON
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
             ], 500);
         }
     }
