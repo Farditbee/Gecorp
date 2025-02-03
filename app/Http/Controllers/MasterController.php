@@ -205,7 +205,7 @@ class MasterController extends Controller
                 $query->orWhereRaw("LOWER(contact) LIKE ?", ["%$searchTerm%"]);
             });
         }
-
+                
         // Join dengan tabel detail_kasir dan detail_retur
         $query->join('detail_kasir', 'supplier.id', '=', 'detail_kasir.id_supplier')
           ->join('detail_retur', function($join) {

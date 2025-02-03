@@ -61,6 +61,7 @@ Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name
 Route::get('/getRetureBarcode', [RetureController::class, 'getRetureBarcode'])->name('master.getreturebarcode');
 
 Route::get('/getRetureSupplier', [RetureSuplierController::class, 'get'])->name('master.getreturesupplier');
+Route::get('/detailRetureSupplier', [RetureSuplierController::class, 'detailReture'])->name('master.detailReture');
 
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');

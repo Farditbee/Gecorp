@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Reture;
 
 use App\Http\Controllers\Controller;
+use App\Models\Barang;
 use App\Models\DataReture;
+use App\Models\DetailKasir;
 use App\Models\DetailRetur;
 use App\Models\StockBarang;
 use App\Models\Supplier;
@@ -82,6 +84,7 @@ class RetureSuplierController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
+                'id_supplier' => $item['id_supplier'],
                 'nama_supplier' => $item['nama_supplier'],
                 'no_nota' => $item['no_nota'],
                 'status' => $item['status'],
@@ -152,6 +155,71 @@ class RetureSuplierController extends Controller
                 'status_code' => 500,
                 'errors' => true,
                 'message' => 'Terjadi kesalahan saat mengupdate data: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function detailReture(Request $request)
+    {
+        $request->validate([
+            'id_supplier' => 'required|string',
+        ]);
+
+        try {
+    
+            $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
+    
+            if ($detailKasir->isEmpty()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Data tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
+            } else {
+                $detailTransaksi = DetailRetur::whereIn('id_transaksi', $detailKasir->pluck('id_kasir'))
+                    ->where('status', 'success')
+                    ->where('status_reture', 'pending')
+                    ->get();
+            }
+    
+            // Ambil data barang berdasarkan id_barang dari detailTransaksi
+            $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
+    
+            // Map nama_barang dari koleksi Barang
+            $namaBarang = $barang->mapWithKeys(function ($item) {
+                return [$item->id => $item->nama_barang];
+            });
+    
+            // Map detailTransaksi untuk menambahkan nama_barang
+            $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
+                return [
+                    'id_transaksi' => $item->id_transaksi,
+                    'id_retur' => $item->id_retur,
+                    'id_barang' => $item->id_barang,
+                    'nama_barang' => $namaBarang[$item->id_barang] ?? null,
+                    'no_nota' => $item->no_nota,
+                    'qty_acc' => $item->qty_acc,
+                    'metode' => $item->metode,
+                    'hpp_jual' => $item->hpp_jual,
+                    'tgl_retur' => $item->tgl_retur,
+                    'nama_supplier' => $item->nama_supplier,
+                ];
+            });
+    
+            // Return JSON response
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => $detailTransaksi,
+            ]);
+        } catch (\Throwable $th) {
+            Log::error($th->getMessage());
+    
+            return response()->json([
+                "error" => true,
+                "message" => "Terjadi kesalahan pada server: " . $th->getMessage(),
+                "status_code" => 500,
             ], 500);
         }
     }
