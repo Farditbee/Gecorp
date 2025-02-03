@@ -95,8 +95,7 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label for="ekspedisi" class=" form-control-label">Ekspedisi<span
-                                                        style="color: red">*</span></label>
+                                                <label for="ekspedisi" class=" form-control-label">Ekspedisi</label>
                                                 <input type="text" id="ekspedisi" name="ekspedisi"
                                                     placeholder="Contoh : Sicepat" class="form-control">
                                             </div>

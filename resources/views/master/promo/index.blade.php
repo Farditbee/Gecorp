@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Data Promo
+    Promo
 @endsection
 
 @section('css')
@@ -21,7 +21,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Data Promo">
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Promo">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                             </div>
@@ -155,7 +155,7 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="id_supplier" class="form-control-label">Diskon</label>
+                                    <label for="id_supplier" class="form-control-label">Diskon <i class="fa fa-percent"></i></label>
                                     <input class="form-control" type="number" min='0' max='100'
                                         name="diskon" id="diskon">
                                 </div>
