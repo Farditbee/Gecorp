@@ -847,7 +847,7 @@
 
                 if (!allLevelsFilled) {
                     notificationAlert('error', 'Pemberitahuan',
-                    'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
+                        'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                     return;
@@ -912,14 +912,12 @@
                 btn.disabled = false; // Aktifkan kembali tombol
             });
 
-
             $('#form-tambah-pembelian').on('submit', function(e) {
                 e.preventDefault();
 
                 $('#save-btn-text').hide();
                 $('#save-btn-spinner').show(); // Tampilkan spinner
-                $('#save-btn').prop('disabled',
-                    true);
+                $('#save-btn').prop('disabled', true); // Nonaktifkan tombol
 
                 var formData = $(this).serialize(); // Mengambil data form
 
@@ -941,8 +939,7 @@
 
                         $('#save-btn-text').show(); // Tampilkan teks "Lanjut" lagi
                         $('#save-btn-spinner').hide(); // Sembunyikan spinner
-                        $('#save-btn').prop('disabled',
-                            false); // Aktifkan kembali tombol submit
+                        $('#save-btn').prop('disabled', false); // Aktifkan kembali tombol submit
 
                         $('#tambah-tab').addClass('disabled');
                         $('#tambah-tab').removeClass('active');
@@ -951,18 +948,27 @@
                         $('#detail-tab').addClass('active');
                         $('#detail-tab').removeClass('disabled');
 
-                        notificationAlert('success', 'Pemberitahuan', response.data.message ||
-                            'Berhasil');
                         setTimeout(async function() {
                             await getListData(defaultLimitPage, currentPage,
-                                defaultAscending,
-                                defaultSearch, customFilter);
+                                defaultAscending, defaultSearch, customFilter);
                         }, 500);
-                        $("#modal-form").modal("hide");
+
+                        // Kembalikan tombol ke keadaan awal
+                        $('#save-btn-text').show();
+                        $('#save-btn-spinner').hide();
+                        $('#save-btn').prop('disabled', false); // Aktifkan kembali tombol
                     },
                     error: function(xhr) {
-                        notificationAlert('error', 'Pemberitahuan', response.data.message ||
-                            'Terjadi Kesalahan');
+                        // Cek apakah ada pesan error dalam response
+                        var errorMessage = xhr.responseJSON && xhr.responseJSON.message ?
+                            xhr.responseJSON.message :
+                            'Terjadi Kesalahan';
+                        notificationAlert('error', 'Pemberitahuan', errorMessage);
+
+                        // Kembalikan tombol ke keadaan awal jika terjadi error
+                        $('#save-btn-text').show();
+                        $('#save-btn-spinner').hide();
+                        $('#save-btn').prop('disabled', false); // Aktifkan kembali tombol
                     }
                 });
             });
