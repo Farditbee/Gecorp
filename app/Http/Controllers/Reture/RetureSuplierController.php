@@ -8,8 +8,8 @@ use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailRetur;
 use App\Models\StockBarang;
-use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -219,6 +219,47 @@ class RetureSuplierController extends Controller
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server: " . $th->getMessage(),
                 "status_code" => 500,
+            ], 500);
+        }
+    }
+
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'id_retur' => 'required|integer',
+            'id_supplier' => 'required|integer',
+            'no_nota' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+    
+        try {
+            $deleted = DataReture::where('id', $request->id_retur)
+                ->where('id_supplier', $request->id_supplier)
+                ->where('no_nota', $request->no_nota)
+                ->where('id_users', $user->id)
+                ->delete();
+    
+            if ($deleted) {
+                return response()->json([
+                    'status_code' => 200,
+                    'errors' => false,
+                    'message' => 'Data berhasil dihapus',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status_code' => 404,
+                    'errors' => true,
+                    'message' => 'Data tidak ditemukan',
+                ], 404);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error deleting data: ' . $e->getMessage());
+    
+            return response()->json([
+                'status_code' => 500,
+                'errors' => true,
+                'message' => 'Terjadi kesalahan saat menghapus data' . $e->getMessage(),
             ], 500);
         }
     }

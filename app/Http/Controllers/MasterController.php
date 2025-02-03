@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
+use App\Models\DataReture;
 use App\Models\Member;
 use App\Models\Supplier;
 use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class MasterController extends Controller
 {
@@ -205,7 +207,14 @@ class MasterController extends Controller
                 $query->orWhereRaw("LOWER(contact) LIKE ?", ["%$searchTerm%"]);
             });
         }
-                
+        
+        // Subquery untuk mengecualikan supplier yang sudah ada di tabel data_retur dengan status pending
+        $query->whereNotIn('supplier.id', function($subquery) {
+            $subquery->select('id_supplier')
+                     ->from('data_retur')
+                     ->where('status', 'pending');
+        });
+        
         // Join dengan tabel detail_kasir dan detail_retur
         $query->join('detail_kasir', 'supplier.id', '=', 'detail_kasir.id_supplier')
           ->join('detail_retur', function($join) {

@@ -206,7 +206,7 @@
                                                                         <label for="id_barang"
                                                                             class="form-control-label">Nama Barang<span
                                                                                 style="color: red">*</span></label>
-                                                                        <select name="id_barang[]" id="id_barang"
+                                                                        <select name="id_barangs[]" id="id_barang"
                                                                             data-placeholder="Pilih Barang...">
                                                                             <option value="" disabled selected
                                                                                 required>Pilih Barang</option>
@@ -353,6 +353,7 @@
 
 @section('js')
     <script>
+        let title = 'Pembeliang Barang';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -406,38 +407,38 @@
         }
 
         async function handleData(data) {
+            let elementData = encodeURIComponent(JSON.stringify(data));
             let status = '';
-            let edit_button = '';
+            let edit_button = `
+                <a button class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
+                    title="Edit Data Nomor Nota: ${data.no_nota}"
+                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
+
+            let delete_button = `
+            <a class="p-1 btn delete-data action_button"
+                data-container="body" data-toggle="tooltip" data-placement="top"
+                title="Hapus ${title} No.Nota: ${data.no_nota}" data="${elementData}">
+                <span class="text-dark">Hapus</span>
+                <div class="icon text-danger">
+                    <i class="fa fa-trash"></i>
+                </div>
+            </a>`;
+
             if (data?.status === 'Sukses') {
                 status =
                     `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
             } else if (data?.status === 'Gagal') {
-                edit_button = `
-                <a button class="p-1 btn edit-data action_button"
-                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
-                    title="Edit Data Nomor Nota: ${data.no_nota}"
-                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </a>`;
                 status =
                     `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
             } else {
-                edit_button = `
-                <a button class="p-1 btn edit-data action_button"
-                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
-                    title="Edit Data Nomor Nota: ${data.no_nota}"
-                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </a>`;
                 status = `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
             }
-
 
             let detail_button = `
             <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
@@ -451,11 +452,12 @@
             </a>`;
 
             let action_buttons = '';
-            if (edit_button || detail_button) {
+            if (edit_button || detail_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
@@ -507,6 +509,9 @@
                     return;
                 }
                 if ($(e.target).closest('.detail-data').length) {
+                    return;
+                }
+                if ($(e.target).closest('.delete-data').length) {
                     return;
                 }
 
@@ -579,11 +584,11 @@
                     });
                     if (response && response.status === 200) {
                         const dataItems = response.data.data;
-                        let totalHargaAll = 0; // Variable to accumulate the total price
+                        let totalHargaAll = 0;
 
                         dataItems.forEach(item => {
                             const totalHarga = item.qty * item.harga_barang;
-                            totalHargaAll += totalHarga; // Accumulate the total price
+                            totalHargaAll += totalHarga;
 
                             $("#tempData").append(`
                         <tr>
@@ -597,7 +602,6 @@
                     `);
                         });
 
-                        // Update the subtotal element with the total price
                         $("#subtotal").html(formatRupiah(totalHargaAll));
                     } else {
                         notificationAlert('info', 'Pemberitahuan', 'Tidak ada data sementara ditemukan.');
@@ -610,6 +614,45 @@
             });
         }
 
+        async function deleteData() {
+            $(document).on("click", ".delete-data", async function() {
+                let rawData = $(this).attr("data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                swal({
+                    title: `Hapus ${title} No Nota: ${data.no_nota}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `/admin/pembelianbarang/${data.id}/delete`, {}
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                        .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
 
         async function addTemporaryField() {
             try {
@@ -1166,6 +1209,7 @@
             await addData();
             await showData();
             await editData();
+            await deleteData();
         }
         document.addEventListener('DOMContentLoaded', function() {
             new TomSelect("#id_supplier", {
