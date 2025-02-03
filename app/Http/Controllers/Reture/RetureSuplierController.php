@@ -87,6 +87,7 @@ class RetureSuplierController extends Controller
                 'id_supplier' => $item['id_supplier'],
                 'nama_supplier' => $item['nama_supplier'],
                 'no_nota' => $item['no_nota'],
+                'tgl_retur' => $item['tgl_retur'],
                 'status' => $item['status'],
             ];
         });
@@ -197,12 +198,10 @@ class RetureSuplierController extends Controller
                     'id_retur' => $item->id_retur,
                     'id_barang' => $item->id_barang,
                     'nama_barang' => $namaBarang[$item->id_barang] ?? null,
-                    'no_nota' => $item->no_nota,
                     'qty_acc' => $item->qty_acc,
                     'metode' => $item->metode,
                     'hpp_jual' => $item->hpp_jual,
                     'tgl_retur' => $item->tgl_retur,
-                    'nama_supplier' => $item->nama_supplier,
                 ];
             });
     
