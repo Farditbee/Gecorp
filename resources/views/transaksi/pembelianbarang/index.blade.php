@@ -409,7 +409,27 @@
         async function handleData(data) {
             let elementData = encodeURIComponent(JSON.stringify(data));
             let status = '';
-            let edit_button = `
+            let edit_button = '';
+            let delete_button = '';
+            let detail_button = '';
+
+            if (data?.status === 'Sukses') {
+                status =
+                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
+                detail_button = `
+                    <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Detail Data Nomor Nota: ${data.no_nota}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Detail</span>
+                        <div class="icon text-info">
+                            <i class="fa fa-eye"></i>
+                        </div>
+                    </a>`;
+            } else if (data?.status === 'Gagal') {
+                status =
+                    `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
+                edit_button = `
                 <a button class="p-1 btn edit-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
                     title="Edit Data Nomor Nota: ${data.no_nota}"
@@ -419,37 +439,37 @@
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>`;
-
-            let delete_button = `
-            <a class="p-1 btn delete-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title} No.Nota: ${data.no_nota}" data="${elementData}">
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
-
-            if (data?.status === 'Sukses') {
-                status =
-                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
-            } else if (data?.status === 'Gagal') {
-                status =
-                    `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
+                delete_button = `
+                <a class="p-1 btn delete-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title} No.Nota: ${data.no_nota}" data="${elementData}">
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
             } else {
                 status = `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-spinner"></i>Pending</span>`;
+                edit_button = `
+                <a button class="p-1 btn edit-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top" class="p-1 btn edit-data action_button"
+                    title="Edit Data Nomor Nota: ${data.no_nota}"
+                    data-id='${data.id}' data-name='${data.nama_supplier}' data-nota='${data.no_nota}' data-tanggal='${data.tgl_nota}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>`;
+                delete_button = `
+                <a class="p-1 btn delete-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title} No.Nota: ${data.no_nota}" data="${elementData}">
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
             }
-
-            let detail_button = `
-            <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Detail Data Nomor Nota: ${data.no_nota}"
-                data-id='${data.id}'>
-                <span class="text-dark">Detail</span>
-                <div class="icon text-info">
-                    <i class="fa fa-eye"></i>
-                </div>
-            </a>`;
 
             let action_buttons = '';
             if (edit_button || detail_button || delete_button) {
@@ -466,6 +486,7 @@
 
             return {
                 id: data?.id ?? '-',
+                is_status: data?.status ?? '-',
                 status,
                 nama_supplier: data?.nama_supplier ?? '-',
                 tgl_nota: data?.tgl_nota ?? '-',
@@ -484,18 +505,20 @@
 
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
+
             dataList.forEach((element, index) => {
+                let classStatus = element.is_status === 'Sukses' ? 'clickable-row' : '';
                 getDataTable += `
-                            <tr class="text-dark clickable-row" data-id="${element.id}">
-                                <td class="${classCol} text-center">${display_from + index}.</td>
-                                <td class="${classCol}">${element.status}</td>
-                                <td class="${classCol}">${element.no_nota}</td>
-                                <td class="${classCol}">${element.tgl_nota}</td>
-                                <td class="${classCol}">${element.nama_supplier}</td>
-                                <td class="${classCol}">${element.total_item}</td>
-                                <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">${element.action_buttons}</td>
-                            </tr>`;
+            <tr class="text-dark ${classStatus}" data-id="${element.id}">
+                <td class="${classCol} text-center">${display_from + index}.</td>
+                <td class="${classCol}">${element.status}</td>
+                <td class="${classCol}">${element.no_nota}</td>
+                <td class="${classCol}">${element.tgl_nota}</td>
+                <td class="${classCol}">${element.nama_supplier}</td>
+                <td class="${classCol}">${element.total_item}</td>
+                <td class="${classCol}">${element.total_nilai}</td>
+                <td class="${classCol}">${element.action_buttons}</td>
+            </tr>`;
             });
 
             $('#listData').html(getDataTable);
@@ -505,13 +528,7 @@
             renderPagination();
 
             $('.clickable-row').on('click', function(e) {
-                if ($(e.target).closest('.edit-data').length) {
-                    return;
-                }
-                if ($(e.target).closest('.detail-data').length) {
-                    return;
-                }
-                if ($(e.target).closest('.delete-data').length) {
+                if ($(e.target).closest('.edit-data, .detail-data, .delete-data').length) {
                     return;
                 }
 
@@ -648,7 +665,7 @@
                                 defaultSearch, customFilter);
                         }, 500);
                         notificationAlert('success', 'Pemberitahuan', postDataRest.data
-                        .message);
+                            .message);
                     }
                 }).catch(swal.noop);
             })
@@ -747,24 +764,36 @@
             }
 
             document.getElementById('add-item-detail').addEventListener('click', async function() {
+                let btn = this;
+                btn.disabled = true;
+                let originalText = btn.innerHTML;
+                btn.innerHTML =
+                `<i class="fa fa-spinner fa-spin"></i> Proses...`;
+
                 await addTemporaryField(id_pembelian_post);
                 let idBarang = document.getElementById('id_barang').value;
-                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
+                let namaBarang = document.getElementById('id_barang').selectedOptions[0]?.text || '';
                 let qty = parseInt(document.getElementById('jml_item').value);
                 let harga = parseInt(document.getElementById('harga_barang').value);
 
                 if (!idBarang) {
                     notificationAlert('error', 'Pemberitahuan', 'Silakan pilih barang terlebih dahulu.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     return;
                 }
 
                 if (addedItems.has(idBarang)) {
                     notificationAlert('error', 'Pemberitahuan', 'Barang ini sudah ditambahkan sebelumnya.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     return;
                 }
 
                 if (!qty || !harga) {
                     notificationAlert('error', 'Pemberitahuan', 'Jumlah dan harga barang harus diisi.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     return;
                 }
 
@@ -778,6 +807,8 @@
                 if (!allLevelsFilled) {
                     notificationAlert('error', 'Pemberitahuan',
                         'Harap atur level harga ! jika tidak, silahkan isi dengan "0"');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
                     return;
                 }
 
@@ -787,43 +818,44 @@
                 let totalHarga = qty * harga;
                 subtotal += totalHarga;
                 let levelHargaInputs = '';
-                document.querySelectorAll('.level-harga').forEach((input, index) => {
-                    const levelHarga = input.value;
+                document.querySelectorAll('.level-harga').forEach((input) => {
                     levelHargaInputs +=
-                        `<input type="hidden" name="level_harga[${idBarang}][]" value="${levelHarga}">`;
+                        `<input type="hidden" name="level_harga[${idBarang}][]" value="${input.value}">`;
                 });
 
                 let row = `
-        <tr>
-            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
-            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
-            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-            ${levelHargaInputs}
-        </tr>
-    `;
+                    <tr>
+                        <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
+                        <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
+                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+                        <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                        <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+                        <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+                        ${levelHargaInputs}
+                    </tr>
+                `;
 
                 document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
                 document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
                     `Rp ${subtotal.toLocaleString('id-ID')}`;
 
                 toggleInputFields(true);
-                document.getElementById('id_barang').value = ''; // Kosongkan nilai id_barang
+                document.getElementById('id_barang').value = '';
                 const tomSelect = document.getElementById('id_barang').tomselect;
                 if (tomSelect) {
-                    tomSelect.clear(); // Mengosongkan pilihan di Tom Select
+                    tomSelect.clear();
                 }
 
                 resetFields();
                 updateNumbers();
                 $('#id_barang').val(null).trigger('change');
+
+                btn.innerHTML = originalText; // Kembalikan teks asli
+                btn.disabled = false; // Aktifkan kembali tombol
             });
 
-
             $('#form-tambah-pembelian').on('submit', function(e) {
-                e.preventDefault(); // Menghentikan proses form biasa
+                e.preventDefault();
 
                 $('#save-btn-text').hide();
                 $('#save-btn-spinner').show(); // Tampilkan spinner
