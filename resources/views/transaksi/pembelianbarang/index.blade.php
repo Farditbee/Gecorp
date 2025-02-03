@@ -749,28 +749,35 @@
                     levelHargaInputs +=
                         `<input type="hidden" name="level_harga[${idBarang}][]" value="${levelHarga}">`;
                 });
+
                 let row = `
-                        <tr>
-                            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
-                            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
-                            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                            ${levelHargaInputs}
-                        </tr>
-                    `;
+        <tr>
+            <td><button onclick="removeRow({id_pembelian: '${id_pembelian_post}', id_barang: '${idBarang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
+            <td class="numbered">${document.querySelectorAll('.table-bordered tbody tr').length + 1}</td>
+            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
+            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+            <td><input type="hidden" name="harga_barang[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
+            <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
+            ${levelHargaInputs}
+        </tr>
+    `;
 
                 document.querySelector('.table-bordered tbody').insertAdjacentHTML('beforeend', row);
-
                 document.querySelector('.table-bordered tfoot tr th:last-child').textContent =
                     `Rp ${subtotal.toLocaleString('id-ID')}`;
 
                 toggleInputFields(true);
-                document.getElementById('id_barang').value = '';
+                document.getElementById('id_barang').value = ''; // Kosongkan nilai id_barang
+                const tomSelect = document.getElementById('id_barang').tomselect;
+                if (tomSelect) {
+                    tomSelect.clear(); // Mengosongkan pilihan di Tom Select
+                }
+
                 resetFields();
                 updateNumbers();
+                $('#id_barang').val(null).trigger('change');
             });
+
 
             $('#form-tambah-pembelian').on('submit', function(e) {
                 e.preventDefault(); // Menghentikan proses form biasa
