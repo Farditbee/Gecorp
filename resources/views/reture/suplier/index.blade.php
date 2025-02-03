@@ -386,6 +386,7 @@
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
+                setDatePicker();
                 $("#modal-title").html(`Form Tambah Reture Suplier`);
                 $("#modal-form").modal("show");
 
@@ -395,7 +396,11 @@
                     .trigger("change");
                 $("#form").data("action-url", '{{ route('create.NoteReture') }}');
 
-                $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
+                $("#tambah-tab").removeClass("d-none disabled").addClass("active").attr("aria-selected", "true")
+                    .css({
+                        "pointer-events": "auto",
+                        "opacity": "1"
+                    });
                 $("#tambah").addClass("show active");
 
                 $("#detail-tab").addClass("disabled").removeClass("active").attr("aria-selected", "false").css({
@@ -439,16 +444,20 @@
                         const dataItems = postData.data.detail_retur;
 
                         $('#nav-tab a[href="#detail"]').tab('show');
+
                         $('#i_no_nota').text(rest_data.no_nota);
                         $('#i_tgl_retur').text(rest_data.tgl_retur);
                         $('#i_supplier').text(rest_data.nama_supplier);
 
-                        $('#tambah-tab').removeAttr('style');
-                        $('#detail-tab').removeAttr('style');
+                        $('#detail-tab').removeAttr('style').removeClass('disabled');
+
+                        $('#tambah-tab').css({
+                            "pointer-events": "none",
+                            "opacity": "0.6"
+                        }).addClass("disabled");
 
                         dataTemp = rest_data;
                         dataTempDetail = dataItems;
-                        console.log('dataTempDetail:', dataTempDetail)
                         globalIdSupplier = rest_data.id_supplier;
 
                         if (Array.isArray(dataItems) && dataItems.length > 0) {
@@ -663,7 +672,6 @@
         }
 
         async function initPageLoad() {
-            await setDatePicker();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await selectData(selectOptions);
