@@ -6,6 +6,7 @@
 
 @section('css')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
 @endsection
 
 @section('content')
@@ -19,6 +20,7 @@
                             <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
                         </div>
                         <div class="card-body">
+                            <x-adminlte-alerts />
                             <div class="custom-tab">
                                 <nav>
                                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -277,8 +279,8 @@
                                                                         class="form-control-label">Jumlah Item<span
                                                                             style="color: red">*</span></label>
                                                                     <input type="number" id="jml_item" min="1"
-                                                                        name="qty[]" placeholder="Contoh: 16"
-                                                                        class="form-control jumlah-item">
+                                                                        name="jml_item[]" placeholder="Contoh: 16"
+                                                                        class="form-control jumlah-item" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -361,7 +363,7 @@
             isUrl: '{{ route('master.toko') }}',
             isFilter: {
                 is_delete: '{{ auth()->user()->id_toko }}',
-                is_admin : true,
+                is_admin: true,
             },
             placeholder: 'Pilih Nama Toko',
         }];
@@ -389,7 +391,7 @@
         }
 
         function toggleInputFields(disabled) {
-            document.getElementById('jml_item').disabled = disabled;
+            document.getElementById('jml_item').readOnly = disabled;
             document.getElementById('harga').disabled = disabled;
             if (disabled) {
                 document.getElementById('jml_item').value = '';
@@ -431,6 +433,7 @@
                             if (response.harga) {
                                 $('#harga_formatted').val(formatNumber(response.harga));
                                 $('#harga').val(response.harga);
+                                document.getElementById('jml_item').readOnly = false;
                             } else {
                                 alert('Harga barang tidak ditemukan.');
                             }
@@ -447,42 +450,44 @@
             });
 
             document.getElementById('add-item-detail')?.addEventListener('click', function() {
-                let idBarang = document.getElementById('id_barang').value;
-                let namaBarang = document.getElementById('id_barang').selectedOptions[0].text;
-                let qty = parseInt(document.getElementById('jml_item').value) || 0;
-                let harga = parseInt(document.getElementById('harga').value) || 0;
+                let idBarang = document.getElementById('id_barang').value.trim();
+                let selectedOption = document.getElementById('id_barang').selectedOptions[0];
 
-                if (!idBarang) {
-                    alert('Harap pilih barang terlebih dahulu!');
+                if (!idBarang || !selectedOption) {
+                    notificationAlert('error', 'Error', 'Harap pilih barang terlebih dahulu!');
                     return;
                 }
 
-                let stok = parseInt(document.getElementById('id_barang').selectedOptions[0]
-                    .getAttribute(
-                        'data-stock')) || 0;
+                let namaBarang = selectedOption.text;
+                let stok = parseInt(selectedOption.getAttribute('data-stock')) || 0;
+                let qtyInput = document.getElementById('jml_item').value.trim();
+                let hargaInput = document.getElementById('harga').value.trim();
+
+                // Pastikan qty dan harga bernilai angka yang valid
+                let qty = qtyInput ? parseInt(qtyInput) : 0;
+                let harga = hargaInput ? parseInt(hargaInput) : 0;
 
                 if (qty > stok) {
-                    alert('Stock barang tidak cukup!');
+                    notificationAlert('error', 'Error', 'Stock barang tidak cukup!');
                     return;
                 }
 
                 if (stok === 0) {
-                    alert('Stock barang sudah Habis!');
+                    notificationAlert('error', 'Error', 'Stock barang sudah habis!');
                     return;
                 }
 
-                if (qty === 0) {
-                    alert('Jumlah item tidak boleh 0!');
+                if (qty <= 0) {
+                    notificationAlert('error', 'Error', 'Jumlah item tidak boleh 0 atau kosong!');
                     return;
                 }
 
                 if (addedItems.has(idBarang)) {
-                    alert('Barang ini sudah ditambahkan sebelumnya.');
+                    notificationAlert('error', 'Error', 'Barang ini sudah ditambahkan sebelumnya.');
                     return;
                 }
 
                 addedItems.add(idBarang);
-
                 let totalHarga = qty * harga;
                 subtotal += totalHarga;
 
@@ -504,14 +509,9 @@
                 toggleInputFields(true);
                 updateNumbers();
 
-                if (!lastDeletedItem || lastDeletedItem.id !== idBarang) {
-                    document.getElementById('id_barang').value = '';
-                    document.getElementById('jml_item').value = '';
-                    document.getElementById('harga').value = '';
-                }
+                $('#id_barang').val(null).trigger('change');
             });
 
-            // Remove item from table on click
             document.querySelector('tbody')?.addEventListener('click', function(e) {
                 if (e.target.classList.contains('remove-item')) {
                     let row = e.target.closest('tr');

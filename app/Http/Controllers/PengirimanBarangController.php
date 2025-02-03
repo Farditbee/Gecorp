@@ -181,7 +181,7 @@ class PengirimanBarangController extends Controller
 
     public function create(Request $request)
     {
-        $menu = [$this->title[0], $this->label[0], $this->title[1]];
+        $menu = [$this->title[0], $this->label[1], $this->title[1]];
         $toko = Toko::all();
         $detail_toko = DetailToko::all();
         $stock = StockBarang::all();
