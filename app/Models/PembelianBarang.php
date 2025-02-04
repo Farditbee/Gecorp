@@ -16,6 +16,7 @@ class PembelianBarang extends Model
 
     protected $fillable = [
         'id_supplier',
+        'id_users',
         'no_nota',
         'tgl_nota',
         'total_item',

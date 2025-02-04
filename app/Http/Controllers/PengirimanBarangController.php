@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
 use App\Models\PengirimanBarang;
@@ -272,47 +273,67 @@ class PengirimanBarangController extends Controller
     {
         $request->validate([
             'id_toko' => 'required|string',
-            'id_barang' => 'sometimes|string',
-            'barcode' => 'sometimes|string',
+            'id_barang' => 'required|string',
         ]);
+
+        $qrCode = $request->id_barang;
     
         try {
-            if ($request->has('barcode')) {
-                $barang = Barang::where('barcode', $request->barcode)->first();
-                if (!$barang) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Barang tidak ditemukan berdasarkan barcode',
-                        'status_code' => 404,
-                    ], 404);
-                }
-                $id_barang = $barang->id;
-            } else {
-                $id_barang = $request->id_barang;
+
+            $barang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
+            if (!$barang) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Barang tidak ditemukan berdasarkan qrcode',
+                    'status_code' => 404,
+                ], 404);
             }
-    
+            
+            $id_barang = $barang->id_barang;
+
             if ($request->id_toko == 1) {
                 $stock = StockBarang::where('id_barang', $id_barang)->first();
+
+                if ($stock) {
+                    return response()->json([
+                        'error' => false,
+                        'message' => 'Successfully',
+                        'status_code' => 200,
+                        'data' => [
+                            'id_barang' => $stock->id_barang,
+                            'id_supplier' => $barang->id_supplier,
+                            'nama_barang' => $stock->barang->nama_barang,
+                            'qty' => $stock->stock,
+                            'harga' => $stock->hpp_baru,
+                        ],
+                    ]);
+                }
             } else {
                 $stock = DetailToko::where('id_barang', $id_barang)
                     ->where('id_toko', $request->id_toko)
                     ->first();
+
+                if ($stock) {
+                    return response()->json([
+                        'error' => false,
+                        'message' => 'Successfully',
+                        'status_code' => 200,
+                        'data' => [
+                            'id_barang' => $stock->id_barang,
+                            'id_supplier' => $barang->id_supplier,
+                            'nama_barang' => $stock->barang->nama_barang,
+                            'qty' => $stock->qty,
+                            'harga' => $stock->harga,
+                        ],
+                    ]);
+                }
             }
     
-            if ($stock) {
-                return response()->json([
-                    'error' => false,
-                    'message' => 'Successfully',
-                    'status_code' => 200,
-                    'data' => $stock,
-                ]);
-            } else {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Barang tidak ditemukan',
-                    'status_code' => 404,
-                ], 404);
-            }
+            return response()->json([
+                'error' => true,
+                'message' => 'Barang tidak ditemukan',
+                'status_code' => 404,
+            ], 404);
         } catch (\Exception $e) {
             Log::error('Error fetching harga barang: ' . $e->getMessage());
     
