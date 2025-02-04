@@ -174,34 +174,43 @@ class TokoController extends Controller
     }
 
     public function detail(string $id)
-    {
-        $menu = [$this->title[0], $this->label[0], $this->title[2]];
-        $toko = Toko::findOrFail($id);
+{
+    // Ambil data user yang sedang login
+    $user = Auth::user();
 
-        $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
-
-        // Jika hanya satu id disimpan, pastikan dia array
-        if (is_int($levelHargaArray)) {
-            $levelHargaArray = [$levelHargaArray];
+    // Jika user bukan id_level 1 atau 2, lakukan pembatasan akses
+    if (!in_array($user->id_level, [1, 2])) {
+        // Jika user adalah level 3, cek apakah dia hanya bisa melihat id_toko miliknya sendiri
+        if ($user->id_level == 3 && $user->id_toko != $id) {
+            abort(403, 'Unauthorized');
         }
-
-        // Ambil data level harga berdasarkan id yang ada di array
-        $levelhargas = [];
-        if (is_array($levelHargaArray) && !empty($levelHargaArray)) {
-            $levelhargas = LevelHarga::whereIn('id', $levelHargaArray)->get();
-        }
-
-        // dd($toko->levelharga());
-
-        $detail_toko = DetailToko::where('id_toko', $id)
-            ->with('barang')
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $stock = StockBarang::orderBy('id', 'desc')->get();
-
-        return view('master.toko.detail', compact('menu', 'toko', 'detail_toko', 'stock', 'levelhargas'));
     }
+
+    $menu = [$this->title[0], $this->label[0], $this->title[2]];
+    $toko = Toko::findOrFail($id);
+
+    $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
+
+    // Jika hanya satu id disimpan, pastikan dia array
+    if (is_int($levelHargaArray)) {
+        $levelHargaArray = [$levelHargaArray];
+    }
+
+    // Ambil data level harga berdasarkan id yang ada di array
+    $levelhargas = [];
+    if (is_array($levelHargaArray) && !empty($levelHargaArray)) {
+        $levelhargas = LevelHarga::whereIn('id', $levelHargaArray)->get();
+    }
+
+    $detail_toko = DetailToko::where('id_toko', $id)
+        ->with('barang')
+        ->orderBy('id', 'desc')
+        ->get();
+
+    $stock = StockBarang::orderBy('id', 'desc')->get();
+
+    return view('master.toko.detail', compact('menu', 'toko', 'detail_toko', 'stock', 'levelhargas'));
+}
 
     public function create_detail(string $id)
     {
@@ -243,6 +252,10 @@ class TokoController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2,])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[3]];
         $levelharga = LevelHarga::all();
         $toko = Toko::findOrFail($id);
