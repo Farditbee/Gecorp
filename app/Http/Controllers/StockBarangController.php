@@ -115,6 +115,10 @@ class StockBarangController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3, 4])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
         // Mengambil stock barang beserta relasi ke barang dan toko
