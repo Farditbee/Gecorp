@@ -63,10 +63,13 @@ Route::get('/getRetureBarcode', [RetureController::class, 'getRetureBarcode'])->
 Route::get('/getRetureSupplier', [RetureSuplierController::class, 'get'])->name('master.getreturesupplier');
 Route::get('/detailRetureSupplier', [RetureSuplierController::class, 'detailReture'])->name('master.detailReture');
 
+Route::get('/getBarang', [PengirimanBarangController::class, 'getHargaBarang'])->name('master.getBarangKirim');
+
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
     Route::get('member', [MasterController::class, 'getMember'])->name('member');
     Route::get('barang', [MasterController::class, 'getBarang'])->name('barang');
     Route::get('suplier', [MasterController::class, 'getSuplier'])->name('suplier');
+    Route::get('barang-pengiriman', [MasterController::class, 'getBarangPengiriman'])->name('barangKirim');
 });
 

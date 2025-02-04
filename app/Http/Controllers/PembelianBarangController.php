@@ -133,6 +133,8 @@ class PembelianBarangController extends Controller
             'id_supplier' => 'required|exists:supplier,id',
             'tgl_nota' => 'required|date',
             'no_nota' => 'required|numeric|unique:pembelian_barang,no_nota',
+        ], [
+            'no_nota.unique' => 'Nomor Nota sudah digunakan !',
         ]);
 
         try {
