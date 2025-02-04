@@ -86,7 +86,7 @@ class PembelianSeeder extends Seeder
             "status" => "success",
         ]);
 
-        $qrCodeData3 = $this->generateQrCode(1, 3, 1);
+        $qrCodeData3 = $this->generateQrCode(2, 1, 2);
 
         DetailPembelianBarang::create([
             "id" => 3,
@@ -101,7 +101,7 @@ class PembelianSeeder extends Seeder
             "status" => "success",
         ]);
 
-        $qrCodeData4 = $this->generateQrCode(1, 2, 1);
+        $qrCodeData4 = $this->generateQrCode(2, 2, 2);
 
         DetailPembelianBarang::create([
             "id" => 4,
