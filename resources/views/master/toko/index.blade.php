@@ -53,7 +53,7 @@
                                                 <th class="text-wrap align-top">Wilayah</th>
                                                 <th class="text-wrap align-top">Alamat</th>
                                                 <th class="text-wrap align-top">List Barang</th>
-                                                @if (auth()->user()->id_level === 1 || auth()->user()->id_level === 2)
+                                                @if (auth()->user()->id_level === '1' || auth()->user()->id_level === '2')
                                                     <th class="text-center text-wrap align-top">Action</th>
                                                 @endif
                                             </tr>
@@ -172,7 +172,7 @@
             </a>`;
 
             let action_buttons = '';
-            if ((@json(auth()->user()->id_level) === 1 || @json(auth()->user()->id_level) === 2) && (edit_button ||
+            if ((@json(auth()->user()->id_level) === '1' || @json(auth()->user()->id_level) === '2') && (edit_button ||
                     delete_button)) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
@@ -205,7 +205,7 @@
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
-                let actionButtons = (@json(auth()->user()->id_level) === 1 || @json(auth()->user()->id_level) === 2) ?
+                let actionButtons = (@json(auth()->user()->id_level) === '1' || @json(auth()->user()->id_level) === '2') ?
                     `<td class="${classCol}">${element.action_buttons}</td>` : '';
 
                 getDataTable += `

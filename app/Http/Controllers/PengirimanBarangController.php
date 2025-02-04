@@ -523,8 +523,139 @@ class PengirimanBarangController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function storetempPengiriman(Request $request)
     {
-        //
+        $request->validate([
+            'id_barang' => 'required',
+            'id_supplier' => 'required',
+            'qty' => 'required',
+            'harga' => 'required',
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        $totalharga = $request->qty * $request->harga;
+
+        try {
+
+            DB::table('temp_detail_pengiriman')->insert([
+                'id_pengiriman_barang' => $request->id_pengiriman_barang,
+                'id_barang' => $request->id_barang,
+                'id_supplier' => $request->id_barang,
+                'qty' => $request->qty,
+                'harga' => $request->harga,
+                'total_harga' => $totalharga,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil ditambahkan ke temp',
+                'status_code' => 200,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function deleteTempPengiriman(Request $request)
+    {
+        $request->validate([
+            'id_barang' => 'required',
+            'id_supplier' => 'required',
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        try {
+            DB::table('temp_detail_pengiriman')
+            ->where('id', $request->id)
+            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+            ->where('id_barang', $request->id_barang)
+            ->where('id_supplier', $request->id_supplier)
+            ->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil dihapus dari temp',
+                'status_code' => 200,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function updatetempPengiriman(Request $request)
+    {
+        $request->validate([
+            'id_barang' => 'required',
+            'id_supplier' => 'required',
+            'qty' => 'required',
+            'harga' => 'required',
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        $totalharga = $request->qty * $request->harga;
+
+        try {
+
+            DB::table('temp_detail_pengiriman')
+            ->where('id', $request->id)
+            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+            ->where('id_barang', $request->id_barang)
+            ->where('id_supplier', $request->id_supplier)
+            ->update([
+                'qty' => $request->qty,
+                'harga' => $request->harga,
+                'total_harga' => $totalharga,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil diupdate di temp',
+                'status_code' => 200,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function getTempPengiriman(Request $request)
+    {
+        $request->validate([
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        try {
+            $temp = DB::table('temp_detail_pengiriman')
+            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+            ->get();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil diambil',
+                'status_code' => 200,
+                'data' => $temp,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
     }
 }
