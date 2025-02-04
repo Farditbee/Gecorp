@@ -123,6 +123,8 @@
                                                         <div class="col">
                                                             <span
                                                                 class="badge badge-pill badge-secondary">{{ $pengiriman_barang->no_resi }}</span>
+                                                            <input type="hidden" id="id_pengiriman_barang"
+                                                                value="{{ $pengiriman_barang->id }}">
                                                         </div>
                                                     </div>
                                                 </li>
@@ -325,26 +327,27 @@
 
                     if (response.status === 200 && response.data.data) {
                         let item = response.data.data;
+                        let elementData = encodeURIComponent(JSON.stringify(item));
                         let subtotal = parseInt(document.getElementById('subTotal').dataset.value || 0);
 
-                        let minQty = item.stock > 0 ? 1 : 0;
-                        let maxQty = item.stock;
-                        let harga = item.hpp_baru;
+                        let minQty = item.qty > 0 ? 1 : 0;
+                        let maxQty = item.qty;
+                        let harga = item.harga;
                         let qty = 1;
 
                         let row = document.createElement('tr');
                         row.innerHTML = `
-                    <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
-                    <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
-                    <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
-                    <td>
-                        <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
-                            min="${minQty}" max="${maxQty}" data-harga="${harga}">
-                        <small class="text-danger">Max: ${maxQty}</small>
-                    </td>
-                    <td class="harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
-                    <td class="total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
-                `;
+                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
+                            <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
+                            <td>
+                                <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
+                                    min="${minQty}" max="${maxQty}" data-harga="${harga}">
+                                <small class="text-danger">Max: ${maxQty}</small>
+                            </td>
+                            <td class="harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
+                            <td class="total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
+                        `;
 
                         row.querySelector('.remove-item').addEventListener('click', function() {
                             removeItem(row);
@@ -361,7 +364,7 @@
                             row.querySelector('.total-harga').textContent = formatRupiah(newTotal);
 
                             let newSubtotal = [...document.querySelectorAll('.total-harga')].reduce((sum,
-                            el) => {
+                                el) => {
                                 return sum + parseInt(el.dataset.value || 0);
                             }, 0);
 
@@ -373,6 +376,7 @@
                         updateTotalHarga();
 
                         $('#id_barang').val(null).trigger('change');
+                        await addTemporaryField(elementData);
                     } else {
                         notificationAlert('error', 'Pemberitahuan', 'Harga barang tidak ditemukan.');
                     }
@@ -391,7 +395,32 @@
             document.getElementById('subTotal').dataset.value = subtotal;
 
             row.remove();
-            updateNumbers();
+        }
+
+        async function addTemporaryField(rawData) {
+            try {
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                let formData = {
+                    id_pengiriman_barang: $('#id_pengiriman_barang').val(),
+                    id_barang: data.id_barang,
+                    id_supplier: data.id_supplier,
+                    qty: data.qty,
+                    harga: data.harga,
+                };
+
+                const postData = await renderAPI('POST', '{{ route('temp.store.pengiriman') }}', formData);
+
+                if (postData.status >= 200 && postData.status < 300) {
+                    const response = postData.data.data;
+                } else {
+                    notificationAlert('info', 'Pemberitahuan', postData.message || 'Terjadi kesalahan');
+                }
+            } catch (error) {
+                loadingPage(false);
+                const resp = error.response || {};
+                notificationAlert('error', 'Kesalahan', resp.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+            }
         }
 
         async function initPageLoad() {
