@@ -34,4 +34,9 @@ class DetailPembelianBarang extends Model
     {
         return $this->belongsTo(Barang::class, 'id_barang');
     }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier');
+    }
 }

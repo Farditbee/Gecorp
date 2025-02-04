@@ -321,6 +321,7 @@ class PengirimanBarangController extends Controller
                         'data' => [
                             'id_barang' => $stock->id_barang,
                             'id_supplier' => $barang->id_supplier,
+                            'nama_supplier' => $barang->supplier->nama_supplier,
                             'nama_barang' => $stock->barang->nama_barang,
                             'qty' => $stock->qty,
                             'harga' => $stock->harga,
