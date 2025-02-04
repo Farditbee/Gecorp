@@ -294,6 +294,14 @@ class PengirimanBarangController extends Controller
             if ($request->id_toko == 1) {
                 $stock = StockBarang::where('id_barang', $id_barang)->first();
 
+                if ($stock->stock <= 0) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Stok barang kosong',
+                        'status_code' => 404,
+                    ], 404);
+                }
+
                 if ($stock) {
                     return response()->json([
                         'error' => false,
@@ -313,6 +321,14 @@ class PengirimanBarangController extends Controller
                 $stock = DetailToko::where('id_barang', $id_barang)
                     ->where('id_toko', $request->id_toko)
                     ->first();
+
+                if ($stock->qty <= 0) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Stok barang kosong',
+                        'status_code' => 404,
+                    ], 404);
+                }
 
                 if ($stock) {
                     return response()->json([
@@ -534,6 +550,14 @@ class PengirimanBarangController extends Controller
             'harga' => 'required',
             'id_pengiriman_barang' => 'required',
         ]);
+
+        if($request->qty <= 0) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Qty tidak boleh kurang dari 0',
+                'status_code' => 400,
+            ], 400);
+        }
 
         $totalharga = $request->qty * $request->harga;
 
