@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\JenisBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class JenisBarangController extends Controller
@@ -86,6 +87,9 @@ class JenisBarangController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
         $jenisbarang = JenisBarang::orderBy('id', 'desc')->get();
         return view('master.jenisbarang.index', compact('menu', 'jenisbarang'));
@@ -93,6 +97,9 @@ class JenisBarangController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         return view('master.jenisbarang.create', compact('menu'));
     }
@@ -122,6 +129,10 @@ class JenisBarangController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $jenisbarang = JenisBarang::findOrFail($id);
         return view('master.jenisbarang.edit', compact('menu', 'jenisbarang'));

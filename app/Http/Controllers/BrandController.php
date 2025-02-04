@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Brand;
 use App\Models\JenisBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -88,6 +89,9 @@ class BrandController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
         $brand = Brand::with('jenis')
             ->orderBy('id', 'desc')
@@ -98,6 +102,9 @@ class BrandController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $jenis = JenisBarang::all();
         return view('master.brand.create', compact('menu', 'jenis'), [
@@ -145,6 +152,9 @@ class BrandController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $brand = Brand::with('jenis')->findOrFail($id);
 
