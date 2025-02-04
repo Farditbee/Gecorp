@@ -7,7 +7,7 @@
                         style="visibility: visible; animation-delay: 0.8s; animation-name: fadeInLeft;">
                         <h3 class="f-title f_600 t_color f_size_18">Kontak Kami</h3>
                         <div id="kontak" class="f_social_icon">
-                            <a href="#kontak" onclick="openWhatsAppChat()" class="fab fa-whatsapp"></a>
+                            <a href="https://chat.whatsapp.com/EG7v7NMd5BpF3QZyYX4TZ6" target="_blank" class="fab fa-whatsapp"></a>
                         </div>
                     </div>
                 </div>
