@@ -274,18 +274,20 @@ class MasterController extends Controller
     
         if ($id_toko == 1) {
             $query = StockBarang::join('barang', 'stock_barang.id_barang', '=', 'barang.id')
-                ->select('stock_barang.id_barang', 'barang.nama_barang', 'stock_barang.stock as qty');
+                ->select('stock_barang.id_barang', 'barang.nama_barang', 'stock_barang.stock as qty', 'barang.barcode');
         } else {
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
                 ->where('detail_toko.id_toko', $id_toko)
-                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty');
+                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'barang.barcode');
         }
     
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
     
             $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(barang.id) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(barang.barcode) LIKE ?", ["%$searchTerm%"]);
             });
         }
     
@@ -314,7 +316,7 @@ class MasterController extends Controller
         $mappedData = array_map(function ($item) {
             return [
                 'id' => $item['id_barang'],
-                'text' => $item['nama_barang'] . '/' . $item['qty'],
+                'text' => $item['nama_barang'] . '/' . $item['qty'] . '/' . $item['barcode'],
             ];
         }, $data['data']);
     
