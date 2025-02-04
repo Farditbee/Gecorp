@@ -271,22 +271,32 @@ class PengirimanBarangController extends Controller
     public function getHargaBarang(Request $request)
     {
         $request->validate([
-            'id_toko' => 'required|integer',
-            'id_barang' => 'required|integer',
-            'barcode' => 'required|string',
+            'id_toko' => 'required|string',
+            'id_barang' => 'sometimes|string',
+            'barcode' => 'sometimes|string',
         ]);
-
-        $barang = Barang::where('barcode', $request->barcode)
-                        ->where('id', $request->id_barang)
-                        ->first();
     
         try {
-            if ($request->id_toko == 1) {
-                $stock = StockBarang::where('id_barang', $barang->id)->first();
+            if ($request->has('barcode')) {
+                $barang = Barang::where('barcode', $request->barcode)->first();
+                if (!$barang) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Barang tidak ditemukan berdasarkan barcode',
+                        'status_code' => 404,
+                    ], 404);
+                }
+                $id_barang = $barang->id;
             } else {
-                $stock = DetailToko::where('id_barang', $barang->id)
-                                    ->where('id_toko', $request->id_toko)
-                                    ->first();
+                $id_barang = $request->id_barang;
+            }
+    
+            if ($request->id_toko == 1) {
+                $stock = StockBarang::where('id_barang', $id_barang)->first();
+            } else {
+                $stock = DetailToko::where('id_barang', $id_barang)
+                    ->where('id_toko', $request->id_toko)
+                    ->first();
             }
     
             if ($stock) {
@@ -308,7 +318,7 @@ class PengirimanBarangController extends Controller
     
             return response()->json([
                 'error' => true,
-                'message' => 'Terjadi kesalahan pada server' . $e->getMessage(),
+                'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
                 'status_code' => 500,
             ], 500);
         }
