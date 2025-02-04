@@ -99,7 +99,10 @@
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
 
-            let filterParams = {};
+            let filterParams = {
+                id_level: @json(auth()->user()->id_level),
+                id_toko: @json(auth()->user()->id_toko),
+            };
 
             let getDataRest = await renderAPI(
                 'GET',
