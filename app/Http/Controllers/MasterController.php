@@ -274,21 +274,27 @@ class MasterController extends Controller
     
         if ($id_toko == 1) {
             $query = StockBarang::join('barang', 'stock_barang.id_barang', '=', 'barang.id')
-                ->select('stock_barang.id_barang', 'barang.nama_barang', 'stock_barang.stock as qty', 'barang.barcode');
+                ->join('detail_pembelian_barang as dt_barang', 'stock_barang.id_barang', '=', 'dt_barang.id_barang')
+                ->select('stock_barang.id_barang', 'barang.nama_barang', 'stock_barang.stock as qty', 'dt_barang.qrcode');
         } else {
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
+                ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
                 ->where('detail_toko.id_toko', $id_toko)
-                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'barang.barcode');
+                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'dt_barang.qrcode');
         }
     
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
     
             $query->where(function ($query) use ($searchTerm) {
-                $query->orWhereRaw("LOWER(barang.id) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(barang.barcode) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
             });
+        } else {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Silahkan masukkan qrcode barang',
+            ], 400);
         }
     
         $data = $query->paginate($meta['limit']);
@@ -315,8 +321,8 @@ class MasterController extends Controller
     
         $mappedData = array_map(function ($item) {
             return [
-                'id' => $item['id_barang'],
-                'text' => $item['nama_barang'] . '/' . $item['qty'] . '/' . $item['barcode'],
+                'id' => $item['qrcode'],
+                'text' => $item['nama_barang'] . '/' . $item['qty'] . '/' . $item['qrcode'],
             ];
         }, $data['data']);
     
