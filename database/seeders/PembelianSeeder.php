@@ -85,7 +85,7 @@ class PembelianSeeder extends Seeder
         ]);
 
         StockBarang::create([
-            "id" => 1,
+            "id" => 2,
             "id_barang" => "2",
             "stock" => 20,
             "hpp_awal" => 300000,
