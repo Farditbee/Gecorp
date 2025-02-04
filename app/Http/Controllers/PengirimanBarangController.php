@@ -631,4 +631,31 @@ class PengirimanBarangController extends Controller
             ], 500);
         }
     }
+
+    public function getTempPengiriman(Request $request)
+    {
+        $request->validate([
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        try {
+            $temp = DB::table('temp_detail_pengiriman')
+            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+            ->get();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil diambil',
+                'status_code' => 200,
+                'data' => $temp,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
 }
