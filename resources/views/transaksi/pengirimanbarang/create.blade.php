@@ -314,7 +314,7 @@
             });
         }
 
-        function setCreate() {
+        function addData() {
             document.getElementById('add-item-detail')?.addEventListener('click', async function() {
                 let idBarang = document.getElementById('id_barang').value.trim();
 
@@ -341,7 +341,7 @@
 
                         let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
                             let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
-                            ?.value;
+                                ?.value;
                             let existingIdSupplier = row.querySelector('input[name="id_supplier[]"]')
                                 ?.value;
                             return existingIdBarang == item.id_barang && existingIdSupplier ==
@@ -384,6 +384,8 @@
                             removeItem(row, elementData);
                         });
 
+                        await createRowTable(elementData);
+
                         let qtyInput = row.querySelector('.qty-input');
                         qtyInput.addEventListener('input', debounce(async function() {
                             let newQty = parseInt(qtyInput.value) || 1;
@@ -403,7 +405,6 @@
                         updateTotalHarga(row);
 
                         $('#id_barang').val(null).trigger('change');
-                        await addTemporaryField(elementData);
                     } else {
                         notificationAlert('error', 'Pemberitahuan', 'Harga barang tidak ditemukan.');
                     }
@@ -453,7 +454,6 @@
             }
         }
 
-        // Fungsi debounce agar tidak terlalu banyak request
         function debounce(func, delay) {
             let timer;
             return function(...args) {
@@ -494,7 +494,7 @@
             }
         }
 
-        async function addTemporaryField(rawData) {
+        async function createRowTable(rawData) {
             try {
                 let data = JSON.parse(decodeURIComponent(rawData));
 
@@ -524,7 +524,7 @@
             await selectData(selectOptions);
             await selectFormat('#toko_pengirim', 'Pilih Toko');
             await selectFormat('#nama_pengirim', 'Pilih Pengirim');
-            await setCreate();
+            await addData();
         }
     </script>
 @endsection
