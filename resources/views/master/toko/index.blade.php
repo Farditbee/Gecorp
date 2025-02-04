@@ -53,7 +53,9 @@
                                                 <th class="text-wrap align-top">Wilayah</th>
                                                 <th class="text-wrap align-top">Alamat</th>
                                                 <th class="text-wrap align-top">List Barang</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                @if (auth()->user()->id_level === 1 || auth()->user()->id_level === 2)
+                                                    <th class="text-center text-wrap align-top">Action</th>
+                                                @endif
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -169,6 +171,19 @@
                 </div>
             </a>`;
 
+            let action_buttons = '';
+            if ((@json(auth()->user()->id_level) === 1 || @json(auth()->user()->id_level) === 2) && (edit_button ||
+                    delete_button)) {
+                action_buttons = `
+                <div class="d-flex justify-content-start">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
+            }
+
             return {
                 id: data?.id ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
@@ -177,8 +192,7 @@
                 wilayah: data?.wilayah ?? '-',
                 alamat: data?.alamat ?? '-',
                 detail_button,
-                edit_button,
-                delete_button,
+                action_buttons,
             };
         }
 
@@ -191,26 +205,20 @@
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
+                let actionButtons = (@json(auth()->user()->id_level) === 1 || @json(auth()->user()->id_level) === 2) ?
+                    `<td class="${classCol}">${element.action_buttons}</td>` : '';
+
                 getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.singkatan}</td>
-                        <td class="${classCol}">${element.nama_level_harga}</td>
-                        <td class="${classCol}">${element.wilayah}</td>
-                        <td class="${classCol}">${element.alamat}</td>
-                        <td class="${classCol}">${element.detail_button}</td>
-                        <td class="${classCol}">
-                            <div class="d-flex justify-content-center w-100">
-                                <div class="hovering p-1">
-                                    ${element.edit_button}
-                                </div>
-                                <div class="hovering p-1">
-                                    ${element.delete_button}
-                                </div>
-                            </div>
-                        </td>
-                    </tr>`;
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
+                    <td class="${classCol}">${element.singkatan}</td>
+                    <td class="${classCol}">${element.nama_level_harga}</td>
+                    <td class="${classCol}">${element.wilayah}</td>
+                    <td class="${classCol}">${element.alamat}</td>
+                    <td class="${classCol}">${element.detail_button}</td>
+                    ${actionButtons}
+                </tr>`;
             });
 
             $('#listData').html(getDataTable);
