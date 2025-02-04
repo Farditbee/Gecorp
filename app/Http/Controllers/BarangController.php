@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Brand;
 use App\Models\JenisBarang;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\Facades\DNS1DFacade;
@@ -103,7 +104,10 @@ class BarangController extends Controller
 
     public function index()
     {
-    $menu = [$this->title[0], $this->label[0]];
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+        $menu = [$this->title[0], $this->label[0]];
         $barang = Barang::with('brand', 'jenis')
             ->orderBy('id', 'desc')
             ->get();
@@ -112,6 +116,9 @@ class BarangController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $jenis = JenisBarang::all();
         $brand = Brand::all();
@@ -136,7 +143,6 @@ class BarangController extends Controller
         return response()->json($brands);
     }
 
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -147,7 +153,6 @@ class BarangController extends Controller
             'garansi' => 'nullable|string|max:255',
             'gambar_barang' => 'nullable|image|max:2048',
         ]);
-
 
         try {
             // Ambil nama jenis dan brand barang
@@ -230,6 +235,10 @@ class BarangController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $barang = Barang::with('brand', 'jenis')->findOrFail($id);
         $brand = Brand::all();
@@ -243,33 +252,31 @@ class BarangController extends Controller
 
     public function update(Request $request, string $id)
     {
-    $request->validate([
-        'id_jenis_barang' => 'required|integer',
-        'id_brand_barang' => 'required|integer',
-        'nama_barang' => 'required|string|max:255',
-    ]);
-
-    $barang = Barang::findOrFail($id);
-
-    try {
-        $barang->update([
-            'id_jenis_barang' => $request->id_jenis_barang,
-            'id_brand_barang' => $request->id_brand_barang,
-            'nama_barang' => $request->nama_barang,
-            'garansi' => $request->garansi,
+        $request->validate([
+            'id_jenis_barang' => 'required|integer',
+            'id_brand_barang' => 'required|integer',
+            'nama_barang' => 'required|string|max:255',
         ]);
-        return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
-    } catch (\Throwable $th) {
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
+
+        $barang = Barang::findOrFail($id);
+
+        try {
+            $barang->update([
+                'id_jenis_barang' => $request->id_jenis_barang,
+                'id_brand_barang' => $request->id_brand_barang,
+                'nama_barang' => $request->nama_barang,
+                'garansi' => $request->garansi,
+            ]);
+            return redirect()->route('master.barang.index')->with('success', 'Sukses Mengubah Data Barang');
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
+        }
     }
-}
 
     public function delete(string $id)
     {
         DB::beginTransaction();
-
         $barang = Barang::findOrFail($id);
-
         try {
 
             $barang->delete();
