@@ -62,7 +62,7 @@ class UserSeeder extends Seeder
         Toko::create([
             "id" => 1,
             "nama_toko" => "GSS",
-            "id_level_harga" => "",
+            "id_level_harga" => json_encode([]),
             "wilayah" => "Jakarta",
             "alamat" => 'Jakpus',
         ]);
