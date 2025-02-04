@@ -328,13 +328,13 @@
         .new_footer_top .footer_bg {
             position: absolute;
             bottom: 0;
-            background: url('{{ asset("images/footer/footer_bg.png") }}') no-repeat scroll center 0;
+            background: url('{{ asset('images/footer/footer_bg.png') }}') no-repeat scroll center 0;
             width: 100%;
             height: 266px;
         }
 
         .new_footer_top .footer_bg .footer_bg_one {
-            background: url('{{ asset("images/footer/volks.gif") }}') no-repeat center center;
+            background: url('{{ asset('images/footer/volks.gif') }}') no-repeat center center;
             width: 330px;
             height: 105px;
             background-size: 100%;
@@ -346,7 +346,7 @@
         }
 
         .new_footer_top .footer_bg .footer_bg_two {
-            background: url('{{ asset("images/footer/cyclist.gif") }}') no-repeat center center;
+            background: url('{{ asset('images/footer/cyclist.gif') }}') no-repeat center center;
             width: 88px;
             height: 100px;
             background-size: 100%;
@@ -402,7 +402,8 @@
 </head>
 
 <body>
-    <a href="https://chat.whatsapp.com/EG7v7NMd5BpF3QZyYX4TZ6" target="_blank" class="floating-button" id="whatsappButton">
+    <a href="https://chat.whatsapp.com/EG7v7NMd5BpF3QZyYX4TZ6" target="_blank" class="floating-button"
+        id="whatsappButton">
         <img src="{{ asset('images/logo/WhatsApp.svg') }}" alt="WhatsApp">
     </a>
 
@@ -588,25 +589,31 @@
                     isModal = null,
                     isFilter = {},
                     isDisabled = false,
+                    isMinimum = 0
                 }
                 of optionsArray) {
+
+                let errorMessage = "Data tidak ditemukan!";
+
                 let selectOption = {
                     ajax: {
                         url: isUrl,
                         dataType: 'json',
                         delay: 500,
                         headers: {
-                            Authorization: `Bearer ` + auth_token
+                            Authorization: `Bearer ${auth_token}`
                         },
                         data: function(params) {
-                            let query = {
+                            if (!params.term || params.term.length < isMinimum) {
+                                return null;
+                            }
+                            return {
                                 search: params.term,
                                 page: params.page || 1,
                                 limit: 30,
                                 ascending: 1,
                                 ...isFilter,
                             };
-                            return query;
                         },
                         processResults: function(res, params) {
                             let data = res.data;
@@ -623,6 +630,12 @@
                                 }
                             };
                         },
+                        error: function(xhr) {
+                            if (xhr.status === 400) {
+                                errorMessage = xhr.responseJSON?.message ||
+                                    "Terjadi kesalahan saat memuat data!";
+                            }
+                        }
                     },
                     dropdownParent: isModal ? $(isModal) : null,
                     allowClear: true,
@@ -630,38 +643,44 @@
                     dropdownAutoWidth: true,
                     width: '100%',
                     disabled: isDisabled ? $(isDisabled) : false,
+                    minimumInputLength: isMinimum ? $(isMinimum) : 0,
+                    language: {
+                        errorLoading: function() {
+                            return errorMessage;
+                        }
+                    }
                 };
 
                 await $(id).select2(selectOption);
             }
         }
 
-//         function openWhatsAppChat() {
-//             const phoneNumber = '{{ env('NO_WA') }}' || '6289518775924';
-//             const now = new Date();
-//             const hours = now.getHours();
+        //         function openWhatsAppChat() {
+        //             const phoneNumber = '{{ env('NO_WA') }}' || '6289518775924';
+        //             const now = new Date();
+        //             const hours = now.getHours();
 
-//             let greeting = "Pagi";
-//             if (hours >= 12 && hours < 15) {
-//                 greeting = "Siang";
-//             } else if (hours >= 15 && hours < 18) {
-//                 greeting = "Sore";
-//             } else if (hours >= 18 || hours < 4) {
-//                 greeting = "Malam";
-//             }
+        //             let greeting = "Pagi";
+        //             if (hours >= 12 && hours < 15) {
+        //                 greeting = "Siang";
+        //             } else if (hours >= 15 && hours < 18) {
+        //                 greeting = "Sore";
+        //             } else if (hours >= 18 || hours < 4) {
+        //                 greeting = "Malam";
+        //             }
 
-//             const message = `
-// Selamat ${greeting} Admin GSS,
-// Saya ingin menanyakan beberapa hal.
-// Terima kasih.
-// `.trim();
+        //             const message = `
+    // Selamat ${greeting} Admin GSS,
+    // Saya ingin menanyakan beberapa hal.
+    // Terima kasih.
+    // `.trim();
 
 
-//             const encodedMessage = encodeURIComponent(message);
+        //             const encodedMessage = encodeURIComponent(message);
 
-//             const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
-//             window.open(whatsappURL, "_blank");
-//         }
+        //             const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+        //             window.open(whatsappURL, "_blank");
+        //         }
 
         // const whatsappButton = document.getElementById('whatsappButton');
         // const dropdownContainer = document.getElementById('dropdownContainer');

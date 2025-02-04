@@ -93,6 +93,7 @@
                                                 <tr>
                                                     <th scope="col">Status</th>
                                                     <th scope="col">No</th>
+                                                    <th scope="col">QR Code</th>
                                                     <th scope="col">Nama Barang</th>
                                                     <th scope="col">Qty</th>
                                                     <th scope="col">Harga</th>
@@ -126,6 +127,7 @@
                                                             @endif
                                                         </td>
                                                         <td>{{ $loop->iteration }}</td>
+                                                        <td>{{ $detail->qrcode }}</td>
                                                         <td>{{ $detail->barang->nama_barang }}</td>
                                                         <td>{{ $detail->qty }}</td>
                                                         <td>Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
