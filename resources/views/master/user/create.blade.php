@@ -36,15 +36,23 @@
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="id_level" class=" form-control-label">Level<span
-                                                style="color: red">*</span></label>
+                                        <label for="id_level" class="form-control-label">Level<span style="color: red">*</span></label>
                                         <select name="id_level" id="selectors" class="form-control" tabindex="2">
                                             <option value="" required>~Pilih~</option>
-                                            @foreach ($leveluser as $lu)
-                                                <option value="{{ $lu->id }}">{{ $lu->nama_level }}</option>
-                                            @endforeach
+
+                                            @if (Auth::user()->id_level == 3)
+                                                @foreach ($leveluser->where('id', 4) as $lu)
+                                                    <option value="{{ $lu->id }}">{{ $lu->nama_level }}</option>
+                                                @endforeach
+                                            @else
+                                                @foreach ($leveluser as $lu)
+                                                    <option value="{{ $lu->id }}">{{ $lu->nama_level }}</option>
+                                                @endforeach
+                                            @endif
+
                                         </select>
                                     </div>
+
                                     <div class="form-group">
                                         <label for="nama" class=" form-control-label">Nama<span
                                                 style="color: red">*</span></label>

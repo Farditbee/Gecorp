@@ -35,11 +35,20 @@ class TokoController extends Controller
 
         $query->with(['levelHarga'])->orderBy('id', $meta['orderBy']);
 
+        // Ambil id_level dan id_toko dari request (dari frontend)
+        $idLevel = $request->input('id_level');
+        $idTokoUser = $request->input('id_toko'); // Dari tabel users, bukan tabel toko
+
+        // Jika user memiliki id_level = 3, hanya tampilkan toko yang sesuai dengan id_toko pengguna
+        if ($idLevel == 3) {
+            $query->where('id', $idTokoUser);
+        }
+
+        // Filter pencarian jika ada
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
@@ -72,7 +81,6 @@ class TokoController extends Controller
             // Decode id_level_harga ke array
             $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
 
-            // Pastikan idLevelHarga adalah array
             if (!is_array($idLevelHarga)) {
                 $idLevelHarga = [];
             }
@@ -95,7 +103,7 @@ class TokoController extends Controller
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
-            'errors' => true,
+            'errors' => false,
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
@@ -121,6 +129,10 @@ class TokoController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $levelharga = LevelHarga::orderBy('id', 'desc')->get();
         return view('master.toko.create', compact('menu', 'levelharga'));
