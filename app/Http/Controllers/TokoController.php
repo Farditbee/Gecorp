@@ -40,7 +40,7 @@ class TokoController extends Controller
         $idTokoUser = $request->input('id_toko'); // Dari tabel users, bukan tabel toko
 
         // Jika user memiliki id_level = 3, hanya tampilkan toko yang sesuai dengan id_toko pengguna
-        if ($idLevel == 3) {
+        if ($idLevel == 3 || $idLevel == 4) {
             $query->where('id', $idTokoUser);
         }
 
@@ -175,6 +175,9 @@ class TokoController extends Controller
 
     public function detail(string $id)
 {
+    if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+        abort(403, 'Unauthorized');
+    }
     // Ambil data user yang sedang login
     $user = Auth::user();
 
