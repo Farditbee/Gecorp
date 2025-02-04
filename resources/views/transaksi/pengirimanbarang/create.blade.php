@@ -225,6 +225,7 @@
                                                                     <th>Action</th>
                                                                     <th scope="col">No</th>
                                                                     <th scope="col">Nama Barang</th>
+                                                                    <th scope="col">Supplier</th>
                                                                     <th scope="col">Qty</th>
                                                                     <th scope="col">Harga</th>
                                                                     <th scope="col">Total Harga</th>
@@ -330,9 +331,31 @@
 
                     if (response.status === 200 && response.data.data) {
                         let item = response.data.data;
-                        let elementData = encodeURIComponent(JSON.stringify(item));
-                        let subtotal = parseInt(document.getElementById('subTotal').dataset.value || 0);
+                        let idSupplier = item.id_supplier;
 
+                        if (item.qty === 0) {
+                            notificationAlert('error', 'Error', 'Barang ini tidak tersedia (qty = 0)!');
+                            $('#id_barang').val(null).trigger('change');
+                            return;
+                        }
+
+                        let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
+                            let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
+                            ?.value;
+                            let existingIdSupplier = row.querySelector('input[name="id_supplier[]"]')
+                                ?.value;
+                            return existingIdBarang == item.id_barang && existingIdSupplier ==
+                                idSupplier;
+                        });
+
+                        if (existingRow) {
+                            notificationAlert('warning', 'Pemberitahuan',
+                                'Barang dengan supplier yang sama sudah ada!');
+                            $('#id_barang').val(null).trigger('change');
+                            return;
+                        }
+
+                        let elementData = encodeURIComponent(JSON.stringify(item));
                         let minQty = item.qty > 0 ? 1 : 0;
                         let maxQty = item.qty;
                         let harga = item.harga;
@@ -342,7 +365,12 @@
                         row.innerHTML = `
                             <td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>
                             <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
-                            <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
+                            <td>
+                                <input type="hidden" name="id_barang[]" value="${item.id_barang}">
+                                <input type="hidden" name="id_supplier[]" value="${idSupplier}">
+                                ${item.nama_barang}
+                            </td>
+                            <td class="supplier-text">${item.nama_supplier}</td>
                             <td>
                                 <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
                                     min="${minQty}" max="${maxQty}" data-harga="${harga}">
@@ -356,27 +384,23 @@
                             removeItem(row, elementData);
                         });
 
-                        row.querySelector('.qty-input').addEventListener('input', updateTotalHarga);
+                        let qtyInput = row.querySelector('.qty-input');
+                        qtyInput.addEventListener('input', debounce(async function() {
+                            let newQty = parseInt(qtyInput.value) || 1;
 
-                        function updateTotalHarga() {
-                            let newQty = parseInt(row.querySelector('.qty-input').value) || 0;
-                            let newHarga = parseInt(row.querySelector('.harga-text').dataset.value) || 0;
-                            let newTotal = newQty * newHarga;
+                            if (newQty < 1) {
+                                newQty = 1;
+                            } else if (newQty > maxQty) {
+                                newQty = maxQty;
+                            }
 
-                            row.querySelector('.total-harga').dataset.value = newTotal;
-                            row.querySelector('.total-harga').textContent = formatRupiah(newTotal);
-
-                            let newSubtotal = [...document.querySelectorAll('.total-harga')].reduce((sum,
-                                el) => {
-                                return sum + parseInt(el.dataset.value || 0);
-                            }, 0);
-
-                            document.getElementById('subTotal').textContent = formatRupiah(newSubtotal);
-                            document.getElementById('subTotal').dataset.value = newSubtotal;
-                        }
+                            qtyInput.value = newQty;
+                            updateTotalHarga(row);
+                            await updateRowTable(elementData, newQty);
+                        }, 500));
 
                         document.querySelector('#listData').appendChild(row);
-                        updateTotalHarga();
+                        updateTotalHarga(row);
 
                         $('#id_barang').val(null).trigger('change');
                         await addTemporaryField(elementData);
@@ -388,6 +412,56 @@
                 }
             });
         }
+
+        function updateTotalHarga(row) {
+            let qtyInput = row.querySelector('.qty-input');
+            let harga = parseInt(row.querySelector('.harga-text').dataset.value) || 0;
+            let qty = parseInt(qtyInput.value) || 0;
+            let total = qty * harga;
+
+            row.querySelector('.total-harga').dataset.value = total;
+            row.querySelector('.total-harga').textContent = formatRupiah(total);
+
+            let newSubtotal = [...document.querySelectorAll('.total-harga')].reduce((sum, el) => {
+                return sum + parseInt(el.dataset.value || 0);
+            }, 0);
+
+            document.getElementById('subTotal').textContent = formatRupiah(newSubtotal);
+            document.getElementById('subTotal').dataset.value = newSubtotal;
+        }
+
+        async function updateRowTable(rawData, newQty) {
+            try {
+                let data = JSON.parse(decodeURIComponent(rawData));
+                const postDataRest = await renderAPI(
+                    'PUT',
+                    '{{ route('update.temp.pengiriman') }}', {
+                        id_pengiriman_barang: $('#id_pengiriman_barang').val(),
+                        id_barang: data.id_barang,
+                        id_supplier: data.id_supplier,
+                        qty: newQty,
+                        harga: data.harga,
+                    }
+                );
+                if (postDataRest && postDataRest.status === 200) {
+                    console.log('Update berhasil!');
+                }
+            } catch (error) {
+                const resp = error.response;
+                const errorMessage = resp?.data?.message || 'Terjadi kesalahan saat memperbarui data.';
+                notificationAlert('error', 'Kesalahan', errorMessage);
+            }
+        }
+
+        // Fungsi debounce agar tidak terlalu banyak request
+        function debounce(func, delay) {
+            let timer;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => func.apply(this, args), delay);
+            };
+        }
+
 
         function removeItem(row, data) {
             let totalHargaItem = parseInt(row.querySelector('.total-harga').dataset.value);
