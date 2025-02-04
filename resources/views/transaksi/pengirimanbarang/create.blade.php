@@ -197,23 +197,26 @@
                                                 <div id="item-container">
                                                     <div class="item-group">
                                                         <div class="row">
-                                                            <div class="col-12">
+                                                            <div class="col-md-11">
                                                                 <input type="hidden" name="tk_pengirim" id="tk_pengirim"
                                                                     value="{{ $pengiriman_barang->toko_pengirim }}">
                                                                 <div class="form-group">
                                                                     <label for="id_barang" class="form-control-label">Nama
                                                                         Barang<span style="color: red">*</span></label>
                                                                     <select class="form-control select2" name="id_barang"
-                                                                        id="id_barang">
-                                                                    </select>
+                                                                        id="id_barang"></select>
                                                                 </div>
+                                                            </div>
+                                                            <div class="col-md-1 d-flex align-items-center">
+                                                                <button type="button" id="add-item-detail"
+                                                                    class="btn btn-secondary w-100">
+                                                                    <i class="fa fa-circle-plus"></i> Add
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <button type="button" id="add-item-detail" style="float: right"
-                                                    class="btn btn-secondary mb-3">Add
-                                                </button>
+
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <table class="table table-bordered">
@@ -227,8 +230,7 @@
                                                                     <th scope="col">Total Harga</th>
                                                                 </tr>
                                                             </thead>
-                                                            <tbody id="listData">
-                                                            </tbody>
+                                                            <tbody id="listData"></tbody>
                                                             <tfoot>
                                                                 <tr>
                                                                     <th scope="col" colspan="5"
@@ -283,6 +285,7 @@
             },
             isUrl: '{{ route('master.barangKirim') }}',
             placeholder: 'Pilih Barang',
+            isMinimum: 3,
         }];
 
         let subtotal = 0;
@@ -337,7 +340,7 @@
 
                         let row = document.createElement('tr');
                         row.innerHTML = `
-                            <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>
                             <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
                             <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
                             <td>
@@ -350,7 +353,7 @@
                         `;
 
                         row.querySelector('.remove-item').addEventListener('click', function() {
-                            removeItem(row);
+                            removeItem(row, elementData);
                         });
 
                         row.querySelector('.qty-input').addEventListener('input', updateTotalHarga);
@@ -386,7 +389,7 @@
             });
         }
 
-        function removeItem(row) {
+        function removeItem(row, data) {
             let totalHargaItem = parseInt(row.querySelector('.total-harga').dataset.value);
             let subtotal = parseInt(document.getElementById('subTotal').dataset.value || 0);
 
@@ -395,6 +398,26 @@
             document.getElementById('subTotal').dataset.value = subtotal;
 
             row.remove();
+            deleteRowTable(data);
+        }
+
+        async function deleteRowTable(rawData) {
+            try {
+                let data = JSON.parse(decodeURIComponent(rawData));
+                const postDataRest = await renderAPI(
+                    'DELETE',
+                    '{{ route('delete.temp.pengiriman') }}', {
+                        id_pengiriman_barang: $('#id_pengiriman_barang').val(),
+                        id_barang: data.id_barang,
+                        id_supplier: data.id_supplier
+                    }
+                );
+                if (postDataRest && postDataRest.status === 200) {}
+            } catch (error) {
+                const resp = error.response;
+                const errorMessage = resp?.data?.message || 'Terjadi kesalahan saat menghapus data.';
+                notificationAlert('error', 'Kesalahan', errorMessage);
+            }
         }
 
         async function addTemporaryField(rawData) {
