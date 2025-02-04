@@ -78,8 +78,8 @@
         </div>
     </div>
 
-    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
+    <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+        aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
@@ -98,11 +98,11 @@
                                             <div class="form-group">
                                                 <label for="id_toko" class="form-control-label">Nama Toko<span
                                                         style="color: red">*</span></label>
-                                                <select id="id_toko" name="id_toko" class="form-control id-toko">
+                                                <select id="id_toko" name="id_toko" class="form-control id-toko select2">
                                                     <option value="" selected>~Silahkan Pilih Toko~</option>
-                                                    <!-- Selalu dipilih secara default -->
                                                     @foreach ($toko as $tk)
-                                                        <option value="{{ $tk->id }}" {{ count($toko) === 1 ? 'selected' : '' }}>
+                                                        <option value="{{ $tk->id }}"
+                                                            {{ count($toko) === 1 ? 'selected' : '' }}>
                                                             {{ $tk->nama_toko }}
                                                         </option>
                                                     @endforeach
@@ -434,56 +434,52 @@
         });
 
         document.addEventListener('DOMContentLoaded', function() {
+            $('#id_toko').on('change', function() {
+                var idToko = $(this).val(); // Get the selected value of id_toko
 
-            document.getElementById('id_toko').addEventListener('change', function() {
-                var idToko = this.value; // Ambil nilai id_toko yang dipilih
-
-                // Loop melalui semua jenis barang
+                // Loop through all types of goods
                 @foreach ($jenis_barang as $jb)
                     (function(jbId) {
                         var levelHargaDropdown = document.getElementById('level_harga_' +
-                            jbId); // Ambil elemen dropdown level_harga untuk jenis barang ini
+                        jbId); // Get the level_harga dropdown for this type of good
 
-                        // Reset isi dropdown level_harga
-                        levelHargaDropdown.innerHTML =
-                            '<option value="">~Silahkan Pilih~</option>';
+                        // Reset the dropdown
+                        levelHargaDropdown.innerHTML = '<option value="">~Silahkan Pilih~</option>';
 
-                        if (idToko) { // Pastikan ada id_toko yang dipilih
-                            // Buat request AJAX untuk mendapatkan level_harga
+                        if (idToko) { // Ensure there is a selected id_toko
+                            // Make an AJAX request to get level_harga
                             var xhr = new XMLHttpRequest();
                             xhr.open('GET', '/admin/get-level-harga/' + idToko, true);
 
                             xhr.onload = function() {
                                 if (xhr.status === 200) {
-                                    console.log('Respon dari server:', xhr.responseText);
+                                    console.log('Server response:', xhr.responseText);
 
                                     var data = JSON.parse(xhr.responseText);
 
-                                    // Cek apakah data level harga ada
+                                    // Check if there are level harga
                                     if (data.length > 0) {
-                                        // Loop melalui data level harga yang diterima dan tambahkan opsi ke dropdown
+                                        // Loop through the data and add options to the dropdown
                                         data.forEach(function(level) {
-                                            var option = document.createElement(
-                                                'option');
-                                            option.value = level
-                                                .id; // ID dari level harga
+                                            var option = document.createElement('option');
+                                            option.value = level.id; // Level price ID
                                             option.text = level
-                                                .nama_level_harga; // Nama dari level harga
+                                            .nama_level_harga; // Level price name
                                             levelHargaDropdown.appendChild(option);
                                         });
                                     } else {
-                                        // Jika tidak ada level harga, tambahkan opsi "Tidak ada Level"
+                                        // If no level harga, add "No Level" option
                                         var option = document.createElement('option');
-                                        option.value = ""; // Value kosong
-                                        option.text = "Tidak ada Level"; // Teks untuk opsi
+                                        option.value = ""; // Empty value
+                                        option.text = "Tidak ada Level"; // Text for the option
                                         levelHargaDropdown.appendChild(option);
                                     }
                                 } else {
-                                    console.error('Error mendapatkan data dari server');
+                                    console.error('Error fetching data from server');
                                 }
                             };
 
-                            xhr.send(); // Kirim request
+                            xhr.send(); // Send the request
                         }
                     })({{ $jb->id }});
                 @endforeach
@@ -491,8 +487,8 @@
 
             const element = document.getElementById('selectors');
             const choices = new Choices(element, {
-                removeItemButton: true, // Memungkinkan penghapusan item
-                searchEnabled: true, // Mengaktifkan pencarian
+                removeItemButton: true, // Allow removing items
+                searchEnabled: true, // Enable search
             });
 
             // document.addEventListener('DOMContentLoaded', function() {
@@ -541,10 +537,26 @@
             }
         });
 
+        function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
+            if (!$(isParameter).find('option[value=""]').length) {
+                $(isParameter).prepend('<option value=""></option>');
+            }
+
+            $(isParameter).select2({
+                dropdownParent: $('#modal-form'),
+                disabled: isDisabled,
+                dropdownAutoWidth: true,
+                width: '100%',
+                placeholder: isPlaceholder,
+                allowClear: true,
+            });
+        }
+
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
+            await selectFormat('#id_toko', 'Pilih Toko', false);
         }
     </script>
 @endsection
