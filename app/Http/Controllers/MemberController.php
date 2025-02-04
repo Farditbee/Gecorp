@@ -142,11 +142,15 @@ class MemberController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user();
 
         // Ambil data member berdasarkan level user
-        if ($user->id_level == 1) {
+        if ($user->id_level == 1 || $user->id_level == 2) {
             $member = Member::orderBy('id', 'desc')
                 ->with(['levelharga', 'toko', 'jenis_barang'])
                 ->get();

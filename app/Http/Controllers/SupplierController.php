@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\ActivityLogger;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SupplierController extends Controller
@@ -23,6 +24,7 @@ class SupplierController extends Controller
 
     public function getsupplier(Request $request)
     {
+
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
@@ -93,6 +95,9 @@ class SupplierController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
         $supplier = Supplier::orderBy('id', 'desc')->get();
         return view('master.supplier.index', compact('menu', 'supplier'));
@@ -100,6 +105,10 @@ class SupplierController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         return view('master.supplier.create', compact('menu'));
     }
@@ -143,6 +152,10 @@ class SupplierController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $supplier = Supplier::findOrFail($id);
         return view('master.supplier.edit', compact('menu', 'supplier'));
