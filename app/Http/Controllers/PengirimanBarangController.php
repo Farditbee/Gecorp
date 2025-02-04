@@ -244,30 +244,86 @@ class PengirimanBarangController extends Controller
         }
     }
 
-    public function getHargaBarang($id_barang, $id_toko)
+    // public function getHargaBarang($id_barang, $id_toko)
+    // {
+    //     if ($id_toko == 1) {
+    //         $stock = StockBarang::where('id_barang', $id_barang)->first();
+
+    //         if ($stock) {
+    //             return response()->json(['harga' => $stock->hpp_baru]);
+    //         } else {
+    //             return response()->json(['error' => 'Barang tidak ditemukan'], 404);
+    //         }
+    //     } else {
+    //         $detail = DetailToko::where('id_barang', $id_barang)
+    //             ->where('id_toko', $id_toko) // Menyesuaikan dengan toko yang bersangkutan
+    //             ->first();
+    //         if ($detail) {
+    //             // return response()->json(['harga' => $detail->harga]);
+    //             return response()->json($detail);
+    //         } else {
+    //             return response()->json(['error' => 'Barang tidak ditemukan'], 404);
+    //         }
+    //     }
+    //     // Ambil harga dari tabel stock_barang berdasarkan id_barang
+    // }
+
+    public function getHargaBarang(Request $request)
     {
-        if ($id_toko == 1) {
-            $stock = StockBarang::where('id_barang', $id_barang)->first();
-
+        $request->validate([
+            'id_toko' => 'required|string',
+            'id_barang' => 'sometimes|string',
+            'barcode' => 'sometimes|string',
+        ]);
+    
+        try {
+            if ($request->has('barcode')) {
+                $barang = Barang::where('barcode', $request->barcode)->first();
+                if (!$barang) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Barang tidak ditemukan berdasarkan barcode',
+                        'status_code' => 404,
+                    ], 404);
+                }
+                $id_barang = $barang->id;
+            } else {
+                $id_barang = $request->id_barang;
+            }
+    
+            if ($request->id_toko == 1) {
+                $stock = StockBarang::where('id_barang', $id_barang)->first();
+            } else {
+                $stock = DetailToko::where('id_barang', $id_barang)
+                    ->where('id_toko', $request->id_toko)
+                    ->first();
+            }
+    
             if ($stock) {
-                return response()->json(['harga' => $stock->hpp_baru]);
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Successfully',
+                    'status_code' => 200,
+                    'data' => $stock,
+                ]);
             } else {
-                return response()->json(['error' => 'Barang tidak ditemukan'], 404);
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Barang tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
             }
-        } else {
-            $detail = DetailToko::where('id_barang', $id_barang)
-                ->where('id_toko', $id_toko) // Menyesuaikan dengan toko yang bersangkutan
-                ->first();
-            if ($detail) {
-                // return response()->json(['harga' => $detail->harga]);
-                return response()->json($detail);
-            } else {
-                return response()->json(['error' => 'Barang tidak ditemukan'], 404);
-            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching harga barang: ' . $e->getMessage());
+    
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
         }
-        // Ambil harga dari tabel stock_barang berdasarkan id_barang
     }
-
+    
     public function update(Request $request, $id)
     {
         // dd($request);

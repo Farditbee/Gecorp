@@ -106,8 +106,8 @@
         </div>
     </div>
 
-    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
-        aria-hidden="true">
+    <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+        aria-labelledby="myLargeModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lgs">
             <div class="modal-content">
                 <div class="modal-header">
@@ -169,18 +169,18 @@
                             <div class="col-4 text-end">
                                 <p class="mb-0">Member</p>
                             </div>
-                            <div class="col-8">
-                                <p>:
-                                    <select name="id_member" id="id_member">
-                                        <option value="" selected>~ Pilih Member ~</option>
-                                        <option value="Guest">Guest</option>
-                                        @foreach ($member as $mbr)
-                                            <option value="{{ $mbr->id }}"
-                                                data-level-info='@json($mbr->level_info)'>
-                                                {{ $mbr->nama_member }}</option>
-                                        @endforeach
-                                    </select>
-                                </p>
+                            <div class="col-8 d-flex align-items-center">
+                                <p class="mr-1">:</p>
+                                <select name="id_member" id="id_member" class="form-select select2">
+                                    <option value="" selected>~ Pilih Member ~</option>
+                                    <option value="Guest">Guest</option>
+                                    @foreach ($member as $mbr)
+                                        <option value="{{ $mbr->id }}"
+                                            data-level-info='@json($mbr->level_info)'>
+                                            {{ $mbr->nama_member }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -214,7 +214,7 @@
                                                             <label for="id_barang" class="form-control-label">Nama
                                                                 Barang<span style="color: red">*</span></label>
                                                             <select name="id_barang[]" id="barang"
-                                                                class="form-control">
+                                                                class="form-control select2">
                                                                 <option value="">~Silahkan Pilih Barang~</option>
                                                                 @foreach ($barang as $brg)
                                                                     <option value="{{ $brg->barang->id }}"
@@ -234,8 +234,8 @@
                                                     <div class="col-4">
                                                         <label for="harga" class="form-control-label">Harga<span
                                                                 style="color: red">*</span></label>
-                                                        <select class="form-control" name="harga[]" id="harga"
-                                                            style="display: block;">
+                                                        <select class="form-control select2" name="harga[]"
+                                                            id="harga" style="display: block;">
                                                             <option value="">~Pilih Member Dahulu~</option>
                                                         </select>
                                                     </div>
@@ -575,6 +575,21 @@
         let defaultSearch = '';
         let customFilter = {};
 
+        function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
+            if (!$(isParameter).find('option[value=""]').length) {
+                $(isParameter).prepend('<option value=""></option>');
+            }
+
+            $(isParameter).select2({
+                dropdownParent: $('#modal-form'),
+                disabled: isDisabled,
+                dropdownAutoWidth: true,
+                width: '100%',
+                placeholder: isPlaceholder,
+                allowClear: true,
+            });
+        }
+
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
 
@@ -900,218 +915,231 @@
             }
         });
 
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const memberSelect = document.getElementById('id_member');
+        //     const barangSelect = document.getElementById('barang');
+        //     const hargaSelect = document.getElementById('harga');
+
+        //     // Matikan barang dan harga saat pertama kali dimuat
+        //     barangSelect.disabled = true;
+        //     hargaSelect.disabled = true;
+
+        //     // Pastikan Select2 menangkap event change untuk member
+        //     $('#id_member').on('change', function() {
+        //         const memberId = $(this).val();
+
+        //         barangSelect.disabled = !memberId; // Aktifkan barang jika member dipilih
+
+        //         // Jika member berubah, reset harga kecuali barang sudah dipilih
+        //         if (!barangSelect.value) {
+        //             hargaSelect.disabled = true;
+        //             hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
+        //         }
+        //     });
+
+        //     // Pastikan Select2 menangkap event change untuk barang
+        //     $('#barang').on('change', function() {
+        //         const memberId = $('#id_member').val();
+        //         const barangId = $(this).val();
+
+        //         if (memberId && barangId) {
+        //             hargaSelect.innerHTML = '<option value="">Loading...</option>';
+        //             hargaSelect.disabled = true;
+
+        //             fetch(`/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
+        //                 .then(response => response.json())
+        //                 .then(data => {
+        //                     hargaSelect.innerHTML =
+        //                     ''; // Kosongkan dropdown sebelum menambahkan opsi baru
+
+        //                     if (Array.isArray(data.filteredHarga) && data.filteredHarga.length > 0) {
+        //                         data.filteredHarga.forEach(harga => {
+        //                             hargaSelect.innerHTML +=
+        //                                 `<option value="${harga}">${harga}</option>`;
+        //                         });
+        //                     } else if (data.filteredHarga) {
+        //                         hargaSelect.innerHTML +=
+        //                             `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
+        //                     }
+
+        //                     const options = hargaSelect.querySelectorAll('option[value]');
+
+        //                     if (options.length === 1) {
+        //                         hargaSelect.value = options[0]
+        //                         .value; // Pilih otomatis jika hanya satu opsi
+        //                     } else {
+        //                         hargaSelect.insertAdjacentHTML('afterbegin',
+        //                             '<option value="">~Masukkan Harga~</option>');
+        //                     }
+
+        //                     // Aktifkan harga hanya jika ada opsi tersedia
+        //                     hargaSelect.disabled = options.length === 0;
+        //                 })
+        //                 .catch(error => {
+        //                     console.error('Error fetching filtered harga:', error);
+        //                     hargaSelect.innerHTML =
+        //                         '<option value="">Terjadi kesalahan, coba lagi</option>';
+        //                     hargaSelect.disabled = true;
+        //                 });
+        //         } else {
+        //             // Jika barang kosong, reset harga ke default
+        //             hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
+        //             hargaSelect.disabled = true;
+        //         }
+        //     });
+        // });
+
 
         document.addEventListener('DOMContentLoaded', function() {
-            // const selectBarang = new TomSelect("#barang", {
-            //     // Menyimpan data value dan text untuk setiap opsi
-            //     valueField: 'value',
-            //     labelField: 'text',
-            //     searchField: ['text',
-            //         'data-search-barang'
-            //     ], // Memungkinkan pencarian di 'text' dan 'data-search-barang'
-            //     render: {}
-            // });
-
-            const memberSelect = document.getElementById('id_member');
-            const barangSelect = document.getElementById('barang');
-            const hargaSelect = document.getElementById('harga');
+            const memberSelect = $('#id_member');
+            const barangSelect = $('#barang');
+            const hargaSelect = $('#harga');
             const qtyInput = document.getElementById('qty');
             const addButton = document.getElementById('add-button');
             const tableBody = document.querySelector('.modal-body table tbody');
             const subtotalFooter = document.querySelector('.modal-body tfoot th[colspan="5"] + th');
-
             const metodeSelect = document.getElementById('metode');
             const uangBayarInput = document.getElementById('uang-bayar-input');
             const kembalianAmount = document.getElementById('kembalian-amount');
-
             let subtotal = 0;
 
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
                 rows.forEach((row, index) => {
-                    row.children[1].textContent = index + 1; // Mengupdate nomor baris
+                    row.children[1].textContent = index + 1;
                 });
             }
 
-            memberSelect.addEventListener('change', function() {
-                barangSelect.disabled = !this.value;
-                hargaSelect.disabled = true;
-                hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
+            memberSelect.select2().on('change', function() {
+                barangSelect.prop('disabled', !this.value).val(null).trigger('change');
+                hargaSelect.prop('disabled', true).html('<option value="">~Pilih Barang Dahulu~</option>')
+                    .trigger('change');
             });
 
-            barangSelect.addEventListener('change', function() {
-                const selectedBarang = this.options[this.selectedIndex];
-                const memberId = memberSelect.value;
-                const barangId = selectedBarang.value;
+            barangSelect.select2().on('change', function() {
+                const selectedBarang = $(this).find(':selected');
+                const memberId = memberSelect.val();
+                const barangId = selectedBarang.val();
 
                 if (memberId && barangId) {
-                    hargaSelect.innerHTML = '<option value="">Loading...</option>';
-                    hargaSelect.disabled = true;
-
-                    fetch(
-                            `/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`
-                        )
+                    hargaSelect.html('<option value="">Loading...</option>').prop('disabled', true).trigger(
+                        'change');
+                    fetch(`/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data.filteredHarga);
-                            hargaSelect.innerHTML =
-                                ''; // Kosongkan dropdown sebelum menambahkan opsi baru
-
+                            hargaSelect.empty();
                             if (Array.isArray(data.filteredHarga)) {
                                 data.filteredHarga.forEach(harga => {
                                     if (harga) {
-                                        hargaSelect.innerHTML +=
-                                            `<option value="${harga}">${harga}</option>`;
+                                        hargaSelect.append(new Option(harga, harga));
                                     }
                                 });
                             } else if (data.filteredHarga) {
-                                hargaSelect.innerHTML +=
-                                    `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
+                                hargaSelect.append(new Option(data.filteredHarga, data.filteredHarga));
                             }
 
-                            const options = hargaSelect.querySelectorAll('option[value]');
-                            if (options.length === 1) {
-                                // Jika hanya ada satu opsi, langsung pilih opsi tersebut
-                                hargaSelect.value = options[0]
-                                    .value; // Pilih nilai secara langsung
+                            if (hargaSelect.children().length === 1) {
+                                hargaSelect.val(hargaSelect.children().first().val());
                             } else {
-                                // Jika lebih dari satu opsi, tambahkan opsi default
-                                hargaSelect.insertAdjacentHTML('afterbegin',
-                                    '<option value="">~Masukkan Harga~</option>');
+                                hargaSelect.prepend(new Option('~Masukkan Harga~', ''));
                             }
 
-                            // Aktifkan kembali dropdown jika ada opsi
-                            hargaSelect.disabled = options.length === 0;
+                            hargaSelect.prop('disabled', hargaSelect.children().length === 0).trigger(
+                                'change');
                         })
                         .catch(error => console.error('Error fetching filtered harga:', error));
                 }
             });
 
+            hargaSelect.select2();
+
             function toggleMemberSelectDisabled() {
-                const hasRows = tableBody.children.length > 0;
-                memberSelect.disabled = hasRows;
+                memberSelect.prop('disabled', tableBody.children.length > 0);
             }
 
             addButton.addEventListener('click', function() {
-                let idBarang = document.getElementById('barang').value;
-                const selectedBarang = barangSelect.options[barangSelect.selectedIndex];
-                const selectedHarga = hargaSelect.value;
+                const idBarang = barangSelect.val();
+                const selectedBarang = barangSelect.find(':selected');
+                const selectedHarga = hargaSelect.val();
                 const qty = parseInt(qtyInput.value);
-                const stock = parseInt(selectedBarang.getAttribute('data-stock'));
-                let harga = parseInt(document.getElementById('harga').value);
+                const stock = parseInt(selectedBarang.data('stock'));
+                const harga = parseInt(selectedHarga);
 
-                // Cek apakah barang sudah ada di tabel
-                const existingRow = Array.from(tableBody.children).find(row => {
-                    const barangNameCell = row.children[2];
-                    return barangNameCell && barangNameCell.textContent.trim() ===
-                        selectedBarang
-                        .textContent.trim();
-                });
-
-                if (existingRow) {
+                if (tableBody.querySelectorAll(`tr td input[value='${idBarang}']`).length > 0) {
                     alert("Barang sudah ditambahkan");
-                    return; // Menghentikan proses jika barang sudah ada
+                    return;
                 }
 
-                // Validasi apakah qty melebihi stok
                 if (qty > stock) {
                     alert("Stock barang tidak cukup");
                     return;
                 }
 
-                if (!selectedBarang.value || !selectedHarga || !qty) {
+                if (!idBarang || !selectedHarga || !qty) {
                     alert("Silakan lengkapi semua data sebelum menambahkan.");
                     return;
                 }
 
-                const totalHarga = parseFloat(selectedHarga) * qty;
+                const totalHarga = harga * qty;
                 subtotal += totalHarga;
                 subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
 
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
-                    <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
-                    <td></td> <!-- Ini akan diisi oleh fungsi updateRowNumbers -->
-                    <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.textContent}</td>
-                    <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                    <td><input type="hidden" name="harga[]" value="${harga}">Rp ${parseFloat(selectedHarga).toLocaleString()}</td>
-                    <td>Rp ${totalHarga.toLocaleString()}</td>
-                `;
+            <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
+            <td></td>
+            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
+            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+            <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
+            <td>Rp ${totalHarga.toLocaleString()}</td>
+        `;
                 tableBody.appendChild(newRow);
 
                 qtyInput.value = '';
-                document.getElementById('harga').value = '';
-                document.getElementById('barang').value = '';
+                barangSelect.val(null).trigger('change');
+                hargaSelect.val(null).trigger('change');
 
-                // Menambah event listener untuk tombol hapus
                 newRow.querySelector('.remove-btn').addEventListener('click', function() {
                     subtotal -= totalHarga;
                     subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
                     newRow.remove();
-                    updateRowNumbers(); // Memperbarui nomor baris setelah menghapus
+                    updateRowNumbers();
                     toggleMemberSelectDisabled();
                 });
 
-                updateRowNumbers(); // Memperbarui nomor baris setelah menambahkan
+                updateRowNumbers();
                 toggleMemberSelectDisabled();
-
-                const searchBarangInput = document.getElementById('search-barang');
-                searchBarangInput.focus();
             });
 
-            document.getElementById('id_member').addEventListener('change', function() {
-                const selectedMember = this.value;
-                document.getElementById('hiddenMember').value = selectedMember;
-            });
-
-            // Set hidden inputs before form submission
-            document.querySelector('form').addEventListener('submit', function(event) {
+            document.querySelector('form').addEventListener('submit', function() {
                 document.getElementById('hiddenNoNota').value = document.getElementById('noNota')
                     .textContent;
-                document.getElementById('hiddenKembalian').value = document.getElementById(
-                    'kembalian-amount').textContent;
-                document.getElementById('hiddenMember').value = document.getElementById('id_member')
-                    .value;
+                document.getElementById('hiddenKembalian').value = kembalianAmount.textContent;
+                document.getElementById('hiddenMember').value = memberSelect.val();
             });
 
-            // Fungsi untuk update kembalian berdasarkan subtotal dan input Uang Bayar
             function updateKembalian() {
-                const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0; // Menghapus koma
+                const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0;
                 const kembalian = uangBayar - subtotal;
                 kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
-
-                // Menyimpan nilai kembalian ke input hidden
                 document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : 0;
             }
 
-            // Format input uang bayar dengan pemisah ribuan
             uangBayarInput.addEventListener('input', function() {
-                // Menghapus semua karakter non-digit (kecuali koma)
                 let value = this.value.replace(/[^0-9]/g, '');
-
-                // Menyimpan nilai asli (tanpa koma) di hidden input untuk database
                 document.getElementById('hiddenUangBayar').value = value;
-
-                // Menggunakan format pemisah ribuan
-                if (value) {
-                    this.value = parseInt(value).toLocaleString();
-                }
-                updateKembalian(); // Update kembalian
+                this.value = value ? parseInt(value).toLocaleString() : '';
+                updateKembalian();
             });
 
-            // Event listener untuk mengupdate kembalian secara real-time
-            uangBayarInput.addEventListener('input', updateKembalian);
-
-            // Menyembunyikan dan menampilkan baris Uang Bayar dan Kembalian sesuai metode pembayaran
             metodeSelect.addEventListener('change', function() {
                 const isTunai = metodeSelect.value === "Tunai";
                 document.getElementById('uang-bayar-row').style.display = isTunai ? '' : 'none';
                 document.getElementById('kembalian-row').style.display = isTunai ? '' : 'none';
-                uangBayarInput.value = ''; // Reset input dan kembalian jika metode diubah
+                uangBayarInput.value = '';
                 kembalianAmount.textContent = 'Rp 0';
             });
 
-            // Menetapkan tampilan awal berdasarkan pilihan metode pembayaran
             metodeSelect.dispatchEvent(new Event('change'));
         });
 
@@ -1121,6 +1149,9 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();
+            await selectFormat('#id_member', 'Pilih Member', false);
+            await selectFormat('#barang', 'Pilih Barang', false);
+            await selectFormat('#harga', 'Pilih Harga', false);
         }
     </script>
 @endsection

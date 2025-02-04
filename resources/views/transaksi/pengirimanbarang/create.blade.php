@@ -51,7 +51,6 @@
                                                             placeholder="Contoh : 001" class="form-control">
                                                     </div>
                                                 </div>
-
                                                 <div class="col-6">
                                                     <div class="form-group">
                                                         <label for="tgl_kirim" class="form-control-label">Tanggal
@@ -113,7 +112,6 @@
                                                 $pengiriman_barang ?? null,
                                             );
                                         @endphp
-
                                         @if ($pengiriman_barang)
                                             <ul class="list-group list-group-flush">
                                                 <li class="list-group-item">
@@ -194,103 +192,26 @@
                                                 method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <!-- Item Container -->
                                                 <div id="item-container">
                                                     <div class="item-group">
                                                         <div class="row">
                                                             <div class="col-12">
-                                                                <!-- Jenis Barang -->
-
-                                                                <!-- Hidden input untuk mengirim id_toko -->
                                                                 <input type="hidden" name="tk_pengirim" id="tk_pengirim"
                                                                     value="{{ $pengiriman_barang->toko_pengirim }}">
-
                                                                 <div class="form-group">
                                                                     <label for="id_barang" class="form-control-label">Nama
                                                                         Barang<span style="color: red">*</span></label>
                                                                     <select class="form-control select2" name="id_barang"
                                                                         id="id_barang">
-                                                                        <option value=""></option>
-                                                                        <!-- Opsi kosong untuk placeholder -->
-                                                                        @if ($pengiriman_barang->toko_pengirim == 1)
-                                                                            {{-- Jika toko_pengirim adalah 1, ambil data dari StockBarang --}}
-                                                                            @if ($stock->isEmpty())
-                                                                                <option value="">Tidak ada Barang
-                                                                                </option>
-                                                                            @else
-                                                                                @foreach ($stock as $tk)
-                                                                                    <option value="{{ $tk->id_barang }}"
-                                                                                        data-stock="{{ $tk->stock }}">
-                                                                                        {{ $tk->nama_barang }} ( Stock
-                                                                                        Tersedia :
-                                                                                        <strong>{{ $tk->stock }}</strong>
-                                                                                        )
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            @endif
-                                                                        @else
-                                                                            {{-- Jika toko_pengirim bukan 1, ambil data dari DetailToko yang sesuai dengan toko_pengirim --}}
-                                                                            @php
-                                                                                $detailBarang = $detail_toko->where(
-                                                                                    'id_toko',
-                                                                                    $pengiriman_barang->toko_pengirim,
-                                                                                );
-                                                                            @endphp
-
-                                                                            @if ($detailBarang->isEmpty())
-                                                                                <option value="">Tidak ada Barang Di
-                                                                                    Toko Ini</option>
-                                                                            @else
-                                                                                @foreach ($detailBarang as $dt)
-                                                                                    <option value="{{ $dt->id_barang }}"
-                                                                                        data-stock="{{ $dt->qty }}">
-                                                                                        {{ $dt->barang->nama_barang }} (
-                                                                                        Stock Tersedia :
-                                                                                        <strong>{{ $dt->qty }}</strong>
-                                                                                        )
-                                                                                    </option>
-                                                                                @endforeach
-                                                                            @endif
-                                                                        @endif
                                                                     </select>
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-6">
-                                                                <!-- Jumlah Item -->
-                                                                <div class="form-group">
-                                                                    <label for="harga" class="form-control-label">Harga
-                                                                        per Barang<span style="color: red">*</span></label>
-                                                                    <input type="text" id="harga_formatted" readonly
-                                                                        placeholder="0" class="form-control">
-                                                                    <!-- Menampilkan harga dengan format -->
-                                                                    <input type="hidden" id="harga" name="harga[]">
-                                                                    <!-- Harga asli yang akan dikirim ke database -->
-                                                                </div>
-                                                            </div>
-
-                                                            <div class="col-6">
-                                                                <!-- Harga Barang -->
-                                                                <div class="form-group">
-                                                                    <label for="jml_item"
-                                                                        class="form-control-label">Jumlah Item<span
-                                                                            style="color: red">*</span></label>
-                                                                    <input type="number" id="jml_item" min="1"
-                                                                        name="jml_item[]" placeholder="Contoh: 16"
-                                                                        class="form-control jumlah-item" readonly>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <button type="button" id="add-item-detail" style="float: right"
-                                                    class="btn btn-secondary">Add</button>
-                                                <br><br>
-
-                                                <br>
+                                                    class="btn btn-secondary mb-3">Add
+                                                </button>
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <table class="table table-bordered">
@@ -304,18 +225,16 @@
                                                                     <th scope="col">Total Harga</th>
                                                                 </tr>
                                                             </thead>
-                                                            <tbody>
-                                                                <!-- Rows akan ditambahkan di sini oleh JavaScript -->
+                                                            <tbody id="listData">
                                                             </tbody>
                                                             <tfoot>
                                                                 <tr>
                                                                     <th scope="col" colspan="5"
                                                                         style="text-align:right">SubTotal</th>
-                                                                    <th scope="col">Rp </th>
+                                                                    <th id="subTotal" scope="col">Rp </th>
                                                                 </tr>
                                                             </tfoot>
                                                         </table>
-                                                        <!-- Submit Button -->
                                                         <div class="form-group">
                                                             <button type="submit" class="btn btn-primary">
                                                                 <i class="fa fa-dot-circle-o"></i> Simpan
@@ -330,16 +249,6 @@
                                                 "Tambah Pengiriman" terlebih dahulu.
                                             </div>
                                         @endif
-                                        <div class="tab-pane fade" id="custom-nav-contact" role="tabpanel"
-                                            aria-labelledby="custom-nav-contact-tab">
-                                            <p>Raw denim you probably haven't heard of them jean shorts Austin. Nesciunt
-                                                tofu stumptown aliqua, retro synth transaksi cleanse. Mustache cliche
-                                                tempor,
-                                                williamsburg carles vegan helvetica. Reprehenderit butcher retro keffiyeh
-                                                dreamcatcher synth. Cosby sweater eu banh mi, irure terry richardson ex sd.
-                                                Alip placeat salvia cillum iphone. Seitan alip s cardigan american apparel,
-                                                butcher voluptate nisi .</p>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -365,43 +274,24 @@
                 is_admin: true,
             },
             placeholder: 'Pilih Nama Toko',
+        }, {
+            id: '#id_barang',
+            isFilter: {
+                id_toko: '{{ auth()->user()->id_toko }}',
+            },
+            isUrl: '{{ route('master.barangKirim') }}',
+            placeholder: 'Pilih Barang',
         }];
+
         let subtotal = 0;
         let addedItems = new Set();
         let lastDeletedItem = null;
         const tglKirim = document.getElementById('tgl_kirim');
+
         if (tglKirim) {
             tglKirim.addEventListener('focus', function() {
                 this.showPicker();
             });
-        }
-
-        function updateNumbers() {
-            let rows = document.querySelectorAll('tbody tr');
-            rows.forEach((row, index) => {
-                row.querySelector('.numbered').textContent = index + 1;
-            });
-        }
-
-        function formatNumber(num) {
-            return new Intl.NumberFormat('id-ID', {
-                minimumFractionDigits: 0
-            }).format(num);
-        }
-
-        function toggleInputFields(disabled) {
-            document.getElementById('jml_item').readOnly = disabled;
-            document.getElementById('harga').disabled = disabled;
-            if (disabled) {
-                document.getElementById('jml_item').value = '';
-                document.getElementById('harga').value = '';
-            }
-        }
-
-        function checkInputFields() {
-            let idBarang = document.getElementById('id_barang').value;
-            let isItemAdded = addedItems.has(idBarang);
-            toggleInputFields(isItemAdded);
         }
 
         function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
@@ -419,165 +309,95 @@
         }
 
         function setCreate() {
-            $('#id_barang').change(function() {
-                var idBarang = $(this).val();
-                var idToko = $('#tk_pengirim').val();
-
-                if (idBarang) {
-                    $.ajax({
-                        url: '/admin/get-harga-barang/' + idBarang + '/' + idToko,
-                        type: 'GET',
-                        success: function(response) {
-                            console.log("Response from server: ", response);
-                            if (response.harga) {
-                                $('#harga_formatted').val(formatNumber(response.harga));
-                                $('#harga').val(response.harga);
-                                document.getElementById('jml_item').readOnly = false;
-                            } else {
-                                alert('Harga barang tidak ditemukan.');
-                            }
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Error fetching price:", error);
-                            alert('Gagal mendapatkan harga barang.');
-                        }
-                    });
-                } else {
-                    $('#harga_formatted').val('');
-                    $('#harga').val('');
-                }
-            });
-
-            document.getElementById('add-item-detail')?.addEventListener('click', function() {
+            document.getElementById('add-item-detail')?.addEventListener('click', async function() {
                 let idBarang = document.getElementById('id_barang').value.trim();
-                let selectedOption = document.getElementById('id_barang').selectedOptions[0];
 
-                if (!idBarang || !selectedOption) {
-                    notificationAlert('error', 'Error', 'Harap pilih barang terlebih dahulu!');
+                if (!idBarang) {
+                    notificationAlert('error', 'Error', 'Harap pilih barang dengan benar!');
                     return;
                 }
 
-                let namaBarang = selectedOption.text;
-                let stok = parseInt(selectedOption.getAttribute('data-stock')) || 0;
-                let qtyInput = document.getElementById('jml_item').value.trim();
-                let hargaInput = document.getElementById('harga').value.trim();
+                try {
+                    let response = await renderAPI('GET', '{{ route('master.getBarangKirim') }}', {
+                        id_toko: '{{ auth()->user()->id_toko }}',
+                        id_barang: idBarang
+                    });
 
-                // Pastikan qty dan harga bernilai angka yang valid
-                let qty = qtyInput ? parseInt(qtyInput) : 0;
-                let harga = hargaInput ? parseInt(hargaInput) : 0;
+                    if (response.status === 200 && response.data.data) {
+                        let item = response.data.data;
+                        let subtotal = parseInt(document.getElementById('subTotal').dataset.value || 0);
 
-                if (qty > stok) {
-                    notificationAlert('error', 'Error', 'Stock barang tidak cukup!');
-                    return;
-                }
+                        let minQty = item.stock > 0 ? 1 : 0;
+                        let maxQty = item.stock;
+                        let harga = item.hpp_baru;
+                        let qty = 1;
 
-                if (stok === 0) {
-                    notificationAlert('error', 'Error', 'Stock barang sudah habis!');
-                    return;
-                }
-
-                if (qty <= 0) {
-                    notificationAlert('error', 'Error', 'Jumlah item tidak boleh 0 atau kosong!');
-                    return;
-                }
-
-                if (addedItems.has(idBarang)) {
-                    notificationAlert('error', 'Error', 'Barang ini sudah ditambahkan sebelumnya.');
-                    return;
-                }
-
-                addedItems.add(idBarang);
-                let totalHarga = qty * harga;
-                subtotal += totalHarga;
-
-                let row = `
-                    <tr>
-                        <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
-                        <td class="numbered">${document.querySelectorAll('tbody tr').length + 1}</td>
-                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${namaBarang}</td>
-                        <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-                        <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString('id-ID')}</td>
-                        <td>Rp ${totalHarga.toLocaleString('id-ID')}</td>
-                    </tr>
+                        let row = document.createElement('tr');
+                        row.innerHTML = `
+                    <td><button type="button" class="btn btn-danger btn-sm remove-item">Remove</button></td>
+                    <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
+                    <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
+                    <td>
+                        <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
+                            min="${minQty}" max="${maxQty}" data-harga="${harga}">
+                        <small class="text-danger">Max: ${maxQty}</small>
+                    </td>
+                    <td class="harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
+                    <td class="total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
                 `;
 
-                document.querySelector('tbody').insertAdjacentHTML('beforeend', row);
-                document.querySelector('tfoot tr th:last-child').textContent =
-                    `Rp ${subtotal.toLocaleString('id-ID')}`;
-
-                toggleInputFields(true);
-                updateNumbers();
-
-                $('#id_barang').val(null).trigger('change');
-            });
-
-            document.querySelector('tbody')?.addEventListener('click', function(e) {
-                if (e.target.classList.contains('remove-item')) {
-                    let row = e.target.closest('tr');
-                    let idBarang = row.querySelector('input[name="id_barang[]"]').value;
-                    let totalHarga = parseInt(row.querySelector('td:last-child').textContent
-                        .replace(
-                            /[^\d]/g, '')) || 0;
-
-                    subtotal -= totalHarga;
-                    row.remove();
-                    addedItems.delete(idBarang);
-
-                    lastDeletedItem = {
-                        id: idBarang,
-                        nama: row.querySelector('td:nth-child(3)').textContent,
-                        qty: row.querySelector('td:nth-child(4)').textContent,
-                        harga: row.querySelector('td:nth-child(5)').textContent.replace(/\D/g,
-                            '')
-                    };
-
-                    document.querySelector('tfoot tr th:last-child').textContent =
-                        `Rp ${subtotal.toLocaleString('id-ID')}`;
-                    updateNumbers();
-
-                    if (!addedItems.size) {
-                        toggleInputFields(false);
-                    } else {
-                        document.getElementById('id_barang').value = lastDeletedItem.id;
-                        document.getElementById('jml_item').value = lastDeletedItem.qty;
-                        document.getElementById('harga').value = lastDeletedItem.harga;
-                        checkInputFields();
-                    }
-                }
-            });
-
-            document.getElementById('id_barang')?.addEventListener('change', function() {
-                let idBarang = this.value;
-
-                if (idBarang) {
-                    fetch(`/admin/get-stock-details/${idBarang}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            document.querySelector('.card-text strong.stock').textContent = data
-                                .stock || '0';
-                            document.querySelector('.card-text strong.hpp-awal').textContent =
-                                `Rp ${data.hpp_awal.toLocaleString('id-ID')}`;
-                            document.querySelector('.card-text strong.hpp-baru').textContent =
-                                `Rp ${data.hpp_baru.toLocaleString('id-ID')}`;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
+                        row.querySelector('.remove-item').addEventListener('click', function() {
+                            removeItem(row);
                         });
-                } else {
-                    document.querySelector('.card-text strong.stock').textContent = '0';
-                    document.querySelector('.card-text strong.hpp-awal').textContent = 'Rp 0';
-                    document.querySelector('.card-text strong.hpp-baru').textContent = 'Rp 0';
-                }
 
-                checkInputFields();
+                        row.querySelector('.qty-input').addEventListener('input', updateTotalHarga);
+
+                        function updateTotalHarga() {
+                            let newQty = parseInt(row.querySelector('.qty-input').value) || 0;
+                            let newHarga = parseInt(row.querySelector('.harga-text').dataset.value) || 0;
+                            let newTotal = newQty * newHarga;
+
+                            row.querySelector('.total-harga').dataset.value = newTotal;
+                            row.querySelector('.total-harga').textContent = formatRupiah(newTotal);
+
+                            let newSubtotal = [...document.querySelectorAll('.total-harga')].reduce((sum,
+                            el) => {
+                                return sum + parseInt(el.dataset.value || 0);
+                            }, 0);
+
+                            document.getElementById('subTotal').textContent = formatRupiah(newSubtotal);
+                            document.getElementById('subTotal').dataset.value = newSubtotal;
+                        }
+
+                        document.querySelector('#listData').appendChild(row);
+                        updateTotalHarga();
+
+                        $('#id_barang').val(null).trigger('change');
+                    } else {
+                        notificationAlert('error', 'Pemberitahuan', 'Harga barang tidak ditemukan.');
+                    }
+                } catch (error) {
+                    notificationAlert('error', 'Pemberitahuan', 'Gagal mendapatkan harga barang.');
+                }
             });
+        }
+
+        function removeItem(row) {
+            let totalHargaItem = parseInt(row.querySelector('.total-harga').dataset.value);
+            let subtotal = parseInt(document.getElementById('subTotal').dataset.value || 0);
+
+            subtotal -= totalHargaItem;
+            document.getElementById('subTotal').textContent = formatRupiah(subtotal);
+            document.getElementById('subTotal').dataset.value = subtotal;
+
+            row.remove();
+            updateNumbers();
         }
 
         async function initPageLoad() {
             await selectData(selectOptions);
             await selectFormat('#toko_pengirim', 'Pilih Toko');
             await selectFormat('#nama_pengirim', 'Pilih Pengirim');
-            await selectFormat('#id_barang', 'Pilih Barang', false);
             await setCreate();
         }
     </script>
