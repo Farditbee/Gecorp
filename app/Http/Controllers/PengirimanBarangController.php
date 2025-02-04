@@ -269,7 +269,6 @@ class PengirimanBarangController extends Controller
     //     // Ambil harga dari tabel stock_barang berdasarkan id_barang
     // }
 
-    // qrcode
     public function getHargaBarang(Request $request)
     {
         $request->validate([
@@ -303,6 +302,7 @@ class PengirimanBarangController extends Controller
                         'data' => [
                             'id_barang' => $stock->id_barang,
                             'id_supplier' => $barang->id_supplier,
+                            'nama_supplier' => $barang->supplier->nama_supplier,
                             'nama_barang' => $stock->barang->nama_barang,
                             'qty' => $stock->stock,
                             'harga' => $stock->hpp_baru,
