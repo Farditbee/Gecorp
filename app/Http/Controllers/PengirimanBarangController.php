@@ -523,8 +523,41 @@ class PengirimanBarangController extends Controller
         }
     }
 
-    public function destroy(string $id)
+    public function storetempPengiriman(Request $request)
     {
-        //
+        $request->validate([
+            'id_barang' => 'required',
+            'id_supplier' => 'required',
+            'qty' => 'required',
+            'harga' => 'required',
+            'id_pengiriman_barang' => 'required',
+        ]);
+
+        $totalharga = $request->qty * $request->harga;
+
+        try {
+
+            DB::table('temp_detail_pengiriman')->insert([
+                'id_pengiriman_barang' => $request->id_pengiriman_barang,
+                'id_barang' => $request->id_barang,
+                'id_supplier' => $request->id_barang,
+                'qty' => $request->qty,
+                'harga' => $request->harga,
+                'total_harga' => $totalharga,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil ditambahkan ke temp',
+                'status_code' => 200,
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
     }
 }

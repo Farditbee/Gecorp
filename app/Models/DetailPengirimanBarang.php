@@ -17,6 +17,7 @@ class DetailPengirimanBarang extends Model
     protected $fillable = [
         'id_pengiriman_barang',
         'id_barang',
+        'id_supplier',
         'nama_barang',
         'qty',
         'harga',
