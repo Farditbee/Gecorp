@@ -27,92 +27,87 @@ class TokoController extends Controller
     }
 
     public function gettoko(Request $request)
-{
-    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-    $query = Toko::query();
+        $query = Toko::query();
 
-    $query->with(['levelHarga'])->orderBy('id', $meta['orderBy']);
+        $query->with(['levelHarga'])->orderBy('id', $meta['orderBy']);
 
-    // Ambil id_level dan id_toko dari request (dari frontend)
-    $idLevel = $request->input('id_level');
-    $idToko = $request->input('id_toko');
+        // Ambil id_level dan id_toko dari request (dari frontend)
+        $idLevel = $request->input('id_level');
+        $idTokoUser = $request->input('id_toko'); // Dari tabel users, bukan tabel toko
 
-    // Jika user memiliki id_level = 3, hanya tampilkan toko dengan id_toko mereka
-    if ($idLevel == 3) {
-        $query->where('id_toko', $idToko);
-    } else {
-        // Filter berdasarkan id_toko dari request (hanya jika user bukan id_level 3)
-        if ($request->has('id_toko') && $idToko != 1) {
-            $query->where('id_toko', $idToko);
-        }
-    }
-
-    // Filter pencarian jika ada
-    if (!empty($request['search'])) {
-        $searchTerm = trim(strtolower($request['search']));
-
-        $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-            $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
-            $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
-        });
-    }
-
-    $data = $query->paginate($meta['limit']);
-
-    $paginationMeta = [
-        'total'        => $data->total(),
-        'per_page'     => $data->perPage(),
-        'current_page' => $data->currentPage(),
-        'total_pages'  => $data->lastPage()
-    ];
-
-    $data = [
-        'data' => $data->items(),
-        'meta' => $paginationMeta
-    ];
-
-    if (empty($data['data'])) {
-        return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'Tidak ada data'
-        ], 400);
-    }
-
-    $mappedData = collect($data['data'])->map(function ($item) {
-        // Decode id_level_harga ke array
-        $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
-
-        if (!is_array($idLevelHarga)) {
-            $idLevelHarga = [];
+        // Jika user memiliki id_level = 3, hanya tampilkan toko yang sesuai dengan id_toko pengguna
+        if ($idLevel == 3) {
+            $query->where('id', $idTokoUser);
         }
 
-        // Ambil nama_level_harga berdasarkan id_level_harga
-        $levelHargaNames = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
-            ->pluck('nama_level_harga')
-            ->toArray();
+        // Filter pencarian jika ada
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
 
-        return [
-            'id' => $item['id'],
-            'nama_toko' => $item['nama_toko'],
-            'singkatan' => $item['singkatan'],
-            'nama_level_harga' => !empty($levelHargaNames) ? implode(', ', $levelHargaNames) : 'Tidak Ada Level',
-            'wilayah' => $item->wilayah,
-            'alamat' => $item->alamat,
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(singkatan) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(wilayah) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
         ];
-    });
 
-    return response()->json([
-        'data' => $mappedData,
-        'status_code' => 200,
-        'errors' => false,
-        'message' => 'Sukses',
-        'pagination' => $data['meta']
-    ], 200);
-}
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            // Decode id_level_harga ke array
+            $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
+
+            if (!is_array($idLevelHarga)) {
+                $idLevelHarga = [];
+            }
+
+            // Ambil nama_level_harga berdasarkan id_level_harga
+            $levelHargaNames = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
+                ->pluck('nama_level_harga')
+                ->toArray();
+
+            return [
+                'id' => $item['id'],
+                'nama_toko' => $item['nama_toko'],
+                'singkatan' => $item['singkatan'],
+                'nama_level_harga' => !empty($levelHargaNames) ? implode(', ', $levelHargaNames) : 'Tidak Ada Level',
+                'wilayah' => $item->wilayah,
+                'alamat' => $item->alamat,
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
 
     public function index()
     {
