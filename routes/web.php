@@ -166,7 +166,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengirimanbarang/edit/{id}', [PengirimanBarangController::class, 'edit'])->name('transaksi.pengirimanbarang.edit');
         Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('transaksi.pengirimanbarang.update_status');
         Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('transaksi.pengirimanbarang.update');
-
+        Route::post('/pengirimanbarang/storeTemp', [PengirimanBarangController::class, 'storetempPengiriman'])->name('temp.store.pengiriman');
+        
         // Kasir Controller
         Route::get('/kasir', [KasirController::class, 'index'])->name('transaksi.kasir.index');
         Route::post('/kasir/store', [KasirController::class, 'store'])->name('transaksi.kasir.store');
