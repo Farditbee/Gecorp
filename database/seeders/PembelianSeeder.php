@@ -31,6 +31,7 @@ class PembelianSeeder extends Seeder
         DB::table('pembelian_barang')->truncate();
         DB::table('detail_pembelian_barang')->truncate();
         DB::table('stock_barang')->truncate();
+        DB::table('temp_detail_pengiriman')->truncate();
 
         PembelianBarang::create([
             "id" => 1,
@@ -43,6 +44,17 @@ class PembelianSeeder extends Seeder
             "status" => "success",
         ]);
 
+        PembelianBarang::create([
+            "id" => 2,
+            "id_supplier" => "2",
+            "id_users" => "1",
+            "no_nota" => "124",
+            "tgl_nota" => "2021-08-01",
+            "total_item" => 20,
+            "total_nilai" => 8000000,
+            "status" => "success",
+        ]);
+        
         // Generate QR code and path for the first item
         $qrCodeData1 = $this->generateQrCode(1, 1, 1);
 
@@ -59,7 +71,6 @@ class PembelianSeeder extends Seeder
             "status" => "success",
         ]);
 
-        // Generate QR code and path for the second item
         $qrCodeData2 = $this->generateQrCode(1, 2, 1);
 
         DetailPembelianBarang::create([
@@ -75,22 +86,52 @@ class PembelianSeeder extends Seeder
             "status" => "success",
         ]);
 
+        $qrCodeData3 = $this->generateQrCode(1, 3, 1);
+
+        DetailPembelianBarang::create([
+            "id" => 3,
+            "qrcode" => $qrCodeData3['qrcode'],
+            "qrcode_path" => $qrCodeData3['qrcode_path'],
+            "id_pembelian_barang" => "2",
+            "id_barang" => "1",
+            "id_supplier" => "2",
+            "qty" => 10,
+            "harga_barang" => 500000,
+            "total_harga" => 5000000,
+            "status" => "success",
+        ]);
+
+        $qrCodeData4 = $this->generateQrCode(1, 2, 1);
+
+        DetailPembelianBarang::create([
+            "id" => 4,
+            "qrcode" => $qrCodeData4['qrcode'],
+            "qrcode_path" => $qrCodeData4['qrcode_path'],
+            "id_pembelian_barang" => "2",
+            "id_barang" => "2",
+            "id_supplier" => "2",
+            "qty" => 10,
+            "harga_barang" => 300000,
+            "total_harga" => 3000000,
+            "status" => "success",
+        ]);
+
         StockBarang::create([
             "id" => 1,
             "id_barang" => "1",
-            "stock" => 20,
+            "stock" => 30,
             "hpp_awal" => 500000,
             "hpp_baru" => 500000,
-            "nilai_total" => 10000000,
+            "nilai_total" => 15000000,
         ]);
 
         StockBarang::create([
             "id" => 2,
             "id_barang" => "2",
-            "stock" => 20,
+            "stock" => 30,
             "hpp_awal" => 300000,
             "hpp_baru" => 300000,
-            "nilai_total" => 6000000,
+            "nilai_total" => 9000000,
         ]);
     }
 
