@@ -167,7 +167,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('transaksi.pengirimanbarang.update_status');
         Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('transaksi.pengirimanbarang.update');
         Route::post('/pengirimanbarang/storeTemp', [PengirimanBarangController::class, 'storetempPengiriman'])->name('temp.store.pengiriman');
-        
+        Route::delete('/pengirimanbarang/delete', [PengirimanBarangController::class, 'deleteTempPengiriman'])->name('delete.temp.pengiriman');
+        Route::put('/pengirimanbarang/update', [PengirimanBarangController::class, 'updatetempPengiriman'])->name('update.temp.pengiriman');
+
         // Kasir Controller
         Route::get('/kasir', [KasirController::class, 'index'])->name('transaksi.kasir.index');
         Route::post('/kasir/store', [KasirController::class, 'store'])->name('transaksi.kasir.store');
