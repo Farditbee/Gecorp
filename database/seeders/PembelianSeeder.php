@@ -81,17 +81,15 @@ class PembelianSeeder extends Seeder
             "stock" => 20,
             "hpp_awal" => 500000,
             "hpp_baru" => 500000,
-            "total_harga" => 10000000,
             "nilai_total" => 10000000,
         ]);
 
         StockBarang::create([
-            "id" => 1,
+            "id" => 2,
             "id_barang" => "2",
             "stock" => 20,
             "hpp_awal" => 300000,
             "hpp_baru" => 300000,
-            "total_harga" => 6000000,
             "nilai_total" => 6000000,
         ]);
     }
