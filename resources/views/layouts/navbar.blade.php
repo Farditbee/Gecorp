@@ -29,12 +29,12 @@
                                 Data Toko</a></li>
                         <li><a class="dropdown-item" href="{{ route('master.member.index') }}"><i
                                     class="fa fa-user"></i> Data Member</a></li>
-                        @if (Auth::user()->id_level == 1)
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                             <li><a class="dropdown-item" href="{{ route('master.supplier.index') }}"><i
                                         class="fa fa-download"></i> Data Supplier</a></li>
                         @endif
                         <li class="font-weight-bold mt-2">Barang</li>
-                        @if (Auth::user()->id_level == 1)
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                             <li><a class="dropdown-item" href="{{ route('master.jenisbarang.index') }}"><i
                                         class="fa fa-sitemap"></i> Jenis Barang</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.brand.index') }}"><i
@@ -44,11 +44,11 @@
                         @endif
                         <li><a class="dropdown-item" href="{{ route('master.stockbarang.index') }}"><i
                                     class="fa fa-tasks"></i> Stock Barang</a></li>
-                        @if (Auth::user()->id_level == 1)
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                             <li><a class="dropdown-item" href="{{ route('master.planorder.index') }}"><i
                                         class="fa fa-laptop"></i> Plan Order - All Toko</a></li>
                         @endif
-                        @if (Auth::user()->id_level == 1)
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                             <li class="font-weight-bold mt-2">Pengaturan</li>
                             <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
                                         class="fa fa-laptop"></i> Level User</a></li>
@@ -66,8 +66,8 @@
                             class="pcoded-mtext">Transaksi</span>
                     </a>
                     <ul class="pcoded-submenu">
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
-                            @if (Auth::user()->id_level == 1)
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
+                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                 <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
                                             class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
                             @endif
@@ -86,8 +86,10 @@
                             class="pcoded-micon"><i class="icon feather icon-file-text"></i></span><span
                             class="pcoded-mtext">Laporan</span></a>
                     <ul class="pcoded-submenu">
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                         <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index') }}"><i
                                     class="fa fa-book"></i> Laporan Pembelian</a></li>
+                        @endif
                         <li><a class="dropdown-item" href="{{ route('laporan.pengiriman.index') }}"><i
                                     class="fa fa-book"></i> Laporan Pengiriman</a></li>
                         <li><a class="dropdown-item" href="{{ route('laporan.rating.index') }}"><i

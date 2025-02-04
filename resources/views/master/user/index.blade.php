@@ -19,7 +19,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
+                                @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
                                     <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary"
                                         data-container="body" data-toggle="tooltip" data-placement="top"
                                         title="Tambah Data User">

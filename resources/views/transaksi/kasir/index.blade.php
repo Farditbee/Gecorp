@@ -34,7 +34,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                @if (Auth::user()->id_level == 3)
+                                @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4 )
                                     <a id="btn-tambah" class="btn btn-primary mb-2 mr-2 text-white" data-toggle="modal"
                                         data-target=".bd-example-modal-lg">
                                         <i class="fa fa-plus-circle"></i> Tambah
