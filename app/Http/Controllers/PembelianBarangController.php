@@ -109,6 +109,9 @@ class PembelianBarangController extends Controller
 
     public function index(Request $request)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[1]];
         $suppliers = Supplier::all();       // Kirim data ke view
         $barang = Barang::all();       // Kirim data ke view
@@ -167,6 +170,9 @@ class PembelianBarangController extends Controller
 
     public function edit($id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[1], $this->title[1]];
         $pembelian = PembelianBarang::with('detail')->findOrFail($id);
         $LevelHarga = LevelHarga::all();
@@ -216,53 +222,53 @@ class PembelianBarangController extends Controller
         $hargaBarangs = $request->input('harga_barang', []);
         $levelNamas = $request->input('level_nama', []);
         $levelHargas = $request->input('level_harga', []);
-    
+
         try {
             DB::beginTransaction();
 
             $user = Auth::user();
-    
+
             // Ambil pembelian
             $pembelian = PembelianBarang::findOrFail($id);
-    
+
             $totalItem = 0;
             $totalNilai = 0;
-    
+
             $counter = 1;
-    
+
             // Ambil data dari temp_detail_pembelian_barang berdasarkan id_pembelian_barang
             $tempDetails = DB::table('temp_detail_pembelian_barang')
                 ->where('id_pembelian_barang', $id)
                 ->get();
-    
+
             foreach ($tempDetails as $tempDetail) {
                 $id_barang = $tempDetail->id_barang;
                 $qty = $tempDetail->qty;
                 $harga_barang = $tempDetail->harga_barang;
-    
+
                 if ($id_barang && $qty > 0 && $harga_barang > 0) {
                     $barang = Barang::findOrFail($id_barang);
-    
+
                     // Generate QR Code Value
                     $tglNota = \Carbon\Carbon::parse($pembelian->tgl_nota)->format('dmY');
                     $idSupplier = $pembelian->id_supplier;
                     $idPembelian = $pembelian->id;
                     $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
-    
+
                     // Path QR code for this barang
                     $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
                     $fullPath = storage_path('app/public/' . $qrCodePath);
-    
+
                     if (!file_exists(dirname($fullPath))) {
                         mkdir(dirname($fullPath), 0755, true);
                     }
-    
+
                     // Generate QR Code
                     $qrCode = QrCode::create($qrCodeValue)
                         ->setEncoding(new Encoding('UTF-8'))
                         ->setSize(200)
                         ->setMargin(10);
-    
+
                     $writer = new PngWriter();
                     $result = $writer->write(
                         $qrCode,
@@ -270,9 +276,9 @@ class PembelianBarangController extends Controller
                         Label::create("{$barang->nama_barang}")
                             ->setFont(new NotoSans(12))
                     );
-    
+
                     $result->saveToFile($fullPath);
-    
+
                     // Insert atau Update ke Detail Pembelian Barang
                     $detail = DetailPembelianBarang::updateOrCreate(
                         [
@@ -289,17 +295,17 @@ class PembelianBarangController extends Controller
                             'qrcode_path' => $qrCodePath,
                         ]
                     );
-    
+
                     $detail->status = 'success';
                     $detail->save();
-    
+
                     // Update total items and total nilai
                     $totalItem += $detail->qty;
                     $totalNilai += $detail->total_harga;
-    
+
                     // Process Level Harga
                     $levelHargaBarang = [];
-    
+
                     // Ambil level harga dari request jika ada, jika tidak gunakan dari tempDetail
                     if (!empty($levelHargas[$id_barang]) && is_array($levelHargas[$id_barang])) {
                         foreach ($levelHargas[$id_barang] as $levelIndex => $hargaLevel) {
@@ -312,54 +318,54 @@ class PembelianBarangController extends Controller
                         // Ambil dari temp jika tidak ada di request
                         $levelHargaBarang = json_decode($tempDetail->level_harga, true) ?? [];
                     }
-    
+
                     // Simpan Level Harga ke tabel Barang
                     $barang->level_harga = json_encode($levelHargaBarang);
                     $barang->save();
-    
+
                     // Update stockBarang
                     $stockBarang = StockBarang::firstOrNew(['id_barang' => $id_barang]);
-    
+
                     $hpp_awal = $stockBarang->hpp_awal ?: $harga_barang;
                     $stock_awal = $stockBarang->stock ?: 0;
-    
+
                     $total_harga_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('total_harga');
                     $total_qty_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('qty');
-    
+
                     $hpp_baru = $total_qty_barang > 0 ? $total_harga_barang / $total_qty_barang : $hpp_awal;
-    
+
                     $stockBarang->stock = $stock_awal + $detail->qty;
                     $stockBarang->hpp_awal = $hpp_awal;
                     $stockBarang->hpp_baru = round($hpp_baru);
                     $stockBarang->nilai_total = round($hpp_baru * $stockBarang->stock);
                     $stockBarang->nama_barang = $barang->nama_barang;
                     $stockBarang->save();
-    
+
                     $counter++;
                 }
             }
-    
+
             // Update pembelian with total item and total nilai
             $pembelian->total_item = $totalItem;
             $pembelian->total_nilai = $totalNilai;
             $pembelian->id_users = $user->id;
             $pembelian->status = 'success';
             $pembelian->save();
-    
+
             // Remove data from temp_detail_pembelian_barang
             DB::table('temp_detail_pembelian_barang')
                 ->where('id_pembelian_barang', $pembelian->id)
                 ->delete();
-    
+
             DB::commit();
-    
+
             return redirect()->route('transaksi.pembelianbarang.index')->with('success', 'Data berhasil disimpan');
         } catch (\Exception $e) {
             DB::rollback();
             return response()->json(['success' => false, 'message' => 'Failed to update pembelian barang. ' . $e->getMessage()]);
         }
     }
-    
+
     public function gettemppembelian(Request $request)
     {
         try {
