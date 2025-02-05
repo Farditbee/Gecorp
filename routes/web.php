@@ -170,6 +170,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/pengirimanbarang/delete', [PengirimanBarangController::class, 'deleteTempPengiriman'])->name('delete.temp.pengiriman');
         Route::put('/pengirimanbarang/update', [PengirimanBarangController::class, 'updatetempPengiriman'])->name('update.temp.pengiriman');
         Route::get('/pengirimanbarang/get-temporary-items', [PengirimanBarangController::class, 'getTempPengiriman'])->name('get.temp.pengiriman');
+        Route::post('/pengirimanbarang/save', [PengirimanBarangController::class, 'save'])->name('save.pengiriman');
 
         // Kasir Controller
         Route::get('/kasir', [KasirController::class, 'index'])->name('transaksi.kasir.index');
