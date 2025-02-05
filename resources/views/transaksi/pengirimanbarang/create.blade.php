@@ -216,7 +216,6 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
                                                 <div class="row">
                                                     <div class="col-12">
                                                         <table class="table table-bordered">
@@ -461,7 +460,6 @@
                 timer = setTimeout(() => func.apply(this, args), delay);
             };
         }
-
 
         function removeItem(row, data) {
             let totalHargaItem = parseInt(row.querySelector('.total-harga').dataset.value);
