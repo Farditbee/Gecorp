@@ -118,6 +118,9 @@ class PlanOrderController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
 

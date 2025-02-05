@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\Promo;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -104,21 +105,10 @@ class PromoController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
-        // Ambil ID barang yang memiliki promo dengan status "ongoing"
-        // $ongoingPromoBarangIds = Promo::where('status', 'ongoing')
-        //     ->pluck('id_barang')
-        //     ->toArray();
-        // $promo = Promo::all();
-        // $toko = Toko::where('id', '!=', 1)->get();
-        // $barang = Barang::all();
-
-        // // Ambil barang yang tidak memiliki promo "ongoing" atau memiliki promo dengan status selain "ongoing"
-        // $barang = Barang::whereNotIn('id', $ongoingPromoBarangIds)
-        //     ->orWhereHas('promo', function ($query) {
-        //         $query->where('status', '!=', 'ongoing');
-        //     })
-        //     ->get();
 
         return view('master.promo.index', compact('menu'));
     }

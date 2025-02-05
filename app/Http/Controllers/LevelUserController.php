@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LevelUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use PhpParser\Node\Expr\Cast\String_;
 
@@ -89,6 +90,9 @@ class LevelUserController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0]];
         $leveluser = LevelUser::orderBy('id', 'desc')->get();
         return view('master.leveluser.index', compact('menu', 'leveluser'));
@@ -96,6 +100,9 @@ class LevelUserController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         return view('master.leveluser.create', compact('menu'));
     }
@@ -123,6 +130,10 @@ class LevelUserController extends Controller
 
     public function edit(String $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $leveluser = LevelUser::findOrFail($id);
         return view('master.leveluser.edit', compact('menu', 'leveluser'));
