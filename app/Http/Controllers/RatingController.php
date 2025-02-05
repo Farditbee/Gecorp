@@ -6,6 +6,7 @@ use App\Models\Barang;
 use App\Models\DetailKasir;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -23,6 +24,9 @@ class RatingController extends Controller
 
     public function index(Request $request)
 {
+    if (!in_array(Auth::user()->id_level, [1, 2])) {
+        abort(403, 'Unauthorized');
+    }
     $menu = [$this->title[0], $this->label[2]];
     $toko = Toko::all();
     $barang = Barang::all();

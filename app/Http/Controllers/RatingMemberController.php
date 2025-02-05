@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailKasir;
 use App\Models\Member;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class RatingMemberController extends Controller
@@ -115,6 +116,9 @@ class RatingMemberController extends Controller
 
     public function index(Request $request)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[2]];
 
         return view('laporan.ratingmember.index', compact('menu'));
