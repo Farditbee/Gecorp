@@ -665,7 +665,10 @@ class PengirimanBarangController extends Controller
 
             if ($request->status == 'success' || $request->status == 'progress') {
                 $data = DetailPengirimanBarang::where('id_pengiriman_barang', $request->id_pengiriman_barang)
-                    ->get();
+                                                ->join('barang', 'detail_pengiriman_barang.id_barang', '=', 'barang.id')
+                                                ->join('supplier', 'detail_pengiriman_barang.id_supplier', '=', 'supplier.id')
+                                                ->select('detail_pengiriman_barang.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                                                ->get();
 
                 return response()->json([
                     'error' => false,
