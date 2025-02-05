@@ -114,6 +114,7 @@ class PengirimanBarangController extends Controller
                 'status' => match ($item->status) {
                     'success' => 'Sukses',
                     'progress' => 'Progress',
+                    'pending' => 'Pending',
                     'failed' => 'Gagal',
                     default => $item->status,
                 },

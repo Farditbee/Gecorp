@@ -32,6 +32,8 @@ class PembelianSeeder extends Seeder
         DB::table('detail_pembelian_barang')->truncate();
         DB::table('stock_barang')->truncate();
         DB::table('temp_detail_pengiriman')->truncate();
+        DB::table('pengiriman_barang')->truncate();
+        DB::table('detail_pengiriman_barang')->truncate();
 
         // Delete all files in the qrcodes/pembelian directory
         $qrCodeDirectory = storage_path('app/public/qrcodes/pembelian');
