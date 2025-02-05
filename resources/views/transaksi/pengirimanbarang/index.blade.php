@@ -64,7 +64,6 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Detail</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Tgl Kirim</th>
                                                 <th class="text-wrap align-top">Tgl Terima</th>
@@ -184,16 +183,32 @@
                 status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
             }
 
-            let detail_button = `
-            <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Detail Data Nomor Resi: ${data.no_resi}"
-                data-id='${data.id}'>
-                <span class="text-dark">Detail</span>
-                <div class="icon text-info">
-                    <i class="fa fa-eye"></i>
-                </div>
-            </a>`;
+            let detail_button = '';
+            if (id_toko == data?.id_toko_pengirim) {
+                if (data?.status === 'Pending') {
+                    detail_button = `
+                    <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit Data Nomor Resi: ${data.no_resi}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Edit</span>
+                        <div class="icon text-warning">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </a>`;
+                } else {
+                    detail_button = `
+                    <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Detail Data Nomor Resi: ${data.no_resi}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Detail</span>
+                        <div class="icon text-info">
+                            <i class="fa fa-book"></i>
+                        </div>
+                    </a>`;
+                }
+            }
 
             let edit_button = '';
             if (id_toko == data?.id_toko_penerima && data?.status == 'Progress') {
@@ -210,10 +225,11 @@
             }
 
             let action_buttons = '';
-            if (edit_button) {
+            if (edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
@@ -249,13 +265,6 @@
                 getDataTable += `
                 <tr class="text-dark clickable-row" data-id="${element.id}">
                     <td class="${classCol} text-center">${display_from + index}.</td>
-                    <td class="${classCol}">
-                        <div class="d-flex justify-content-start">
-                            <div class="hovering p-1">
-                                ${element.detail_button}
-                            </div>
-                        </div>
-                    </td>
                     <td class="${classCol}">${element.status}</td>
                     <td class="${classCol}">${element.tgl_kirim}</td>
                     <td class="${classCol}">${element.tgl_terima}</td>

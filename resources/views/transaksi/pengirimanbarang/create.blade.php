@@ -489,7 +489,7 @@
                 swal({
                     title: "Konfirmasi",
                     text: "Apakah Anda yakin ingin menyimpan data ini?",
-                    type: "warning",
+                    type: "question",
                     showCancelButton: true,
                     confirmButtonColor: '#2ecc71',
                     cancelButtonColor: '#6c757d',
