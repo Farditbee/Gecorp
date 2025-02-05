@@ -661,24 +661,115 @@ class PengirimanBarangController extends Controller
     {
         $request->validate([
             'id_pengiriman_barang' => 'required',
+            'status' => 'required',
         ]);
 
         try {
-            $temp = DB::table('temp_detail_pengiriman')
-            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
-            ->get();
 
-            return response()->json([
-                'error' => false,
-                'message' => 'Data berhasil diambil',
-                'status_code' => 200,
-                'data' => $temp,
-            ], 200);
+            if($request->status == 'success') {
+                $data = DetailPengirimanBarang::where('id_pengiriman_barang', $request->id_pengiriman_barang)
+                                            ->get();
+
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Data berhasil diambil',
+                    'status_code' => 200,
+                    'data' => $data,
+                ], 200);
+            } else {
+                $data = DB::table('temp_detail_pengiriman')
+                ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
+                ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
+                ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
+                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                ->where('pengiriman_barang.status', $request->status)
+                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
+                ->get();
+
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Data berhasil diambil',
+                    'status_code' => 200,
+                    'data' => $data,
+                ], 200);
+            }
+
+           return response()->json([
+                'error' => true,
+                'message' => 'Tidak ada data',
+                'status_code' => 400,
+           ], 400);
 
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function save(Request $request)
+    {
+        $request->validate([
+            'id_barang' => 'required|array',
+            'qty' => 'required|array',
+            'harga' => 'required|array',
+            'id_supplier' => 'required|array',
+            'id_pengiriman_barang' => 'required|string',
+        ]);
+    
+        $idBarangs = $request->input('id_barang', []);
+        $qtys = $request->input('qty', []);
+        $hargaBarangs = $request->input('harga', []);
+        $id_pengiriman_barang = $request->id_pengiriman_barang;
+    
+        try {
+            DB::beginTransaction();
+    
+            $totalItem = 0;
+            $totalNilai = 0;
+    
+            foreach ($idBarangs as $index => $id_barang) {
+                $qty = $qtys[$index];
+                $harga = $hargaBarangs[$index];
+                $total_harga = $qty * $harga;
+    
+                DetailPengirimanBarang::create([
+                    'id_pengiriman_barang' => $id_pengiriman_barang,
+                    'id_barang' => $id_barang,
+                    'qty' => $qty,
+                    'harga' => $harga,
+                    'total_harga' => $total_harga,
+                    'id_supplier' => $request->id_supplier[$index],
+                ]);
+    
+                $totalItem += $qty;
+                $totalNilai += $total_harga;
+            }
+    
+            DB::table('temp_detail_pengiriman')
+                ->where('id_pengiriman_barang', $id_pengiriman_barang)
+                ->delete();
+    
+            $pengiriman_barang = PengirimanBarang::findOrFail($id_pengiriman_barang);
+            $pengiriman_barang->total_item = $totalItem;
+            $pengiriman_barang->total_nilai = $totalNilai;
+            $pengiriman_barang->save();
+    
+            DB::commit();
+    
+            return response()->json([
+                'error' => false,
+                'message' => 'Data Pengiriman Barang berhasil Ditambahkan.',
+                'status_code' => 200,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+    
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to update pengiriman barang. ' . $e->getMessage(),
                 'status_code' => 500,
             ], 500);
         }
