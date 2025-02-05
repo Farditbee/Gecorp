@@ -680,7 +680,8 @@ class PengirimanBarangController extends Controller
                 ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
                 ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
                 ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
-                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                ->join('stock_barang', 'temp_detail_pengiriman.id_barang', '=', 'stock_barang.id_barang')
+                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'stock_barang.stock')
                 ->where('pengiriman_barang.status', $request->status)
                 ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
                 ->get();
