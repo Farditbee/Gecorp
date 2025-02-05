@@ -195,27 +195,27 @@ class PengirimanBarangController extends Controller
     public function store(Request $request)
     {
         // try {
-            $toko = Toko::all();
-            $myToko = $toko->where('id', Auth::user()->id_toko)->first();
-            DB::beginTransaction();
-            // dd($request);
+        $toko = Toko::all();
+        $myToko = $toko->where('id', Auth::user()->id_toko)->first();
+        DB::beginTransaction();
+        // dd($request);
 
-            // Simpan data dasar pengiriman
-            $pengiriman_barang = PengirimanBarang::create([
-                'no_resi' => $request->no_resi,
-                'toko_pengirim' => $myToko->id,
-                'nama_pengirim' => Auth::user()->nama,
-                'ekspedisi' => $request->ekspedisi,
-                'toko_penerima' => $request->toko_penerima,
-                'tgl_kirim' => $request->tgl_kirim
-            ]);
+        // Simpan data dasar pengiriman
+        $pengiriman_barang = PengirimanBarang::create([
+            'no_resi' => $request->no_resi,
+            'toko_pengirim' => $myToko->id,
+            'nama_pengirim' => Auth::user()->nama,
+            'ekspedisi' => $request->ekspedisi,
+            'toko_penerima' => $request->toko_penerima,
+            'tgl_kirim' => $request->tgl_kirim
+        ]);
 
-            DB::commit();
-            // Redirect ke tab "detail pengiriman" dengan data pengiriman yang baru disimpan
-            return redirect()->route('transaksi.pengirimanbarang.create')
-                ->with('tab', 'detail')
-                ->with('pengiriman_barang', $pengiriman_barang);
-            // ->with('stock', $stock);
+        DB::commit();
+        // Redirect ke tab "detail pengiriman" dengan data pengiriman yang baru disimpan
+        return redirect()->route('transaksi.pengirimanbarang.create')
+            ->with('tab', 'detail')
+            ->with('pengiriman_barang', $pengiriman_barang);
+        // ->with('stock', $stock);
     }
 
     public function getUsersByToko($id_toko)
@@ -277,7 +277,7 @@ class PengirimanBarangController extends Controller
         ]);
 
         $qrCode = $request->id_barang;
-    
+
         try {
 
             $barang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
@@ -288,7 +288,7 @@ class PengirimanBarangController extends Controller
                     'status_code' => 404,
                 ], 404);
             }
-            
+
             $id_barang = $barang->id_barang;
 
             if ($request->id_toko == 1) {
@@ -346,7 +346,7 @@ class PengirimanBarangController extends Controller
                     ]);
                 }
             }
-    
+
             return response()->json([
                 'error' => true,
                 'message' => 'Barang tidak ditemukan',
@@ -354,7 +354,7 @@ class PengirimanBarangController extends Controller
             ], 404);
         } catch (\Exception $e) {
             Log::error('Error fetching harga barang: ' . $e->getMessage());
-    
+
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
@@ -362,7 +362,7 @@ class PengirimanBarangController extends Controller
             ], 500);
         }
     }
-    
+
     public function update(Request $request, $id)
     {
         // dd($request);
@@ -551,7 +551,7 @@ class PengirimanBarangController extends Controller
             'id_pengiriman_barang' => 'required',
         ]);
 
-        if($request->qty <= 0) {
+        if ($request->qty <= 0) {
             return response()->json([
                 'error' => true,
                 'message' => 'Qty tidak boleh kurang dari 0',
@@ -577,7 +577,6 @@ class PengirimanBarangController extends Controller
                 'message' => 'Data berhasil ditambahkan ke temp',
                 'status_code' => 200,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -597,18 +596,17 @@ class PengirimanBarangController extends Controller
 
         try {
             DB::table('temp_detail_pengiriman')
-            ->where('id', $request->id)
-            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
-            ->where('id_barang', $request->id_barang)
-            ->where('id_supplier', $request->id_supplier)
-            ->delete();
+                ->where('id', $request->id)
+                ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+                ->where('id_barang', $request->id_barang)
+                ->where('id_supplier', $request->id_supplier)
+                ->delete();
 
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil dihapus dari temp',
                 'status_code' => 200,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -633,21 +631,20 @@ class PengirimanBarangController extends Controller
         try {
 
             DB::table('temp_detail_pengiriman')
-            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
-            ->where('id_barang', $request->id_barang)
-            ->where('id_supplier', $request->id_supplier)
-            ->update([
-                'qty' => $request->qty,
-                'harga' => $request->harga,
-                'total_harga' => $totalharga,
-            ]);
+                ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+                ->where('id_barang', $request->id_barang)
+                ->where('id_supplier', $request->id_supplier)
+                ->update([
+                    'qty' => $request->qty,
+                    'harga' => $request->harga,
+                    'total_harga' => $totalharga,
+                ]);
 
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil diupdate di temp',
                 'status_code' => 200,
             ], 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -666,9 +663,9 @@ class PengirimanBarangController extends Controller
 
         try {
 
-            if($request->status == 'success') {
+            if ($request->status == 'success') {
                 $data = DetailPengirimanBarang::where('id_pengiriman_barang', $request->id_pengiriman_barang)
-                                            ->get();
+                    ->get();
 
                 return response()->json([
                     'error' => false,
@@ -678,13 +675,13 @@ class PengirimanBarangController extends Controller
                 ], 200);
             } else {
                 $data = DB::table('temp_detail_pengiriman')
-                ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
-                ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
-                ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
-                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
-                ->where('pengiriman_barang.status', $request->status)
-                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
-                ->get();
+                    ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
+                    ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
+                    ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
+                    ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                    ->where('pengiriman_barang.status', $request->status)
+                    ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
+                    ->get();
 
                 return response()->json([
                     'error' => false,
@@ -694,12 +691,11 @@ class PengirimanBarangController extends Controller
                 ], 200);
             }
 
-           return response()->json([
+            return response()->json([
                 'error' => true,
                 'message' => 'Tidak ada data',
                 'status_code' => 400,
-           ], 400);
-
+            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
@@ -718,23 +714,23 @@ class PengirimanBarangController extends Controller
             'id_supplier' => 'required|array',
             'id_pengiriman_barang' => 'required|string',
         ]);
-    
+
         $idBarangs = $request->input('id_barang', []);
         $qtys = $request->input('qty', []);
         $hargaBarangs = $request->input('harga', []);
         $id_pengiriman_barang = $request->id_pengiriman_barang;
-    
+
         try {
             DB::beginTransaction();
-    
+
             $totalItem = 0;
             $totalNilai = 0;
-    
+
             foreach ($idBarangs as $index => $id_barang) {
                 $qty = $qtys[$index];
                 $harga = $hargaBarangs[$index];
                 $total_harga = $qty * $harga;
-    
+
                 DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
@@ -743,22 +739,22 @@ class PengirimanBarangController extends Controller
                     'total_harga' => $total_harga,
                     'id_supplier' => $request->id_supplier[$index],
                 ]);
-    
+
                 $totalItem += $qty;
                 $totalNilai += $total_harga;
             }
-    
+
             DB::table('temp_detail_pengiriman')
                 ->where('id_pengiriman_barang', $id_pengiriman_barang)
                 ->delete();
-    
+
             $pengiriman_barang = PengirimanBarang::findOrFail($id_pengiriman_barang);
             $pengiriman_barang->total_item = $totalItem;
             $pengiriman_barang->total_nilai = $totalNilai;
             $pengiriman_barang->save();
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Data Pengiriman Barang berhasil Ditambahkan.',
@@ -766,12 +762,37 @@ class PengirimanBarangController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollback();
-    
+
             return response()->json([
                 'error' => true,
                 'message' => 'Failed to update pengiriman barang. ' . $e->getMessage(),
                 'status_code' => 500,
             ], 500);
+        }
+    }
+
+    public function delete($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // Cari pengiriman berdasarkan ID
+            $pengiriman = PengirimanBarang::findOrFail($id);
+            $pengiriman->detail()->delete();
+            $pengiriman->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Success to delete pengiriman barang.'
+            ]);
+        } catch (\Exception $e) {
+            // Rollback transaksi jika ada error
+            DB::rollback();
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete pengiriman barang. ' . $e->getMessage()
+            ]);
         }
     }
 }
