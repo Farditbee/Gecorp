@@ -596,11 +596,10 @@ class PengirimanBarangController extends Controller
 
         try {
             DB::table('temp_detail_pengiriman')
-                ->where('id', $request->id)
-                ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
-                ->where('id_barang', $request->id_barang)
-                ->where('id_supplier', $request->id_supplier)
-                ->delete();
+            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+            ->where('id_barang', $request->id_barang)
+            ->where('id_supplier', $request->id_supplier)
+            ->delete();
 
             return response()->json([
                 'error' => false,
@@ -675,13 +674,14 @@ class PengirimanBarangController extends Controller
                 ], 200);
             } else {
                 $data = DB::table('temp_detail_pengiriman')
-                    ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
-                    ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
-                    ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
-                    ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
-                    ->where('pengiriman_barang.status', $request->status)
-                    ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
-                    ->get();
+                ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
+                ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
+                ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
+                ->join('stock_barang', 'temp_detail_pengiriman.id_barang', '=', 'stock_barang.id_barang')
+                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'stock_barang.stock')
+                ->where('pengiriman_barang.status', $request->status)
+                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
+                ->get();
 
                 return response()->json([
                     'error' => false,
