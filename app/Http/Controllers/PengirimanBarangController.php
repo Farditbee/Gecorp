@@ -597,7 +597,6 @@ class PengirimanBarangController extends Controller
 
         try {
             DB::table('temp_detail_pengiriman')
-            ->where('id', $request->id)
             ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
             ->where('id_barang', $request->id_barang)
             ->where('id_supplier', $request->id_supplier)
