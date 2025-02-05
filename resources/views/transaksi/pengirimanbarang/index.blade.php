@@ -171,6 +171,9 @@
             if (data?.status === 'Sukses') {
                 status =
                     `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
+            } else if (data?.status === 'Pending') {
+                status =
+                    `<span class="badge badge-info custom-badge"><i class="mx-1 fa fa-circle-half-stroke "></i>Pending</span>`;
             } else if (data?.status === 'Progress') {
                 status =
                     `<span class="badge badge-warning custom-badge"><i class="mx-1 fa fa-spinner"></i>Proses</span>`;

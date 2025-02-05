@@ -16,7 +16,7 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <a href="{{ url()->previous() }}" class="btn btn-danger">
+                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">
                                 <i class="ti-plus menu-icon"></i> Kembali
                             </a>
                         </div>
@@ -61,7 +61,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                @if ($pengiriman_barang->status == 'progress')
+                                @if ($pengiriman_barang->status == 'pending')
                                     <div id="item-container">
                                         <div class="item-group">
                                             <div class="row">
@@ -87,7 +87,7 @@
                                     <table class="table table-bordered">
                                         <thead class="thead-light">
                                             <tr>
-                                                @if ($pengiriman_barang->status == 'progress')
+                                                @if ($pengiriman_barang->status == 'pending')
                                                     <th scope="col">Aksi</th>
                                                 @endif
                                                 <th scope="col">No</th>
@@ -109,11 +109,8 @@
                                 </div>
                             @endif
                         </div>
-                        @if ($pengiriman_barang->status === 'progress')
-                            <div class="card-footer d-flex justify-content-start">
-                                <button id="save-detail" type="button" class="btn btn-primary">
-                                    <i class="fas fa-save"></i> Simpan
-                                </button>
+                        @if ($pengiriman_barang->status === 'pending')
+                            <div class="card-footer">
                             </div>
                         @endif
                     </div>
@@ -161,7 +158,7 @@
         function setListData(data) {
             let rows = '';
             let subTotal = 0;
-            let colSpan = ('{{ $pengiriman_barang->status }}' === 'progress') ? 6 : 5;
+            let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending') ? 6 : 5;
 
             data.forEach((item, index) => {
                 subTotal += item.total_harga;
@@ -173,7 +170,7 @@
                 let td_qty = '';
                 let actionButtons = '';
 
-                if ('{{ $pengiriman_barang->status }}' === 'progress') {
+                if ('{{ $pengiriman_barang->status }}' === 'pending') {
                     actionButtons =
                         `<td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>`;
                     td_nama_barang = `
@@ -181,8 +178,8 @@
                 <input type="hidden" name="id_supplier[]" value="${item.id_supplier}">
                 ${item.nama_barang}`;
                     td_qty = `<input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
-                        min="${minQty}" max="${maxQty}" data-harga="${harga}">
-                    <small class="text-danger">Max: ${maxQty}</small>`;
+                        min="${minQty}" max="${item.stock}" data-harga="${harga}">
+                    <small class="text-danger">Max: ${item.stock}</small>`;
                 } else {
                     td_nama_barang = item.nama_barang;
                     td_qty = item.qty;
@@ -209,7 +206,12 @@
                 </tr>
             `);
 
-            if ('{{ $pengiriman_barang->status }}' === 'progress') {
+            if ('{{ $pengiriman_barang->status }}' === 'pending') {
+                $('.card-footer').html(`
+                    <button id="save-data" type="button" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i> Simpan
+                    </button>`);
+
                 document.querySelectorAll('.remove-item').forEach(button => {
                     button.addEventListener('click', function() {
                         let row = this.closest('tr');
@@ -249,6 +251,96 @@
                     }, 500));
                 });
             }
+        }
+
+        async function saveData() {
+            $(document).on("click", "#save-data", async function(e) {
+                e.preventDefault();
+                const saveButton = document.getElementById('save-data');
+
+                if (saveButton.disabled) return;
+
+                swal({
+                    title: "Konfirmasi",
+                    text: "Apakah Anda yakin ingin menyimpan data ini?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#2ecc71',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    dangerMode: true,
+                }).then(async (willSave) => {
+                    if (!willSave) return;
+
+                    saveButton.disabled = true;
+                    const originalContent = saveButton.innerHTML;
+                    saveButton.innerHTML =
+                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+
+                    loadingPage(true);
+
+                    const id_barang = [];
+                    const id_supplier = [];
+                    const qty = [];
+                    const harga = [];
+                    const total_harga = [];
+
+                    $("#listData tr").each(function() {
+                        const barang = $(this).data("id");
+                        const supplier = $(this).data("supplier");
+                        const jumlah = $(this).find(".qty-input").length ? $(this).find(
+                                ".qty-input").val() : $(this).find("td:nth-child(4)")
+                            .text();
+                        const harga_barang = $(this).find(".harga-text").data("value");
+                        const total = $(this).find(".total-harga").data("value");
+
+                        if (barang && supplier && jumlah && harga_barang) {
+                            id_barang.push(barang);
+                            id_supplier.push(supplier);
+                            qty.push(parseInt(jumlah));
+                            harga.push(parseInt(harga_barang));
+                            total_harga.push(parseInt(total));
+                        }
+                    });
+
+                    const formData = {
+                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
+                        id_barang,
+                        id_supplier,
+                        qty,
+                        harga,
+                        total_harga
+                    };
+
+                    try {
+                        const postData = await renderAPI('POST',
+                            '{{ route('save.pengiriman') }}', formData);
+                        loadingPage(false);
+
+                        if (postData.status >= 200 && postData.status < 300) {
+                            swal("Berhasil!", "Data berhasil disimpan.", "success");
+
+                            setTimeout(() => {
+                                window.location.href =
+                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                            }, 2000);
+                        } else {
+                            swal("Pemberitahuan", postData.message || "Terjadi kesalahan",
+                                "info");
+                        }
+                    } catch (error) {
+                        loadingPage(false);
+                        const resp = error.response || {};
+                        swal("Kesalahan", resp.data?.message ||
+                            "Terjadi kesalahan saat menyimpan data.", "error");
+                    } finally {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalContent;
+                    }
+                });
+            });
         }
 
         function addData() {
@@ -453,9 +545,10 @@
         }
 
         async function initPageLoad() {
-            if ('{{ $pengiriman_barang->status }}' === 'progress') {
+            if ('{{ $pengiriman_barang->status }}' === 'pending') {
                 await selectData(selectOptions);
                 await addData();
+                await saveData();
             }
             await getListData();
         }

@@ -17,7 +17,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
+                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
                         </div>
                         <div class="card-body">
                             <x-adminlte-alerts />
@@ -100,7 +100,7 @@
                                             </div>
 
                                             <button type="submit" style="float: right" class="btn btn-primary"><i
-                                                    class="fa fa-save"></i> Simpan</button>
+                                                    class="fa fa-save"></i> Selanjutnya</button>
                                         </form>
                                     </div>
                                     <div class="tab-pane fade {{ session('tab') == 'detail' ? 'show active' : '' }}"
@@ -113,140 +113,101 @@
                                             );
                                         @endphp
                                         @if ($pengiriman_barang)
-                                            <ul class="list-group list-group-flush">
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-barcode"></i> Nomor Resi
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <ul class="list-group list-group-flush">
+                                                        <hr class="m-0">
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-barcode"></i> Nomor Resi</strong>
                                                             <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->no_resi }}</span>
+                                                                class="badge badge-primary">{{ $pengiriman_barang->no_resi }}</span>
                                                             <input type="hidden" id="id_pengiriman_barang"
                                                                 value="{{ $pengiriman_barang->id }}">
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-home"></i> Toko Pengirim
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->toko->nama_toko }}</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-tag"></i> Nama Pengirim
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->nama_pengirim }}</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-truck"></i> Ekspedisi</h5>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->ekspedisi }}</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-home"></i> Toko Penerima
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->tokos->nama_toko }}</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                                <li class="list-group-item">
-                                                    <div class="row">
-                                                        <div class="col-2">
-                                                            <h5 class="mb-0"><i class="fa fa-calendar"></i> Tanggal
-                                                                Kirim</h5>
-                                                        </div>
-                                                        <div class="col">
-                                                            <span
-                                                                class="badge badge-pill badge-secondary">{{ $pengiriman_barang->tgl_kirim }}</span>
-                                                        </div>
-                                                    </div>
-                                                </li>
-                                            </ul>
-                                            <br>
-                                            <form
-                                                action="{{ route('transaksi.pengirimanbarang.update', $pengiriman_barang->id) }}"
-                                                method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <div id="item-container">
-                                                    <div class="item-group">
-                                                        <div class="row">
-                                                            <div class="col-md-11">
-                                                                <input type="hidden" name="tk_pengirim" id="tk_pengirim"
-                                                                    value="{{ $pengiriman_barang->toko_pengirim }}">
-                                                                <div class="form-group">
-                                                                    <label for="id_barang" class="form-control-label">Nama
-                                                                        Barang<span style="color: red">*</span></label>
-                                                                    <select class="form-control select2" name="id_barang"
-                                                                        id="id_barang"></select>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-1 d-flex align-items-center">
-                                                                <button type="button" id="add-item-detail"
-                                                                    class="btn btn-secondary w-100">
-                                                                    <i class="fa fa-circle-plus"></i> Add
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                        </li>
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-user"></i> Nama Pengirim</strong>
+                                                            <span>{{ $pengiriman_barang->nama_pengirim }}</span>
+                                                        </li>
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-home"></i> Toko Pengirim</strong>
+                                                            <span>{{ $pengiriman_barang->toko->nama_toko }}</span>
+                                                        </li>
+                                                        <hr class="m-0">
+                                                    </ul>
                                                 </div>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <table class="table table-bordered">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Action</th>
-                                                                    <th scope="col">No</th>
-                                                                    <th scope="col">Nama Barang</th>
-                                                                    <th scope="col">Supplier</th>
-                                                                    <th scope="col">Qty</th>
-                                                                    <th scope="col">Harga</th>
-                                                                    <th scope="col">Total Harga</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="listData"></tbody>
-                                                            <tfoot>
-                                                                <tr>
-                                                                    <th scope="col" colspan="5"
-                                                                        style="text-align:right">SubTotal</th>
-                                                                    <th id="subTotal" scope="col">Rp </th>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-                                                        <div class="form-group">
-                                                            <button type="submit" class="btn btn-primary">
-                                                                <i class="fa fa-dot-circle-o"></i> Simpan
+                                                <div class="col-md-6">
+                                                    <ul class="list-group list-group-flush">
+                                                        <hr class="m-0">
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-truck"></i> Ekspedisi</strong>
+                                                            <span>{{ $pengiriman_barang->ekspedisi }}</span>
+                                                        </li>
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-calendar"></i> Tanggal Kirim</strong>
+                                                            <span>{{ $pengiriman_barang->tgl_kirim }}</span>
+                                                        </li>
+                                                        <li class="list-group-item d-flex justify-content-between">
+                                                            <strong><i class="fa fa-home"></i> Toko Penerima</strong>
+                                                            <span>{{ $pengiriman_barang->tokos->nama_toko }}</span>
+                                                        </li>
+                                                        <hr class="m-0">
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div id="item-container">
+                                                <div class="item-group">
+                                                    <div class="row">
+                                                        <div class="col-md-11">
+                                                            <input type="hidden" name="tk_pengirim" id="tk_pengirim"
+                                                                value="{{ $pengiriman_barang->toko_pengirim }}">
+                                                            <div class="form-group">
+                                                                <label for="id_barang" class="form-control-label">Nama
+                                                                    Barang<span style="color: red">*</span></label>
+                                                                <select class="form-control select2" name="id_barang"
+                                                                    id="id_barang"></select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-center">
+                                                            <button type="button" id="add-item-detail"
+                                                                class="btn btn-secondary w-100">
+                                                                <i class="fa fa-circle-plus"></i> Add
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </form>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <table class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Action</th>
+                                                                <th scope="col">No</th>
+                                                                <th scope="col">Nama Barang</th>
+                                                                <th scope="col">Supplier</th>
+                                                                <th scope="col">Qty</th>
+                                                                <th scope="col" class="text-right">Harga</th>
+                                                                <th scope="col" class="text-right">Total Harga</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="listData"></tbody>
+                                                        <tfoot>
+                                                            <tr>
+                                                                <th scope="col" colspan="6" class="text-right">
+                                                                    SubTotal</th>
+                                                                <th id="subTotal" scope="col" class="text-right">
+                                                                </th>
+                                                            </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                    <div class="form-group">
+                                                        <button id="save-data" type="button"
+                                                            class="btn btn-primary w-100">
+                                                            <i class="fa fa-save"></i> Simpan
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         @else
                                             <div class="alert alert-warning">
                                                 <strong>Perhatian!</strong> Anda perlu menambahkan data pengiriman di tab
@@ -375,8 +336,8 @@
                                     min="${minQty}" max="${maxQty}" data-harga="${harga}">
                                 <small class="text-danger">Max: ${maxQty}</small>
                             </td>
-                            <td class="harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
-                            <td class="total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
+                            <td class="text-right harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
+                            <td class="text-right total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
                         `;
 
                         row.querySelector('.remove-item').addEventListener('click', function() {
@@ -500,7 +461,7 @@
                     id_pengiriman_barang: $('#id_pengiriman_barang').val(),
                     id_barang: data.id_barang,
                     id_supplier: data.id_supplier,
-                    qty: data.qty,
+                    qty: 1,
                     harga: data.harga,
                 };
 
@@ -518,11 +479,101 @@
             }
         }
 
+        async function saveData() {
+            $(document).on("click", "#save-data", async function(e) {
+                e.preventDefault();
+                const saveButton = document.getElementById('save-data');
+
+                if (saveButton.disabled) return;
+
+                swal({
+                    title: "Konfirmasi",
+                    text: "Apakah Anda yakin ingin menyimpan data ini?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: '#2ecc71',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                    dangerMode: true,
+                }).then(async (willSave) => {
+                    if (!willSave) return;
+
+                    saveButton.disabled = true;
+                    const originalContent = saveButton.innerHTML;
+                    saveButton.innerHTML =
+                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+
+                    loadingPage(true);
+
+                    const id_barang = [];
+                    const id_supplier = [];
+                    const qty = [];
+                    const harga = [];
+                    const total_harga = [];
+
+                    $("#listData tr").each(function() {
+                        const barang = $(this).find("input[name='id_barang[]']").val();
+                        const supplier = $(this).find("input[name='id_supplier[]']")
+                            .val();
+                        const jumlah = $(this).find(".qty-input").val();
+                        const harga_barang = $(this).find(".harga-text").data("value");
+                        const total = $(this).find(".total-harga").data("value");
+
+                        if (barang && supplier && jumlah && harga_barang) {
+                            id_barang.push(barang);
+                            id_supplier.push(supplier);
+                            qty.push(parseInt(jumlah, 10));
+                            harga.push(parseInt(harga_barang, 10));
+                            total_harga.push(parseInt(total, 10));
+                        }
+                    });
+
+                    const formData = {
+                        id_pengiriman_barang: $('#id_pengiriman_barang').val(),
+                        id_barang,
+                        id_supplier,
+                        qty,
+                        harga,
+                        total_harga
+                    };
+
+                    try {
+                        const postData = await renderAPI('POST',
+                            '{{ route('save.pengiriman') }}', formData);
+                        loadingPage(false);
+
+                        if (postData.status >= 200 && postData.status < 300) {
+                            swal("Berhasil!", "Data berhasil disimpan.", "success");
+
+                            setTimeout(() => {
+                                window.location.href =
+                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                            }, 2000);
+                        } else {
+                            swal("Pemberitahuan", postData.message || "Terjadi kesalahan",
+                                "info");
+                        }
+                    } catch (error) {
+                        loadingPage(false);
+                        const resp = error.response || {};
+                        swal("Kesalahan", resp.data?.message ||
+                            "Terjadi kesalahan saat menyimpan data.", "error");
+                    } finally {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalContent;
+                    }
+                });
+            });
+        }
+
         async function initPageLoad() {
             await selectData(selectOptions);
             await selectFormat('#toko_pengirim', 'Pilih Toko');
             await selectFormat('#nama_pengirim', 'Pilih Pengirim');
             await addData();
+            await saveData();
         }
     </script>
 @endsection
