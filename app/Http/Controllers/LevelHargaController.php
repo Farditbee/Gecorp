@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\LevelHarga;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class LevelHargaController extends Controller
@@ -88,6 +89,10 @@ class LevelHargaController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[0]];
         $levelharga = LevelHarga::orderBy('id', 'desc')->get();
         return view('master.levelharga.index', compact('menu', 'levelharga'));
@@ -95,6 +100,9 @@ class LevelHargaController extends Controller
 
     public function create()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         return view('master.levelharga.create', compact('menu'));
     }
@@ -123,6 +131,9 @@ class LevelHargaController extends Controller
 
     public function edit(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $levelharga = LevelHarga::findOrFail($id);
         return view('master.levelharga.edit', compact('menu', 'levelharga'));
