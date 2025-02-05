@@ -678,9 +678,12 @@ class PengirimanBarangController extends Controller
                 ], 200);
             } else {
                 $data = DB::table('temp_detail_pengiriman')
-                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
                 ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
+                ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
+                ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
+                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier')
                 ->where('pengiriman_barang.status', $request->status)
+                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
                 ->get();
 
                 return response()->json([
