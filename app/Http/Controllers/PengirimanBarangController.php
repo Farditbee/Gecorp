@@ -732,7 +732,7 @@ class PengirimanBarangController extends Controller
                 $harga = $hargaBarangs[$index];
                 $total_harga = $qty * $harga;
     
-                PengirimanBarang::create([
+                DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
                     'qty' => $qty,
