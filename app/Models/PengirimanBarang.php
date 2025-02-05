@@ -19,7 +19,10 @@ class PengirimanBarang extends Model
         'ekspedisi',
         'toko_penerima',
         'tgl_kirim',
-        'tgl_terima'
+        'tgl_terima',
+        'total_item',
+        'total_nilai',
+        'status',
     ];
 
     public $timestamps = false;
