@@ -74,7 +74,7 @@
                                                 <th class="text-wrap align-top">Jumlah Qty</th>
                                                 <th class="text-wrap align-top">Total Harga</th>
                                                 <th class="text-wrap align-top">Toko Penerima</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -183,31 +183,41 @@
                 status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
             }
 
+            let delete_button = '';
             let detail_button = '';
+
             if (id_toko == data?.id_toko_pengirim) {
-                if (data?.status === 'Pending') {
-                    detail_button = `
-                    <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit Data Nomor Resi: ${data.no_resi}"
-                        data-id='${data.id}'>
-                        <span class="text-dark">Edit</span>
-                        <div class="icon text-warning">
-                            <i class="fa fa-edit"></i>
-                        </div>
-                    </a>`;
-                } else {
-                    detail_button = `
-                    <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Detail Data Nomor Resi: ${data.no_resi}"
-                        data-id='${data.id}'>
-                        <span class="text-dark">Detail</span>
-                        <div class="icon text-info">
-                            <i class="fa fa-book"></i>
-                        </div>
-                    </a>`;
-                }
+                detail_button = (data?.status === 'Pending') ? `
+                <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Edit Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>` :
+                            (data?.status === 'Progress' || data?.status === 'Sukses') ? `
+                <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Detail</span>
+                    <div class="icon text-info">
+                        <i class="fa fa-book"></i>
+                    </div>
+                </a>` : '';
+
+                delete_button = (data?.status === 'Progress' || data?.status === 'Pending') ? `
+                <a class="p-1 btn hapus-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Delete</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash-alt"></i>
+                    </div>
+                </a>` : '';
             }
 
             let edit_button = '';
@@ -225,11 +235,12 @@
             }
 
             let action_buttons = '';
-            if (edit_button || detail_button) {
+            if (edit_button || detail_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
@@ -248,7 +259,6 @@
                 total_item: data?.total_item ?? '-',
                 total_nilai: data?.total_nilai ?? '-',
                 toko_penerima: data?.toko_penerima ?? '-',
-                detail_button,
                 action_buttons,
             };
         }
@@ -275,9 +285,7 @@
                     <td class="${classCol}">${element.total_item}</td>
                     <td class="${classCol}">${element.total_nilai}</td>
                     <td class="${classCol}">${element.toko_penerima}</td>
-                    <td class="${classCol}">
-                        ${element.action_buttons}
-                    </td>
+                    <td class="${classCol}">${element.action_buttons}</td>
                 </tr>`;
             });
 
@@ -359,7 +367,7 @@
                 }).then(async (result) => {
                     let postDataRest = await renderAPI(
                         'DELETE',
-                        `pengirimanbarang/delete/${id}`
+                        `pengirimanbarang/${id}/delete`
                     ).then(function(response) {
                         return response;
                     }).catch(function(error) {
@@ -369,7 +377,8 @@
 
                     if (postDataRest.status == 200) {
                         setTimeout(function() {
-                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                            getListData(defaultLimitPage, currentPage,
+                                defaultAscending,
                                 defaultSearch, customFilter);
                         }, 500);
                         notificationAlert('success', 'Pemberitahuan', postDataRest.data
