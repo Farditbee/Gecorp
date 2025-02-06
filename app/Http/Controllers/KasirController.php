@@ -151,7 +151,7 @@ class KasirController extends Controller
 
     public function index(Request $request)
     {
-        if (!in_array(Auth::user()->id_level, [1, 2])) {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
             abort(403, 'Unauthorized');
         }
         $menu = [$this->title[0], $this->label[1]];
