@@ -795,14 +795,14 @@ class PengirimanBarangController extends Controller
             if ($pengiriman->status === 'pending') {
                 // Hapus data dari tabel temp_detail_pengiriman
                 DB::table('temp_detail_pengiriman')->where('id_pengiriman_barang', $id)->delete();
-            } elseif ($pengiriman->status === 'process') {
+            } elseif ($pengiriman->status === 'progress') {
                 // Hapus data dari tabel detail_pengiriman_barang
                 DB::table('detail_pengiriman_barang')->where('id_pengiriman_barang', $id)->delete();
             } else {
                 // Status tidak diperbolehkan untuk dihapus
                 return response()->json([
                     'success' => false,
-                    'message' => 'Penghapusan hanya dapat dilakukan jika status adalah pending atau process.'
+                    'message' => 'Penghapusan hanya dapat dilakukan jika status adalah pending atau progress.'
                 ], 400);
             }
 
