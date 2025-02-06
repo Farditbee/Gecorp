@@ -814,7 +814,7 @@ class PengirimanBarangController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Success to delete pengiriman barang.'
+                'message' => 'Pengiriman Barang berhasil Dihapus.'
             ]);
         } catch (\Exception $e) {
             // Rollback transaksi jika terjadi error
@@ -822,7 +822,7 @@ class PengirimanBarangController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete pengiriman barang. ' . $e->getMessage()
+                'message' => 'Gagal menghapus pengiriman Barang. ' . $e->getMessage()
             ]);
         }
     }
