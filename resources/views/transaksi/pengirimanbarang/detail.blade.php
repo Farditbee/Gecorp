@@ -61,7 +61,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                                @if ($pengiriman_barang->status == 'pending')
+                                @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id)
                                     <div id="item-container">
                                         <div class="item-group">
                                             <div class="row">
@@ -87,7 +87,7 @@
                                     <table class="table table-bordered">
                                         <thead class="thead-light">
                                             <tr>
-                                                @if ($pengiriman_barang->status == 'pending')
+                                                @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id)
                                                     <th scope="col">Aksi</th>
                                                 @endif
                                                 <th scope="col">No</th>
@@ -109,7 +109,7 @@
                                 </div>
                             @endif
                         </div>
-                        @if ($pengiriman_barang->status === 'pending')
+                        @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id)
                             <div class="card-footer">
                             </div>
                         @endif
@@ -158,7 +158,7 @@
         function setListData(data) {
             let rows = '';
             let subTotal = 0;
-            let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending') ? 6 : 5;
+            let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id }}') ? 6 : 5;
 
             data.forEach((item, index) => {
                 subTotal += item.total_harga;
@@ -170,7 +170,7 @@
                 let td_qty = '';
                 let actionButtons = '';
 
-                if ('{{ $pengiriman_barang->status }}' === 'pending') {
+                if ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id }}') {
                     actionButtons =
                         `<td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>`;
                     td_nama_barang = `
@@ -572,7 +572,7 @@
         }
 
         async function initPageLoad() {
-            if ('{{ $pengiriman_barang->status }}' === 'pending') {
+            if ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id }}') {
                 await selectData(selectOptions);
                 await addData();
                 await saveData();
