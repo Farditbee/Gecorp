@@ -597,10 +597,10 @@ class PengirimanBarangController extends Controller
 
         try {
             DB::table('temp_detail_pengiriman')
-            ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
-            ->where('id_barang', $request->id_barang)
-            ->where('id_supplier', $request->id_supplier)
-            ->delete();
+                ->where('id_pengiriman_barang', $request->id_pengiriman_barang)
+                ->where('id_barang', $request->id_barang)
+                ->where('id_supplier', $request->id_supplier)
+                ->delete();
 
             return response()->json([
                 'error' => false,
@@ -665,10 +665,10 @@ class PengirimanBarangController extends Controller
 
             if ($request->status == 'success' || $request->status == 'progress') {
                 $data = DetailPengirimanBarang::where('id_pengiriman_barang', $request->id_pengiriman_barang)
-                                                ->join('barang', 'detail_pengiriman_barang.id_barang', '=', 'barang.id')
-                                                ->join('supplier', 'detail_pengiriman_barang.id_supplier', '=', 'supplier.id')
-                                                ->select('detail_pengiriman_barang.*', 'barang.nama_barang', 'supplier.nama_supplier')
-                                                ->get();
+                    ->join('barang', 'detail_pengiriman_barang.id_barang', '=', 'barang.id')
+                    ->join('supplier', 'detail_pengiriman_barang.id_supplier', '=', 'supplier.id')
+                    ->select('detail_pengiriman_barang.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                    ->get();
 
                 return response()->json([
                     'error' => false,
@@ -676,16 +676,16 @@ class PengirimanBarangController extends Controller
                     'status_code' => 200,
                     'data' => $data,
                 ], 200);
-            } elseif($request->status == 'pending') {
+            } elseif ($request->status == 'pending') {
                 $data = DB::table('temp_detail_pengiriman')
-                ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
-                ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
-                ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
-                ->join('stock_barang', 'temp_detail_pengiriman.id_barang', '=', 'stock_barang.id_barang')
-                ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'stock_barang.stock')
-                ->where('pengiriman_barang.status', $request->status)
-                ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
-                ->get();
+                    ->join('pengiriman_barang', 'temp_detail_pengiriman.id_pengiriman_barang', '=', 'pengiriman_barang.id')
+                    ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
+                    ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
+                    ->join('stock_barang', 'temp_detail_pengiriman.id_barang', '=', 'stock_barang.id_barang')
+                    ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'stock_barang.stock')
+                    ->where('pengiriman_barang.status', $request->status)
+                    ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
+                    ->get();
 
                 return response()->json([
                     'error' => false,
@@ -764,7 +764,7 @@ class PengirimanBarangController extends Controller
                 'total_nilai' => $totalNilai,
                 'status' => 'progress',
             ]);
-                
+
             DB::commit();
 
             return response()->json([
@@ -790,17 +790,36 @@ class PengirimanBarangController extends Controller
         try {
             // Cari pengiriman berdasarkan ID
             $pengiriman = PengirimanBarang::findOrFail($id);
-            $pengiriman->detail()->delete();
+
+            // Cek status pengiriman
+            if ($pengiriman->status === 'pending') {
+                // Hapus data dari tabel temp_detail_pengiriman
+                DB::table('temp_detail_pengiriman')->where('id_pengiriman_barang', $id)->delete();
+            } elseif ($pengiriman->status === 'process') {
+                // Hapus data dari tabel detail_pengiriman_barang
+                DB::table('detail_pengiriman_barang')->where('id_pengiriman_barang', $id)->delete();
+            } else {
+                // Status tidak diperbolehkan untuk dihapus
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Penghapusan hanya dapat dilakukan jika status adalah pending atau process.'
+                ], 400);
+            }
+
+            // Hapus data utama dari tabel pengiriman_barang
             $pengiriman->delete();
 
+            // Commit transaksi
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success to delete pengiriman barang.'
             ]);
         } catch (\Exception $e) {
-            // Rollback transaksi jika ada error
+            // Rollback transaksi jika terjadi error
             DB::rollback();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete pengiriman barang. ' . $e->getMessage()
