@@ -71,7 +71,7 @@
                                 <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
                                             class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
                             @endif
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
                                 <li><a class="dropdown-item" href="{{ route('transaksi.pengirimanbarang.index') }}"><i
                                             class="fa fa-truck"></i> Pengiriman Barang</a></li>
                             @endif
