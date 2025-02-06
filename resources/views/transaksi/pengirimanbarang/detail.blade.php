@@ -281,34 +281,37 @@
 
                     loadingPage(true);
 
-                    const formData = {
-                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
-                        id_barang: [],
-                        id_supplier: [],
-                        qty: [],
-                        harga: [],
-                        total_harga: []
-                    };
+                    const id_barang = [];
+                    const id_supplier = [];
+                    const qty = [];
+                    const harga = [];
+                    const total_harga = [];
 
                     $("#listData tr").each(function() {
-                        const barang = $(this).data("id");
-                        const supplier = $(this).data("supplier");
-                        const jumlah = $(this).find(".qty-input").length ? parseInt($(
-                            this).find(".qty-input").val()) : parseInt($(this).find(
-                            "td:nth-child(4)").text());
-                        const harga_barang = parseInt($(this).find(".harga-text").data(
-                            "value"));
-                        const total = parseInt($(this).find(".total-harga").data(
-                            "value"));
+                        const barang = $(this).find("input[name='id_barang[]']").val();
+                        const supplier = $(this).find("input[name='id_supplier[]']")
+                            .val();
+                        const jumlah = $(this).find(".qty-input").val();
+                        const harga_barang = $(this).find(".harga-text").data("value");
+                        const total = $(this).find(".total-harga").data("value");
 
                         if (barang && supplier && jumlah && harga_barang) {
-                            formData.id_barang.push(barang);
-                            formData.id_supplier.push(supplier);
-                            formData.qty.push(jumlah);
-                            formData.harga.push(harga_barang);
-                            formData.total_harga.push(total);
+                            id_barang.push(barang);
+                            id_supplier.push(supplier);
+                            qty.push(parseInt(jumlah, 10));
+                            harga.push(parseInt(harga_barang, 10));
+                            total_harga.push(parseInt(total, 10));
                         }
                     });
+
+                    const formData = {
+                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
+                        id_barang,
+                        id_supplier,
+                        qty,
+                        harga,
+                        total_harga
+                    };
 
                     try {
                         const postData = await renderAPI('POST',
@@ -338,7 +341,6 @@
                 });
             });
         }
-
 
         function addData() {
             document.getElementById('add-item-detail')?.addEventListener('click', async function() {
@@ -466,8 +468,36 @@
                         harga: data.harga,
                     }
                 );
+
                 if (postDataRest && postDataRest.status === 200) {
-                    console.log('Update berhasil!');
+                    let row = [...document.querySelectorAll('#listData tr')].find(tr => {
+                        let rowIdBarang = tr.querySelector('input[name="id_barang[]"]')?.value;
+                        let rowIdSupplier = tr.querySelector('input[name="id_supplier[]"]')?.value;
+                        return rowIdBarang == data.id_barang && rowIdSupplier == data.id_supplier;
+                    });
+
+                    if (row) {
+                        let qtyInput = row.querySelector('.qty-input');
+                        if (qtyInput) {
+                            let existingMsg = row.querySelector('.update-success');
+                            if (existingMsg) existingMsg.remove();
+
+                            let successMsg = document.createElement('small');
+                            successMsg.innerHTML = '<i class="fas fa-circle-check"></i> Berhasil diperbarui';
+                            successMsg.style.color = 'green';
+                            successMsg.style.marginLeft = '8px';
+                            successMsg.style.opacity = '1';
+                            successMsg.style.transition = 'opacity 0.5s ease-in-out';
+
+                            successMsg.classList.add('update-success');
+                            qtyInput.parentElement.appendChild(successMsg);
+
+                            setTimeout(() => {
+                                successMsg.style.opacity = '0';
+                                setTimeout(() => successMsg.remove(), 500);
+                            }, 2000);
+                        }
+                    }
                 }
             } catch (error) {
                 const resp = error.response;
