@@ -281,38 +281,34 @@
 
                     loadingPage(true);
 
-                    const id_barang = [];
-                    const id_supplier = [];
-                    const qty = [];
-                    const harga = [];
-                    const total_harga = [];
+                    const formData = {
+                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
+                        id_barang: [],
+                        id_supplier: [],
+                        qty: [],
+                        harga: [],
+                        total_harga: []
+                    };
 
                     $("#listData tr").each(function() {
                         const barang = $(this).data("id");
                         const supplier = $(this).data("supplier");
-                        const jumlah = $(this).find(".qty-input").length ? $(this).find(
-                                ".qty-input").val() : $(this).find("td:nth-child(4)")
-                            .text();
-                        const harga_barang = $(this).find(".harga-text").data("value");
-                        const total = $(this).find(".total-harga").data("value");
+                        const jumlah = $(this).find(".qty-input").length ? parseInt($(
+                            this).find(".qty-input").val()) : parseInt($(this).find(
+                            "td:nth-child(4)").text());
+                        const harga_barang = parseInt($(this).find(".harga-text").data(
+                            "value"));
+                        const total = parseInt($(this).find(".total-harga").data(
+                            "value"));
 
                         if (barang && supplier && jumlah && harga_barang) {
-                            id_barang.push(barang);
-                            id_supplier.push(supplier);
-                            qty.push(parseInt(jumlah));
-                            harga.push(parseInt(harga_barang));
-                            total_harga.push(parseInt(total));
+                            formData.id_barang.push(barang);
+                            formData.id_supplier.push(supplier);
+                            formData.qty.push(jumlah);
+                            formData.harga.push(harga_barang);
+                            formData.total_harga.push(total);
                         }
                     });
-
-                    const formData = {
-                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
-                        id_barang,
-                        id_supplier,
-                        qty,
-                        harga,
-                        total_harga
-                    };
 
                     try {
                         const postData = await renderAPI('POST',
@@ -342,6 +338,7 @@
                 });
             });
         }
+
 
         function addData() {
             document.getElementById('add-item-detail')?.addEventListener('click', async function() {
