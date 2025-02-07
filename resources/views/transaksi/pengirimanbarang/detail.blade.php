@@ -158,7 +158,8 @@
         function setListData(data) {
             let rows = '';
             let subTotal = 0;
-            let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') ? 6 : 5;
+            let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending' &&
+                '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') ? 6 : 5;
 
             data.forEach((item, index) => {
                 subTotal += item.total_harga;
@@ -170,12 +171,14 @@
                 let td_qty = '';
                 let actionButtons = '';
 
-                if ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') {
+                if ('{{ $pengiriman_barang->status }}' === 'pending' &&
+                    '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') {
                     actionButtons =
                         `<td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>`;
                     td_nama_barang = `
                 <input type="hidden" name="id_barang[]" value="${item.id_barang}">
                 <input type="hidden" name="id_supplier[]" value="${item.id_supplier}">
+                <input type="hidden" name="qrcode[]" value="${item.qrcode}">
                 ${item.nama_barang}`;
                     td_qty = `<input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
                         min="${minQty}" max="${item.stock}" data-harga="${harga}">
@@ -359,6 +362,7 @@
                 if (response.status === 200 && response.data.data) {
                     let item = response.data.data;
                     let idSupplier = item.id_supplier;
+                    let qrcode = item.qrcode;
 
                     if (item.qty === 0) {
                         notificationAlert('error', 'Error', 'Barang ini tidak tersedia (qty = 0)!');
@@ -369,15 +373,15 @@
                     let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
                         let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
                             ?.value;
-                        let existingIdSupplier = row.querySelector('input[name="id_supplier[]"]')
+                        let existingQrcode = row.querySelector('input[name="qrcode[]"]')
                             ?.value;
-                        return existingIdBarang == item.id_barang && existingIdSupplier ==
-                            idSupplier;
+                        return existingIdBarang == item.id_barang && existingQrcode ==
+                            qrcode;
                     });
 
                     if (existingRow) {
                         notificationAlert('warning', 'Pemberitahuan',
-                            'Barang dengan supplier yang sama sudah ada!');
+                            'Barang dengan QrCode yang sama sudah ada!');
                         $('#id_barang').val(null).trigger('change');
                         return;
                     }
@@ -395,6 +399,7 @@
                             <td>
                                 <input type="hidden" name="id_barang[]" value="${item.id_barang}">
                                 <input type="hidden" name="id_supplier[]" value="${idSupplier}">
+                                <input type="hidden" name="qrcode[]">
                                 ${item.nama_barang}
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
@@ -573,7 +578,8 @@
         }
 
         async function initPageLoad() {
-            if ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') {
+            if ('{{ $pengiriman_barang->status }}' === 'pending' && '{{ $pengiriman_barang->toko_pengirim }}' ==
+                '{{ auth()->user()->id_toko }}') {
                 await selectData(selectOptions);
                 await addData();
                 await saveData();

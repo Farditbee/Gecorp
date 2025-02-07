@@ -292,6 +292,7 @@
                     if (response.status === 200 && response.data.data) {
                         let item = response.data.data;
                         let idSupplier = item.id_supplier;
+                        let qrcode = item.qrcode;
 
                         if (item.qty === 0) {
                             notificationAlert('error', 'Error', 'Barang ini tidak tersedia (qty = 0)!');
@@ -302,15 +303,15 @@
                         let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
                             let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
                                 ?.value;
-                            let existingIdSupplier = row.querySelector('input[name="id_supplier[]"]')
+                            let existingQrcode = row.querySelector('input[name="qrcode[]"]')
                                 ?.value;
-                            return existingIdBarang == item.id_barang && existingIdSupplier ==
-                                idSupplier;
+                            return existingIdBarang == item.id_barang && existingQrcode ==
+                                qrcode;
                         });
 
                         if (existingRow) {
                             notificationAlert('warning', 'Pemberitahuan',
-                                'Barang dengan supplier yang sama sudah ada!');
+                                'Barang dengan QrCode yang sama sudah ada!');
                             $('#id_barang').val(null).trigger('change');
                             return;
                         }
@@ -328,6 +329,7 @@
                             <td>
                                 <input type="hidden" name="id_barang[]" value="${item.id_barang}">
                                 <input type="hidden" name="id_supplier[]" value="${idSupplier}">
+                                <input type="hidden" name="qrcode[]">
                                 ${item.nama_barang}
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
