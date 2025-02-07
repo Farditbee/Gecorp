@@ -136,6 +136,9 @@ class PengirimanBarangController extends Controller
 
     public function index(Request $request)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[1]];
         $toko = Toko::all();
         $barang = Barang::all();
@@ -172,6 +175,9 @@ class PengirimanBarangController extends Controller
 
     public function detail(string $id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $detail_pengiriman = DetailPengirimanBarang::where('id_pengiriman_barang', $id)->get();  // Ambil data pengiriman dari database
         // $selectedTokoId = $detail_pengiriman->toko_pengirim;  // Asumsikan kamu menyimpan id toko pengirim di dalam pengiriman
@@ -183,6 +189,9 @@ class PengirimanBarangController extends Controller
 
     public function create(Request $request)
     {
+        // Pastikan pengguna sudah login, lalu periksa id_level
+        abort_if(!Auth::check() || !in_array(Auth::user()->id_level, [1, 2, 3]), 403, 'Unauthorized');
+
         $menu = [$this->title[0], $this->label[1], $this->title[1]];
         $toko = Toko::all();
         $detail_toko = DetailToko::all();
@@ -245,30 +254,6 @@ class PengirimanBarangController extends Controller
             return response()->json($barangs);
         }
     }
-
-    // public function getHargaBarang($id_barang, $id_toko)
-    // {
-    //     if ($id_toko == 1) {
-    //         $stock = StockBarang::where('id_barang', $id_barang)->first();
-
-    //         if ($stock) {
-    //             return response()->json(['harga' => $stock->hpp_baru]);
-    //         } else {
-    //             return response()->json(['error' => 'Barang tidak ditemukan'], 404);
-    //         }
-    //     } else {
-    //         $detail = DetailToko::where('id_barang', $id_barang)
-    //             ->where('id_toko', $id_toko) // Menyesuaikan dengan toko yang bersangkutan
-    //             ->first();
-    //         if ($detail) {
-    //             // return response()->json(['harga' => $detail->harga]);
-    //             return response()->json($detail);
-    //         } else {
-    //             return response()->json(['error' => 'Barang tidak ditemukan'], 404);
-    //         }
-    //     }
-    //     // Ambil harga dari tabel stock_barang berdasarkan id_barang
-    // }
 
     public function getHargaBarang(Request $request)
     {
@@ -439,6 +424,9 @@ class PengirimanBarangController extends Controller
 
     public function edit($id)
     {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[0], $this->title[3]];
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
 
@@ -509,13 +497,18 @@ class PengirimanBarangController extends Controller
 
                     $detailToko = DetailToko::where('id_toko', $toko_penerima)
                         ->where('id_barang', $detail->id_barang)
+                        ->where('id_supplier', $detail->id_supplier) // Pastikan mencari berdasarkan supplier juga
                         ->first();
+
                     if ($detailToko) {
+                        // Jika sudah ada kombinasi barang + supplier di toko_penerima, tambahkan qty
                         $detailToko->qty += $detail->qty;
                         $detailToko->save();
                     } else {
+                        // Jika belum ada, buat entri baru dengan id_supplier yang sesuai
                         DetailToko::create([
                             'id_toko' => $toko_penerima,
+                            'id_supplier' => $detail->id_supplier,
                             'id_barang' => $detail->id_barang,
                             'qty' => $detail->qty,
                             'harga' => $detail->harga
