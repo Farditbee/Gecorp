@@ -104,7 +104,7 @@
                                                             <div class="d-flex align-items-center">
                                                                 <input type="checkbox" id="checkAll"
                                                                     class="neumorphic-checkbox mr-2">
-                                                                <span>Verifikasi <i
+                                                                <span> | Verifikasi Pengiriman <i
                                                                         class="fa fa-circle-check text-primary"></i></span>
                                                             </div>
                                                         </th>
@@ -130,8 +130,9 @@
                                                             <td class="text-wrap">
                                                                 <label class="d-flex align-items-center">
                                                                     <input type="checkbox" data-id="{{ $detail->id }}"
-                                                                        value="success" class="neumorphic-checkbox mr-2">
-                                                                    <span class="fw-bold">Sukses</span>
+                                                                        value="success"
+                                                                        class="neumorphic-checkbox status-check mr-2">
+                                                                    <span class="fw-bold"> | Sukses</span>
                                                                 </label>
                                                             </td>
                                                         @endif
@@ -250,10 +251,10 @@
                     let detailIds = [];
                     let statusArray = [];
 
-                    $(".neumorphic-checkbox:checked").each(function() {
-                        detailIds.push($(this).data("id")); // Mengumpulkan id detail
+                    $(".status-check").each(function() {
+                        detailIds.push($(this).data("id"));
                         statusArray.push($(this)
-                    .val()); // Mengumpulkan nilai status langsung
+                            .val());
                     });
 
                     const formData = {

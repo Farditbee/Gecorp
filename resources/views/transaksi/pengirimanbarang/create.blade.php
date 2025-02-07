@@ -99,7 +99,7 @@
                                                     placeholder="Contoh : Sicepat" class="form-control">
                                             </div>
 
-                                            <button type="submit" style="float: right" class="btn btn-primary"><i
+                                            <button type="submit" style="float: right" class="btn btn-success"><i
                                                     class="fa fa-save"></i> Selanjutnya</button>
                                         </form>
                                     </div>
