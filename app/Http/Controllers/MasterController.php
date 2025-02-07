@@ -289,7 +289,6 @@ class MasterController extends Controller
     
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
-                $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
             });
         } else {
             return response()->json([
@@ -324,7 +323,7 @@ class MasterController extends Controller
         $mappedData = array_map(function ($item) {
             return [
                 'id' => $item['qrcode'] . '/' . $item['id_detail'],
-                'text' => "{$item['nama_barang']} / Sisa Stock: ({$item['qty']}) / Supplier: {$item['nama_supplier']}",
+                'text' => "{$item['nama_barang']} / Sisa Stock: ({$item['qty']}) / Supplier: {$item['nama_supplier']} / QRcode : {$item['qrcode']}",
             ];
         }, $data['data']);
     

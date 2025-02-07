@@ -327,6 +327,7 @@ class PengirimanBarangController extends Controller
                         'nama_barang' => $stock->barang->nama_barang,
                         'qty' => $stock->qty_now,
                         'harga' => $hppBaru,
+                        'qrcode' => $barang->qrcode,
                     ],
                 ]);
             } else {
@@ -570,9 +571,10 @@ class PengirimanBarangController extends Controller
         $request->validate([
             'id_barang' => 'required',
             'id_supplier' => 'required',
+            'id_pengiriman_barang' => 'required',
+            'id_detail' => 'required',
             'qty' => 'required',
             'harga' => 'required',
-            'id_pengiriman_barang' => 'required',
         ]);
 
         if ($request->qty <= 0) {
@@ -589,8 +591,9 @@ class PengirimanBarangController extends Controller
 
             DB::table('temp_detail_pengiriman')->insert([
                 'id_pengiriman_barang' => $request->id_pengiriman_barang,
+                'id_detail_pembelian' => $request->id_detail,
                 'id_barang' => $request->id_barang,
-                'id_supplier' => $request->id_barang,
+                'id_supplier' => $request->id_supplier,
                 'qty' => $request->qty,
                 'harga' => $request->harga,
                 'total_harga' => $totalharga,
@@ -705,7 +708,8 @@ class PengirimanBarangController extends Controller
                     ->join('barang', 'temp_detail_pengiriman.id_barang', '=', 'barang.id')
                     ->join('supplier', 'temp_detail_pengiriman.id_supplier', '=', 'supplier.id')
                     ->join('stock_barang', 'temp_detail_pengiriman.id_barang', '=', 'stock_barang.id_barang')
-                    ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'stock_barang.stock')
+                    ->join('detail_stock', 'temp_detail_pengiriman.id_detail_pembelian', '=', 'detail_stock.id_detail_pembelian')
+                    ->select('temp_detail_pengiriman.*', 'barang.nama_barang', 'supplier.nama_supplier', 'detail_stock.qty_now as stock')
                     ->where('pengiriman_barang.status', $request->status)
                     ->where('temp_detail_pengiriman.id_pengiriman_barang', $request->id_pengiriman_barang)
                     ->get();
