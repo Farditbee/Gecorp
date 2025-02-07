@@ -324,7 +324,7 @@
                             setTimeout(() => {
                                 window.location.href =
                                     '{{ route('transaksi.pengirimanbarang.index') }}';
-                            }, 2000);
+                            }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message || "Terjadi kesalahan",
                                 "info");
@@ -495,7 +495,7 @@
                             setTimeout(() => {
                                 successMsg.style.opacity = '0';
                                 setTimeout(() => successMsg.remove(), 500);
-                            }, 2000);
+                            }, 1000);
                         }
                     }
                 }
