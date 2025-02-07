@@ -532,6 +532,7 @@
 
                 let formData = {
                     id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
+                    id_detail, data.id_detail,
                     id_barang: data.id_barang,
                     id_supplier: data.id_supplier,
                     qty: 1,
