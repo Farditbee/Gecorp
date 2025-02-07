@@ -534,7 +534,7 @@
                     id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
                     id_barang: data.id_barang,
                     id_supplier: data.id_supplier,
-                    qty: data.qty,
+                    qty: 1,
                     harga: data.harga,
                 };
 
