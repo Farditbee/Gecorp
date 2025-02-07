@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
+use App\Models\DetailStockBarang;
 use App\Models\LevelHarga;
 use App\Models\PembelianBarang;
 use App\Models\StockBarang;
@@ -142,8 +143,11 @@ class PembelianBarangController extends Controller
         try {
             DB::beginTransaction();
 
+            $user = Auth::user();
+
             $pembelian = PembelianBarang::create([
                 'id_supplier' => $request->id_supplier,
+                'id_users' => $user->id,
                 'no_nota' => $request->no_nota,
                 'tgl_nota' => $request->tgl_nota,
             ]);
@@ -340,6 +344,16 @@ class PembelianBarangController extends Controller
                     $stockBarang->nilai_total = round($hpp_baru * $stockBarang->stock);
                     $stockBarang->nama_barang = $barang->nama_barang;
                     $stockBarang->save();
+
+                    DetailStockBarang::create([
+                        'id_stock' => $stockBarang->id,
+                        'id_barang' => $id_barang,
+                        'id_supplier' => $idSupplier,
+                        'id_pembelian' => $pembelian->id,
+                        'id_detail_pembelian' => $detail->id,
+                        'qty_buy' => $qty,
+                        'qty_now' => $qty,
+                    ]);
 
                     $counter++;
                 }

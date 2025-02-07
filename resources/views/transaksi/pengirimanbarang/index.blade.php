@@ -197,7 +197,7 @@
                         <i class="fa fa-edit"></i>
                     </div>
                 </a>` :
-                            (data?.status === 'Progress' || data?.status === 'Sukses') ? `
+                    (data?.status === 'Progress' || data?.status === 'Sukses') ? `
                 <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail Data Nomor Resi: ${data.no_resi}"
@@ -211,9 +211,9 @@
                 delete_button = (data?.status === 'Progress' || data?.status === 'Pending') ? `
                 <a class="p-1 btn hapus-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Detail Data Nomor Resi: ${data.no_resi}"
-                    data-id='${data.id}'>
-                    <span class="text-dark">Delete</span>
+                    title="Hapus Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}' data-name='${data.no_resi}'>
+                    <span class="text-dark">Hapus</span>
                     <div class="icon text-danger">
                         <i class="fa fa-trash-alt"></i>
                     </div>
@@ -225,11 +225,23 @@
                 edit_button = `
                 <a href="pengirimanbarang/edit/${data.id}" class="p-1 btn edit-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Edit Data Nomor Resi: ${data.no_resi}"
+                    title="Verifikasi Data Nomor Resi: ${data.no_resi}"
                     data-id='${data.id}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
-                        <i class="fa fa-edit"></i>
+                    <span class="text-dark">Verif</span>
+                    <div class="icon text-success">
+                        <i class="fa fa-circle-check"></i>
+                    </div>
+                </a>`;
+            }
+            if (id_toko == data?.id_toko_penerima && data?.status == 'Sukses') {
+                detail_button = `
+                <a href="pengirimanbarang/detail/${data.id}" class="p-1 btn detail-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Detail</span>
+                    <div class="icon text-info">
+                        <i class="fa fa-book"></i>
                     </div>
                 </a>`;
             }

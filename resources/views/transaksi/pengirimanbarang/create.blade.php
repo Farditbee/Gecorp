@@ -99,7 +99,7 @@
                                                     placeholder="Contoh : Sicepat" class="form-control">
                                             </div>
 
-                                            <button type="submit" style="float: right" class="btn btn-primary"><i
+                                            <button type="submit" style="float: right" class="btn btn-success"><i
                                                     class="fa fa-save"></i> Selanjutnya</button>
                                         </form>
                                     </div>
@@ -431,7 +431,7 @@
                             setTimeout(() => {
                                 successMsg.style.opacity = '0';
                                 setTimeout(() => successMsg.remove(), 500);
-                            }, 2000);
+                            }, 1000);
                         }
                     }
                 }
@@ -578,7 +578,7 @@
                             setTimeout(() => {
                                 window.location.href =
                                     '{{ route('transaksi.pengirimanbarang.index') }}';
-                            }, 2000);
+                            }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message || "Terjadi kesalahan",
                                 "info");
