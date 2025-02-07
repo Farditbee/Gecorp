@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
+use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
 use App\Models\PengirimanBarang;
 use App\Models\StockBarang;
@@ -269,11 +270,14 @@ class PengirimanBarangController extends Controller
             'id_barang' => 'required|string',
         ]);
 
-        $qrCode = $request->id_barang;
+        $id_barang = $request->id_barang;
+
+        list($qrCode, $id_detail) = explode('/', $id_barang);
 
         try {
 
             $barang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
+
             if (!$barang) {
                 return response()->json([
                     'error' => true,
@@ -283,11 +287,25 @@ class PengirimanBarangController extends Controller
             }
 
             $id_barang = $barang->id_barang;
+            $id_supplier = $barang->id_supplier;
+            $id_pembelian = $barang->id_pembelian_barang;
 
             if ($request->id_toko == 1) {
-                $stock = StockBarang::where('id_barang', $id_barang)->first();
+                $stock = DetailStockBarang::where('id_barang', $id_barang)
+                                        ->where('id_supplier', $id_supplier)
+                                        ->where('id_detail_pembelian', $barang->id)
+                                        ->where('id_pembelian', $id_pembelian)
+                                        ->first();
 
-                if ($stock->stock <= 0) {
+                if (!$stock) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Stok tidak ditemukan',
+                        'status_code' => 404,
+                    ], 404);
+                }
+
+                if ($stock->qty_now <= 0) {
                     return response()->json([
                         'error' => true,
                         'message' => 'Stok barang kosong',
@@ -295,21 +313,22 @@ class PengirimanBarangController extends Controller
                     ], 404);
                 }
 
-                if ($stock) {
-                    return response()->json([
-                        'error' => false,
-                        'message' => 'Successfully',
-                        'status_code' => 200,
-                        'data' => [
-                            'id_barang' => $stock->id_barang,
-                            'id_supplier' => $barang->id_supplier,
-                            'nama_supplier' => $barang->supplier->nama_supplier,
-                            'nama_barang' => $stock->barang->nama_barang,
-                            'qty' => $stock->stock,
-                            'harga' => $stock->hpp_baru,
-                        ],
-                    ]);
-                }
+                $hppBaru = StockBarang::where('id_barang', $id_barang)->value('hpp_baru');
+
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Successfully',
+                    'status_code' => 200,
+                    'data' => [
+                        'id_barang' => $stock->id_barang,
+                        'id_supplier' => $stock->id_supplier,
+                        'id_detail' => $id_detail,
+                        'nama_supplier' => $stock->supplier->nama_supplier,
+                        'nama_barang' => $stock->barang->nama_barang,
+                        'qty' => $stock->qty_now,
+                        'harga' => $hppBaru,
+                    ],
+                ]);
             } else {
                 $stock = DetailToko::where('id_barang', $id_barang)
                     ->where('id_toko', $request->id_toko)
@@ -829,5 +848,16 @@ class PengirimanBarangController extends Controller
                 'message' => 'Gagal menghapus pengiriman Barang. ' . $e->getMessage()
             ]);
         }
+    }
+
+    public function updateStatusTerima(Request $request)
+    {
+        $request->validate([
+            'id_pengiriman_barang' => 'required',
+            'id_barang' => 'required|array',
+            'id_supplier' => 'required|array',
+            'toko_pengirim' => 'required'
+
+        ]);
     }
 }

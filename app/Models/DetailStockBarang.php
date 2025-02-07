@@ -17,4 +17,14 @@ class DetailStockBarang extends Model
     protected $keyType = 'string';
 
     protected $guarded = [];
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier', 'id');
+    }
+
+    public function barang()
+    {
+        return $this->belongsTo(Barang::class, 'id_barang', 'id');
+    }
 }

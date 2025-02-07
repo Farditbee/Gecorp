@@ -275,7 +275,8 @@ class MasterController extends Controller
         if ($id_toko == 1) {
             $query = StockBarang::join('barang', 'stock_barang.id_barang', '=', 'barang.id')
                 ->join('detail_pembelian_barang as dt_barang', 'stock_barang.id_barang', '=', 'dt_barang.id_barang')
-                ->select('stock_barang.id_barang', 'barang.nama_barang', 'stock_barang.stock as qty', 'dt_barang.qrcode');
+                ->join('supplier', 'dt_barang.id_supplier', '=', 'supplier.id')
+                ->select('supplier.nama_supplier', 'barang.nama_barang', 'stock_barang.stock as qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
         } else {
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
                 ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
@@ -288,12 +289,13 @@ class MasterController extends Controller
     
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
             });
         } else {
             return response()->json([
                 'status_code' => 400,
                 'errors' => true,
-                'message' => 'Silahkan masukkan qrcode barang',
+                'message' => 'Silahkan masukkan qrcode',
             ], 400);
         }
     
@@ -321,8 +323,8 @@ class MasterController extends Controller
     
         $mappedData = array_map(function ($item) {
             return [
-                'id' => $item['qrcode'],
-                'text' => $item['nama_barang'] . '/' . $item['qty'] . '/' . $item['qrcode'],
+                'id' => $item['qrcode'] . '/' . $item['id_detail'],
+                'text' => "{$item['nama_barang']} / Sisa Stock: ({$item['qty']}) / Supplier: {$item['nama_supplier']}",
             ];
         }, $data['data']);
     
