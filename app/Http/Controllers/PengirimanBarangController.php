@@ -179,13 +179,20 @@ class PengirimanBarangController extends Controller
             abort(403, 'Unauthorized');
         }
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
-        $detail_pengiriman = DetailPengirimanBarang::where('id_pengiriman_barang', $id)->get();  // Ambil data pengiriman dari database
-        // $selectedTokoId = $detail_pengiriman->toko_pengirim;  // Asumsikan kamu menyimpan id toko pengirim di dalam pengiriman
+
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
-        // $pengiriman_barang = PengirimanBarang::all();
+
+        $userTokoId = Auth::user()->id_toko;
+
+        if ($pengiriman_barang->toko_pengirim !== $userTokoId && $pengiriman_barang->toko_penerima !== $userTokoId && $userTokoId != 1) {
+            abort(403, 'Unauthorized access');
+        }
+
+        $detail_pengiriman = DetailPengirimanBarang::where('id_pengiriman_barang', $id)->get();
 
         return view('transaksi.pengirimanbarang.detail', compact('menu', 'detail_pengiriman', 'pengiriman_barang'));
     }
+
 
     public function create(Request $request)
     {
@@ -429,7 +436,11 @@ class PengirimanBarangController extends Controller
         }
         $menu = [$this->title[0], $this->label[0], $this->title[3]];
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
+        $userTokoId = Auth::user()->id_toko;
 
+        if ($pengiriman_barang->toko_penerima !== $userTokoId) {
+            abort(403, 'Anda bukan dari toko penerima dari data Pengiriman Barang ini.');
+        }
         return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
     }
 
