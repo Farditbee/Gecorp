@@ -795,14 +795,14 @@ class PengirimanBarangController extends Controller
             if ($pengiriman->status === 'pending') {
                 // Hapus data dari tabel temp_detail_pengiriman
                 DB::table('temp_detail_pengiriman')->where('id_pengiriman_barang', $id)->delete();
-            } elseif ($pengiriman->status === 'process') {
+            } elseif ($pengiriman->status === 'progress') {
                 // Hapus data dari tabel detail_pengiriman_barang
                 DB::table('detail_pengiriman_barang')->where('id_pengiriman_barang', $id)->delete();
             } else {
                 // Status tidak diperbolehkan untuk dihapus
                 return response()->json([
                     'success' => false,
-                    'message' => 'Penghapusan hanya dapat dilakukan jika status adalah pending atau process.'
+                    'message' => 'Penghapusan hanya dapat dilakukan jika status adalah pending atau progress.'
                 ], 400);
             }
 
@@ -814,7 +814,7 @@ class PengirimanBarangController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Success to delete pengiriman barang.'
+                'message' => 'Pengiriman Barang berhasil Dihapus.'
             ]);
         } catch (\Exception $e) {
             // Rollback transaksi jika terjadi error
@@ -822,7 +822,7 @@ class PengirimanBarangController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete pengiriman barang. ' . $e->getMessage()
+                'message' => 'Gagal menghapus pengiriman Barang. ' . $e->getMessage()
             ]);
         }
     }

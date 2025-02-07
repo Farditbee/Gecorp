@@ -604,9 +604,6 @@
                             Authorization: `Bearer ${auth_token}`
                         },
                         data: function(params) {
-                            if (!params.term || params.term.length < isMinimum) {
-                                return null;
-                            }
                             return {
                                 search: params.term,
                                 page: params.page || 1,

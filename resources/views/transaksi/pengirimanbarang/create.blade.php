@@ -404,8 +404,36 @@
                         harga: data.harga,
                     }
                 );
+
                 if (postDataRest && postDataRest.status === 200) {
-                    console.log('Update berhasil!');
+                    let row = [...document.querySelectorAll('#listData tr')].find(tr => {
+                        let rowIdBarang = tr.querySelector('input[name="id_barang[]"]')?.value;
+                        let rowIdSupplier = tr.querySelector('input[name="id_supplier[]"]')?.value;
+                        return rowIdBarang == data.id_barang && rowIdSupplier == data.id_supplier;
+                    });
+
+                    if (row) {
+                        let qtyInput = row.querySelector('.qty-input');
+                        if (qtyInput) {
+                            let existingMsg = row.querySelector('.update-success');
+                            if (existingMsg) existingMsg.remove();
+
+                            let successMsg = document.createElement('small');
+                            successMsg.innerHTML = '<i class="fas fa-circle-check"></i> Berhasil diperbarui';
+                            successMsg.style.color = 'green';
+                            successMsg.style.marginLeft = '8px';
+                            successMsg.style.opacity = '1';
+                            successMsg.style.transition = 'opacity 0.5s ease-in-out';
+
+                            successMsg.classList.add('update-success');
+                            qtyInput.parentElement.appendChild(successMsg);
+
+                            setTimeout(() => {
+                                successMsg.style.opacity = '0';
+                                setTimeout(() => successMsg.remove(), 500);
+                            }, 2000);
+                        }
+                    }
                 }
             } catch (error) {
                 const resp = error.response;
