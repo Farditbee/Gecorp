@@ -211,9 +211,9 @@
                 delete_button = (data?.status === 'Progress' || data?.status === 'Pending') ? `
                 <a class="p-1 btn hapus-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Detail Data Nomor Resi: ${data.no_resi}"
-                    data-id='${data.id}'>
-                    <span class="text-dark">Delete</span>
+                    title="Hapus Data Nomor Resi: ${data.no_resi}"
+                    data-id='${data.id}' data-name='${data.no_resi}'>
+                    <span class="text-dark">Hapus</span>
                     <div class="icon text-danger">
                         <i class="fa fa-trash-alt"></i>
                     </div>
