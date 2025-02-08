@@ -526,38 +526,37 @@ class PengirimanBarangController extends Controller
                         }
                     }
 
+                    // Ambil data detail pengiriman barang
                     $detailToko = DetailToko::where('id_toko', $toko_penerima)
-    ->where('id_barang', $detail->id_barang)
-    ->where(function ($query) use ($detail) {
-        $query->where('id_supplier', $detail->id_supplier)
-            ->orWhereNull('id_supplier'); // Juga cari jika id_supplier masih null
-    })
-    ->first();
+                        ->where('id_barang', $detail->id_barang)
+                        ->where('id_supplier', $detail->id_supplier) // Cari berdasarkan supplier juga
+                        ->first();
 
-// **Cek apakah id_supplier masih null**
-if ($detail->id_supplier === null) {
-    return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang);
-}
+                    // **Tambahkan debug untuk melihat apakah id_supplier terbaca**
+                    if ($detail->id_supplier === null) {
+                        return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang);
+                    }
 
-if ($detailToko) {
-    // Jika sudah ada tetapi id_supplier masih null, berikan alert & jangan lanjutkan
-    if ($detailToko->id_supplier === null) {
-        return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang . ' di toko tujuan!');
-    }
+                    // Jika data sudah ada di detail_toko
+                    if ($detailToko) {
+                        // Jika id_supplier masih null di detail_toko, update dengan id_supplier dari pengiriman
+                        if ($detailToko->id_supplier === null) {
+                            $detailToko->id_supplier = $detail->id_supplier;
+                        }
 
-    // Jika id_supplier sudah ada, tambahkan qty
-    $detailToko->qty += $detail->qty;
-    $detailToko->save();
-} else {
-    // Jika belum ada, buat entri baru
-    DetailToko::create([
-        'id_toko' => $toko_penerima,
-        'id_supplier' => $detail->id_supplier,
-        'id_barang' => $detail->id_barang,
-        'qty' => $detail->qty,
-        'harga' => $detail->harga
-    ]);
-}
+                        // Tambahkan qty
+                        $detailToko->qty += $detail->qty;
+                        $detailToko->save();
+                    } else {
+                        // **Pastikan insert pertama kali menyertakan id_supplier**
+                        DetailToko::create([
+                            'id_toko' => $toko_penerima,
+                            'id_supplier' => $detail->id_supplier, // Pastikan id_supplier ikut masuk
+                            'id_barang' => $detail->id_barang,
+                            'qty' => $detail->qty,
+                            'harga' => $detail->harga
+                        ]);
+                    }
                 }
             }
 
@@ -789,18 +788,18 @@ if ($detailToko) {
                 if (!$detailPembelianBarang) {
                     throw new \Exception('Detail Pembelian Barang not found for qrcode: ' . $qrCode);
                 }
-    
+
                 // Find the detail_stock by id_detail_pembelian
                 $detailStock = DetailStockBarang::where('id_detail_pembelian', $detailPembelianBarang->id)->first();
                 if (!$detailStock) {
                     throw new \Exception('Detail Stock not found for id_detail_pembelian: ' . $detailPembelianBarang->id);
                 }
-    
+
                 // Update the qty_now and qty_out
                 $detailStock->qty_now -= $qty;
                 $detailStock->qty_out += $qty;
                 $detailStock->save();
-                
+
                 DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
