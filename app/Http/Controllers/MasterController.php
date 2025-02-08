@@ -276,7 +276,8 @@ class MasterController extends Controller
             $query = StockBarang::join('barang', 'stock_barang.id_barang', '=', 'barang.id')
                 ->join('detail_pembelian_barang as dt_barang', 'stock_barang.id_barang', '=', 'dt_barang.id_barang')
                 ->join('supplier', 'dt_barang.id_supplier', '=', 'supplier.id')
-                ->select('supplier.nama_supplier', 'barang.nama_barang', 'stock_barang.stock as qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
+                ->join('detail_stock', 'dt_barang.id', '=', 'detail_stock.id_detail_pembelian')
+                ->select('supplier.nama_supplier', 'barang.nama_barang', 'detail_stock.qty_now as qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
         } else {
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
                 ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
