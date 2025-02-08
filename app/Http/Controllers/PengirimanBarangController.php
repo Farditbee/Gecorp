@@ -750,11 +750,13 @@ class PengirimanBarangController extends Controller
             'harga' => 'required|array',
             'id_supplier' => 'required|array',
             'id_pengiriman_barang' => 'required|string',
+            'qrcode' => 'required|array',
         ]);
 
         $idBarangs = $request->input('id_barang', []);
         $qtys = $request->input('qty', []);
         $hargaBarangs = $request->input('harga', []);
+        $qrcodes = $request->input('qrcode', []);
         $id_pengiriman_barang = $request->id_pengiriman_barang;
 
         try {
@@ -766,8 +768,26 @@ class PengirimanBarangController extends Controller
             foreach ($idBarangs as $index => $id_barang) {
                 $qty = $qtys[$index];
                 $harga = $hargaBarangs[$index];
+                $qrCode = $qrcodes[$index];
                 $total_harga = $qty * $harga;
 
+                // Find the detail_pembelian_barang by qrcode
+                $detailPembelianBarang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
+                if (!$detailPembelianBarang) {
+                    throw new \Exception('Detail Pembelian Barang not found for qrcode: ' . $qrCode);
+                }
+    
+                // Find the detail_stock by id_detail_pembelian
+                $detailStock = DetailStockBarang::where('id_detail_pembelian', $detailPembelianBarang->id)->first();
+                if (!$detailStock) {
+                    throw new \Exception('Detail Stock not found for id_detail_pembelian: ' . $detailPembelianBarang->id);
+                }
+    
+                // Update the qty_now and qty_out
+                $detailStock->qty_now -= $qty;
+                $detailStock->qty_out += $qty;
+                $detailStock->save();
+                
                 DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
