@@ -292,10 +292,10 @@ class PengirimanBarangController extends Controller
 
             if ($request->id_toko == 1) {
                 $stock = DetailStockBarang::where('id_barang', $id_barang)
-                                        ->where('id_supplier', $id_supplier)
-                                        ->where('id_detail_pembelian', $barang->id)
-                                        ->where('id_pembelian', $id_pembelian)
-                                        ->first();
+                    ->where('id_supplier', $id_supplier)
+                    ->where('id_detail_pembelian', $barang->id)
+                    ->where('id_pembelian', $id_pembelian)
+                    ->first();
 
                 if (!$stock) {
                     return response()->json([
@@ -527,23 +527,32 @@ class PengirimanBarangController extends Controller
                     }
 
                     // Ambil data detail pengiriman barang
+                    // Ambil data detail pengiriman barang
                     $detailToko = DetailToko::where('id_toko', $toko_penerima)
-                        ->where('id_barang', $detail->id_barang)
-                        ->where('id_supplier', $detail->id_supplier) // Pastikan mencari berdasarkan supplier juga
-                        ->first();
                         ->where('id_barang', $detail->id_barang)
                         ->where('id_supplier', $detail->id_supplier) // Cari berdasarkan supplier juga
                         ->first();
 
+                    // **Tambahkan debug untuk melihat apakah id_supplier terbaca**
+                    if ($detail->id_supplier === null) {
+                        return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang);
+                    }
+
+                    // Jika data sudah ada di detail_toko
                     if ($detailToko) {
-                        // Jika sudah ada kombinasi barang + supplier di toko_penerima, tambahkan qty
+                        // Jika id_supplier masih null di detail_toko, update dengan id_supplier dari pengiriman
+                        if ($detailToko->id_supplier === null) {
+                            $detailToko->id_supplier = $detail->id_supplier;
+                        }
+
+                        // Tambahkan qty
                         $detailToko->qty += $detail->qty;
                         $detailToko->save();
                     } else {
-                        // Jika belum ada, buat entri baru dengan id_supplier yang sesuai
+                        // **Pastikan insert pertama kali menyertakan id_supplier**
                         DetailToko::create([
                             'id_toko' => $toko_penerima,
-                            'id_supplier' => $detail->id_supplier,
+                            'id_supplier' => $detail->id_supplier, // Pastikan id_supplier ikut masuk
                             'id_barang' => $detail->id_barang,
                             'qty' => $detail->qty,
                             'harga' => $detail->harga
