@@ -292,10 +292,10 @@ class PengirimanBarangController extends Controller
 
             if ($request->id_toko == 1) {
                 $stock = DetailStockBarang::where('id_barang', $id_barang)
-                                        ->where('id_supplier', $id_supplier)
-                                        ->where('id_detail_pembelian', $barang->id)
-                                        ->where('id_pembelian', $id_pembelian)
-                                        ->first();
+                    ->where('id_supplier', $id_supplier)
+                    ->where('id_detail_pembelian', $barang->id)
+                    ->where('id_pembelian', $id_pembelian)
+                    ->first();
 
                 if (!$stock) {
                     return response()->json([
@@ -527,24 +527,37 @@ class PengirimanBarangController extends Controller
                     }
 
                     $detailToko = DetailToko::where('id_toko', $toko_penerima)
-                        ->where('id_barang', $detail->id_barang)
-                        ->where('id_supplier', $detail->id_supplier) // Pastikan mencari berdasarkan supplier juga
-                        ->first();
+    ->where('id_barang', $detail->id_barang)
+    ->where(function ($query) use ($detail) {
+        $query->where('id_supplier', $detail->id_supplier)
+            ->orWhereNull('id_supplier'); // Juga cari jika id_supplier masih null
+    })
+    ->first();
 
-                    if ($detailToko) {
-                        // Jika sudah ada kombinasi barang + supplier di toko_penerima, tambahkan qty
-                        $detailToko->qty += $detail->qty;
-                        $detailToko->save();
-                    } else {
-                        // Jika belum ada, buat entri baru dengan id_supplier yang sesuai
-                        DetailToko::create([
-                            'id_toko' => $toko_penerima,
-                            'id_supplier' => $detail->id_supplier,
-                            'id_barang' => $detail->id_barang,
-                            'qty' => $detail->qty,
-                            'harga' => $detail->harga
-                        ]);
-                    }
+// **Cek apakah id_supplier masih null**
+if ($detail->id_supplier === null) {
+    return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang);
+}
+
+if ($detailToko) {
+    // Jika sudah ada tetapi id_supplier masih null, berikan alert & jangan lanjutkan
+    if ($detailToko->id_supplier === null) {
+        return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang . ' di toko tujuan!');
+    }
+
+    // Jika id_supplier sudah ada, tambahkan qty
+    $detailToko->qty += $detail->qty;
+    $detailToko->save();
+} else {
+    // Jika belum ada, buat entri baru
+    DetailToko::create([
+        'id_toko' => $toko_penerima,
+        'id_supplier' => $detail->id_supplier,
+        'id_barang' => $detail->id_barang,
+        'qty' => $detail->qty,
+        'harga' => $detail->harga
+    ]);
+}
                 }
             }
 
