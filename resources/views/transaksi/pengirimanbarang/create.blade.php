@@ -185,6 +185,7 @@
                                                                 <th scope="col">No</th>
                                                                 <th scope="col">Nama Barang</th>
                                                                 <th scope="col">Supplier</th>
+                                                                <th scope="col">QrCode</th>
                                                                 <th scope="col">Qty</th>
                                                                 <th scope="col" class="text-right">Harga</th>
                                                                 <th scope="col" class="text-right">Total Harga</th>
@@ -329,10 +330,11 @@
                             <td>
                                 <input type="hidden" name="id_barang[]" value="${item.id_barang}">
                                 <input type="hidden" name="id_supplier[]" value="${idSupplier}">
-                                <input type="hidden" name="qrcode[]">
+                                <input type="hidden" name="qrcode[]" value="${qrcode}">
                                 ${item.nama_barang}
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
+                            <td class="qrcode-text">${item.qrcode}</td>
                             <td>
                                 <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
                                     min="${minQty}" max="${maxQty}" data-harga="${harga}">
@@ -543,11 +545,12 @@
                     const qty = [];
                     const harga = [];
                     const total_harga = [];
+                    const qrcode = [];
 
                     $("#listData tr").each(function() {
                         const barang = $(this).find("input[name='id_barang[]']").val();
-                        const supplier = $(this).find("input[name='id_supplier[]']")
-                            .val();
+                        const supplier = $(this).find("input[name='id_supplier[]']").val();
+                        const qrCodes = $(this).find("input[name='qrcode[]']").val();
                         const jumlah = $(this).find(".qty-input").val();
                         const harga_barang = $(this).find(".harga-text").data("value");
                         const total = $(this).find(".total-harga").data("value");
@@ -558,6 +561,7 @@
                             qty.push(parseInt(jumlah, 10));
                             harga.push(parseInt(harga_barang, 10));
                             total_harga.push(parseInt(total, 10));
+                            qrcode.push(qrCodes);
                         }
                     });
 
@@ -567,7 +571,8 @@
                         id_supplier,
                         qty,
                         harga,
-                        total_harga
+                        total_harga,
+                        qrcode,
                     };
 
                     try {
