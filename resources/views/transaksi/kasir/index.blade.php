@@ -1002,6 +1002,7 @@
             const uangBayarInput = document.getElementById('uang-bayar-input');
             const kembalianAmount = document.getElementById('kembalian-amount');
             let subtotal = 0;
+            let hiddenUangBayar = document.getElementById('hiddenUangBayar');
 
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
@@ -1065,10 +1066,10 @@
                 const stock = parseInt(selectedBarang.data('stock'));
                 const harga = parseInt(selectedHarga);
 
-                if (tableBody.querySelectorAll(`tr td input[value='${idBarang}']`).length > 0) {
-                    alert("Barang sudah ditambahkan");
-                    return;
-                }
+                // if (tableBody.querySelectorAll(`tr td input[value='${idBarang}']`).length > 0) {
+                //     alert("Barang sudah ditambahkan");
+                //     return;
+                // }
 
                 if (qty > stock) {
                     alert("Stock barang tidak cukup");
@@ -1086,13 +1087,13 @@
 
                 const newRow = document.createElement('tr');
                 newRow.innerHTML = `
-            <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
-            <td></td>
-            <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
-            <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
-            <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
-            <td>Rp ${totalHarga.toLocaleString()}</td>
-        `;
+                    <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
+                    <td></td>
+                    <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
+                    <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                    <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
+                    <td>Rp ${totalHarga.toLocaleString()}</td>
+                `;
                 tableBody.appendChild(newRow);
 
                 qtyInput.value = '';
@@ -1119,15 +1120,16 @@
             });
 
             function updateKembalian() {
-                const uangBayar = parseFloat(uangBayarInput.value.replace(/,/g, '')) || 0;
+                const uangBayar = hiddenUangBayar.value || 0;
                 const kembalian = uangBayar - subtotal;
                 kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
-                document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : 0;
+                document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : kembalian;
             }
 
             uangBayarInput.addEventListener('input', function() {
+                console.log('sudah diklik');
                 let value = this.value.replace(/[^0-9]/g, '');
-                document.getElementById('hiddenUangBayar').value = value;
+                hiddenUangBayar.value = value;
                 this.value = value ? parseInt(value).toLocaleString() : '';
                 updateKembalian();
             });
@@ -1142,7 +1144,6 @@
 
             metodeSelect.dispatchEvent(new Event('change'));
         });
-
 
         async function initPageLoad() {
             await add();

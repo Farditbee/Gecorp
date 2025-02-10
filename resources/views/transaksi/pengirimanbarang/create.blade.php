@@ -293,6 +293,7 @@
                     if (response.status === 200 && response.data.data) {
                         let item = response.data.data;
                         let idSupplier = item.id_supplier;
+                        let idDetailPembelian = item.id_detail_pembelian;
                         let qrcode = item.qrcode;
 
                         if (item.qty === 0) {
@@ -331,6 +332,7 @@
                                 <input type="hidden" name="id_barang[]" value="${item.id_barang}">
                                 <input type="hidden" name="id_supplier[]" value="${idSupplier}">
                                 <input type="hidden" name="qrcode[]" value="${qrcode}">
+                                <input type="hidden" name="id_detail_pembelian[]" value="${idDetailPembelian}">
                                 ${item.nama_barang}
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
@@ -546,11 +548,15 @@
                     const harga = [];
                     const total_harga = [];
                     const qrcode = [];
+                    const id_detail_pembelian = [];
 
                     $("#listData tr").each(function() {
                         const barang = $(this).find("input[name='id_barang[]']").val();
-                        const supplier = $(this).find("input[name='id_supplier[]']").val();
+                        const supplier = $(this).find("input[name='id_supplier[]']")
+                            .val();
                         const qrCodes = $(this).find("input[name='qrcode[]']").val();
+                        const idPembelian = $(this).find(
+                            "input[name='id_detail_pembelian[]']").val();
                         const jumlah = $(this).find(".qty-input").val();
                         const harga_barang = $(this).find(".harga-text").data("value");
                         const total = $(this).find(".total-harga").data("value");
@@ -562,17 +568,19 @@
                             harga.push(parseInt(harga_barang, 10));
                             total_harga.push(parseInt(total, 10));
                             qrcode.push(qrCodes);
+                            id_detail_pembelian.push(idPembelian);
                         }
                     });
 
                     const formData = {
-                        id_pengiriman_barang: $('#id_pengiriman_barang').val(),
+                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
                         id_barang,
                         id_supplier,
                         qty,
                         harga,
                         total_harga,
                         qrcode,
+                        id_detail_pembelian
                     };
 
                     try {
