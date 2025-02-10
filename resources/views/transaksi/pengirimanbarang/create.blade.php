@@ -573,7 +573,7 @@
                     });
 
                     const formData = {
-                        id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
+                        id_pengiriman_barang: $('#id_pengiriman_barang').val(),
                         id_barang,
                         id_supplier,
                         qty,
