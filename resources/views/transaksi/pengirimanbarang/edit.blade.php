@@ -104,7 +104,7 @@
                                                             <div class="d-flex align-items-center">
                                                                 <input type="checkbox" id="checkAll"
                                                                     class="neumorphic-checkbox mr-2">
-                                                                <span> | Verifikasi Pengiriman <i
+                                                                <span> | Verifikasi Semua <i
                                                                         class="fa fa-circle-check text-primary"></i></span>
                                                             </div>
                                                         </th>
