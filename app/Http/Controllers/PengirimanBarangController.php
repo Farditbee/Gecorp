@@ -784,7 +784,7 @@ class PengirimanBarangController extends Controller
                 $detailStock->qty_out += $qty;
                 $detailStock->save();
 
-                $detailKirim = DetailPengirimanBarang::create([
+                DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
                     'id_detail_pembelian' => $detailPembelianBarang->id,
@@ -793,8 +793,6 @@ class PengirimanBarangController extends Controller
                     'total_harga' => $total_harga,
                     'id_supplier' => $request->id_supplier[$index],
                 ]);
-
-                Log::info('Detail Pengiriman Barang created: ' . $detailKirim);
 
                 $totalItem += $qty;
                 $totalNilai += $total_harga;
