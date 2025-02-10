@@ -152,7 +152,7 @@
             if (getDataRest.status === 200 && Array.isArray(getDataRest.data.data)) {
                 setListData(getDataRest.data.data);
             } else {
-                $('#listData').html('<tr><td colspan="6" class="text-center">Data tidak ditemukan</td></tr>');
+                $('#listData').html('<tr><td colspan="7" class="text-center">Data tidak ditemukan</td></tr>');
             }
         }
 
@@ -160,7 +160,7 @@
             let rows = '';
             let subTotal = 0;
             let colSpan = ('{{ $pengiriman_barang->status }}' === 'pending' &&
-                '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') ? 6 : 5;
+                '{{ $pengiriman_barang->toko_pengirim }}' == '{{ auth()->user()->id_toko }}') ? 7 : 6;
 
             data.forEach((item, index) => {
                 subTotal += item.total_harga;
@@ -408,6 +408,7 @@
                                 ${item.nama_barang}
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
+                            <td class="qrcode-text">${item.qrcode}</td>
                             <td>
                                 <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
                                     min="${minQty}" max="${maxQty}" data-harga="${harga}">

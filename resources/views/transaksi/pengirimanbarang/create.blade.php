@@ -194,7 +194,7 @@
                                                         <tbody id="listData"></tbody>
                                                         <tfoot>
                                                             <tr>
-                                                                <th scope="col" colspan="6" class="text-right">
+                                                                <th scope="col" colspan="7" class="text-right">
                                                                     SubTotal</th>
                                                                 <th id="subTotal" scope="col" class="text-right">
                                                                 </th>
