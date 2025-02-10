@@ -474,7 +474,6 @@ class PengirimanBarangController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        // dd($request->all());
         // Ambil data pengiriman_barang
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
         $toko_pengirim = $pengiriman_barang->toko_pengirim;
@@ -490,11 +489,11 @@ class PengirimanBarangController extends Controller
                 $detail = DetailPengirimanBarang::findOrFail($detail_id);
 
                 if (isset($statuses[$key]) && $statuses[$key] == 'success' && $detail->status != 'success') {
-
-                    // Update the status in detail pembelian
+                    // Update status detail pengiriman
                     $detail->status = 'success';
                     $detail->save();
 
+                    // Mengurangi stok dari toko pengirim atau gudang
                     if ($toko_pengirim != 1) {
                         $detailTokoPengirim = DetailToko::where('id_toko', $toko_pengirim)
                             ->where('id_barang', $detail->id_barang)
@@ -514,45 +513,29 @@ class PengirimanBarangController extends Controller
                         }
                     } else {
                         $stockBarang = StockBarang::where('id_barang', $detail->id_barang)->first();
-                        if ($stockBarang) {
-                            if ($stockBarang->stock >= $detail->qty) {
-                                $stockBarang->stock -= $detail->qty;
-                                $stockBarang->save();
-                            } else {
-                                // Jika stok tidak mencukupi, rollback transaksi
-                                DB::rollBack();
-                                return redirect()->back()->with('error', 'Stok tidak mencukupi untuk barang: ' . $stockBarang->nama_barang);
-                            }
+                        if ($stockBarang && $stockBarang->stock >= $detail->qty) {
+                            $stockBarang->stock -= $detail->qty;
+                            $stockBarang->save();
+                        } else {
+                            DB::rollBack();
+                            return redirect()->back()->with('error', 'Stok tidak mencukupi untuk barang: ' . ($stockBarang->nama_barang ?? 'Tidak Diketahui'));
                         }
                     }
 
-                    // Ambil data detail pengiriman barang
-                    // Ambil data detail pengiriman barang
+                    // Masukkan barang ke detail_toko penerima
                     $detailToko = DetailToko::where('id_toko', $toko_penerima)
                         ->where('id_barang', $detail->id_barang)
-                        ->where('id_supplier', $detail->id_supplier) // Cari berdasarkan supplier juga
+                        ->where('id_supplier', $detail->id_supplier)
                         ->first();
 
-                    // **Tambahkan debug untuk melihat apakah id_supplier terbaca**
-                    if ($detail->id_supplier === null) {
-                        return redirect()->back()->with('error', 'ID Supplier masih null untuk barang dengan ID: ' . $detail->id_barang);
-                    }
-
-                    // Jika data sudah ada di detail_toko
                     if ($detailToko) {
-                        // Jika id_supplier masih null di detail_toko, update dengan id_supplier dari pengiriman
-                        if ($detailToko->id_supplier === null) {
-                            $detailToko->id_supplier = $detail->id_supplier;
-                        }
-
-                        // Tambahkan qty
                         $detailToko->qty += $detail->qty;
                         $detailToko->save();
                     } else {
-                        // **Pastikan insert pertama kali menyertakan id_supplier**
                         DetailToko::create([
+                            'id_detail_pengiriman' => $detail->id,
                             'id_toko' => $toko_penerima,
-                            'id_supplier' => $detail->id_supplier, // Pastikan id_supplier ikut masuk
+                            'id_supplier' => $detail->id_supplier,
                             'id_barang' => $detail->id_barang,
                             'qty' => $detail->qty,
                             'harga' => $detail->harga
@@ -561,20 +544,19 @@ class PengirimanBarangController extends Controller
                 }
             }
 
-            // Cek apakah semua barang dalam detail pembelian memiliki status 'success'
+            // Cek apakah semua barang sudah berstatus success
             $allSuccess = $pengiriman_barang->detail()->where('status', '!=', 'success')->count() === 0;
 
             if ($allSuccess) {
-                // Jika semua barang sudah success, ubah status pembelian jadi success
                 $pengiriman_barang->status = 'success';
                 $pengiriman_barang->tgl_terima = now();
                 $pengiriman_barang->save();
             }
 
-            DB::commit();  // Commit transaction setelah semua operasi berhasil
-            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
+            DB::commit();
+            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status pengiriman berhasil diperbarui');
         } catch (\Exception $e) {
-            DB::rollBack();  // Rollback jika terjadi error
+            DB::rollBack();
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
