@@ -513,11 +513,21 @@ class KasirController extends Controller
             ]);
 
             DB::commit();
-            return redirect()->route('transaksi.kasir.index')->with('success', 'Data berhasil disimpan');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Data berhasil disimpan',
+                'data' => $kasir
+            ]);
+
         } catch (\Throwable $th) {
             DB::rollback();
             Log::error('Error saat menyimpan transaksi:', ['error' => $th->getMessage()]);
-            return redirect()->back()->with('error', 'Failed to save transaction. ' . $th->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to save transaction.',
+                'error' => $th->getMessage()
+            ], 500);
+
         }
     }
 
