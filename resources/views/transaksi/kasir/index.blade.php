@@ -122,7 +122,7 @@
                             <div class="col-xl-12 d-flex justify-content-between">
                                 <div class="d-flex col-6">
                                     <div class="col-4">
-                                        <p class="mb-0">No Nota</p>
+                                        <p class="mb-0"><i class="mr-1 fa fa-file-text"></i>No Nota</p>
                                     </div>
                                     <div class="col-8">
                                         <p id="noNota" name="no_nota"> </p>
@@ -130,7 +130,7 @@
                                 </div>
                                 <div class="d-flex col-6 justify-content-end">
                                     <div class="col-4 text-end">
-                                        <p class="mb-0">Nama Toko</p>
+                                        <p class="mb-0"><i class="mr-1 fa fa-store"></i>Nama Toko</p>
                                     </div>
                                     <div class="col-8">
                                         @if (Auth::check())
@@ -143,7 +143,7 @@
                             <div class="col-xl-12 d-flex justify-content-between">
                                 <div class="d-flex col-6">
                                     <div class="col-4">
-                                        <p class="mb-0">Tgl Transaksi</p>
+                                        <p class="mb-0"><i class="mr-1 fa fa-calendar-day"></i>Tanggal Transaksi</p>
                                     </div>
                                     <div class="col-8">
                                         <p name="tgl_transaksi" id="tglTransaksi">: </p>
@@ -151,7 +151,7 @@
                                 </div>
                                 <div class="d-flex col-6 justify-content-end">
                                     <div class="col-4 text-end">
-                                        <p class="mb-0">Kasir</p>
+                                        <p class="mb-0"><i class="mr-1 fa fa-user"></i>Kasir</p>
                                     </div>
                                     <div class="col-8">
                                         @if (Auth::check())
@@ -167,11 +167,11 @@
                                 </div>
                                 <div class="d-flex col-6 justify-content-end">
                                     <div class="col-4 text-end">
-                                        <p class="mb-0">Member</p>
+                                        <p class="mb-0"><i class="mr-1 fa fa-id-card"></i>Member</p>
                                     </div>
                                     <div class="col-8 d-flex align-items-center">
                                         <p class="mr-1">:</p>
-                                        <select name="id_member" id="id_member" class="form-select select2">
+                                        <select id="id_member" class="form-select select2">
                                             <option value="" selected>~ Pilih Member ~</option>
                                             <option value="Guest">Guest</option>
                                             @foreach ($member as $mbr)
@@ -200,20 +200,6 @@
                                                 <label for="id_barang" class="form-control-label">Nama
                                                     Barang<sup style="color: red">*</sup></label>
                                                 <select id="barang" class="form-control select2">
-                                                    {{-- <option value="">~Silahkan Pilih Barang~</option>
-                                                    @foreach ($barang as $brg)
-                                                        <option value="{{ $brg->barang->id }}"
-                                                            data-barcode-barang="{{ $brg->barang->barcode }}"
-                                                            data-nama-barang="{{ $brg->barang->nama_barang }}"
-                                                            data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
-                                                            data-barcode="{{ $brg->barang->barcode }}"
-                                                            data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
-                                                            data-level-harga='@json($brg->barang->level_harga)'>
-                                                            {{ $brg->barang->nama_barang }} (Stock:
-                                                            {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
-                                                            (Barcode: {{ $brg->barang->barcode }})
-                                                        </option>
-                                                    @endforeach --}}
                                                 </select>
                                             </div>
                                         </div>
@@ -827,6 +813,8 @@
                 hargaSelect.prop('disabled', true).val(null).trigger('change');
                 hargaSelect.data('select2').$container.find('.select2-selection__placeholder').text(
                     'Pilih Barang terlebih dahulu');
+
+                document.getElementById('hiddenMember').value = memberSelect.val();
             });
 
             barangSelect.select2().on('change', function() {
@@ -1022,7 +1010,7 @@
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalContent;
                     }
-                });
+                }).catch();
             });
         }
 
