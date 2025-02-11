@@ -320,6 +320,16 @@ class KasirController extends Controller
                     continue;
                 }
 
+                // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
+                $detailToko = DetailToko::where('id_barang', $id_barang)
+                    ->where('id_toko', $user->id_toko)
+                    ->first();
+
+                $id_supplier = $detailToko ? $detailToko->id_supplier : null;
+                if (is_null($id_supplier)) {
+                    return redirect()->back()->with('error', "Supplier tidak ditemukan untuk barang ID: $id_barang.");
+                }
+
                 // Cek promo yang berlaku
                 $promo = Promo::where('id_barang', $id_barang)
                     ->where('status', 'ongoing')
@@ -404,6 +414,7 @@ class KasirController extends Controller
                 $detail = DetailKasir::create([
                     'id_kasir' => $kasir->id,
                     'id_barang' => $id_barang,
+                    'id_supplier' => $id_supplier,
                     'qty' => $qty,
                     'harga' => $harga_barang,
                     'diskon' => $potongan,
