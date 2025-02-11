@@ -179,7 +179,7 @@ class PengirimanBarangController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
             abort(403, 'Unauthorized');
         }
-        $menu = [$this->title[0], $this->label[0], $this->title[2]];
+        $menu = [$this->title[0], $this->label[1], $this->title[2]];
 
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
 
@@ -454,7 +454,7 @@ class PengirimanBarangController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
             abort(403, 'Unauthorized');
         }
-        $menu = [$this->title[0], $this->label[0], $this->title[3]];
+        $menu = [$this->title[0], $this->label[1], $this->title[3]];
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
         $userTokoId = Auth::user()->id_toko;
 
@@ -466,7 +466,7 @@ class PengirimanBarangController extends Controller
 
     public function editBarang($id)
     {
-        $menu = [$this->title[0], $this->label[0], $this->title[3]];
+        $menu = [$this->title[0], $this->label[1], $this->title[3]];
         $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
 
         return view('transaksi.pengirimanbarang.edit_barang', compact('menu', 'pengiriman_barang',));
