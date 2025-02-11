@@ -264,117 +264,95 @@ class PengirimanBarangController extends Controller
     }
 
     public function getHargaBarang(Request $request)
-    {
-        $request->validate([
-            'id_toko' => 'required|string',
-            'id_barang' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'id_toko' => 'required|string',
+        'id_barang' => 'required|string',
+    ]);
 
-        $id_barang = $request->id_barang;
+    $id_barang = $request->id_barang;
 
-        list($qrCode, $id_detail) = explode('/', $id_barang);
+    list($qrCode, $id_detail) = explode('/', $id_barang);
 
-        try {
+    try {
+        $barang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
 
-            $barang = DetailPembelianBarang::where('qrcode', $qrCode)->first();
-
-            if (!$barang) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Barang tidak ditemukan berdasarkan qrcode',
-                    'status_code' => 404,
-                ], 404);
-            }
-
-            $id_barang = $barang->id_barang;
-            $id_supplier = $barang->id_supplier;
-            $id_pembelian = $barang->id_pembelian_barang;
-
-            if ($request->id_toko == 1) {
-                $stock = DetailStockBarang::where('id_barang', $id_barang)
-                    ->where('id_supplier', $id_supplier)
-                    ->where('id_detail_pembelian', $barang->id)
-                    ->where('id_pembelian', $id_pembelian)
-                    ->first();
-
-                if (!$stock) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Stok tidak ditemukan',
-                        'status_code' => 404,
-                    ], 404);
-                }
-
-                if ($stock->qty_now <= 0) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Stok barang kosong',
-                        'status_code' => 404,
-                    ], 404);
-                }
-
-                $hppBaru = StockBarang::where('id_barang', $id_barang)->value('hpp_baru');
-
-                return response()->json([
-                    'error' => false,
-                    'message' => 'Successfully',
-                    'status_code' => 200,
-                    'data' => [
-                        'id_barang' => $stock->id_barang,
-                        'id_supplier' => $stock->id_supplier,
-                        'id_detail' => $id_detail,
-                        'nama_supplier' => $stock->supplier->nama_supplier,
-                        'nama_barang' => $stock->barang->nama_barang,
-                        'qty' => $stock->qty_now,
-                        'harga' => $hppBaru,
-                        'qrcode' => $barang->qrcode,
-                    ],
-                ]);
-            } else {
-                $stock = DetailToko::where('id_barang', $id_barang)
-                    ->where('id_toko', $request->id_toko)
-                    ->first();
-
-                if ($stock->qty <= 0) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Stok barang kosong',
-                        'status_code' => 404,
-                    ], 404);
-                }
-
-                if ($stock) {
-                    return response()->json([
-                        'error' => false,
-                        'message' => 'Successfully',
-                        'status_code' => 200,
-                        'data' => [
-                            'id_barang' => $stock->id_barang,
-                            'id_supplier' => $barang->id_supplier,
-                            'nama_supplier' => $barang->supplier->nama_supplier,
-                            'nama_barang' => $stock->barang->nama_barang,
-                            'qty' => $stock->qty,
-                            'harga' => $stock->harga,
-                        ],
-                    ]);
-                }
-            }
-
+        if (!$barang) {
             return response()->json([
                 'error' => true,
-                'message' => 'Barang tidak ditemukan',
+                'message' => 'Barang tidak ditemukan berdasarkan qrcode',
                 'status_code' => 404,
             ], 404);
-        } catch (\Exception $e) {
-            Log::error('Error fetching harga barang: ' . $e->getMessage());
+        }
+
+        $id_barang = $barang->id_barang;
+        $id_supplier = $barang->id_supplier;
+        $id_pembelian = $barang->id_pembelian_barang;
+
+        // Cek stok dari DetailStockBarang terlebih dahulu
+        $stock = DetailStockBarang::where('id_barang', $id_barang)
+            ->where('id_supplier', $id_supplier)
+            ->where('id_detail_pembelian', $barang->id)
+            ->where('id_pembelian', $id_pembelian)
+            ->first();
+
+        if ($stock && $stock->qty_now > 0) {
+            $hppBaru = StockBarang::where('id_barang', $id_barang)->value('hpp_baru');
 
             return response()->json([
-                'error' => true,
-                'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
-                'status_code' => 500,
-            ], 500);
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => [
+                    'id_barang' => $stock->id_barang,
+                    'id_supplier' => $stock->id_supplier,
+                    'id_detail' => $id_detail ?: $stock->id_detail_pembelian, // Pastikan id_detail terisi
+                    'nama_supplier' => $stock->supplier->nama_supplier,
+                    'nama_barang' => $stock->barang->nama_barang,
+                    'qty' => $stock->qty_now,
+                    'harga' => $hppBaru,
+                    'qrcode' => $barang->qrcode,
+                ],
+            ]);
         }
+
+        // Jika DetailStockBarang tidak ditemukan atau stok kosong, cek di DetailToko
+        $stockToko = DetailToko::where('id_barang', $id_barang)
+            ->where('id_toko', $request->id_toko)
+            ->first();
+
+        if ($stockToko && $stockToko->qty > 0) {
+            return response()->json([
+                'error' => false,
+                'message' => 'Successfully',
+                'status_code' => 200,
+                'data' => [
+                    'id_barang' => $stockToko->id_barang,
+                    'id_supplier' => $barang->id_supplier,
+                    'id_detail' => $id_detail ?: $barang->id,
+                    'nama_supplier' => $barang->supplier->nama_supplier,
+                    'nama_barang' => $stockToko->barang->nama_barang,
+                    'qty' => $stockToko->qty,
+                    'harga' => $stockToko->harga,
+                ],
+            ]);
+        }
+
+        return response()->json([
+            'error' => true,
+            'message' => 'Stok barang kosong',
+            'status_code' => 404,
+        ], 404);
+    } catch (\Exception $e) {
+        Log::error('Error fetching harga barang: ' . $e->getMessage());
+
+        return response()->json([
+            'error' => true,
+            'message' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
+            'status_code' => 500,
+        ], 500);
     }
+}
 
     public function update(Request $request, $id)
     {
