@@ -125,7 +125,7 @@
                                         <p class="mb-0"><i class="mr-1 fa fa-file-text"></i>No Nota</p>
                                     </div>
                                     <div class="col-8">
-                                        <p id="noNota" name="no_nota"> </p>
+                                        <h5 id="noNota" name="no_nota"></h5>
                                     </div>
                                 </div>
                                 <div class="d-flex col-6 justify-content-end">
@@ -146,7 +146,7 @@
                                         <p class="mb-0"><i class="mr-1 fa fa-calendar-day"></i>Tanggal Transaksi</p>
                                     </div>
                                     <div class="col-8">
-                                        <p name="tgl_transaksi" id="tglTransaksi">: </p>
+                                        <h5 name="tgl_transaksi" id="tglTransaksi"></h5>
                                     </div>
                                 </div>
                                 <div class="d-flex col-6 justify-content-end">
@@ -194,29 +194,28 @@
                                     <input type="hidden" id="hiddenKembalian" name="kembalian">
                                     <input type="hidden" id="hiddenMember" name="id_member">
                                     <input type="hidden" id="hiddenMinus" name="minus">
-                                    <div class="row mb-4">
-                                        <div class="col-4">
+                                    <div class="row mb-4 align-items-center">
+                                        <div class="col-5">
                                             <div class="form-group">
-                                                <label for="id_barang" class="form-control-label">Nama
-                                                    Barang<sup style="color: red">*</sup></label>
-                                                <select id="barang" class="form-control select2">
+                                                <label for="id_barang" class="form-control-label">Nama Barang<sup
+                                                        style="color: red">*</sup></label>
+                                                <select id="barang" class="form-control select2"></select>
+                                            </div>
+                                        </div>
+                                        <div class="col-5">
+                                            <div class="form-group">
+                                                <label for="harga" class="form-control-label">Harga<sup
+                                                        style="color: red">*</sup></label>
+                                                <select class="form-control select2" id="harga">
+                                                    <option value="">~Pilih Member Dahulu~</option>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-4">
-                                            <label for="harga" class="form-control-label">Harga<sup
-                                                    style="color: red">*</sup></label>
-                                            <select class="form-control select2" id="harga" style="display: block;">
-                                                <option value="">~Pilih Member Dahulu~</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-4">
-                                            <label for="qty" class=" form-control-label">Item<sup
-                                                    style="color: red">*</sup></label>
-                                            <input type="number" id="qty" placeholder="Contoh : 1"
-                                                class="form-control">
-                                            <button type="button" id="add-button" class="btn btn-sm btn-secondary mt-2"
-                                                style="float: right;"><i class="mr-2 fa fa-circle-plus"></i>Add</button>
+                                        <div class="col-2 d-flex align-items-end">
+                                            <button type="button" id="add-button"
+                                                class="btn btn-sm btn-secondary w-100">
+                                                <i class="mr-2 fa fa-circle-plus"></i>Add
+                                            </button>
                                         </div>
                                     </div>
                                     <div class="row mb-2">
@@ -232,7 +231,7 @@
                                                         <th scope="col">Total Harga</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody>
+                                                <tbody id="dataStore">
                                                 </tbody>
                                                 <tfoot>
                                                     <tr>
@@ -532,7 +531,7 @@
             isFilter: {
                 id_toko: '{{ auth()->user()->id_toko }}',
             },
-            isUrl: '{{ route('master.barangKirim') }}',
+            isUrl: '{{ route('master.barangKasir') }}',
             placeholder: 'Pilih Member terlebih dahulu',
             isMinimum: 3,
             isModal: '#modal-form',
@@ -738,8 +737,6 @@
             return `${dayName}, ${day}-${month}-${year}`;
         }
 
-        document.getElementById('tglTransaksi').textContent += getTodayDateWithDay();
-
         function generateFormattedNumber() {
             const now = new Date();
             const day = String(now.getDate()).padStart(2, '0');
@@ -770,12 +767,12 @@
             if ('{{ Auth::user()->id_level }}' == 3) {
                 document.getElementById('btn-tambah').addEventListener('click', function() {
                     const formattedNoNota = generateFormattedNumber();
-                    const noNotaElement = document.getElementById('noNota');
                     const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
-                    noNotaElement.textContent = ': ' + formattedNoNota;
-
                     const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
                     hiddenNoNotaInput.value = noNotaWithoutSeparator;
+
+                    $('#noNota').html(`: <span class="badge badge-primary">${formattedNoNota}</span>`);
+                    $('#tglTransaksi').html(`: <span class="badge badge-primary">${getTodayDateWithDay()}</span>`);
                 });
             }
         }
@@ -784,7 +781,6 @@
             const memberSelect = $('#id_member');
             const barangSelect = $('#barang');
             const hargaSelect = $('#harga');
-            const qtyInput = document.getElementById('qty');
             const addButton = document.getElementById('add-button');
             const tableBody = document.querySelector('.modal-body table tbody');
             const subtotalFooter = document.querySelector('.modal-body tfoot th[colspan="5"] + th');
@@ -794,9 +790,7 @@
             const kembalianAmount = document.getElementById('kembalian-amount');
             let subtotal = 0;
             let hiddenUangBayar = document.getElementById('hiddenUangBayar');
-
-            // barangSelect.prop('disabled', true);
-            // hargaSelect.prop('disabled', true);
+            let getStock = 0;
 
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
@@ -849,6 +843,7 @@
                                 'Pilih Harga');
                             hargaSelect.prop('disabled', hargaSelect.children().length === 0).trigger(
                                 'change');
+                            getStock = data.stock || 0;
                         })
                         .catch(error => console.error('Error fetching filtered harga:', error));
                 }
@@ -864,11 +859,11 @@
                 const idBarang = barangSelect.val();
                 const selectedBarang = barangSelect.find(':selected');
                 const selectedHarga = hargaSelect.val();
-                const qty = parseInt(qtyInput.value);
+                const qty = 1;
                 const stock = parseInt(selectedBarang.data('stock'));
                 const harga = parseInt(selectedHarga);
 
-                if (qty > stock) {
+                if (qty > getStock) {
                     notificationAlert('error', 'Error', 'Stock barang tidak cukup');
                     return;
                 }
@@ -878,7 +873,7 @@
                     return;
                 }
 
-                const totalHarga = harga * qty;
+                let totalHarga = harga * qty;
                 subtotal += totalHarga;
                 subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
 
@@ -887,15 +882,45 @@
                     <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
                     <td></td>
                     <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
-                    <td><input type="hidden" name="qty[]" value="${qty}">${qty}</td>
+                    <td>
+                        <input type="number" class="form-control qty-input" name="qty[]" value="${qty}" min="1" max="${getStock}">
+                        <small class="text-danger">Max: ${getStock}</small>
+                    </td>
                     <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
-                    <td>Rp ${totalHarga.toLocaleString()}</td>
+                    <td class="total-harga">Rp ${totalHarga.toLocaleString()}</td>
                 `;
                 tableBody.appendChild(newRow);
 
-                qtyInput.value = '';
                 barangSelect.val(null).trigger('change');
                 hargaSelect.val(null).trigger('change');
+
+                const qtyInput = newRow.querySelector('.qty-input');
+
+                qtyInput.addEventListener('input', function() {
+                    let newQty = parseInt(this.value) || 1;
+
+                    newQty = Math.max(1, newQty);
+
+                    if (newQty > getStock) {
+                        newQty = getStock;
+                    }
+
+                    this.value = newQty;
+
+                    let newTotalHarga = harga * newQty;
+                    subtotal += newTotalHarga - totalHarga;
+                    totalHarga = newTotalHarga;
+
+                    newRow.querySelector('.total-harga').textContent = `Rp ${totalHarga.toLocaleString()}`;
+                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+                    updateKembalian();
+                });
+
+                qtyInput.addEventListener('blur', function() {
+                    if (parseInt(this.value) < 1 || isNaN(this.value)) {
+                        this.value = 1;
+                    }
+                });
 
                 newRow.querySelector('.remove-btn').addEventListener('click', function() {
                     subtotal -= totalHarga;
@@ -903,15 +928,11 @@
                     newRow.remove();
                     updateRowNumbers();
                     toggleMemberSelectDisabled();
+                    updateKembalian();
                 });
 
                 updateRowNumbers();
                 toggleMemberSelectDisabled();
-
-                barangSelect.data('select2').$container.find('.select2-selection__placeholder').text(
-                    'Pilih Barang');
-                hargaSelect.data('select2').$container.find('.select2-selection__placeholder').text(
-                    'Pilih Barang terlebih dahulu');
             });
 
             document.querySelector('form').addEventListener('submit', function() {
@@ -1010,10 +1031,14 @@
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalContent;
                     }
-                }).catch();
+                }).catch(function(error) {
+                    let resp = error.response;
+                    swal("Kesalahan", resp ||
+                        "Terjadi kesalahan saat menyimpan data.", "error");
+                    return resp;
+                });
             });
         }
-
 
         async function initPageLoad() {
             await add();
