@@ -354,6 +354,7 @@ class MasterController extends Controller
 
     $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
         ->join('supplier', 'detail_toko.id_supplier', '=', 'supplier.id')
+        ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
         ->where('detail_toko.id_toko', $id_toko)
         ->select(
             'detail_toko.id',
@@ -363,20 +364,21 @@ class MasterController extends Controller
             'detail_toko.id_barang',
             'barang.nama_barang',
             'detail_toko.qty',
-            'detail_toko.harga'
+            'detail_toko.harga',
+            'dt_barang.qrcode'
         );
 
     if (!empty($request['search'])) {
         $searchTerm = trim(strtolower($request['search']));
 
         $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
+            $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
         });
     } else {
         return response()->json([
             'status_code' => 400,
             'errors' => true,
-            'message' => 'Silahkan masukkan nama barang',
+            'message' => 'Silahkan masukkan qrcode',
         ], 400);
     }
 
@@ -399,8 +401,8 @@ class MasterController extends Controller
 
     $mappedData = $data->map(function ($item) {
         return [
-            'id' => $item->id,
-            'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier}",
+            'id' => $item->qrcode,
+            'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier} / QRcode: {$item->qrcode}",
         ];
     });
 
