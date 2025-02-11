@@ -200,7 +200,7 @@
                                                 <label for="id_barang" class="form-control-label">Nama
                                                     Barang<sup style="color: red">*</sup></label>
                                                 <select id="barang" class="form-control select2">
-                                                    <option value="">~Silahkan Pilih Barang~</option>
+                                                    {{-- <option value="">~Silahkan Pilih Barang~</option>
                                                     @foreach ($barang as $brg)
                                                         <option value="{{ $brg->barang->id }}"
                                                             data-barcode-barang="{{ $brg->barang->barcode }}"
@@ -213,7 +213,7 @@
                                                             {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
                                                             (Barcode: {{ $brg->barang->barcode }})
                                                         </option>
-                                                    @endforeach
+                                                    @endforeach --}}
                                                 </select>
                                             </div>
                                         </div>
@@ -269,12 +269,14 @@
                                                         <th scope="col" colspan="5" style="text-align:right">Jml
                                                             Bayar</th>
                                                         <th scope="col">
-                                                            <input type="text" style="width: 100%" name="jml_bayar" id="uang-bayar-input">
+                                                            <input type="text" style="width: 100%" name="jml_bayar"
+                                                                id="uang-bayar-input">
                                                             <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
                                                         </th>
                                                     </tr>
                                                     <tr id="kembalian-row">
-                                                        <th scope="col" colspan="5" id="kembalian-text" style="text-align:right">
+                                                        <th scope="col" colspan="5" id="kembalian-text"
+                                                            style="text-align:right">
                                                             Kembalian
                                                         </th>
                                                         <th scope="col" id="kembalian-amount" name="kembalian">Rp
@@ -539,6 +541,16 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let selectOptions = [{
+            id: '#barang',
+            isFilter: {
+                id_toko: '{{ auth()->user()->id_toko }}',
+            },
+            isUrl: '{{ route('master.barangKirim') }}',
+            placeholder: 'Pilih Barang',
+            isMinimum: 3,
+            isModal: '#modal-form'
+        }];
 
         function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
             if (!$(isParameter).find('option[value=""]').length) {
@@ -796,6 +808,9 @@
             let subtotal = 0;
             let hiddenUangBayar = document.getElementById('hiddenUangBayar');
 
+            barangSelect.prop('disabled', true);
+            hargaSelect.prop('disabled', true);
+
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
                 rows.forEach((row, index) => {
@@ -948,7 +963,7 @@
             await searchList();
             await filterList();
             await selectFormat('#id_member', 'Pilih Member', false);
-            await selectFormat('#barang', 'Pilih Barang', false);
+            await selectData(selectOptions);
             await selectFormat('#harga', 'Pilih Harga', false);
         }
     </script>
