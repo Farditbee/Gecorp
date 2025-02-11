@@ -291,7 +291,6 @@
             });
         }
 
-
         async function initPageLoad() {
             if (
                 '{{ $pengiriman_barang->toko_penerima == auth()->user()->id_toko && $pengiriman_barang->status !== 'success' }}'

@@ -1,4 +1,4 @@
-<footer class="site-footer new_footer_area bg_color p-4">
+{{-- <footer class="site-footer new_footer_area bg_color p-4">
     <div class="new_footer_top">
         <div class="footer_bg">
             <div class="row justify-content-between">
@@ -24,4 +24,4 @@
             </div>
         </div>
     </div>
-</footer>
+</footer> --}}

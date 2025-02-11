@@ -5,10 +5,10 @@
 @endsection
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <style>
         @media (max-width: 768px) {
             .modal-dialog {
@@ -34,7 +34,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4 )
+                                @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
                                     <a id="btn-tambah" class="btn btn-primary mb-2 mr-2 text-white" data-toggle="modal"
                                         data-target=".bd-example-modal-lg">
                                         <i class="fa fa-plus-circle"></i> Tambah
@@ -116,210 +116,183 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <div class="modal-body">
-                    <div class="col-xl-12 d-flex justify-content-between">
-                        <div class="d-flex col-6">
-                            <div class="col-4">
-                                <p class="mb-0">No Nota</p>
-                            </div>
-                            <div class="col-8">
-                                <p id="noNota" name="no_nota"> </p> <!-- ID untuk mengupdate nomor nota -->
-                            </div>
-                        </div>
-                        <div class="d-flex col-6 justify-content-end">
-                            <div class="col-4 text-end">
-                                <p class="mb-0">Nama Toko</p>
-                            </div>
-                            <div class="col-8">
-                                @if (Auth::check())
-                                    <h5>: <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span></h5>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-12 d-flex justify-content-between">
-                        <div class="d-flex col-6">
-                            <div class="col-4">
-                                <p class="mb-0">Tgl Transaksi</p>
-                            </div>
-                            <div class="col-8">
-                                <p name="tgl_transaksi" id="tglTransaksi">: </p>
-                                <!-- Anda bisa mengganti dengan tanggal yang sesuai -->
-                            </div>
-                        </div>
-                        <div class="d-flex col-6 justify-content-end">
-                            <div class="col-4 text-end">
-                                <p class="mb-0">Kasir</p>
-                            </div>
-                            <div class="col-8">
-                                @if (Auth::check())
-                                    <h5>: <span class="badge badge-info">{{ Auth::user()->nama }}</span></h5>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-xl-12 d-flex justify-content-between">
-                        <div class="d-flex col-6">
-                            <div class="col-4"></div>
-                            <div class="col-8"></div>
-                        </div>
-                        <div class="d-flex col-6 justify-content-end">
-                            <div class="col-4 text-end">
-                                <p class="mb-0">Member</p>
-                            </div>
-                            <div class="col-8 d-flex align-items-center">
-                                <p class="mr-1">:</p>
-                                <select name="id_member" id="id_member" class="form-select select2">
-                                    <option value="" selected>~ Pilih Member ~</option>
-                                    <option value="Guest">Guest</option>
-                                    @foreach ($member as $mbr)
-                                        <option value="{{ $mbr->id }}"
-                                            data-level-info='@json($mbr->level_info)'>
-                                            {{ $mbr->nama_member }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
+                <form action="{{ route('transaksi.kasir.store') }}" method="post" class="">
                     <div class="modal-body">
                         <div class="row">
+                            <div class="col-xl-12 d-flex justify-content-between">
+                                <div class="d-flex col-6">
+                                    <div class="col-4">
+                                        <p class="mb-0">No Nota</p>
+                                    </div>
+                                    <div class="col-8">
+                                        <p id="noNota" name="no_nota"> </p>
+                                    </div>
+                                </div>
+                                <div class="d-flex col-6 justify-content-end">
+                                    <div class="col-4 text-end">
+                                        <p class="mb-0">Nama Toko</p>
+                                    </div>
+                                    <div class="col-8">
+                                        @if (Auth::check())
+                                            <h5>: <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span>
+                                            </h5>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12 d-flex justify-content-between">
+                                <div class="d-flex col-6">
+                                    <div class="col-4">
+                                        <p class="mb-0">Tgl Transaksi</p>
+                                    </div>
+                                    <div class="col-8">
+                                        <p name="tgl_transaksi" id="tglTransaksi">: </p>
+                                    </div>
+                                </div>
+                                <div class="d-flex col-6 justify-content-end">
+                                    <div class="col-4 text-end">
+                                        <p class="mb-0">Kasir</p>
+                                    </div>
+                                    <div class="col-8">
+                                        @if (Auth::check())
+                                            <h5>: <span class="badge badge-info">{{ Auth::user()->nama }}</span></h5>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-12 d-flex justify-content-between">
+                                <div class="d-flex col-6">
+                                    <div class="col-4"></div>
+                                    <div class="col-8"></div>
+                                </div>
+                                <div class="d-flex col-6 justify-content-end">
+                                    <div class="col-4 text-end">
+                                        <p class="mb-0">Member</p>
+                                    </div>
+                                    <div class="col-8 d-flex align-items-center">
+                                        <p class="mr-1">:</p>
+                                        <select name="id_member" id="id_member" class="form-select select2">
+                                            <option value="" selected>~ Pilih Member ~</option>
+                                            <option value="Guest">Guest</option>
+                                            @foreach ($member as $mbr)
+                                                <option value="{{ $mbr->id }}"
+                                                    data-level-info='@json($mbr->level_info)'>
+                                                    {{ $mbr->nama_member }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
                             <div class="col-xl-12">
-                                <div class="card">
-                                    <div class="card-body table-border-style">
-                                        <div class="form">
-                                            <form action="{{ route('transaksi.kasir.store') }}" method="post"
-                                                class="">
-                                                @csrf
-                                                <input type="hidden" id="hiddenNoNota" name="no_nota">
-                                                <input type="hidden" id="hiddenKembalian" name="kembalian">
-                                                <input type="hidden" id="hiddenMember" name="id_member">
-
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <label for="id_barang" class="form-control-label">Ketik Nama /
-                                                            Scan Barang<span style="color: red">*</span></label>
-                                                        <input type="text" autocomplete="off" id="search-barang"
-                                                            placeholder="" class="form-control">
-                                                    </div>
-                                                </div>
-
-                                                <div class="row">
-                                                    <div class="col-4">
-                                                        <!-- Nama Barang -->
-                                                        <div class="form-group">
-                                                            <label for="id_barang" class="form-control-label">Nama
-                                                                Barang<span style="color: red">*</span></label>
-                                                            <select name="id_barang[]" id="barang"
-                                                                class="form-control select2">
-                                                                <option value="">~Silahkan Pilih Barang~</option>
-                                                                @foreach ($barang as $brg)
-                                                                    <option value="{{ $brg->barang->id }}"
-                                                                        data-barcode-barang="{{ $brg->barang->barcode }}"
-                                                                        data-nama-barang="{{ $brg->barang->nama_barang }}"
-                                                                        data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
-                                                                        data-barcode="{{ $brg->barang->barcode }}"
-                                                                        data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
-                                                                        data-level-harga='@json($brg->barang->level_harga)'>
-                                                                        {{ $brg->barang->nama_barang }} (Stock:
-                                                                        {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
-                                                                    </option>
-                                                                @endforeach
+                                <div class="form">
+                                    @csrf
+                                    <input type="hidden" id="hiddenNoNota" name="no_nota">
+                                    <input type="hidden" id="hiddenKembalian" name="kembalian">
+                                    <input type="hidden" id="hiddenMember" name="id_member">
+                                    <input type="hidden" id="hiddenMinus" name="minus">
+                                    <div class="row mb-4">
+                                        <div class="col-4">
+                                            <div class="form-group">
+                                                <label for="id_barang" class="form-control-label">Nama
+                                                    Barang<sup style="color: red">*</sup></label>
+                                                <select id="barang" class="form-control select2">
+                                                    <option value="">~Silahkan Pilih Barang~</option>
+                                                    @foreach ($barang as $brg)
+                                                        <option value="{{ $brg->barang->id }}"
+                                                            data-barcode-barang="{{ $brg->barang->barcode }}"
+                                                            data-nama-barang="{{ $brg->barang->nama_barang }}"
+                                                            data-stock="{{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }}"
+                                                            data-barcode="{{ $brg->barang->barcode }}"
+                                                            data-jenis-barang="{{ $brg->barang->id_jenis_barang }}"
+                                                            data-level-harga='@json($brg->barang->level_harga)'>
+                                                            {{ $brg->barang->nama_barang }} (Stock:
+                                                            {{ Auth::user()->id_level == 1 ? $brg->stock : $brg->qty }})
+                                                            (Barcode: {{ $brg->barang->barcode }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="harga" class="form-control-label">Harga<sup
+                                                    style="color: red">*</sup></label>
+                                            <select class="form-control select2" id="harga" style="display: block;">
+                                                <option value="">~Pilih Member Dahulu~</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <label for="qty" class=" form-control-label">Item<sup
+                                                    style="color: red">*</sup></label>
+                                            <input type="number" id="qty" placeholder="Contoh : 1"
+                                                class="form-control">
+                                            <button type="button" id="add-button" class="btn btn-sm btn-secondary mt-2"
+                                                style="float: right;"><i class="mr-2 fa fa-circle-plus"></i>Add</button>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-2">
+                                        <div class="col-12">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Action</th>
+                                                        <th scope="col">No</th>
+                                                        <th scope="col">Nama Barang</th>
+                                                        <th scope="col">Qty</th>
+                                                        <th scope="col">Harga</th>
+                                                        <th scope="col">Total Harga</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th scope="col" colspan="5" style="text-align:right">
+                                                            SubTotal</th>
+                                                        <th scope="col" name="total_nilai">Rp </th>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="col" colspan="5" style="text-align:right">
+                                                            Payment</th>
+                                                        <th scope="col">
+                                                            <select name="metode" id="metode" style="width: 100%">
+                                                                <option value="">~Pilih Payment~</option>
+                                                                <option value="Tunai">Tunai</option>
+                                                                <option value="Non-Tunai">Non-Tunai</option>
                                                             </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <label for="harga" class="form-control-label">Harga<span
-                                                                style="color: red">*</span></label>
-                                                        <select class="form-control select2" name="harga[]"
-                                                            id="harga" style="display: block;">
-                                                            <option value="">~Pilih Member Dahulu~</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-4">
-                                                        <label for="qty" class=" form-control-label">Item<span
-                                                                style="color: red">*</span></label>
-                                                        <input type="number" id="qty" name="qty[]"
-                                                            placeholder="Contoh : 1" class="form-control">
-                                                        <br>
-                                                        <button type="button" id="add-button"
-                                                            class="btn btn-sm btn-secondary"
-                                                            style="float: right;">Add</button>
-                                                    </div>
-                                                </div>
-
-                                                <br>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <table class="table table-bordered">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Action</th>
-                                                                    <th scope="col">No</th>
-                                                                    <th scope="col">Nama Barang</th>
-                                                                    <th scope="col">Qty</th>
-                                                                    <th scope="col">Harga</th>
-                                                                    <th scope="col">Total Harga</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                <!-- Rows akan ditambahkan di sini oleh JavaScript -->
-                                                            </tbody>
-                                                            <tfoot>
-                                                                <tr>
-                                                                    <th scope="col" colspan="5"
-                                                                        style="text-align:right">SubTotal</th>
-                                                                    <th scope="col" name="total_nilai">Rp </th>
-                                                                </tr>
-                                                                <tr>
-                                                                    <th scope="col" colspan="5"
-                                                                        style="text-align:right">Payment</th>
-                                                                    <th scope="col">
-                                                                        <select name="metode" id="metode"
-                                                                            style="width: 100%">
-                                                                            <option value="">~Pilih Payment~</option>
-                                                                            <option value="Tunai">Tunai</option>
-                                                                            <option value="Non-Tunai">Non-Tunai</option>
-                                                                        </select>
-                                                                    </th>
-                                                                </tr>
-                                                                <tr id="uang-bayar-row">
-                                                                    <th scope="col" colspan="5"
-                                                                        style="text-align:right">Jml Bayar</th>
-                                                                    <th scope="col"><input type="text"
-                                                                            style="width: 100%" name="jml_bayar"
-                                                                            id="uang-bayar-input">
-                                                                        <input type="hidden" id="hiddenUangBayar"
-                                                                            name="jml_bayar">
-                                                                    </th>
-                                                                </tr>
-                                                                <tr id="kembalian-row">
-                                                                    <th scope="col" colspan="5"
-                                                                        style="text-align:right">Kembalian</th>
-                                                                    <th scope="col" id="kembalian-amount"
-                                                                        name="kembalian">Rp </th>
-                                                                </tr>
-                                                            </tfoot>
-                                                        </table>
-                                                        <!-- Submit Button -->
-                                                        <div class="form-group">
-                                                            <button type="submit" class="btn btn-primary">
-                                                                <i class="fa fa-dot-circle-o"></i> Simpan
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </form>
+                                                        </th>
+                                                    </tr>
+                                                    <tr id="uang-bayar-row">
+                                                        <th scope="col" colspan="5" style="text-align:right">Jml
+                                                            Bayar</th>
+                                                        <th scope="col">
+                                                            <input type="text" style="width: 100%" name="jml_bayar" id="uang-bayar-input">
+                                                            <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
+                                                        </th>
+                                                    </tr>
+                                                    <tr id="kembalian-row">
+                                                        <th scope="col" colspan="5" id="kembalian-text" style="text-align:right">
+                                                            Kembalian
+                                                        </th>
+                                                        <th scope="col" id="kembalian-amount" name="kembalian">Rp
+                                                        </th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success w-100"><i
+                                class="mr-2 fa fa-save"></i>Simpan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -336,7 +309,6 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <!-- Detail Kasir -->
                         <div class="tab-content" id="myTabContent-{{ $ksr->id }}">
                             <div class="tab-pane fade show active" id="home-{{ $ksr->id }}" role="tabpanel"
                                 aria-labelledby="home-tab-{{ $ksr->id }}">
@@ -347,7 +319,6 @@
                                                 <div class="info-row">
                                                     <p class="label">No Nota</p>
                                                     <p class="value" id="notaS">: @php
-                                                        // Mendapatkan nilai no_nota dari database
                                                         $noNotaFormatted =
                                                             substr($ksr->no_nota, 0, 6) .
                                                             '-' .
@@ -361,7 +332,6 @@
                                                     <p class="label">Tgl Transaksi</p>
                                                     <p class="value">:
                                                         {{ $ksr->created_at->setTimezone('Asia/Jakarta')->format('d-m-Y H:i:s') }}
-
                                                     </p>
                                                 </div>
                                                 <div class="info-row">
@@ -403,8 +373,6 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <!-- Tabel Data Barang -->
                                         <div class="table-responsive table-scroll-wrapper">
                                             <table class="table table-striped m-0" id="jsTable-{{ $ksr->id }}">
                                                 <thead>
@@ -483,7 +451,6 @@
                                         <div class="table-responsive-js">
                                             <table class="table-borderless" id="jsTable-{{ $ksr->id }}">
                                                 <tbody>
-                                                    <!-- Filter hanya data detail yang sesuai dengan kasir -->
                                                     @foreach ($detail_kasir->where('id_kasir', $ksr->id) as $dtks)
                                                         <tr>
                                                             <td class="narrow-column">{{ $loop->iteration }}.</td>
@@ -557,8 +524,6 @@
 @endsection
 
 @section('asset_js')
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ asset('js/moment.js') }}"></script>
     <script src="{{ asset('js/daterange-picker.js') }}"></script>
     <script src="{{ asset('js/daterange-custom.js') }}"></script>
@@ -766,229 +731,55 @@
         function getTodayDateWithDay() {
             const today = new Date();
             const day = String(today.getDate()).padStart(2, '0');
-            const month = String(today.getMonth() + 1).padStart(2,
-                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const month = String(today.getMonth() + 1).padStart(2, '0');
             const year = today.getFullYear();
-
-            // Array nama hari
             const days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-            const dayName = days[today.getDay()]; // Mendapatkan nama hari berdasarkan indeks
+            const dayName = days[today.getDay()];
 
             return `${dayName}, ${day}-${month}-${year}`;
         }
 
-        // Menampilkan tanggal dan hari di elemen dengan ID tglTransaksi
         document.getElementById('tglTransaksi').textContent += getTodayDateWithDay();
-        // Fungsi untuk menghasilkan nomor berdasarkan format yang diinginkan
+
         function generateFormattedNumber() {
             const now = new Date();
-
-            // Mendapatkan tanggal, bulan, tahun (2 digit), jam, menit, dan detik
             const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2,
-                '0'); // Ditambah 1 karena getMonth() dimulai dari 0
+            const month = String(now.getMonth() + 1).padStart(2, '0');
             const year = String(now.getFullYear()).slice(-2);
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const seconds = String(now.getSeconds()).padStart(2, '0');
-
-            // Mendapatkan 3 digit angka acak
             const randomDigits = Math.floor(100 + Math.random() * 900);
-
             const noNota = `${day}${month}${year}${hours}${minutes}${seconds}${randomDigits}`;
 
-            // Menyisipkan separator '-' setelah 6 digit pertama dan 6 digit kedua
             return `${noNota.slice(0, 6)}-${noNota.slice(6, 12)}-${noNota.slice(12)}`;
         }
 
-        // Event listener untuk menampilkan nomor nota saat modal dibuka
-        $('.bd-example-modal-lg').on('show.bs.modal', function() {
-            const formattedNoNota = generateFormattedNumber();
-            const noNotaElement = document.getElementById('noNota');
-            const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
-
-            // Menampilkan nomor nota di elemen tampilan
-            noNotaElement.textContent = ': ' + formattedNoNota;
-
-            // Menghilangkan separator untuk penyimpanan
-            const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
-            hiddenNoNotaInput.value = noNotaWithoutSeparator;
-        });
-
-        const searchInput = document.getElementById("search-barang");
         const select = document.getElementById("barang");
 
-        // Event listener untuk memfilter opsi dropdown saat pengguna mengetik
-        searchInput.addEventListener("input", function(event) {
-            const searchValue = event.target.value.toLowerCase();
-            let matchCount = 0; // Hitung opsi yang cocok
-
-            // Loop melalui opsi dan tampilkan/sembunyikan berdasarkan kecocokan searchValue
-            for (const option of select.options) {
-                const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
-
-                // Tampilkan opsi yang mengandung searchValue, sembunyikan yang lain
-                if (namaBarang && namaBarang.includes(searchValue)) {
-                    option.style.display = ""; // Tampilkan opsi yang cocok
-                    matchCount++; // Tambahkan hitungan untuk opsi yang cocok
-                } else {
-                    option.style.display = "none"; // Sembunyikan opsi yang tidak cocok
-                }
-            }
-
-            // Atur ukuran dropdown agar terlihat sejumlah opsi yang cocok
-            select.size = matchCount > 0 ? matchCount : 1; // Minimal ukuran dropdown tetap 1
-        });
-
-        // Event listener untuk memilih opsi jika Enter ditekan
-        searchInput.addEventListener("keydown", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault(); // Mencegah form submit jika ada
-                const searchValue = event.target.value.toLowerCase();
-                let found = false;
-
-                for (const option of select.options) {
-                    const namaBarang = option.getAttribute("data-nama-barang")?.toLowerCase();
-                    const barcodeBarang = option.getAttribute("data-barcode-barang")?.toLowerCase();
-
-                    if (namaBarang === searchValue || barcodeBarang === searchValue) {
-                        option.selected = true;
-                        found = true;
-                        select.dispatchEvent(new Event('change'));
-                        break;
-                    }
-                }
-
-                if (!found && searchValue) {
-                    alert("Barang tidak ditemukan. Pastikan nama barang sesuai.");
-                }
-
-                // Reset ukuran dropdown dan bersihkan input
-                select.size = 1; // Kembali ke ukuran normal setelah pemilihan
-                this.value = ''; // Bersihkan input setelah pencarian
-            }
-        });
-
-        // Event listener untuk menangkap pilihan barang secara langsung
         select.addEventListener("change", function() {
-            select.size = 1; // Kembali ke ukuran normal setelah memilih opsi
-            searchInput.value = ''; // Bersihkan input setelah pilihan
+            select.size = 1;
         });
 
-        // Tutup dropdown ketika pengguna mengklik di luar input atau dropdown
         document.addEventListener("click", function(event) {
-            if (!select.contains(event.target) && !searchInput.contains(event.target)) {
-                select.size = 1; // Tutup dropdown ketika klik di luar
+            if (!select.contains(event.target)) {
+                select.size = 1;
             }
         });
 
         function add() {
             if ('{{ Auth::user()->id_level }}' == 3) {
                 document.getElementById('btn-tambah').addEventListener('click', function() {
-                    // Tunggu modal tampil
-                    setTimeout(function() {
-                        document.getElementById('search-barang').focus();
-                    }, 1000); // Penyesuaian waktu, sesuai animasi modal
+                    const formattedNoNota = generateFormattedNumber();
+                    const noNotaElement = document.getElementById('noNota');
+                    const hiddenNoNotaInput = document.getElementById('hiddenNoNota');
+                    noNotaElement.textContent = ': ' + formattedNoNota;
+
+                    const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
+                    hiddenNoNotaInput.value = noNotaWithoutSeparator;
                 });
             }
         }
-
-        $('.bd-example-modal-lg').on('shown.bs.modal', function() {
-            const searchBarangInput = document.getElementById('search-barang');
-
-            if (searchBarangInput) {
-                // Fokus awal ke input search-barang
-                searchBarangInput.focus();
-
-                // Event listener untuk klik di modal
-                const modalContent = document.querySelector('.bd-example-modal-lg .modal-content');
-
-                modalContent.addEventListener('click', function(event) {
-                    // Daftar elemen interaktif yang tidak akan memicu fokus ulang
-                    const nonInteractiveElements = ['input', 'select', 'textarea', 'button', 'a'];
-
-                    // Jika area yang diklik bukan elemen interaktif, fokuskan kembali ke input search-barang
-                    if (!nonInteractiveElements.includes(event.target.tagName.toLowerCase())) {
-                        searchBarangInput.focus();
-                    }
-                });
-            }
-        });
-
-        // document.addEventListener('DOMContentLoaded', function() {
-        //     const memberSelect = document.getElementById('id_member');
-        //     const barangSelect = document.getElementById('barang');
-        //     const hargaSelect = document.getElementById('harga');
-
-        //     // Matikan barang dan harga saat pertama kali dimuat
-        //     barangSelect.disabled = true;
-        //     hargaSelect.disabled = true;
-
-        //     // Pastikan Select2 menangkap event change untuk member
-        //     $('#id_member').on('change', function() {
-        //         const memberId = $(this).val();
-
-        //         barangSelect.disabled = !memberId; // Aktifkan barang jika member dipilih
-
-        //         // Jika member berubah, reset harga kecuali barang sudah dipilih
-        //         if (!barangSelect.value) {
-        //             hargaSelect.disabled = true;
-        //             hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
-        //         }
-        //     });
-
-        //     // Pastikan Select2 menangkap event change untuk barang
-        //     $('#barang').on('change', function() {
-        //         const memberId = $('#id_member').val();
-        //         const barangId = $(this).val();
-
-        //         if (memberId && barangId) {
-        //             hargaSelect.innerHTML = '<option value="">Loading...</option>';
-        //             hargaSelect.disabled = true;
-
-        //             fetch(`/admin/kasir/get-filtered-harga?id_member=${memberId}&id_barang=${barangId}`)
-        //                 .then(response => response.json())
-        //                 .then(data => {
-        //                     hargaSelect.innerHTML =
-        //                     ''; // Kosongkan dropdown sebelum menambahkan opsi baru
-
-        //                     if (Array.isArray(data.filteredHarga) && data.filteredHarga.length > 0) {
-        //                         data.filteredHarga.forEach(harga => {
-        //                             hargaSelect.innerHTML +=
-        //                                 `<option value="${harga}">${harga}</option>`;
-        //                         });
-        //                     } else if (data.filteredHarga) {
-        //                         hargaSelect.innerHTML +=
-        //                             `<option value="${data.filteredHarga}">${data.filteredHarga}</option>`;
-        //                     }
-
-        //                     const options = hargaSelect.querySelectorAll('option[value]');
-
-        //                     if (options.length === 1) {
-        //                         hargaSelect.value = options[0]
-        //                         .value; // Pilih otomatis jika hanya satu opsi
-        //                     } else {
-        //                         hargaSelect.insertAdjacentHTML('afterbegin',
-        //                             '<option value="">~Masukkan Harga~</option>');
-        //                     }
-
-        //                     // Aktifkan harga hanya jika ada opsi tersedia
-        //                     hargaSelect.disabled = options.length === 0;
-        //                 })
-        //                 .catch(error => {
-        //                     console.error('Error fetching filtered harga:', error);
-        //                     hargaSelect.innerHTML =
-        //                         '<option value="">Terjadi kesalahan, coba lagi</option>';
-        //                     hargaSelect.disabled = true;
-        //                 });
-        //         } else {
-        //             // Jika barang kosong, reset harga ke default
-        //             hargaSelect.innerHTML = '<option value="">~Pilih Barang Dahulu~</option>';
-        //             hargaSelect.disabled = true;
-        //         }
-        //     });
-        // });
-
 
         document.addEventListener('DOMContentLoaded', function() {
             const memberSelect = $('#id_member');
@@ -1000,6 +791,7 @@
             const subtotalFooter = document.querySelector('.modal-body tfoot th[colspan="5"] + th');
             const metodeSelect = document.getElementById('metode');
             const uangBayarInput = document.getElementById('uang-bayar-input');
+            const kembalianText = document.getElementById('kembalian-text');
             const kembalianAmount = document.getElementById('kembalian-amount');
             let subtotal = 0;
             let hiddenUangBayar = document.getElementById('hiddenUangBayar');
@@ -1066,18 +858,13 @@
                 const stock = parseInt(selectedBarang.data('stock'));
                 const harga = parseInt(selectedHarga);
 
-                // if (tableBody.querySelectorAll(`tr td input[value='${idBarang}']`).length > 0) {
-                //     alert("Barang sudah ditambahkan");
-                //     return;
-                // }
-
                 if (qty > stock) {
-                    alert("Stock barang tidak cukup");
+                    notificationAlert('error', 'Error', 'Stock barang tidak cukup');
                     return;
                 }
 
                 if (!idBarang || !selectedHarga || !qty) {
-                    alert("Silakan lengkapi semua data sebelum menambahkan.");
+                    notificationAlert('error', 'Error', 'Silakan lengkapi semua data sebelum menambahkan.');
                     return;
                 }
 
@@ -1122,12 +909,22 @@
             function updateKembalian() {
                 const uangBayar = hiddenUangBayar.value || 0;
                 const kembalian = uangBayar - subtotal;
-                kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
-                document.getElementById('hiddenKembalian').value = kembalian >= 0 ? kembalian : kembalian;
+
+                if (kembalian >= 0) {
+                    kembalianText.textContent = 'Kembalian';
+                    kembalianAmount.textContent = `Rp ${kembalian >= 0 ? kembalian.toLocaleString() : 0}`;
+                    document.getElementById('hiddenKembalian').value = kembalian;
+                    document.getElementById('hiddenMinus').value = '';
+                } else {
+                    let math = Math.abs(kembalian)
+                    kembalianText.textContent = 'Sisa Pembayaran';
+                    kembalianAmount.textContent = `Rp ${math.toLocaleString()}`;
+                    document.getElementById('hiddenMinus').value = Math.abs(kembalian);
+                    document.getElementById('hiddenKembalian').value = '';
+                }
             }
 
             uangBayarInput.addEventListener('input', function() {
-                console.log('sudah diklik');
                 let value = this.value.replace(/[^0-9]/g, '');
                 hiddenUangBayar.value = value;
                 this.value = value ? parseInt(value).toLocaleString() : '';
@@ -1156,4 +953,3 @@
         }
     </script>
 @endsection
-{{-- . --}}
