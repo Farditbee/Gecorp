@@ -295,7 +295,8 @@
 
                     $("#listData tr").each(function() {
                         const barang = $(this).find("input[name='id_barang[]']").val();
-                        const supplier = $(this).find("input[name='id_supplier[]']").val();
+                        const supplier = $(this).find("input[name='id_supplier[]']")
+                            .val();
                         const qrCodes = $(this).find("input[name='qrcode[]']").val();
                         const jumlah = $(this).find(".qty-input").val();
                         const harga_barang = $(this).find(".harga-text").data("value");
@@ -381,29 +382,34 @@
                     }
 
                     let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
-                        let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
-                            ?.value;
-                        let existingQrcode = row.querySelector('input[name="qrcode[]"]')
-                            ?.value;
-                        return existingIdBarang == item.id_barang && existingQrcode ==
-                            qrcode;
+                        let existingIdBarang = row.querySelector('input[name="id_barang[]"]')?.value;
+                        let existingQrcode = row.querySelector('input[name="qrcode[]"]')?.value;
+                        return existingIdBarang == item.id_barang && existingQrcode == qrcode;
                     });
-
-                    if (existingRow) {
-                        notificationAlert('warning', 'Pemberitahuan',
-                            'Barang dengan QrCode yang sama sudah ada!');
-                        $('#id_barang').val(null).trigger('change');
-                        return;
-                    }
 
                     let elementData = encodeURIComponent(JSON.stringify(item));
                     let minQty = item.qty > 0 ? 1 : 0;
                     let maxQty = item.qty;
                     let harga = item.harga;
-                    let qty = 1;
 
-                    let row = document.createElement('tr');
-                    row.innerHTML = `
+                    if (existingRow) {
+                        let qtyInput = existingRow.querySelector('.qty-input');
+                        let currentQty = parseInt(qtyInput.value) || 1;
+                        let newQty = currentQty + 1;
+
+                        if (newQty > maxQty) {
+                            notificationAlert('error', 'Error', `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`);
+                            return;
+                        }
+
+                        qtyInput.value = newQty;
+                        updateTotalHarga(existingRow);
+                        await updateRowTable(elementData, newQty);
+                    } else {
+                        let qty = 1;
+
+                        let row = document.createElement('tr');
+                        row.innerHTML = `
                             <td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>
                             <td class="numbered">${document.querySelectorAll('#listData tr').length + 1}</td>
                             <td>
@@ -423,29 +429,31 @@
                             <td class="text-right total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
                         `;
 
-                    row.querySelector('.remove-item').addEventListener('click', function() {
-                        removeItem(row, elementData);
-                    });
+                        row.querySelector('.remove-item').addEventListener('click', function() {
+                            removeItem(row, elementData);
+                        });
 
-                    await createRowTable(elementData);
+                        await createRowTable(elementData);
 
-                    let qtyInput = row.querySelector('.qty-input');
-                    qtyInput.addEventListener('input', debounce(async function() {
-                        let newQty = parseInt(qtyInput.value) || 1;
+                        let qtyInput = row.querySelector('.qty-input');
+                        qtyInput.addEventListener('input', debounce(async function() {
+                            let newQty = parseInt(qtyInput.value) || 1;
 
-                        if (newQty < 1) {
-                            newQty = 1;
-                        } else if (newQty > maxQty) {
-                            newQty = maxQty;
-                        }
+                            if (newQty < 1) {
+                                newQty = 1;
+                            } else if (newQty > maxQty) {
+                                newQty = maxQty;
+                                notificationAlert('error', 'Error', `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`);
+                            }
 
-                        qtyInput.value = newQty;
+                            qtyInput.value = newQty;
+                            updateTotalHarga(row);
+                            await updateRowTable(elementData, newQty);
+                        }, 500));
+
+                        document.querySelector('#listData').appendChild(row);
                         updateTotalHarga(row);
-                        await updateRowTable(elementData, newQty);
-                    }, 500));
-
-                    document.querySelector('#listData').appendChild(row);
-                    updateTotalHarga(row);
+                    }
 
                     $('#id_barang').val(null).trigger('change');
                 } else {
