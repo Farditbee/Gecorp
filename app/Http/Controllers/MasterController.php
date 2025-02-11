@@ -282,7 +282,7 @@ class MasterController extends Controller
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
                 ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
                 ->where('detail_toko.id_toko', $id_toko)
-                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'dt_barang.qrcode');
+                ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
         }
 
         if (!empty($request['search'])) {
@@ -401,7 +401,7 @@ class MasterController extends Controller
 
     $mappedData = $data->map(function ($item) {
         return [
-            'id' => $item->qrcode,
+            'id' => $item->qrcode . '/'. $item->id_barang,
             'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier} / QRcode: {$item->qrcode}",
         ];
     });

@@ -358,184 +358,180 @@ class KasirController extends Controller
     }
 }
 
-    public function store(Request $request)
-    {
-        dd($request);
-        try {
-            DB::beginTransaction();
+public function store(Request $request)
+{
+    try {
+        DB::beginTransaction();
 
-            // Ambil data dari request
-            $idBarangs = $request->input('id_barang', []);
-            $qtys = $request->input('qty', []);
-            $hargaBarangs = $request->input('harga', []);
+        // Ambil data dari request
+        $idBarangs = $request->input('id_barang', []); // Array dari id_barang
+        $qtys = $request->input('qty', []);
+        $hargaBarangs = $request->input('harga', []);
 
-            // Bersihkan elemen kosong dari array
-            $idBarangs = array_values(array_filter($idBarangs, function ($value) {
-                return $value !== null && $value !== '';
-            }));
-            $qtys = array_values(array_filter($qtys, function ($value) {
-                return $value !== null && $value !== '';
-            }));
-            $hargaBarangs = array_values(array_filter($hargaBarangs, function ($value) {
-                return $value !== null && $value !== '';
-            }));
+        // Bersihkan elemen kosong dari array
+        $idBarangs = array_values(array_filter($idBarangs, fn($value) => !empty($value)));
+        $qtys = array_values(array_filter($qtys, fn($value) => !empty($value)));
+        $hargaBarangs = array_values(array_filter($hargaBarangs, fn($value) => !empty($value)));
 
-            // Sinkronisasi array berdasarkan jumlah elemen
-            $maxCount = max(count($idBarangs), count($qtys), count($hargaBarangs));
-            $idBarangs = $this->fillArrayToMatchCount($idBarangs, $maxCount);
-            $qtys = $this->fillArrayToMatchCount($qtys, $maxCount);
-            $hargaBarangs = $this->fillArrayToMatchCount($hargaBarangs, $maxCount);
+        // Sinkronisasi array berdasarkan jumlah elemen
+        $maxCount = max(count($idBarangs), count($qtys), count($hargaBarangs));
+        $idBarangs = $this->fillArrayToMatchCount($idBarangs, $maxCount);
+        $qtys = $this->fillArrayToMatchCount($qtys, $maxCount);
+        $hargaBarangs = $this->fillArrayToMatchCount($hargaBarangs, $maxCount);
 
-            // Validasi kesesuaian jumlah elemen setelah sinkronisasi
-            if (count($idBarangs) !== count($qtys) || count($idBarangs) !== count($hargaBarangs)) {
-                return redirect()->back()->with('error', 'Data tidak sinkron. Silakan periksa kembali input Anda.');
-            }
-
-            $user = Auth::user();
-            $tglTransaksi = now();
-
-            // Inisialisasi transaksi kasir
-            $kasir = new Kasir();
-            $kasir->id_member = $request->id_member == 'Guest' ? 0 : $request->id_member;
-            $kasir->id_users = $user->id;
-            $kasir->tgl_transaksi = $tglTransaksi;
-            $kasir->id_toko = $user->id_toko;
-            $kasir->total_item = 0;
-            $kasir->total_nilai = 0;
-            $kasir->no_nota = $request->no_nota;
-            $kasir->metode = $request->metode;
-            $kasir->jml_bayar = (float)$request->jml_bayar;
-            $kasir->kembalian = (float)$request->kembalian;
-            $kasir->save();
-
-            $totalItem = 0;
-            $totalNilai = 0;
-            $totalDiskon = 0;
-            $counter = 1;
-
-            foreach ($idBarangs as $index => $id_barang) {
-                $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null;
-                $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null;
-
-                if (is_null($qty) || is_null($harga_barang)) {
-                    continue;
-                }
-
-                // Ambil id_detail_pembelian berdasarkan qrcode
-                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "%{$id_barang}%")->first();
-                $id_detail_pembelian = $detailPembelian ? $detailPembelian->id : null;
-
-                // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
-                $detailToko = DetailToko::where('id_barang', $id_barang)
-                    ->where('id_toko', $user->id_toko)
-                    ->first();
-                $id_supplier = $detailToko ? $detailToko->id_supplier : null;
-
-                if (is_null($id_supplier)) {
-                    return redirect()->back()->with('error', "Supplier tidak ditemukan untuk barang ID: $id_barang.");
-                }
-
-                // Cek promo yang berlaku
-                $promo = Promo::where('id_barang', $id_barang)
-                    ->where('status', 'ongoing')
-                    ->where('dari', '<=', $tglTransaksi)
-                    ->where('sampai', '>=', $tglTransaksi)
-                    ->where('id_toko', $user->id_toko)
-                    ->first();
-
-                $potongan = 0;
-                if ($promo && $qty >= $promo->minimal) {
-                    $diskon = $promo->diskon;
-                    $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
-                    $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
-                    $totalDiskon += $potongan;
-
-                    if ($promo->jumlah) {
-                        $promo->terjual += $qtyDiskon;
-                        if ($promo->terjual >= $promo->jumlah) {
-                            $promo->status = 'done';
-                        }
-                    } else {
-                        $promo->terjual += $qty;
-                    }
-                    $promo->save();
-                }
-
-                // Generate QR Code
-                $tglTransaksiFormat = $tglTransaksi->format('dmY');
-                $qrCodeValue = "{$tglTransaksiFormat}TK{$user->id_toko}MM{$kasir->id_member}ID{$kasir->id}-{$counter}";
-                $qrCodePath = "qrcodes/trx_kasir/{$kasir->id}-{$counter}.png";
-                $fullPath = storage_path('app/public/' . $qrCodePath);
-
-                if (!file_exists(dirname($fullPath))) {
-                    mkdir(dirname($fullPath), 0755, true);
-                }
-
-                $qrCode = QrCode::create($qrCodeValue)
-                    ->setEncoding(new Encoding('UTF-8'))
-                    ->setSize(200)
-                    ->setMargin(10);
-                $writer = new PngWriter();
-                $result = $writer->write($qrCode, null, Label::create("{$qrCodeValue}")->setFont(new NotoSans(12)));
-                $result->saveToFile($fullPath);
-
-                // Ambil hpp_baru dari tabel stock_barang
-                $stock = StockBarang::where('id_barang', $id_barang)->first();
-                $hpp_jual = $stock ? $stock->hpp_baru : 0;
-
-                // Simpan detail kasir
-                DetailKasir::create([
-                    'id_kasir' => $kasir->id,
-                    'id_barang' => $id_barang,
-                    'id_supplier' => $id_supplier,
-                    'id_detail_pembelian' => $id_detail_pembelian, // Tambahkan kolom ini
-                    'qty' => $qty,
-                    'harga' => $harga_barang,
-                    'diskon' => $potongan,
-                    'total_harga' => $qty * $harga_barang,
-                    'qrcode' => $qrCodeValue,
-                    'qrcode_path' => $qrCodePath,
-                    'hpp_jual' => $hpp_jual,
-                ]);
-
-                // Update stok
-                if ($user->id_toko == 1) {
-                    $stock?->decrement('stock', $qty);
-                } else {
-                    $detailToko?->decrement('qty', $qty);
-                }
-
-                $totalItem += $qty;
-                $totalNilai += $qty * $harga_barang;
-                $counter++;
-            }
-
-            // Update total transaksi di kasir
-            $kasir->update([
-                'total_item' => $totalItem,
-                'total_nilai' => $totalNilai,
-                'total_diskon' => $totalDiskon,
-                'kembalian' => $kasir->jml_bayar - ($totalNilai - $totalDiskon),
-            ]);
-
-            DB::commit();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Data berhasil disimpan',
-                'data' => $kasir
-            ]);
-
-        } catch (\Throwable $th) {
-            DB::rollback();
-            Log::error('Error saat menyimpan transaksi:', ['error' => $th->getMessage()]);
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to save transaction.',
-                'error' => $th->getMessage()
-            ], 500);
-
+        // Validasi kesesuaian jumlah elemen setelah sinkronisasi
+        if (count($idBarangs) !== count($qtys) || count($idBarangs) !== count($hargaBarangs)) {
+            return redirect()->back()->with('error', 'Data tidak sinkron. Silakan periksa kembali input Anda.');
         }
+
+        $user = Auth::user();
+        $tglTransaksi = now();
+
+        // Inisialisasi transaksi kasir
+        $kasir = new Kasir();
+        $kasir->id_member = $request->id_member == 'Guest' ? 0 : $request->id_member;
+        $kasir->id_users = $user->id;
+        $kasir->tgl_transaksi = $tglTransaksi;
+        $kasir->id_toko = $user->id_toko;
+        $kasir->total_item = 0;
+        $kasir->total_nilai = 0;
+        $kasir->no_nota = $request->no_nota;
+        $kasir->metode = $request->metode;
+        $kasir->jml_bayar = (float)str_replace(',', '', $request->jml_bayar); // Pastikan format angka benar
+        $kasir->kembalian = (float)$request->kembalian;
+        $kasir->save();
+
+        $totalItem = 0;
+        $totalNilai = 0;
+        $totalDiskon = 0;
+        $counter = 1;
+
+        foreach ($idBarangs as $index => $id_barang) {
+            $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null;
+            $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null;
+
+            if (is_null($qty) || is_null($harga_barang)) {
+                continue;
+            }
+
+            // **Ambil ID barang setelah garis miring**
+            $id_barang_parts = explode('/', $id_barang);
+            $id_barang_final = end($id_barang_parts); // Ambil bagian terakhir setelah "/"
+
+            // Ambil id_detail_pembelian berdasarkan qrcode
+            $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "%{$id_barang}%")->first();
+            $id_detail_pembelian = $detailPembelian ? $detailPembelian->id : null;
+
+            // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
+            $detailToko = DetailToko::where('id_barang', $id_barang_final) // Pakai id_barang_final
+                ->where('id_toko', $user->id_toko)
+                ->first();
+            $id_supplier = $detailToko ? $detailToko->id_supplier : null;
+
+            if (is_null($id_supplier)) {
+                return redirect()->back()->with('error', "Supplier tidak ditemukan untuk barang ID: $id_barang_final.");
+            }
+
+            // Cek promo yang berlaku
+            $promo = Promo::where('id_barang', $id_barang_final) // Pakai id_barang_final
+                ->where('status', 'ongoing')
+                ->where('dari', '<=', $tglTransaksi)
+                ->where('sampai', '>=', $tglTransaksi)
+                ->where('id_toko', $user->id_toko)
+                ->first();
+
+            $potongan = 0;
+            if ($promo && $qty >= $promo->minimal) {
+                $diskon = $promo->diskon;
+                $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
+                $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
+                $totalDiskon += $potongan;
+
+                if ($promo->jumlah) {
+                    $promo->terjual += $qtyDiskon;
+                    if ($promo->terjual >= $promo->jumlah) {
+                        $promo->status = 'done';
+                    }
+                } else {
+                    $promo->terjual += $qty;
+                }
+                $promo->save();
+            }
+
+            // Generate QR Code
+            $tglTransaksiFormat = $tglTransaksi->format('dmY');
+            $qrCodeValue = "{$tglTransaksiFormat}TK{$user->id_toko}MM{$kasir->id_member}ID{$kasir->id}-{$counter}";
+            $qrCodePath = "qrcodes/trx_kasir/{$kasir->id}-{$counter}.png";
+            $fullPath = storage_path('app/public/' . $qrCodePath);
+
+            if (!file_exists(dirname($fullPath))) {
+                mkdir(dirname($fullPath), 0755, true);
+            }
+
+            $qrCode = QrCode::create($qrCodeValue)
+                ->setEncoding(new Encoding('UTF-8'))
+                ->setSize(200)
+                ->setMargin(10);
+            $writer = new PngWriter();
+            $result = $writer->write($qrCode, null, Label::create("{$qrCodeValue}")->setFont(new NotoSans(12)));
+            $result->saveToFile($fullPath);
+
+            // Ambil hpp_baru dari tabel stock_barang
+            $stock = StockBarang::where('id_barang', $id_barang_final)->first();
+            $hpp_jual = $stock ? $stock->hpp_baru : 0;
+
+            // Simpan detail kasir
+            DetailKasir::create([
+                'id_kasir' => $kasir->id,
+                'id_barang' => $id_barang_final, // Pakai id_barang_final
+                'id_supplier' => $id_supplier,
+                'id_detail_pembelian' => $id_detail_pembelian,
+                'qty' => $qty,
+                'harga' => $harga_barang,
+                'diskon' => $potongan,
+                'total_harga' => $qty * $harga_barang,
+                'qrcode' => $qrCodeValue,
+                'qrcode_path' => $qrCodePath,
+                'hpp_jual' => $hpp_jual,
+            ]);
+
+            // Update stok
+            if ($user->id_toko == 1) {
+                $stock?->decrement('stock', $qty);
+            } else {
+                $detailToko?->decrement('qty', $qty);
+            }
+
+            $totalItem += $qty;
+            $totalNilai += $qty * $harga_barang;
+            $counter++;
+        }
+
+        // Update total transaksi di kasir
+        $kasir->update([
+            'total_item' => $totalItem,
+            'total_nilai' => $totalNilai,
+            'total_diskon' => $totalDiskon,
+            'kembalian' => $kasir->jml_bayar - ($totalNilai - $totalDiskon),
+        ]);
+
+        DB::commit();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil disimpan',
+            'data' => $kasir
+        ]);
+
+    } catch (\Throwable $th) {
+        DB::rollback();
+        Log::error('Error saat menyimpan transaksi:', ['error' => $th->getMessage()]);
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to save transaction.',
+            'error' => $th->getMessage()
+        ], 500);
     }
+}
 
 
     // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
