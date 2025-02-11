@@ -684,7 +684,8 @@ class PengirimanBarangController extends Controller
                 $data = DetailPengirimanBarang::where('id_pengiriman_barang', $request->id_pengiriman_barang)
                     ->join('barang', 'detail_pengiriman_barang.id_barang', '=', 'barang.id')
                     ->join('supplier', 'detail_pengiriman_barang.id_supplier', '=', 'supplier.id')
-                    ->select('detail_pengiriman_barang.*', 'barang.nama_barang', 'supplier.nama_supplier')
+                    ->join('detail_pembelian_barang', 'detail_pengiriman_barang.id_detail_pembelian', '=', 'detail_pembelian_barang.id')
+                    ->select('detail_pengiriman_barang.*', 'barang.nama_barang', 'supplier.nama_supplier', 'detail_pembelian_barang.qrcode')
                     ->get();
 
                 return response()->json([
