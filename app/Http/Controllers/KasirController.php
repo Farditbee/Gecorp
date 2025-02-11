@@ -259,102 +259,108 @@ class KasirController extends Controller
     // }
 
     public function getFilteredHarga(Request $request)
-    {
-        $request->validate([
-            'id_barang' => 'required|string', // QR Code/id_detail dari frontend
-            'id_member' => 'required|string',
-        ]);
+{
+    $request->validate([
+        'id_barang' => 'required|string', // QR Code/id_detail dari frontend
+        'id_member' => 'required|string',
+    ]);
 
-        $id_barang_input = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
-        $memberId = $request->input('id_member');
+    $id_barang_input = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
+    $memberId = $request->input('id_member');
 
-        // Pastikan format id_barang benar (harus mengandung "/")
-        if (!str_contains($id_barang_input, '/')) {
-            return response()->json(['error' => 'Format id_barang tidak valid. Gunakan format qrcode/id_detail.'], 400);
-        }
-
-        // Pisahkan QR Code dan id_detail
-        list($qrCode, $id_detail) = explode('/', $id_barang_input) + [null, null];
-
-        try {
-            // 1. Cari barang berdasarkan QR Code di tabel DetailPembelianBarang
-            $barangDetail = DetailPembelianBarang::where('qrcode', $qrCode)->first();
-
-            if (!$barangDetail) {
-                return response()->json(['error' => 'Barang tidak ditemukan berdasarkan QR Code.'], 404);
-            }
-
-            $barangId = $barangDetail->id_barang;
-
-            // 2. Cari barang di tabel Barang berdasarkan id_barang
-            $barang = Barang::find($barangId);
-            if (!$barang) {
-                return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
-            }
-
-            // 3. Parsing level harga barang (format JSON jika string)
-            $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;
-
-            // 4. Jika member adalah "Guest", tampilkan semua harga yang tersedia
-            if ($memberId === 'Guest') {
-                $filteredHarga = collect($levelHarga)
-                    ->sortByDesc(fn($harga) => (int)explode(' : ', $harga)[1]) // Urutkan harga dari tertinggi
-                    ->values()
-                    ->map(fn($harga) => intval(explode(' : ', $harga)[1])); // Ambil hanya angka harga
-
-                return response()->json([
-                    'filteredHarga' => $filteredHarga,
-                    'id_barang' => $barangId,
-                    'nama_barang' => $barang->nama_barang
-                ]);
-            }
-
-            // 5. Jika member bukan Guest, cari informasi level harga berdasarkan tabel Member
-            $member = Member::find($memberId);
-            if (!$member) {
-                return response()->json(['error' => 'Member tidak ditemukan.'], 404);
-            }
-
-            // 6. Parsing level_info dari tabel Member (format JSON jika string)
-            $levelInfo = is_string($member->level_info) ? json_decode($member->level_info, true) : $member->level_info;
-            $jenisBarangId = $barang->id_jenis_barang;
-
-            // 7. Ambil ID level yang cocok dengan jenis barang dari level_info
-            $levelIds = collect($levelInfo)->map(function ($info) use ($jenisBarangId) {
-                list($infoJenisBarangId, $infoLevelId) = explode(' : ', $info);
-                return intval($infoJenisBarangId) === intval($jenisBarangId) ? intval($infoLevelId) : null;
-            })->filter();
-
-            // 8. Ambil nama level harga yang sesuai dari tabel LevelHarga
-            $levelNames = LevelHarga::whereIn('id', $levelIds)->pluck('nama_level_harga');
-
-            // 9. Filter level harga barang sesuai dengan levelNames
-            $filteredHarga = collect($levelHarga)->filter(function ($harga) use ($levelNames) {
-                return $levelNames->contains(fn($levelName) => str_contains($harga, $levelName));
-            })->map(fn($harga) => intval(explode(' : ', $harga)[1]))->values();
-
-            Log::info('Filtered Harga:', ['filteredHarga' => $filteredHarga->toArray()]);
-
-            // 10. Jika hanya ada satu harga, kembalikan dalam bentuk angka, jika lebih dari satu, kembalikan array
-            $response = count($filteredHarga) === 1 ? $filteredHarga->first() : $filteredHarga;
-
-            return response()->json([
-                'filteredHarga' => $response,
-                'id_barang' => $barangId,
-                'nama_barang' => $barang->nama_barang
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error fetching filtered harga by QR Code: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
-                'status_code' => 500,
-            ], 500);
-        }
+    // Pastikan format id_barang benar (harus mengandung "/")
+    if (!str_contains($id_barang_input, '/')) {
+        return response()->json(['error' => 'Format id_barang tidak valid. Gunakan format qrcode/id_detail.'], 400);
     }
+
+    // Pisahkan QR Code dan id_detail
+    list($qrCode, $id_detail) = explode('/', $id_barang_input) + [null, null];
+
+    try {
+        // 1. Cari barang berdasarkan QR Code di tabel DetailPembelianBarang
+        $barangDetail = DetailPembelianBarang::where('qrcode', $qrCode)->first();
+
+        if (!$barangDetail) {
+            return response()->json(['error' => 'Barang tidak ditemukan berdasarkan QR Code.'], 404);
+        }
+
+        $barangId = $barangDetail->id_barang;
+
+        // 2. Cari barang di tabel Barang berdasarkan id_barang
+        $barang = Barang::find($barangId);
+        if (!$barang) {
+            return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
+        }
+
+        // 3. Ambil stok barang dari frontend (sudah di-handle di depan)
+        $stock = $barangDetail->stock ?? 0; // Pastikan stok tetap tersedia dalam response
+
+        // 4. Parsing level harga barang (format JSON jika string)
+        $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;
+
+        // 5. Jika member adalah "Guest", tampilkan semua harga yang tersedia
+        if ($memberId === 'Guest') {
+            $filteredHarga = collect($levelHarga)
+                ->sortByDesc(fn($harga) => (int)explode(' : ', $harga)[1]) // Urutkan harga dari tertinggi
+                ->values()
+                ->map(fn($harga) => intval(explode(' : ', $harga)[1])); // Ambil hanya angka harga
+
+            return response()->json([
+                'filteredHarga' => $filteredHarga,
+                'id_barang' => $barangId,
+                'nama_barang' => $barang->nama_barang,
+                'stock' => $stock, // Tambahkan informasi stok
+            ]);
+        }
+
+        // 6. Jika member bukan Guest, cari informasi level harga berdasarkan tabel Member
+        $member = Member::find($memberId);
+        if (!$member) {
+            return response()->json(['error' => 'Member tidak ditemukan.'], 404);
+        }
+
+        // 7. Parsing level_info dari tabel Member (format JSON jika string)
+        $levelInfo = is_string($member->level_info) ? json_decode($member->level_info, true) : $member->level_info;
+        $jenisBarangId = $barang->id_jenis_barang;
+
+        // 8. Ambil ID level yang cocok dengan jenis barang dari level_info
+        $levelIds = collect($levelInfo)->map(function ($info) use ($jenisBarangId) {
+            list($infoJenisBarangId, $infoLevelId) = explode(' : ', $info);
+            return intval($infoJenisBarangId) === intval($jenisBarangId) ? intval($infoLevelId) : null;
+        })->filter();
+
+        // 9. Ambil nama level harga yang sesuai dari tabel LevelHarga
+        $levelNames = LevelHarga::whereIn('id', $levelIds)->pluck('nama_level_harga');
+
+        // 10. Filter level harga barang sesuai dengan levelNames
+        $filteredHarga = collect($levelHarga)->filter(function ($harga) use ($levelNames) {
+            return $levelNames->contains(fn($levelName) => str_contains($harga, $levelName));
+        })->map(fn($harga) => intval(explode(' : ', $harga)[1]))->values();
+
+        Log::info('Filtered Harga:', ['filteredHarga' => $filteredHarga->toArray()]);
+
+        // 11. Jika hanya ada satu harga, kembalikan dalam bentuk angka, jika lebih dari satu, kembalikan array
+        $response = count($filteredHarga) === 1 ? $filteredHarga->first() : $filteredHarga;
+
+        return response()->json([
+            'filteredHarga' => $response,
+            'id_barang' => $barangId,
+            'nama_barang' => $barang->nama_barang,
+            'stock' => $stock, // Tambahkan informasi stok
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error fetching filtered harga by QR Code: ' . $e->getMessage());
+
+        return response()->json([
+            'error' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
+            'status_code' => 500,
+        ], 500);
+    }
+}
 
     public function store(Request $request)
     {
+        dd($request);
         try {
             DB::beginTransaction();
 
