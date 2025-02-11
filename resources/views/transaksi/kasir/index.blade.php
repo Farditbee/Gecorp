@@ -116,7 +116,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form action="{{ route('transaksi.kasir.store') }}" method="post" class="">
+                <form>
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-xl-12 d-flex justify-content-between">
@@ -291,7 +291,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-success w-100"><i
+                        <button type="submit" id="save-data" class="btn btn-success w-100"><i
                                 class="mr-2 fa fa-save"></i>Simpan</button>
                     </div>
                 </form>
@@ -547,9 +547,10 @@
                 id_toko: '{{ auth()->user()->id_toko }}',
             },
             isUrl: '{{ route('master.barangKirim') }}',
-            placeholder: 'Pilih Barang',
+            placeholder: 'Pilih Member terlebih dahulu',
             isMinimum: 3,
-            isModal: '#modal-form'
+            isModal: '#modal-form',
+            isDisabled: true,
         }];
 
         function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
@@ -793,7 +794,7 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        function setCreate() {
             const memberSelect = $('#id_member');
             const barangSelect = $('#barang');
             const hargaSelect = $('#harga');
@@ -808,8 +809,8 @@
             let subtotal = 0;
             let hiddenUangBayar = document.getElementById('hiddenUangBayar');
 
-            barangSelect.prop('disabled', true);
-            hargaSelect.prop('disabled', true);
+            // barangSelect.prop('disabled', true);
+            // hargaSelect.prop('disabled', true);
 
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
@@ -820,8 +821,12 @@
 
             memberSelect.select2().on('change', function() {
                 barangSelect.prop('disabled', !this.value).val(null).trigger('change');
-                hargaSelect.prop('disabled', true).html('<option value="">~Pilih Barang Dahulu~</option>')
-                    .trigger('change');
+                barangSelect.data('select2').$container.find('.select2-selection__placeholder').text(
+                    'Pilih Barang');
+
+                hargaSelect.prop('disabled', true).val(null).trigger('change');
+                hargaSelect.data('select2').$container.find('.select2-selection__placeholder').text(
+                    'Pilih Barang terlebih dahulu');
             });
 
             barangSelect.select2().on('change', function() {
@@ -852,6 +857,8 @@
                                 hargaSelect.prepend(new Option('~Masukkan Harga~', ''));
                             }
 
+                            hargaSelect.data('select2').$container.find('.select2-selection__placeholder').text(
+                                'Pilih Harga');
                             hargaSelect.prop('disabled', hargaSelect.children().length === 0).trigger(
                                 'change');
                         })
@@ -912,6 +919,11 @@
 
                 updateRowNumbers();
                 toggleMemberSelectDisabled();
+
+                barangSelect.data('select2').$container.find('.select2-selection__placeholder').text(
+                    'Pilih Barang');
+                hargaSelect.data('select2').$container.find('.select2-selection__placeholder').text(
+                    'Pilih Barang terlebih dahulu');
             });
 
             document.querySelector('form').addEventListener('submit', function() {
@@ -955,16 +967,76 @@
             });
 
             metodeSelect.dispatchEvent(new Event('change'));
-        });
+        }
+
+        async function saveData() {
+            $(document).on("click", "#save-data", async function(e) {
+                e.preventDefault();
+                const saveButton = document.getElementById('save-data');
+                const form = $(this).closest("form")[0];
+                const formData = new FormData(form);
+
+                if (saveButton.disabled) return;
+
+                swal({
+                    title: "Konfirmasi",
+                    text: "Apakah Anda yakin ingin menyimpan data ini?",
+                    type: "question",
+                    showCancelButton: true,
+                    confirmButtonColor: '#2ecc71',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Simpan',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true,
+                }).then(async (willSave) => {
+                    if (!willSave) return;
+
+                    saveButton.disabled = true;
+                    const originalContent = saveButton.innerHTML;
+                    saveButton.innerHTML =
+                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+
+                    loadingPage(true);
+
+                    try {
+                        const response = await renderAPI('POST',
+                            '{{ route('transaksi.kasir.store') }}', formData);
+
+                        loadingPage(false);
+
+                        if (response.status === 200) {
+                            swal("Berhasil!", "Data berhasil disimpan.", "success");
+                            setTimeout(() => {
+                                window.location.href =
+                                    '{{ route('transaksi.kasir.index') }}';
+                            }, 1000);
+                        } else {
+                            swal("Pemberitahuan", response.data.message || "Terjadi kesalahan",
+                                "info");
+                        }
+                    } catch (error) {
+                        loadingPage(false);
+                        swal("Kesalahan", response.data.message ||
+                            "Terjadi kesalahan saat menyimpan data.", "error");
+                    } finally {
+                        saveButton.disabled = false;
+                        saveButton.innerHTML = originalContent;
+                    }
+                });
+            });
+        }
+
 
         async function initPageLoad() {
             await add();
+            await setCreate();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();
             await selectFormat('#id_member', 'Pilih Member', false);
             await selectData(selectOptions);
-            await selectFormat('#harga', 'Pilih Harga', false);
+            await selectFormat('#harga', 'Pilih Member terlebih dahulu', true);
+            await saveData();
         }
     </script>
 @endsection
