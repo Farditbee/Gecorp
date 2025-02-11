@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\DetailKasir;
+use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
 use App\Models\Kasir;
@@ -258,89 +259,99 @@ class KasirController extends Controller
     // }
 
     public function getFilteredHarga(Request $request)
-{
-    $request->validate([
-        'qrcode' => 'required|string',
-        'id_member' => 'required|string', // Tambahkan id_member untuk menentukan level harga
-    ]);
+    {
+        $request->validate([
+            'id_barang' => 'required|string', // QR Code/id_detail dari frontend
+            'id_member' => 'required|string',
+        ]);
 
-    $qrCode = $request->input('qrcode');
-    $memberId = $request->input('id_member');
+        $id_barang_input = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
+        $memberId = $request->input('id_member');
 
-    try {
-        // Cari barang berdasarkan qrcode di DetailPengirimanBarang
-        $barangDetail = DetailPengirimanBarang::where('qrcode', $qrCode)->first();
-
-        if (!$barangDetail) {
-            return response()->json(['error' => 'Barang tidak ditemukan berdasarkan qrcode.'], 404);
+        // Pastikan format id_barang benar (harus mengandung "/")
+        if (!str_contains($id_barang_input, '/')) {
+            return response()->json(['error' => 'Format id_barang tidak valid. Gunakan format qrcode/id_detail.'], 400);
         }
 
-        $barangId = $barangDetail->id_barang;
+        // Pisahkan QR Code dan id_detail
+        list($qrCode, $id_detail) = explode('/', $id_barang_input) + [null, null];
 
-        // Ambil data barang dari tabel Barang
-        $barang = Barang::find($barangId);
-        if (!$barang) {
-            return response()->json(['error' => 'Barang tidak ditemukan di tabel Barang.'], 404);
-        }
+        try {
+            // 1. Cari barang berdasarkan QR Code di tabel DetailPembelianBarang
+            $barangDetail = DetailPembelianBarang::where('qrcode', $qrCode)->first();
 
-        // Parsing level harga barang jika dalam bentuk JSON string
-        $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;
+            if (!$barangDetail) {
+                return response()->json(['error' => 'Barang tidak ditemukan berdasarkan QR Code.'], 404);
+            }
 
-        // Jika member adalah "Guest" (id_member = 0 atau 'Guest'), tampilkan semua level harga
-        if ($memberId === 'Guest' || $memberId == 0) {
-            $filteredHarga = collect($levelHarga)
-                ->sortByDesc(fn($harga) => (int)explode(' : ', $harga)[1]) // Urutkan dari harga tertinggi ke terendah
-                ->values()
-                ->map(fn($harga) => intval(explode(' : ', $harga)[1])); // Ambil nilai harga saja
-        } else {
-            // Ambil data member
+            $barangId = $barangDetail->id_barang;
+
+            // 2. Cari barang di tabel Barang berdasarkan id_barang
+            $barang = Barang::find($barangId);
+            if (!$barang) {
+                return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
+            }
+
+            // 3. Parsing level harga barang (format JSON jika string)
+            $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;
+
+            // 4. Jika member adalah "Guest", tampilkan semua harga yang tersedia
+            if ($memberId === 'Guest') {
+                $filteredHarga = collect($levelHarga)
+                    ->sortByDesc(fn($harga) => (int)explode(' : ', $harga)[1]) // Urutkan harga dari tertinggi
+                    ->values()
+                    ->map(fn($harga) => intval(explode(' : ', $harga)[1])); // Ambil hanya angka harga
+
+                return response()->json([
+                    'filteredHarga' => $filteredHarga,
+                    'id_barang' => $barangId,
+                    'nama_barang' => $barang->nama_barang
+                ]);
+            }
+
+            // 5. Jika member bukan Guest, cari informasi level harga berdasarkan tabel Member
             $member = Member::find($memberId);
             if (!$member) {
                 return response()->json(['error' => 'Member tidak ditemukan.'], 404);
             }
 
-            // Parsing level_info jika dalam bentuk JSON string
+            // 6. Parsing level_info dari tabel Member (format JSON jika string)
             $levelInfo = is_string($member->level_info) ? json_decode($member->level_info, true) : $member->level_info;
             $jenisBarangId = $barang->id_jenis_barang;
 
-            // Ambil ID level yang cocok dengan jenis barang dari level_info
+            // 7. Ambil ID level yang cocok dengan jenis barang dari level_info
             $levelIds = collect($levelInfo)->map(function ($info) use ($jenisBarangId) {
                 list($infoJenisBarangId, $infoLevelId) = explode(' : ', $info);
                 return intval($infoJenisBarangId) === intval($jenisBarangId) ? intval($infoLevelId) : null;
             })->filter();
 
-            // Ambil nama level harga yang sesuai dari tabel LevelHarga
+            // 8. Ambil nama level harga yang sesuai dari tabel LevelHarga
             $levelNames = LevelHarga::whereIn('id', $levelIds)->pluck('nama_level_harga');
 
-            // Filter level harga barang sesuai dengan levelNames
+            // 9. Filter level harga barang sesuai dengan levelNames
             $filteredHarga = collect($levelHarga)->filter(function ($harga) use ($levelNames) {
                 return $levelNames->contains(fn($levelName) => str_contains($harga, $levelName));
             })->map(fn($harga) => intval(explode(' : ', $harga)[1]))->values();
+
+            Log::info('Filtered Harga:', ['filteredHarga' => $filteredHarga->toArray()]);
+
+            // 10. Jika hanya ada satu harga, kembalikan dalam bentuk angka, jika lebih dari satu, kembalikan array
+            $response = count($filteredHarga) === 1 ? $filteredHarga->first() : $filteredHarga;
+
+            return response()->json([
+                'filteredHarga' => $response,
+                'id_barang' => $barangId,
+                'nama_barang' => $barang->nama_barang
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching filtered harga by QR Code: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
         }
-
-        Log::info('Filtered Harga:', ['filteredHarga' => $filteredHarga->toArray()]);
-
-        // Jika hanya ada satu harga, kembalikan sebagai angka, bukan array
-        $response = count($filteredHarga) === 1 ? $filteredHarga->first() : $filteredHarga;
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Data barang ditemukan.',
-            'data' => [
-                'id_barang' => $barang->id,
-                'nama_barang' => $barang->nama_barang,
-                'filteredHarga' => $response, // Harga yang sudah difilter berdasarkan member
-            ],
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error fetching barang by QR Code: ' . $e->getMessage());
-
-        return response()->json([
-            'error' => 'Terjadi kesalahan pada server: ' . $e->getMessage(),
-            'status_code' => 500,
-        ], 500);
     }
-}
 
     public function store(Request $request)
     {
@@ -356,11 +367,9 @@ class KasirController extends Controller
             $idBarangs = array_values(array_filter($idBarangs, function ($value) {
                 return $value !== null && $value !== '';
             }));
-
             $qtys = array_values(array_filter($qtys, function ($value) {
                 return $value !== null && $value !== '';
             }));
-
             $hargaBarangs = array_values(array_filter($hargaBarangs, function ($value) {
                 return $value !== null && $value !== '';
             }));
@@ -389,8 +398,8 @@ class KasirController extends Controller
             $kasir->total_nilai = 0;
             $kasir->no_nota = $request->no_nota;
             $kasir->metode = $request->metode;
-            $kasir->jml_bayar = (float)$request->jml_bayar; // Konversi ke float
-            $kasir->kembalian = (float)$request->kembalian; // Konversi ke float
+            $kasir->jml_bayar = (float)$request->jml_bayar;
+            $kasir->kembalian = (float)$request->kembalian;
             $kasir->save();
 
             $totalItem = 0;
@@ -399,19 +408,23 @@ class KasirController extends Controller
             $counter = 1;
 
             foreach ($idBarangs as $index => $id_barang) {
-                $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null; // Konversi ke float
-                $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null; // Konversi ke float
+                $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null;
+                $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null;
 
                 if (is_null($qty) || is_null($harga_barang)) {
                     continue;
                 }
 
+                // Ambil id_detail_pembelian berdasarkan qrcode
+                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "%{$id_barang}%")->first();
+                $id_detail_pembelian = $detailPembelian ? $detailPembelian->id : null;
+
                 // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
                 $detailToko = DetailToko::where('id_barang', $id_barang)
                     ->where('id_toko', $user->id_toko)
                     ->first();
-
                 $id_supplier = $detailToko ? $detailToko->id_supplier : null;
+
                 if (is_null($id_supplier)) {
                     return redirect()->back()->with('error', "Supplier tidak ditemukan untuk barang ID: $id_barang.");
                 }
@@ -425,71 +438,39 @@ class KasirController extends Controller
                     ->first();
 
                 $potongan = 0;
-                if ($promo) {
-                    if ($qty >= $promo->minimal) {
-                        $diskon = $promo->diskon;
-                        $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
+                if ($promo && $qty >= $promo->minimal) {
+                    $diskon = $promo->diskon;
+                    $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
+                    $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
+                    $totalDiskon += $potongan;
 
-                        $potongan = ($harga_barang * $diskon / 100) * $qtyDiskon;
-                        $totalDiskon += $potongan;
-
-                        if ($promo->jumlah) {
-                            $eligibleQty = min($qty, $promo->jumlah - $promo->terjual);
-                            $promo->terjual += $eligibleQty;
-
-                            if ($promo->terjual >= $promo->jumlah) {
-                                $promo->status = 'done';
-                            }
-                        } else {
-                            $promo->terjual += $qty;
+                    if ($promo->jumlah) {
+                        $promo->terjual += $qtyDiskon;
+                        if ($promo->terjual >= $promo->jumlah) {
+                            $promo->status = 'done';
                         }
-
-                        $promo->save();
+                    } else {
+                        $promo->terjual += $qty;
                     }
-                } else {
-                    $expiredPromo = Promo::where('id_barang', $id_barang)
-                        ->where('status', 'ongoing')
-                        ->where('sampai', '<', $tglTransaksi)
-                        ->first();
-
-                    if ($expiredPromo) {
-                        $expiredPromo->status = 'done';
-                        $expiredPromo->save();
-                    }
+                    $promo->save();
                 }
 
-                // Generate QR Code Value
-                $tglTransaksiFormat = $tglTransaksi->format('dmY'); // Format tanggal DDMMYYYY
-                $idToko = $user->id_toko;
-                $idMember = $kasir->id_member;
-                $idKasir = $kasir->id;
-
-                $qrCodeValue = "{$tglTransaksiFormat}TK{$idToko}MM{$idMember}ID{$idKasir}-{$counter}";
-
-                // Path untuk menyimpan QR Code
-                $qrCodePath = "qrcodes/trx_kasir/{$idKasir}-{$counter}.png";
+                // Generate QR Code
+                $tglTransaksiFormat = $tglTransaksi->format('dmY');
+                $qrCodeValue = "{$tglTransaksiFormat}TK{$user->id_toko}MM{$kasir->id_member}ID{$kasir->id}-{$counter}";
+                $qrCodePath = "qrcodes/trx_kasir/{$kasir->id}-{$counter}.png";
                 $fullPath = storage_path('app/public/' . $qrCodePath);
 
-                // Buat folder jika belum ada
                 if (!file_exists(dirname($fullPath))) {
                     mkdir(dirname($fullPath), 0755, true);
                 }
 
-                // Generate QR Code
                 $qrCode = QrCode::create($qrCodeValue)
                     ->setEncoding(new Encoding('UTF-8'))
                     ->setSize(200)
                     ->setMargin(10);
-
                 $writer = new PngWriter();
-                $result = $writer->write(
-                    $qrCode,
-                    null,
-                    Label::create("{$qrCodeValue}")
-                        ->setFont(new NotoSans(12))
-                );
-
-                // Simpan file QR Code
+                $result = $writer->write($qrCode, null, Label::create("{$qrCodeValue}")->setFont(new NotoSans(12)));
                 $result->saveToFile($fullPath);
 
                 // Ambil hpp_baru dari tabel stock_barang
@@ -497,10 +478,11 @@ class KasirController extends Controller
                 $hpp_jual = $stock ? $stock->hpp_baru : 0;
 
                 // Simpan detail kasir
-                $detail = DetailKasir::create([
+                DetailKasir::create([
                     'id_kasir' => $kasir->id,
                     'id_barang' => $id_barang,
                     'id_supplier' => $id_supplier,
+                    'id_detail_pembelian' => $id_detail_pembelian, // Tambahkan kolom ini
                     'qty' => $qty,
                     'harga' => $harga_barang,
                     'diskon' => $potongan,
@@ -510,45 +492,35 @@ class KasirController extends Controller
                     'hpp_jual' => $hpp_jual,
                 ]);
 
-                // Update stok berdasarkan toko
+                // Update stok
                 if ($user->id_toko == 1) {
-                    $stock = StockBarang::where('id_barang', $id_barang)->first();
-                    if ($stock) {
-                        $stock->stock -= $qty;
-                        $stock->save();
-                    }
+                    $stock?->decrement('stock', $qty);
                 } else {
-                    $detailToko = DetailToko::where('id_barang', $id_barang)
-                        ->where('id_toko', $user->id_toko)
-                        ->first();
-                    if ($detailToko) {
-                        $detailToko->qty -= $qty;
-                        $detailToko->save();
-                    }
+                    $detailToko?->decrement('qty', $qty);
                 }
 
                 $totalItem += $qty;
                 $totalNilai += $qty * $harga_barang;
-
                 $counter++;
             }
 
             // Update total transaksi di kasir
-            $kasir->total_item = $totalItem;
-            $kasir->total_nilai = $totalNilai;
-            $kasir->total_diskon = $totalDiskon;
-            $kasir->kembalian = $kasir->jml_bayar - ($totalNilai - $totalDiskon); // Hitung kembalian setelah diskon
-            $kasir->save();
+            $kasir->update([
+                'total_item' => $totalItem,
+                'total_nilai' => $totalNilai,
+                'total_diskon' => $totalDiskon,
+                'kembalian' => $kasir->jml_bayar - ($totalNilai - $totalDiskon),
+            ]);
 
             DB::commit();
-
             return redirect()->route('transaksi.kasir.index')->with('success', 'Data berhasil disimpan');
         } catch (\Throwable $th) {
             DB::rollback();
-
-            return redirect()->back()->with('error', 'Failed to save transaction. Please try again. ' . $th->getMessage());
+            Log::error('Error saat menyimpan transaksi:', ['error' => $th->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to save transaction. ' . $th->getMessage());
         }
     }
+
 
     // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
     private function fillArrayToMatchCount(array $array, int $count)
