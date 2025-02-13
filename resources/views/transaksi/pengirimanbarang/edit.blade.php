@@ -237,7 +237,6 @@
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
                     reverseButtons: true,
-                    dangerMode: true,
                 }).then(async (willSave) => {
                     if (!willSave) return;
 
@@ -287,6 +286,11 @@
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalContent;
                     }
+                }).catch(function(error) {
+                    let resp = error.response;
+                    swal("Kesalahan", resp ||
+                        "Terjadi kesalahan saat menyimpan data.", "error");
+                    return resp;
                 });
             });
         }

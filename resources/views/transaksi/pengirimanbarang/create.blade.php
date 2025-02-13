@@ -284,43 +284,49 @@
                     return;
                 }
 
-                try {
-                    let response = await renderAPI('GET', '{{ route('master.getBarangKirim') }}', {
-                        id_toko: '{{ auth()->user()->id_toko }}',
-                        id_barang: idBarang
+                let response = await renderAPI('GET', '{{ route('master.getBarangKirim') }}', {
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    id_barang: idBarang
+                });
+
+                if (response.status === 200 && response.data.data) {
+                    let item = response.data.data;
+                    let idSupplier = item.id_supplier;
+                    let qrcode = item.qrcode;
+
+                    if (item.qty === 0) {
+                        notificationAlert('error', 'Error', 'Barang ini tidak tersedia (qty = 0)!');
+                        $('#id_barang').val(null).trigger('change');
+                        return;
+                    }
+
+                    let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
+                        let existingIdBarang = row.querySelector('input[name="id_barang[]"]')?.value;
+                        let existingQrcode = row.querySelector('input[name="qrcode[]"]')?.value;
+                        return existingIdBarang == item.id_barang && existingQrcode == qrcode;
                     });
 
-                    if (response.status === 200 && response.data.data) {
-                        let item = response.data.data;
-                        let idSupplier = item.id_supplier;
-                        let qrcode = item.qrcode;
+                    let elementData = encodeURIComponent(JSON.stringify(item));
+                    let minQty = item.qty > 0 ? 1 : 0;
+                    let maxQty = item.qty;
+                    let harga = item.harga;
 
-                        if (item.qty === 0) {
-                            notificationAlert('error', 'Error', 'Barang ini tidak tersedia (qty = 0)!');
-                            $('#id_barang').val(null).trigger('change');
+                    if (existingRow) {
+                        let qtyInput = existingRow.querySelector('.qty-input');
+                        let currentQty = parseInt(qtyInput.value) || 1;
+                        let newQty = currentQty + 1;
+
+                        if (newQty > maxQty) {
+                            notificationAlert('error', 'Error',
+                                `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
+                                );
                             return;
                         }
 
-                        let existingRow = [...document.querySelectorAll('#listData tr')].find(row => {
-                            let existingIdBarang = row.querySelector('input[name="id_barang[]"]')
-                                ?.value;
-                            let existingQrcode = row.querySelector('input[name="qrcode[]"]')
-                                ?.value;
-                            return existingIdBarang == item.id_barang && existingQrcode ==
-                                qrcode;
-                        });
-
-                        if (existingRow) {
-                            notificationAlert('warning', 'Pemberitahuan',
-                                'Barang dengan QrCode yang sama sudah ada!');
-                            $('#id_barang').val(null).trigger('change');
-                            return;
-                        }
-
-                        let elementData = encodeURIComponent(JSON.stringify(item));
-                        let minQty = item.qty > 0 ? 1 : 0;
-                        let maxQty = item.qty;
-                        let harga = item.harga;
+                        qtyInput.value = newQty;
+                        updateTotalHarga(existingRow);
+                        await updateRowTable(elementData, newQty);
+                    } else {
                         let qty = 1;
 
                         let row = document.createElement('tr');
@@ -358,6 +364,9 @@
                                 newQty = 1;
                             } else if (newQty > maxQty) {
                                 newQty = maxQty;
+                                notificationAlert('error', 'Error',
+                                    `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
+                                    );
                             }
 
                             qtyInput.value = newQty;
@@ -367,13 +376,11 @@
 
                         document.querySelector('#listData').appendChild(row);
                         updateTotalHarga(row);
-
-                        $('#id_barang').val(null).trigger('change');
-                    } else {
-                        notificationAlert('error', 'Pemberitahuan', 'Harga barang tidak ditemukan.');
                     }
-                } catch (error) {
-                    notificationAlert('error', 'Pemberitahuan', 'Gagal mendapatkan harga barang.');
+
+                    $('#id_barang').val(null).trigger('change');
+                } else {
+                    notificationAlert('error', 'Pemberitahuan', 'Harga barang tidak ditemukan.');
                 }
             });
         }
@@ -529,7 +536,6 @@
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
                     reverseButtons: true,
-                    dangerMode: true,
                 }).then(async (willSave) => {
                     if (!willSave) return;
 
@@ -549,7 +555,8 @@
 
                     $("#listData tr").each(function() {
                         const barang = $(this).find("input[name='id_barang[]']").val();
-                        const supplier = $(this).find("input[name='id_supplier[]']").val();
+                        const supplier = $(this).find("input[name='id_supplier[]']")
+                            .val();
                         const qrCodes = $(this).find("input[name='qrcode[]']").val();
                         const jumlah = $(this).find(".qty-input").val();
                         const harga_barang = $(this).find(".harga-text").data("value");
@@ -600,6 +607,11 @@
                         saveButton.disabled = false;
                         saveButton.innerHTML = originalContent;
                     }
+                }).catch(function(error) {
+                    let resp = error.response;
+                    swal("Kesalahan", resp ||
+                        "Terjadi kesalahan saat menyimpan data.", "error");
+                    return resp;
                 });
             });
         }
