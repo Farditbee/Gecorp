@@ -12,7 +12,7 @@ class DetailToko extends Model
 
     protected $table = 'detail_toko';
 
-    protected $fillable = ['id_barang', 'id_supplier', 'nama_barang', 'id_toko', 'qty', 'harga'];
+    protected $fillable = ['id_barang','qrcode', 'id_supplier', 'nama_barang', 'id_toko', 'qty', 'harga'];
 
     public $incrementing = false;
 
