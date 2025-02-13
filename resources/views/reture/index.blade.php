@@ -56,7 +56,7 @@
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Tanggal Reture</th>
                                                 <th class="text-wrap align-top">Status</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listDataTable">
@@ -337,24 +337,13 @@
         async function handleData(data) {
             let elementData = JSON.stringify(data);
             let edit_button = '';
+            let delete_button = '';
 
-            if (data.action === 'edit_temp') {
-                edit_button = `
-                    <button class="p-1 btn edit-data action_button"
-                        data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Edit ${title} No. Nota: ${data.no_nota}"
-                        data-id='${data.id}'
-                        data-nota='${data.no_nota}'
-                        data-tanggal='${data.tgl_retur}'
-                        data-nama-member='${data.nama_member}'
-                        data-id-member='${data.id_member}'>
-                        <span class="text-dark">Edit</span>
-                        <div class="icon text-warning">
-                            <i class="fa fa-edit"></i>
-                        </div>
-                    </button>`;
-            } else if (data.action === 'edit_detail') {
-                edit_button = `
+            let status = ''
+            if (data.status == 'done') {
+                status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
+                if (data.action === 'edit_detail') {
+                    edit_button = `
                     <button class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
                         title="Detail ${title} No. Nota: ${data.no_nota}"
@@ -369,27 +358,59 @@
                             <i class="fa fa-book"></i>
                         </div>
                     </button>`;
-            } else {
-                edit_button = `
-                    <span class="badge badge-danger">Tidak Ada Aksi</span>`;
+                }
+            } else if (data.status == 'pending') {
+                if (data.action === 'edit_temp') {
+                    status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>Pending</span>`;
+                    edit_button = `
+                    <button class="p-1 btn edit-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit ${title} No. Nota: ${data.no_nota}"
+                        data-id='${data.id}'
+                        data-nota='${data.no_nota}'
+                        data-tanggal='${data.tgl_retur}'
+                        data-nama-member='${data.nama_member}'
+                        data-id-member='${data.id_member}'>
+                        <span class="text-dark">Edit</span>
+                        <div class="icon text-warning">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </button>`;
+                } else if (data.action === 'edit_detail') {
+                    status = `<span class="badge badge-warning"><i class="fa fa-spinner mr-1"></i>Proses</span>`;
+                    edit_button = `
+                    <button class="p-1 btn detail-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Verifikasi Metode ${title} No. Nota: ${data.no_nota}"
+                        data-id='${data.id}'
+                        data-nota='${data.no_nota}'
+                        data-status='${data.status}'
+                        data-tanggal='${data.tgl_retur}'
+                        data-nama-member='${data.nama_member}'
+                        data-id-member='${data.id_member}'>
+                        <span class="text-dark">Verif</span>
+                        <div class="icon text-success">
+                            <i class="fa fa-circle-check"></i>
+                        </div>
+                    </button>`;
+                }
+                delete_button = `
+                <a class="p-1 btn hapus-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title} No. Nota: ${data.no_nota}"
+                    data-id='${data.id}'
+                    data-name='${data.no_nota}'>
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
             }
-
-            let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama_barang}"
-                data-id='${data.id}'
-                data-name='${data.nama_barang}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
 
             let action_buttons = '';
             if (edit_button || delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-start">
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
@@ -398,12 +419,6 @@
                 <span class="badge badge-danger">Tidak Ada Aksi</span>`;
             }
 
-            let status = ''
-            if (data.status == 'done') {
-                status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
-            } else if (data.status == 'pending') {
-                status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>Pending</span>`;
-            }
 
             return {
                 id: data?.id ?? '-',
@@ -436,7 +451,51 @@
             $('#listDataTable').html(getDataTable);
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
+            $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
+        }
+
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus ${title} No Resi: ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        '{{ route('delete.tempItem') }}', {
+                            id: id
+                        }
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage,
+                                defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
         }
 
         async function editData() {
@@ -556,7 +615,8 @@
         }
 
         async function addData() {
-            $(document).on("click", ".add-data", function() {
+            $(document).on("click", ".add-data", async function() {
+                await setDatePicker();
                 $("#modal-title").html(`Form Tambah Reture`);
                 $("#modal-form").modal("show");
 
@@ -1401,7 +1461,6 @@
         }
 
         async function initPageLoad() {
-            await setDatePicker();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await selectData(selectOptions);
@@ -1412,6 +1471,7 @@
             await setSortable();
             await resetModal();
             await submitForm();
+            await deleteData();
         }
     </script>
 @endsection

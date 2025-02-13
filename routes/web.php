@@ -203,6 +203,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/retureItem', [RetureController::class, 'getRetureItems'])->name('get.retureItems');
         Route::post('/updateNotaReture', [RetureController::class, 'updateNotaReture'])->name('create.updateNotaReture');
         Route::post('/reture/storeNotaSupplier', [RetureController::class, 'storeNotaSupplier'])->name('create.NoteReture');
+        Route::delete('/reture/deleteTempItem', [RetureController::class, 'deleteTempItem'])->name('delete.tempItem');
 
         Route::prefix('reture')->as('reture.')->group(function () {
             Route::prefix('suplier')->as('suplier.')->group(function () {
