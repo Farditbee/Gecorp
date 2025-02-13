@@ -455,6 +455,49 @@
             renderPagination();
         }
 
+        async function deleteData() {
+            $(document).on("click", ".hapus-data", async function() {
+                let id = $(this).attr("data-id");
+                let name = $(this).attr("data-name");
+
+                swal({
+                    title: `Hapus ${title} No Resi: ${name}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        '{{ route('delete.tempItem') }}', {
+                            id: id
+                        }
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                    });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage,
+                                defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
+
         async function editData() {
             $(document).on("click", ".edit-data", async function() {
                 let id = $(this).attr("data-id");
@@ -1428,6 +1471,7 @@
             await setSortable();
             await resetModal();
             await submitForm();
+            await deleteData();
         }
     </script>
 @endsection
