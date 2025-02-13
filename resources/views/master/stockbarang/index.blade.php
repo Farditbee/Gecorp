@@ -171,10 +171,10 @@
                                                                     $stokBarangLain = $stokTokoLain
                                                                         ->where('id_barang', $stk->id_barang)
                                                                         ->where('id_toko', $tk->id)
-                                                                        ->first();
+                                                                        ->sum('qty');
                                                                 @endphp
                                                                 @if ($stokBarangLain)
-                                                                    <td>{{ $stokBarangLain->qty }}
+                                                                    <td>{{ $stokBarangLain > 0 ? $stokBarangLain : 0 }}
                                                                     </td>
                                                                 @else
                                                                     <td>0</td>
