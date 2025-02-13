@@ -886,16 +886,30 @@ class RetureController extends Controller
         $request->validate([
             'id' => 'required|integer',
         ]);
-
+    
         $id = $request->id;
-
+    
         try {
-            DB::table('temp_detail_retur')
+            // Check if data exists in temp_detail_retur
+            $tempExists = DB::table('temp_detail_retur')
                 ->where('id_retur', $id)
+                ->exists();
+    
+            if ($tempExists) {
+                // If exists, delete from temp_detail_retur
+                DB::table('temp_detail_retur')
+                    ->where('id_retur', $id)
+                    ->delete();
+            } else {
+                // If not exists, delete from detail_retur
+                DetailRetur::where('id_retur', $id)
+                    ->delete();
+            }
+    
+            // Delete from data_reture
+            DataReture::where('id', $id)
                 ->delete();
-
-            DataReture::where('id', $id)->delete();
-
+    
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil dihapus!',
@@ -903,7 +917,7 @@ class RetureController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error deleting temporary item: ' . $e->getMessage());
-
+    
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat menghapus data sementara.' . $e->getMessage(),
