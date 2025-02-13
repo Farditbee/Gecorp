@@ -880,4 +880,35 @@ class RetureController extends Controller
             ], 500);
         }
     }
+
+    public function deleteTempItem(Request $request)
+    {
+        $request->validate([
+            'id' => 'required|integer',
+        ]);
+
+        $id = $request->id;
+
+        try {
+            DB::table('temp_detail_retur')
+                ->where('id_retur', $id)
+                ->delete();
+
+            DataReture::where('id', $id)->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Data berhasil dihapus!',
+                'status_code' => 200,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting temporary item: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menghapus data sementara.' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+        }
+    }
 }

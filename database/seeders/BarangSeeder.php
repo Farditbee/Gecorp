@@ -26,9 +26,14 @@ class BarangSeeder extends Seeder
         DB::table('detail_pembelian_barang')->truncate();
         DB::table('stock_barang')->truncate();
         DB::table('detail_stock')->truncate();
+        DB::table('detail_toko')->truncate();
         DB::table('temp_detail_pengiriman')->truncate();
         DB::table('pengiriman_barang')->truncate();
         DB::table('detail_pengiriman_barang')->truncate();
+        DB::table('kasir')->truncate();
+        DB::table('detail_kasir')->truncate();
+        DB::table('data_retur')->truncate();
+        DB::table('detail_retur')->truncate();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
