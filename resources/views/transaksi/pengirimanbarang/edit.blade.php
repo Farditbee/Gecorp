@@ -51,9 +51,6 @@
                         </div>
                         <x-adminlte-alerts />
                         <div class="card-body table-border-style">
-                            {{-- <form action="{{ route('transaksi.pengirimanbarang.update_status', $pengiriman_barang->id) }}"
-                                method="POST" class=""> --}}
-                            @csrf
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <ul class="list-group list-group-flush">
@@ -94,21 +91,18 @@
                             </div>
                             <div class="row">
                                 <div class="col-12">
+                                    <h5><i class="fa fa-circle-check text-primary mr-2"></i>Verifikasi Pengiriman Barang</h5>
                                     <div class="table-responsive-md">
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
-                                                    <th scope="col" class="text-wrap text-center">No</th>
                                                     @if ($pengiriman_barang->toko_penerima == auth()->user()->id_toko && $pengiriman_barang->status !== 'success')
-                                                        <th scope="col" class="text-wrap">
-                                                            <div class="d-flex align-items-center">
-                                                                <input type="checkbox" id="checkAll"
-                                                                    class="neumorphic-checkbox mr-2">
-                                                                <span> | Verifikasi Semua <i
-                                                                        class="fa fa-circle-check text-primary"></i></span>
-                                                            </div>
+                                                        <th scope="col" class="text-wrap text-center">
+                                                            <input type="checkbox" id="checkAll"
+                                                                class="neumorphic-checkbox mr-2">
                                                         </th>
                                                     @endif
+                                                    <th scope="col" class="text-wrap text-center">No</th>
                                                     <th scope="col" class="text-wrap">Status</th>
                                                     <th scope="col" class="text-wrap">Nama Barang</th>
                                                     <th scope="col" class="text-wrap">Nama Supplier</th>
@@ -125,22 +119,29 @@
                                                     <input type="hidden" name="detail_ids[{{ $detail->id }}]"
                                                         value="{{ $detail->id }}">
                                                     <tr>
+                                                        <td class="text-wrap text-center">
+                                                            @if (
+                                                                $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
+                                                                    $pengiriman_barang->status !== 'success' &&
+                                                                    $detail->status !== 'success')
+                                                                <input type="checkbox" data-id="{{ $detail->id }}"
+                                                                    value=""
+                                                                    class="neumorphic-checkbox status-check mr-2">
+                                                            @elseif (
+                                                                $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
+                                                                    $pengiriman_barang->status !== 'success' &&
+                                                                    $detail->status == 'success')
+                                                                <input type="checkbox" data-id="{{ $detail->id }}"
+                                                                    checked disabled value="{{ $detail->status }}"
+                                                                    class="neumorphic-checkbox mr-2">
+                                                            @endif
+                                                        </td>
                                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                                        @if ($pengiriman_barang->toko_penerima == auth()->user()->id_toko && $pengiriman_barang->status !== 'success')
-                                                            <td class="text-wrap">
-                                                                <label class="d-flex align-items-center">
-                                                                    <input type="checkbox" data-id="{{ $detail->id }}"
-                                                                        value="success"
-                                                                        class="neumorphic-checkbox status-check mr-2">
-                                                                    <span class="fw-bold"> | Sukses</span>
-                                                                </label>
-                                                            </td>
-                                                        @endif
                                                         <td class="text-wrap">
                                                             @if ($detail->status == 'success')
-                                                                <span class="badge badge-success">Sukses</span>
+                                                                <span class="badge badge-success"><i class="mr-1 fa fa-circle-check"></i>Sukses</span>
                                                             @elseif($detail->status == 'progress')
-                                                                <span class="badge badge-warning">Proses</span>
+                                                                <span class="badge badge-warning"><i class="mr-1 fa fa-spinner"></i>Proses</span>
                                                             @else
                                                                 <span class="badge badge-secondary">Tidak Diketahui</span>
                                                             @endif
@@ -174,7 +175,6 @@
                                             </tfoot>
                                         </table>
                                     </div>
-
                                     @if ($pengiriman_barang->status == 'progress')
                                         <div class="form-group">
                                             <button type="button" id="save-data" class="btn btn-success w-100">
@@ -184,7 +184,6 @@
                                     @endif
                                 </div>
                             </div>
-                            {{-- </form> --}}
                         </div>
                     </div>
                 </div>
@@ -201,21 +200,17 @@
 
             checkAll.addEventListener("change", function() {
                 itemCheckboxes.forEach(checkbox => {
-                    if (!checkbox
-                        .disabled) {
+                    if (!checkbox.disabled) {
                         checkbox.checked = checkAll.checked;
+                        checkbox.value = checkAll.checked ? "success" : "";
                     }
                 });
             });
 
             itemCheckboxes.forEach(checkbox => {
                 checkbox.addEventListener("change", function() {
-                    if (!this.checked) {
-                        checkAll.checked =
-                            false;
-                    } else if ([...itemCheckboxes].every(cb => cb.checked || cb.disabled)) {
-                        checkAll.checked = true;
-                    }
+                    this.value = this.checked ? "success" : "";
+                    checkAll.checked = [...itemCheckboxes].every(cb => cb.checked || cb.disabled);
                 });
             });
         }
@@ -244,7 +239,6 @@
                     const originalContent = saveButton.innerHTML;
                     saveButton.innerHTML =
                         `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
-
                     loadingPage(true);
 
                     let detailIds = [];
@@ -252,8 +246,7 @@
 
                     $(".status-check").each(function() {
                         detailIds.push($(this).data("id"));
-                        statusArray.push($(this)
-                            .val());
+                        statusArray.push($(this).val());
                     });
 
                     const formData = {
@@ -270,7 +263,6 @@
 
                         if (postData.status >= 200 && postData.status < 300) {
                             swal("Berhasil!", "Data berhasil disimpan.", "success");
-
                             setTimeout(() => {
                                 window.location.href =
                                     '{{ route('transaksi.pengirimanbarang.index') }}';
@@ -288,8 +280,7 @@
                     }
                 }).catch(function(error) {
                     let resp = error.response;
-                    swal("Kesalahan", resp ||
-                        "Terjadi kesalahan saat menyimpan data.", "error");
+                    swal("Kesalahan", resp || "Terjadi kesalahan saat menyimpan data.", "error");
                     return resp;
                 });
             });
