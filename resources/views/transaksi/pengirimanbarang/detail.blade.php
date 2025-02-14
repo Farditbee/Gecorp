@@ -6,6 +6,12 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        #qr_barang {
+            background-color: white !important;
+            cursor: text;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -65,10 +71,25 @@
                                     <div id="item-container">
                                         <div class="item-group">
                                             <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label for="qr_barang" class="form-control-label">
+                                                            <i class="mr-2 fa fa-qrcode"></i>Scan QRCode Barang <sup
+                                                                class="text-success">*</sup>
+                                                        </label>
+                                                        <input id="qr_barang" type="text" class="form-control"
+                                                            placeholder="Gunakan alat Scan QRCode" readonly
+                                                            onfocus="this.removeAttribute('readonly');"
+                                                            onblur="this.setAttribute('readonly', true);">
+                                                        <input type="hidden" id="hidden_qr">
+                                                    </div>
+                                                </div>
                                                 <div class="col-md-11">
                                                     <div class="form-group">
-                                                        <label for="id_barang" class="form-control-label">Nama
-                                                            Barang <sup style="color: red">*</sup></label>
+                                                        <label for="id_barang" class="form-control-label">
+                                                            <i class="mr-2 fa fa-hand-pointer"></i>QRCode Barang <sup
+                                                                class="text-success">*</sup>
+                                                        </label>
                                                         <select class="form-control select2" name="id_barang"
                                                             id="id_barang"></select>
                                                     </div>
@@ -133,6 +154,25 @@
             isMinimum: 3,
         }];
 
+        $(document).ready(function() {
+            let debounceTimer;
+
+            $('#qr_barang').focus();
+
+            $(document).on('click', function(event) {
+                let target = $(event.target);
+
+                if (target.is('input, select, textarea')) {
+                    clearTimeout(debounceTimer);
+                    return;
+                }
+
+                debounceTimer = setTimeout(function() {
+                    $('#qr_barang').focus();
+                }, 2000);
+            });
+        });
+
         async function getListData() {
             let filterParams = {};
             let getDataRest = await renderAPI(
@@ -177,14 +217,14 @@
                     actionButtons =
                         `<td><button type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-trash-alt mr-1"></i>Remove</button></td>`;
                     td_nama_barang = `
-                <input type="hidden" name="id_barang[]" value="${item.id_barang}">
-                <input type="hidden" name="id_supplier[]" value="${item.id_supplier}">
-                <input type="hidden" name="qrcode[]" value="${item.qrcode}">
-                <input type="hidden" name="id_detail_pembelian[]" value="${item.id_detail_pembelian}">
-                ${item.nama_barang}`;
-                    td_qty = `<input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
-                        min="${minQty}" max="${item.stock}" data-harga="${harga}">
-                    <small class="text-danger">Max: ${item.stock}</small>`;
+                        <input type="hidden" name="id_barang[]" value="${item.id_barang}">
+                        <input type="hidden" name="id_supplier[]" value="${item.id_supplier}">
+                        <input type="hidden" name="qrcode[]" value="${item.qrcode}">
+                        <input type="hidden" name="id_detail_pembelian[]" value="${item.id_detail_pembelian}">
+                        ${item.nama_barang}`;
+                    td_qty = `
+                        <input type="number" name="qty[]" class="qty-input form-control" value="${qty}" min="${minQty}" max="${item.stock}" data-harga="${harga}">
+                        <small class="text-danger">Max: ${item.stock}</small>`;
                 } else {
                     td_nama_barang = item.nama_barang;
                     td_qty = item.qty;
@@ -357,8 +397,55 @@
         }
 
         function addData() {
+            let qrInput = document.getElementById('qr_barang');
+            let hiddenQrInput = document.getElementById('hidden_qr');
+
+            qrInput.addEventListener('keypress', async function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+
+                    let qrCode = qrInput.value.trim();
+                    if (!qrCode) return;
+
+                    try {
+                        let response = await renderAPI('GET', '{{ route('master.barangKirim') }}', {
+                            page: 1,
+                            limit: 30,
+                            ascending: 1,
+                            search: qrCode,
+                            id_toko: '{{ auth()->user()->id }}',
+                        });
+
+                        if (response.status === 200 && response.data.data) {
+                            let idBarang = response.data.data[0].id;
+
+                            if (!idBarang) {
+                                notificationAlert('error', 'Error', 'Barang tidak ditemukan!');
+                                return;
+                            }
+
+                            $('#hidden_qr').val(idBarang);
+                            document.getElementById('add-item-detail').click();
+                        } else {
+                            notificationAlert('error', 'Error',
+                                'QR Code tidak valid atau barang tidak ditemukan.');
+                        }
+                    } catch (error) {
+                        notificationAlert('error', 'Error', 'Terjadi kesalahan saat mencari barang.');
+                    }
+
+                    qrInput.value = '';
+                    hiddenQrInput.value = '';
+                }
+            });
+
             document.getElementById('add-item-detail')?.addEventListener('click', async function() {
                 let idBarang = document.getElementById('id_barang').value.trim();
+                let hiddenQr = document.getElementById('hidden_qr').value.trim();
+
+                if (!idBarang) {
+                    idBarang = hiddenQr;
+                }
 
                 if (!idBarang) {
                     notificationAlert('error', 'Error', 'Harap pilih barang dengan benar!');
@@ -398,7 +485,9 @@
                         let newQty = currentQty + 1;
 
                         if (newQty > maxQty) {
-                            notificationAlert('error', 'Error', `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`);
+                            notificationAlert('error', 'Error',
+                                `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
+                            );
                             return;
                         }
 
@@ -443,7 +532,9 @@
                                 newQty = 1;
                             } else if (newQty > maxQty) {
                                 newQty = maxQty;
-                                notificationAlert('error', 'Error', `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`);
+                                notificationAlert('error', 'Error',
+                                    `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
+                                );
                             }
 
                             qtyInput.value = newQty;

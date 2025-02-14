@@ -5,8 +5,14 @@
 @endsection
 
 @section('css')
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        #qr_barang {
+            background-color: white !important;
+            cursor: text;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -157,12 +163,25 @@
                                             <div id="item-container">
                                                 <div class="item-group">
                                                     <div class="row">
-                                                        <div class="col-md-11">
-                                                            <input type="hidden" name="tk_pengirim" id="tk_pengirim"
-                                                                value="{{ $pengiriman_barang->toko_pengirim }}">
+                                                        <div class="col-md-12">
                                                             <div class="form-group">
-                                                                <label for="id_barang" class="form-control-label">Nama
-                                                                    Barang<span style="color: red">*</span></label>
+                                                                <label for="qr_barang" class="form-control-label">
+                                                                    <i class="mr-2 fa fa-qrcode"></i>Scan QRCode Barang
+                                                                    <sup class="text-success">*</sup>
+                                                                </label>
+                                                                <input id="qr_barang" type="text" class="form-control"
+                                                                    placeholder="Gunakan alat Scan QRCode" readonly
+                                                                    onfocus="this.removeAttribute('readonly');"
+                                                                    onblur="this.setAttribute('readonly', true);">
+                                                                <input type="hidden" id="hidden_qr">
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-11">
+                                                            <div class="form-group">
+                                                                <label for="id_barang" class="form-control-label">
+                                                                    <i class="mr-2 fa fa-hand-pointer"></i>QRCode Barang
+                                                                    <sup class="text-success">*</sup>
+                                                                </label>
                                                                 <select class="form-control select2" name="id_barang"
                                                                     id="id_barang"></select>
                                                             </div>
@@ -227,7 +246,7 @@
 @endsection
 
 @section('asset_js')
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/js/tom-select.complete.min.js"></script>
+    <script src="{{ asset('js/flatpickr.js') }}"></script>
 @endsection
 
 @section('js')
@@ -261,6 +280,43 @@
             });
         }
 
+        async function setDatePicker() {
+            flatpickr("#tgl_kirim", {
+                dateFormat: "Y-m-d",
+                defaultDate: new Date(),
+                minDate: "today",
+                allowInput: true,
+                position: "above",
+                onDayCreate: (dObj, dStr, fp, dayElem) => {
+                    dayElem.addEventListener('click', () => {
+                        fp.calendarContainer.querySelectorAll('.selected').forEach(el => {
+                            el.style.backgroundColor = "#1abc9c";
+                            el.style.color = "#fff";
+                        });
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            let debounceTimer;
+
+            $('#qr_barang').focus();
+
+            $(document).on('click', function(event) {
+                let target = $(event.target);
+
+                if (target.is('input, select, textarea')) {
+                    clearTimeout(debounceTimer);
+                    return;
+                }
+
+                debounceTimer = setTimeout(function() {
+                    $('#qr_barang').focus();
+                }, 2000);
+            });
+        });
+
         function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
             if (!$(isParameter).find('option[value=""]').length) {
                 $(isParameter).prepend('<option value=""></option>');
@@ -276,8 +332,55 @@
         }
 
         function addData() {
+            let qrInput = document.getElementById('qr_barang');
+            let hiddenQrInput = document.getElementById('hidden_qr');
+
+            qrInput.addEventListener('keypress', async function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+
+                    let qrCode = qrInput.value.trim();
+                    if (!qrCode) return;
+
+                    try {
+                        let response = await renderAPI('GET', '{{ route('master.barangKirim') }}', {
+                            page: 1,
+                            limit: 30,
+                            ascending: 1,
+                            search: qrCode,
+                            id_toko: '{{ auth()->user()->id }}',
+                        });
+
+                        if (response.status === 200 && response.data.data) {
+                            let idBarang = response.data.data[0].id;
+
+                            if (!idBarang) {
+                                notificationAlert('error', 'Error', 'Barang tidak ditemukan!');
+                                return;
+                            }
+
+                            $('#hidden_qr').val(idBarang);
+                            document.getElementById('add-item-detail').click();
+                        } else {
+                            notificationAlert('error', 'Error',
+                                'QR Code tidak valid atau barang tidak ditemukan.');
+                        }
+                    } catch (error) {
+                        notificationAlert('error', 'Error', 'Terjadi kesalahan saat mencari barang.');
+                    }
+
+                    qrInput.value = '';
+                    hiddenQrInput.value = '';
+                }
+            });
+
             document.getElementById('add-item-detail')?.addEventListener('click', async function() {
                 let idBarang = document.getElementById('id_barang').value.trim();
+                let hiddenQr = document.getElementById('hidden_qr').value.trim();
+
+                if (!idBarang) {
+                    idBarang = hiddenQr;
+                }
 
                 if (!idBarang) {
                     notificationAlert('error', 'Error', 'Harap pilih barang dengan benar!');
@@ -319,7 +422,7 @@
                         if (newQty > maxQty) {
                             notificationAlert('error', 'Error',
                                 `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
-                                );
+                            );
                             return;
                         }
 
@@ -366,7 +469,7 @@
                                 newQty = maxQty;
                                 notificationAlert('error', 'Error',
                                     `Maksimum Barang: ${item.nama_barang} (Stock: ${maxQty}) dari Supplier: ${item.nama_supplier} sudah tercapai!`
-                                    );
+                                );
                             }
 
                             qtyInput.value = newQty;
@@ -617,6 +720,7 @@
         }
 
         async function initPageLoad() {
+            await setDatePicker();
             await selectData(selectOptions);
             await selectFormat('#toko_pengirim', 'Pilih Toko');
             await selectFormat('#nama_pengirim', 'Pilih Pengirim');

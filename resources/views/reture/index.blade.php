@@ -341,7 +341,7 @@
 
             let status = ''
             if (data.status == 'done') {
-                status = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Sukses</span>`;
+                status = `<span class="badge custom-badge badge-success"><i class="fa fa-circle-check mx-1"></i>Sukses</span>`;
                 if (data.action === 'edit_detail') {
                     edit_button = `
                     <button class="p-1 btn detail-data action_button"
@@ -361,7 +361,7 @@
                 }
             } else if (data.status == 'pending') {
                 if (data.action === 'edit_temp') {
-                    status = `<span class="badge badge-info"><i class="fa fa-circle-half-stroke mr-1"></i>Pending</span>`;
+                    status = `<span class="badge custom-badge badge-info"><i class="fa fa-circle-half-stroke mx-1"></i>Pending</span>`;
                     edit_button = `
                     <button class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
@@ -377,7 +377,7 @@
                         </div>
                     </button>`;
                 } else if (data.action === 'edit_detail') {
-                    status = `<span class="badge badge-warning"><i class="fa fa-spinner mr-1"></i>Proses</span>`;
+                    status = `<span class="badge custom-badge badge-warning"><i class="fa fa-spinner mx-1"></i>Proses</span>`;
                     edit_button = `
                     <button class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
