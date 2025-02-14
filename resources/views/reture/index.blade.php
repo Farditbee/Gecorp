@@ -54,6 +54,7 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
+                                                <th class="text-wrap align-top">Nama Member</th>
                                                 <th class="text-wrap align-top">Tanggal Reture</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Action</th>
@@ -424,6 +425,7 @@
                 id: data?.id ?? '-',
                 no_nota: data?.no_nota ?? '-',
                 tgl_retur: data?.tgl_retur ?? '-',
+                nama_member: data?.nama_member ?? '-',
                 status,
                 action_buttons,
             };
@@ -442,6 +444,7 @@
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
                         <td class="${classCol}">${element.no_nota}</td>
+                        <td class="${classCol}">${element.nama_member}</td>
                         <td class="${classCol}">${element.tgl_retur}</td>
                         <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">${element.action_buttons}</td>
