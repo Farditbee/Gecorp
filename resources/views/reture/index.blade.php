@@ -276,7 +276,7 @@
         let rowCount = 0;
         let dataTemp = {};
         let globalIdMember = null;
-        let barcodeResponses = {};
+        let qrCodeResponses = {};
 
         let title = 'Reture';
         let defaultLimitPage = 10;
@@ -760,54 +760,54 @@
 
             if (selectedValue === 'Barang') {
                 const barangInputHtml = `
-                <small class="font-weight-bold text-danger">Silahkan masukkan Barcode Barang</small>
+                <small class="font-weight-bold text-danger">Silahkan masukkan QRCode Barang</small>
                 <div class="d-flex align-items-center">
-                    <input id="barcode-${rowId}" type="text" name="barcode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan Barcode" required>
-                    <button id="barcode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
-                        title="Submit Pencarian Barcode Barang">
+                    <input id="qrCode-${rowId}" type="text" name="qrCode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan QRCode" required>
+                    <button id="qrCode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Submit Pencarian QRCode Barang">
                         <i class="fa fa-magnifying-glass"></i>Cari
                     </button>
                 </div>`;
 
                 barangContainer.innerHTML = barangInputHtml;
 
-                const searchButton = document.getElementById(`barcode-search-${rowId}`);
+                const searchButton = document.getElementById(`qrCode-search-${rowId}`);
                 searchButton.addEventListener('click', async () => {
-                    const barcodeInput = document.getElementById(`barcode-${rowId}`);
-                    const barcode = barcodeInput.value;
+                    const qrCodeInput = document.getElementById(`qrCode-${rowId}`);
+                    const qrCode = qrCodeInput.value;
 
-                    if (barcode.trim()) {
+                    if (qrCode.trim()) {
                         const id_barang = data_id_barang || '';
                         const id_transaksi = data_id_transaksi || '';
                         const customFilter3 = {
-                            barcode: barcode,
+                            qrCode: qrCode,
                             id_barang: id_barang,
                             id_transaksi: id_transaksi,
                             rowId: rowId
                         };
 
-                        const response = await getDataBarcode(customFilter3);
+                        const response = await getDataQrCode(customFilter3);
 
                         if (response && response?.status === 200) {
-                            barcodeResponses[rowId] = response.data.data;
+                            qrCodeResponses[rowId] = response.data.data;
                             $('.qty-input').attr('max', data_qty || 0);
                         } else {
                             notificationAlert('error', 'Error', response.message);
                         }
                     } else {
                         notificationAlert('error', 'Error',
-                            'Silahkan masukkan Barcode Barang terlebih dahulu');
+                            'Silahkan masukkan QRCode Barang terlebih dahulu');
                     }
                 });
             } else if (selectedValue === 'Cash') {}
         }
 
 
-        async function getDataBarcode(customFilter3 = {}) {
+        async function getDataQrCode(customFilter3 = {}) {
             let filterParams = {};
 
-            if (customFilter3['barcode']) {
-                filterParams.barcode = customFilter3['barcode'];
+            if (customFilter3['qrcode']) {
+                filterParams.qrcode = customFilter3['qrcode'];
             }
 
             if (customFilter3['id_barang']) {
@@ -820,7 +820,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.getreturebarcode') }}', {
+                '{{ route('master.getretureqrcode') }}', {
                     id_toko: '{{ auth()->user()->id_toko }}',
                     ...filterParams
                 }
@@ -881,7 +881,6 @@
                 notificationAlert('error', 'Kesalahan', errorMessage);
             }
         }
-
 
         function updateTableHeaders(action, status = null) {
             const table = document.querySelector('.table-custom');
@@ -1287,7 +1286,7 @@
                 } else if (action === 'origin') {
                     let url = actionUrl;
 
-                    let barcodeDataArray = {
+                    let qrCodeDataArray = {
                         nama_barang: [],
                         stock_toko_qty: [],
                         hpp_baru: [],
@@ -1316,37 +1315,37 @@
                     formData.metode.forEach((metode, index) => {
                         if (metode === 'Barang') {
                             const rowId = `row-${index + 1}`;
-                            const barcodeData = barcodeResponses[rowId];
+                            const qrCodeData = qrCodeResponses[rowId];
 
                             const rowElement = document.getElementById(rowId);
                             const qtyInput = rowElement ? rowElement.querySelector('.qty-input') :
                                 null;
 
-                            if (barcodeData) {
-                                barcodeDataArray.nama_barang.push(barcodeData.nama_barang || '');
-                                barcodeDataArray.stock_toko_qty.push(barcodeData.stock_toko_qty ||
+                            if (qrCodeData) {
+                                qrCodeDataArray.nama_barang.push(qrCodeData.nama_barang || '');
+                                qrCodeDataArray.stock_toko_qty.push(qrCodeData.stock_toko_qty ||
                                     0);
-                                barcodeDataArray.hpp_baru.push(barcodeData.hpp_baru || 0);
-                                barcodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
+                                qrCodeDataArray.hpp_baru.push(qrCodeData.hpp_baru || 0);
+                                qrCodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
                             } else {
-                                barcodeDataArray.nama_barang.push('');
-                                barcodeDataArray.stock_toko_qty.push(0);
-                                barcodeDataArray.hpp_baru.push(0);
-                                barcodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
+                                qrCodeDataArray.nama_barang.push('');
+                                qrCodeDataArray.stock_toko_qty.push(0);
+                                qrCodeDataArray.hpp_baru.push(0);
+                                qrCodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
                             }
                         } else {
-                            barcodeDataArray.nama_barang.push('');
-                            barcodeDataArray.stock_toko_qty.push(0);
-                            barcodeDataArray.hpp_baru.push(0);
-                            barcodeDataArray.stock_qty.push(0);
+                            qrCodeDataArray.nama_barang.push('');
+                            qrCodeDataArray.stock_toko_qty.push(0);
+                            qrCodeDataArray.hpp_baru.push(0);
+                            qrCodeDataArray.stock_qty.push(0);
                         }
                     });
 
                     formData = {
                         ...formData,
-                        ...barcodeDataArray
+                        ...qrCodeDataArray
                     };
 
                     try {
