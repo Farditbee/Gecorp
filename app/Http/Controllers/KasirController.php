@@ -265,20 +265,22 @@ class KasirController extends Controller
         'id_member' => 'required|string',
     ]);
 
-    $id_barang_input = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
+    $id_barang = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
     $memberId = $request->input('id_member');
 
     // Pastikan format id_barang benar (harus mengandung "/")
-    if (!str_contains($id_barang_input, '/')) {
+    if (!str_contains($id_barang, '/')) {
         return response()->json(['error' => 'Format id_barang tidak valid. Gunakan format qrcode/id_detail.'], 400);
     }
 
     // Pisahkan QR Code dan id_detail
-    list($qrCode, $id_detail) = explode('/', $id_barang_input) + [null, null];
+    list($qrCode, $idBarangs) = explode('/', $id_barang) + [null, null];
 
     try {
         // 1. Cari barang berdasarkan QR Code di tabel DetailPembelianBarang
-        $barangDetail = DetailPembelianBarang::where('qrcode', $qrCode)->first();
+        $barangDetail = DetailPembelianBarang::where('qrcode', $qrCode)
+                                            ->where('id_barang', $idBarangs)
+                                            ->first();
 
         if (!$barangDetail) {
             return response()->json(['error' => 'Barang tidak ditemukan berdasarkan QR Code.'], 404);
@@ -292,8 +294,10 @@ class KasirController extends Controller
             return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
         }
 
+        $stockToko = DetailToko::where('qrcode', $barangDetail->qrcode)->first();
+
         // 3. Ambil stok barang dari frontend (sudah di-handle di depan)
-        $stock = $barangDetail->stock ?? 0; // Pastikan stok tetap tersedia dalam response
+        $stock = $stockToko->qty ?? 0; // Pastikan stok tetap tersedia dalam response
 
         // 4. Parsing level harga barang (format JSON jika string)
         $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;

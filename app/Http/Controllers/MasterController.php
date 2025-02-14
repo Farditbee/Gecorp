@@ -402,7 +402,7 @@ class MasterController extends Controller
         $mappedData = $data->map(function ($item) {
             return [
                 'id' => $item->qrcode . '/'. $item->id_barang,
-                'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier} / QRcode: {$item->qrcode}",
+                'text' => "{$item->nama_barang} / Sisa Stock: ({$item->qty}) /  QRcode: {$item->qrcode}",
             ];
         });
     
