@@ -107,6 +107,7 @@ class RetureController extends Controller
                             "tipe_transaksi" => "Kasir",
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
                             "harga" => $detailKasir->harga - $diskon,
+                            "qrcode" => $detailKasir->qrcode,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
                             "qty" => $detailKasir->qty - $reture_qty,
                         ],
@@ -722,7 +723,6 @@ class RetureController extends Controller
             ], 500);
         }
     }
-
 
     public function getRetureQrcode(Request $request)
     {
