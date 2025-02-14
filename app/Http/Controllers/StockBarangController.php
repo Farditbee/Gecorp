@@ -39,9 +39,9 @@ class StockBarangController extends Controller
         if ($idToko == 1) {
             $query->orderBy('stock', $meta['orderBy']);
         } else {
-            $query->with(['detailToko' => function ($q) use ($idToko, $meta) {
-                $q->where('id_toko', $idToko)->orderBy('qty', $meta['orderBy']);
-            }]);
+            $query->withSum(['detailToko as total_qty' => function ($q) use ($idToko) {
+                $q->where('id_toko', $idToko);
+            }], 'qty');
         }
 
         // Tambahkan filter pencarian jika ada
@@ -89,7 +89,7 @@ class StockBarangController extends Controller
                     'id_barang' => $item->barang->id ?? null,
                     'nama_barang' => $item->barang->nama_barang ?? null,
                     'hpp_baru' => $item->hpp_baru,
-                    'stock' => $detailToko->qty ?? 0,
+                    'stock' => $item->total_qty ?? 0,
                 ];
             }
         });

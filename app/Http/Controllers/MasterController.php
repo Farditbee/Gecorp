@@ -280,7 +280,7 @@ class MasterController extends Controller
                 ->select('supplier.nama_supplier', 'barang.nama_barang', 'detail_stock.qty_now as qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
         } else {
             $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
-                ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
+                ->join('detail_pembelian_barang as dt_barang', 'detail_toko.qrcode', '=', 'dt_barang.qrcode')
                 ->where('detail_toko.id_toko', $id_toko)
                 ->select('detail_toko.id_barang', 'barang.nama_barang', 'detail_toko.qty', 'dt_barang.qrcode', 'dt_barang.id as id_detail');
         }
@@ -338,81 +338,81 @@ class MasterController extends Controller
     }
 
     public function getBarangKasir(Request $request)
-{
-    $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-    $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-
-    $id_toko = $request->id_toko;
-
-    if (!$id_toko) {
-        return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'ID Toko harus diisi',
-        ], 400);
-    }
-
-    $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
-        ->join('supplier', 'detail_toko.id_supplier', '=', 'supplier.id')
-        ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
-        ->where('detail_toko.id_toko', $id_toko)
-        ->select(
-            'detail_toko.id',
-            'detail_toko.id_supplier',
-            'supplier.nama_supplier',
-            'detail_toko.id_toko',
-            'detail_toko.id_barang',
-            'barang.nama_barang',
-            'detail_toko.qty',
-            'detail_toko.harga',
-            'dt_barang.qrcode'
-        );
-
-    if (!empty($request['search'])) {
-        $searchTerm = trim(strtolower($request['search']));
-
-        $query->where(function ($query) use ($searchTerm) {
-            $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
-        });
-    } else {
-        return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'Silahkan masukkan qrcode',
-        ], 400);
-    }
-
-    $data = $query->paginate($meta['limit']);
-
-    $paginationMeta = [
-        'total'        => $data->total(),
-        'per_page'     => $data->perPage(),
-        'current_page' => $data->currentPage(),
-        'total_pages'  => $data->lastPage()
-    ];
-
-    if ($data->isEmpty()) {
-        return response()->json([
-            'status_code' => 400,
-            'errors' => true,
-            'message' => 'Tidak ada data',
-        ], 400);
-    }
-
-    $mappedData = $data->map(function ($item) {
-        return [
-            'id' => $item->qrcode . '/'. $item->id_barang,
-            'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier} / QRcode: {$item->qrcode}",
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+    
+        $id_toko = $request->id_toko;
+    
+        if (!$id_toko) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'ID Toko harus diisi',
+            ], 400);
+        }
+    
+        $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
+            ->join('supplier', 'detail_toko.id_supplier', '=', 'supplier.id')
+            ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
+            ->where('detail_toko.id_toko', $id_toko)
+            ->select(
+                'detail_toko.id',
+                'detail_toko.id_supplier',
+                'supplier.nama_supplier',
+                'detail_toko.id_toko',
+                'detail_toko.id_barang',
+                'barang.nama_barang',
+                'detail_toko.qty',
+                'detail_toko.harga',
+                'dt_barang.qrcode'
+            );
+    
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+    
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
+            });
+        } else {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Silahkan masukkan qrcode',
+            ], 400);
+        }
+    
+        $data = $query->paginate($meta['limit']);
+    
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
         ];
-    });
-
-    return response()->json([
-        'data' => $mappedData,
-        'status_code' => 200,
-        'errors' => false,
-        'message' => 'Berhasil',
-        'pagination' => $paginationMeta
-    ], 200);
-}
-
+    
+        if ($data->isEmpty()) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data',
+            ], 400);
+        }
+    
+        $mappedData = $data->map(function ($item) {
+            return [
+                'id' => $item->qrcode . '/'. $item->id_barang,
+                'text' => "{$item->nama_barang} / Harga: ({$item->harga}) / Sisa Stock: ({$item->qty}) / Supplier: {$item->nama_supplier} / QRcode: {$item->qrcode}",
+            ];
+        });
+    
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $paginationMeta
+        ], 200);
+    }
+    
 }
