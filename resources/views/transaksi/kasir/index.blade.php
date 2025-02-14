@@ -855,84 +855,128 @@
                 memberSelect.prop('disabled', tableBody.children.length > 0);
             }
 
+            let hargaBarangTerpilih = {};
+
             addButton.addEventListener('click', function() {
                 const idBarang = barangSelect.val();
                 const selectedBarang = barangSelect.find(':selected');
                 const selectedHarga = hargaSelect.val();
-                const qty = 1;
                 const stock = parseInt(selectedBarang.data('stock'));
                 const harga = parseInt(selectedHarga);
+                const qty = 1;
 
-                if (qty > getStock) {
-                    notificationAlert('error', 'Error', 'Stock barang tidak cukup');
-                    return;
-                }
-
-                if (!idBarang || !selectedHarga || !qty) {
+                if (!idBarang || !selectedHarga) {
                     notificationAlert('error', 'Error', 'Silakan lengkapi semua data sebelum menambahkan.');
                     return;
                 }
 
-                let totalHarga = harga * qty;
-                subtotal += totalHarga;
-                subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+                let existingRow = null;
+                tableBody.querySelectorAll('tr').forEach(row => {
+                    const rowIdBarang = row.querySelector('input[name="id_barang[]"]').value;
+                    if (rowIdBarang === idBarang) {
+                        existingRow = row;
+                    }
+                });
 
-                const newRow = document.createElement('tr');
-                newRow.innerHTML = `
-                    <td><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash"></i></button></td>
-                    <td></td>
-                    <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
-                    <td>
-                        <input type="number" class="form-control qty-input" name="qty[]" value="${qty}" min="1" max="${getStock}">
-                        <small class="text-danger">Max: ${getStock}</small>
-                    </td>
-                    <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
-                    <td class="total-harga">Rp ${totalHarga.toLocaleString()}</td>
-                `;
-                tableBody.appendChild(newRow);
+                if (existingRow) {
+                    if (hargaBarangTerpilih[idBarang] !== undefined && hargaBarangTerpilih[idBarang] !== harga) {
+                        notificationAlert('error', 'Error',
+                            'Harga barang harus sama dengan harga pertama yang dipilih.');
+                        return;
+                    }
+
+                    const qtyInput = existingRow.querySelector('.qty-input');
+                    let currentQty = parseInt(qtyInput.value);
+                    let newQty = currentQty + 1;
+
+                    if (newQty > getStock) {
+                        notificationAlert('error', 'Error', 'Stock barang tidak cukup');
+                        return;
+                    }
+
+                    qtyInput.value = newQty;
+                    let totalHarga = harga * newQty;
+
+                    subtotal += harga;
+                    existingRow.querySelector('.total-harga').textContent = `Rp ${totalHarga.toLocaleString()}`;
+                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+
+                } else {
+                    if (hargaBarangTerpilih[idBarang] === undefined) {
+                        hargaBarangTerpilih[idBarang] = harga;
+                    } else if (hargaBarangTerpilih[idBarang] !== harga) {
+                        notificationAlert('error', 'Error',
+                            'Harga barang harus sama dengan harga pertama yang dipilih.');
+                        return;
+                    }
+
+                    let totalHarga = harga * qty;
+                    subtotal += totalHarga;
+                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+
+                    const newRow = document.createElement('tr');
+                    newRow.innerHTML = `
+                        <td class="text-center"><button type="button" class="btn btn-danger btn-sm remove-btn"><i class="fa fa-trash-alt"></i></button></td>
+                        <td class="text-center"></td>
+                        <td><input type="hidden" name="id_barang[]" value="${idBarang}">${selectedBarang.text()}</td>
+                        <td>
+                            <input type="number" class="form-control qty-input" name="qty[]" value="${qty}" min="1" max="${getStock}">
+                            <small class="text-danger">Max: ${getStock}</small>
+                        </td>
+                        <td><input type="hidden" name="harga[]" value="${harga}">Rp ${harga.toLocaleString()}</td>
+                        <td class="total-harga">Rp ${totalHarga.toLocaleString()}</td>
+                    `;
+                    tableBody.appendChild(newRow);
+
+                    const qtyInput = newRow.querySelector('.qty-input');
+
+                    qtyInput.addEventListener('input', function() {
+                        let newQty = parseInt(this.value) || 1;
+                        newQty = Math.min(Math.max(1, newQty), getStock);
+                        this.value = newQty;
+
+                        let newTotalHarga = harga * newQty;
+                        subtotal += newTotalHarga - totalHarga;
+                        totalHarga = newTotalHarga;
+
+                        newRow.querySelector('.total-harga').textContent =
+                            `Rp ${totalHarga.toLocaleString()}`;
+                        subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+                        updateKembalian();
+                    });
+
+                    qtyInput.addEventListener('blur', function() {
+                        if (parseInt(this.value) < 1 || isNaN(this.value)) {
+                            this.value = 1;
+                        }
+                    });
+
+                    newRow.querySelector('.remove-btn').addEventListener('click', function() {
+                        subtotal -= totalHarga;
+                        subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
+                        newRow.remove();
+
+                        // Cek apakah semua baris dengan idBarang ini sudah dihapus
+                        const remainingRows = Array.from(tableBody.querySelectorAll('tr')).filter(row =>
+                            row.querySelector('input[name="id_barang[]"]')?.value === idBarang
+                        );
+
+                        if (remainingRows.length === 0) {
+                            delete hargaBarangTerpilih[
+                            idBarang]; // Hapus batasan harga jika semua item dihapus
+                        }
+
+                        updateRowNumbers();
+                        toggleMemberSelectDisabled();
+                        updateKembalian();
+                    });
+
+                    updateRowNumbers();
+                    toggleMemberSelectDisabled();
+                }
 
                 barangSelect.val(null).trigger('change');
                 hargaSelect.val(null).trigger('change');
-
-                const qtyInput = newRow.querySelector('.qty-input');
-
-                qtyInput.addEventListener('input', function() {
-                    let newQty = parseInt(this.value) || 1;
-
-                    newQty = Math.max(1, newQty);
-
-                    if (newQty > getStock) {
-                        newQty = getStock;
-                    }
-
-                    this.value = newQty;
-
-                    let newTotalHarga = harga * newQty;
-                    subtotal += newTotalHarga - totalHarga;
-                    totalHarga = newTotalHarga;
-
-                    newRow.querySelector('.total-harga').textContent = `Rp ${totalHarga.toLocaleString()}`;
-                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
-                    updateKembalian();
-                });
-
-                qtyInput.addEventListener('blur', function() {
-                    if (parseInt(this.value) < 1 || isNaN(this.value)) {
-                        this.value = 1;
-                    }
-                });
-
-                newRow.querySelector('.remove-btn').addEventListener('click', function() {
-                    subtotal -= totalHarga;
-                    subtotalFooter.textContent = `Rp ${subtotal.toLocaleString()}`;
-                    newRow.remove();
-                    updateRowNumbers();
-                    toggleMemberSelectDisabled();
-                    updateKembalian();
-                });
-
-                updateRowNumbers();
-                toggleMemberSelectDisabled();
             });
 
             document.querySelector('form').addEventListener('submit', function() {
