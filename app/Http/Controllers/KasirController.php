@@ -297,8 +297,8 @@ class KasirController extends Controller
             }
 
             $stockToko = DetailToko::where('qrcode', $barangDetail->qrcode)
-                                    ->where('id_toko', $user->id_toko)
-                                    ->first();
+                ->where('id_toko', $user->id_toko)
+                ->first();
 
             // 3. Ambil stok barang dari frontend (sudah di-handle di depan)
             $stock = $stockToko->qty ?? 0; // Pastikan stok tetap tersedia dalam response
@@ -428,7 +428,10 @@ class KasirController extends Controller
                 $id_barang_final = end($id_barang_parts); // Ambil bagian terakhir setelah "/"
 
                 // Ambil id_detail_pembelian berdasarkan qrcode
-                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "%{$id_barang}%")->first();
+                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "{$barcode}%") // Ambil berdasarkan barcode
+                    ->where('id_barang', $id_barang_final) // Pastikan id_barang cocok
+                    ->first();
+
                 $id_detail_pembelian = $detailPembelian ? $detailPembelian->id : null;
 
                 // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
@@ -540,7 +543,6 @@ class KasirController extends Controller
             ], 500);
         }
     }
-
 
     // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
     private function fillArrayToMatchCount(array $array, int $count)
