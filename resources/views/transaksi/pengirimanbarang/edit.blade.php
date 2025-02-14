@@ -91,7 +91,6 @@
                             </div>
                             <div class="row">
                                 <div class="col-12">
-                                    <h5><i class="fa fa-circle-check text-primary mr-2"></i>Verifikasi Pengiriman Barang</h5>
                                     <div class="table-responsive-md">
                                         <table class="table table-bordered">
                                             <thead>
@@ -119,29 +118,33 @@
                                                     <input type="hidden" name="detail_ids[{{ $detail->id }}]"
                                                         value="{{ $detail->id }}">
                                                     <tr>
-                                                        <td class="text-wrap text-center">
-                                                            @if (
-                                                                $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
-                                                                    $pengiriman_barang->status !== 'success' &&
-                                                                    $detail->status !== 'success')
+                                                        @if (
+                                                            $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
+                                                                $pengiriman_barang->status !== 'success' &&
+                                                                $detail->status !== 'success')
+                                                            <td class="text-wrap text-center">
                                                                 <input type="checkbox" data-id="{{ $detail->id }}"
                                                                     value=""
                                                                     class="neumorphic-checkbox status-check mr-2">
-                                                            @elseif (
-                                                                $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
-                                                                    $pengiriman_barang->status !== 'success' &&
-                                                                    $detail->status == 'success')
+                                                            </td>
+                                                        @elseif (
+                                                            $pengiriman_barang->toko_penerima == auth()->user()->id_toko &&
+                                                                $pengiriman_barang->status !== 'success' &&
+                                                                $detail->status == 'success')
+                                                            <td class="text-wrap text-center">
                                                                 <input type="checkbox" data-id="{{ $detail->id }}"
                                                                     checked disabled value="{{ $detail->status }}"
                                                                     class="neumorphic-checkbox mr-2">
-                                                            @endif
-                                                        </td>
+                                                            </td>
+                                                        @endif
                                                         <td class="text-center">{{ $loop->iteration }}</td>
                                                         <td class="text-wrap">
                                                             @if ($detail->status == 'success')
-                                                                <span class="badge badge-success"><i class="mr-1 fa fa-circle-check"></i>Sukses</span>
+                                                                <span class="badge badge-success"><i
+                                                                        class="mr-1 fa fa-circle-check"></i>Sukses</span>
                                                             @elseif($detail->status == 'progress')
-                                                                <span class="badge badge-warning"><i class="mr-1 fa fa-spinner"></i>Proses</span>
+                                                                <span class="badge badge-warning"><i
+                                                                        class="mr-1 fa fa-spinner"></i>Proses</span>
                                                             @else
                                                                 <span class="badge badge-secondary">Tidak Diketahui</span>
                                                             @endif
@@ -159,7 +162,7 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <th scope="col" colspan="7" class="text-right text-wrap">SubTotal
+                                                    <th scope="col" colspan="{{ $pengiriman_barang->status !== 'success' ? '7' : '6' }}" class="text-right text-wrap">SubTotal
                                                     </th>
                                                     <th class="text-nowrap text-right" scope="col">Rp
                                                         {{ number_format(
