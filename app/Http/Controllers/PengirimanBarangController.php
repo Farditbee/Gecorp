@@ -456,6 +456,12 @@ class PengirimanBarangController extends Controller
         if ($pengiriman_barang->toko_penerima !== $userTokoId) {
             abort(403, 'Anda bukan dari toko penerima dari data Pengiriman Barang ini.');
         }
+
+        if ($pengiriman_barang->status === 'success') {
+            $text = 'Data dengan Nomor Resi: ' . $pengiriman_barang->no_resi . ' Sudah Diverifikasi';
+            abort(403, $text);
+        }
+
         return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
     }
 
