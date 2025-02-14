@@ -648,9 +648,11 @@
             return Array.from(rows).map(row => {
                 const idBarang = row.querySelector('input[name="id_barang[]"]')?.value;
                 const idTransaksi = row.querySelector('input[name="id_transaksi[]"]')?.value;
+                const qrCode = row.querySelector('input[name="qrcode[]"]')?.value;
                 return {
                     idBarang,
-                    idTransaksi
+                    idTransaksi,
+                    qrCode
                 };
             });
         }
@@ -687,6 +689,7 @@
                 <td class="text-wrap align-top">
                     <input type="text" name="nama_barang[]" value="${data.nama_barang || ''}" class="form-control" readonly required>
                     <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                    <input type="hidden" name="qrcode[]" value="${data.qrcode || ''}" class="form-control" readonly required>
                 </td>
                 <td class="text-wrap align-top text-center">
                     <button class="btn btn-sm btn-outline-secondary move-icon" style="cursor: grab;"><i class="fa fa-up-down mx-1"></i></button>
@@ -780,7 +783,7 @@
                         const id_barang = data_id_barang || '';
                         const id_transaksi = data_id_transaksi || '';
                         const customFilter3 = {
-                            qrCode: qrCode,
+                            qrcode: qrCode,
                             id_barang: id_barang,
                             id_transaksi: id_transaksi,
                             rowId: rowId
