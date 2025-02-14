@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
+use App\Models\DetailPembelianBarang;
 use App\Models\DetailRetur;
+use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
 use App\Models\Kasir;
 use App\Models\Member;
@@ -71,6 +73,14 @@ class RetureController extends Controller
                     }
 
                     $barang = Barang::find($detailKasir->id_barang);
+
+                    if ($barang->garansi == "No") {
+                        return response()->json([
+                            "error" => true,
+                            "message" => "Barang tidak bisa di Reture karena tidak ada garansi",
+                            "status_code" => 400,
+                        ], 400);
+                    }
 
                     $diskon = $detailKasir->diskon ?? 0;
                     $reture_qty = $detailKasir->reture_qty ?? 0;
@@ -714,35 +724,37 @@ class RetureController extends Controller
     }
 
 
-    public function getRetureBarcode(Request $request)
+    public function getRetureQrcode(Request $request)
     {
         try {
-            $barcode = $request->input('barcode');
+            $qrcode = $request->input('qrcode');
             $id_toko = $request->input('id_toko');
             $id_barang = $request->input('id_barang');
-            $id_tranasaksi = $request->input('id_transaksi');
+            $id_transaksi = $request->input('id_transaksi');
 
             // Cek apakah barcode ada di tabel barang
-            $barang = Barang::where('barcode', $barcode)
-                            ->first();
+            $barang = DetailPembelianBarang::where('qrcode', $qrcode)
+                                        ->where('id_barang', $id_barang)
+                                        ->first();
 
-            $detailKasir = DetailKasir::where('id_kasir', $id_tranasaksi)
+            $detailKasir = DetailKasir::where('id_kasir', $id_transaksi)
                                         ->where('id_barang', $id_barang)
                                         ->first();
 
             if (!$barang) {
-                return response()->json(['message' => 'Tidak ada barcode atau barang yang ditemukan'], 404);
+                return response()->json(['message' => 'Tidak ada qrcode atau barang yang ditemukan'], 404);
             }
 
             // Cek apakah id_barang sesuai dengan barcode
-            if ($barang->id != $id_barang) {
-                return response()->json(['message' => 'Barcode tidak sesuai dengan barang'], 400);
+            if ($barang->id_barang != $id_barang) {
+                return response()->json(['message' => 'Qrcode tidak sesuai dengan barang'], 400);
             }
 
             if ($id_toko == 1) {
                 // Cek stok barang di tabel StockBarang
-                $stock = StockBarang::where('id_barang', $id_barang)
-                                    ->first();
+                $stock = DetailStockBarang::where('id_barang', $id_barang)
+                                            ->where('id_detail_pembelian', $barang->id)
+                                            ->first();
 
                 if (!$stock) {
                     return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
@@ -750,8 +762,8 @@ class RetureController extends Controller
 
                 $response_data = [
                     'id_barang' => $stock->id_barang,
-                    'nama_barang' => $barang->nama_barang,
-                    'stock_toko_qty' => $stock->stock,
+                    'nama_barang' => $barang->barang->nama_barang,
+                    'stock_toko_qty' => $stock->qty_now,
                     'hpp_baru' => $detailKasir->hpp_jual,
                 ];
             } elseif ($id_toko != 1) {

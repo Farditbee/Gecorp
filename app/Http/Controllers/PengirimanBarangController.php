@@ -775,11 +775,12 @@ class PengirimanBarangController extends Controller
                     throw new \Exception('Detail Stock not found for id_detail_pembelian: ' . $detailPembelianBarang->id);
                 }
 
-                // Update the qty_now and qty_out
-                $detailStock->qty_now -= $qty;
-                $detailStock->qty_out += $qty;
-                $detailStock->save();
-
+                if (Auth::user()->id_toko == 1) {
+                    $detailStock->qty_now -= $qty;
+                    $detailStock->qty_out += $qty;
+                    $detailStock->save();
+                }
+                
                 DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,

@@ -268,6 +268,8 @@ class KasirController extends Controller
         $id_barang = $request->input('id_barang'); // Contoh: "10022025SP2ID6-1/"
         $memberId = $request->input('id_member');
 
+        $user = Auth::user();
+
         // Pastikan format id_barang benar (harus mengandung "/")
         if (!str_contains($id_barang, '/')) {
             return response()->json(['error' => 'Format id_barang tidak valid. Gunakan format qrcode/id_detail.'], 400);
@@ -294,7 +296,9 @@ class KasirController extends Controller
                 return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
             }
 
-            $stockToko = DetailToko::where('qrcode', $barangDetail->qrcode)->first();
+            $stockToko = DetailToko::where('qrcode', $barangDetail->qrcode)
+                                    ->where('id_toko', $user->id_toko)
+                                    ->first();
 
             // 3. Ambil stok barang dari frontend (sudah di-handle di depan)
             $stock = $stockToko->qty ?? 0; // Pastikan stok tetap tersedia dalam response
