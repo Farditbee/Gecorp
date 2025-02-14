@@ -354,7 +354,7 @@ class MasterController extends Controller
     
         $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
             ->join('supplier', 'detail_toko.id_supplier', '=', 'supplier.id')
-            ->join('detail_pembelian_barang as dt_barang', 'detail_toko.id_barang', '=', 'dt_barang.id_barang')
+            ->join('detail_pembelian_barang as dt_barang', 'detail_toko.qrcode', '=', 'dt_barang.qrcode')
             ->where('detail_toko.id_toko', $id_toko)
             ->select(
                 'detail_toko.id',
