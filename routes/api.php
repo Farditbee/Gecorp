@@ -58,7 +58,7 @@ Route::get('/getbarangs', [BarangController::class, 'getbarangs'])->name('master
 Route::get('/getstockbarang', [StockBarangController::class, 'getstockbarang'])->name('master.getstockbarang');
 Route::get('/getplanorder', [PlanOrderController::class, 'getplanorder'])->name('master.getplanorder');
 Route::get('/getRetureBarang', [RetureController::class, 'getDataReture'])->name('master.getreture');
-Route::get('/getRetureBarcode', [RetureController::class, 'getRetureBarcode'])->name('master.getreturebarcode');
+Route::get('/getRetureQrcode', [RetureController::class, 'getRetureQrcode'])->name('master.getretureqrcode');
 
 Route::get('/getRetureSupplier', [RetureSuplierController::class, 'get'])->name('master.getreturesupplier');
 Route::get('/detailRetureSupplier', [RetureSuplierController::class, 'detailReture'])->name('master.detailReture');
