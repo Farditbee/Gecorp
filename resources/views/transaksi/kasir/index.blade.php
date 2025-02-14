@@ -626,8 +626,7 @@
                 action_buttons = `
                 <div class="d-flex justify-content-start">
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
-                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
-                </div>`;
+\                </div>`;
             } else {
                 action_buttons = `
                 <span class="badge badge-danger">Tidak Ada Aksi</span>`;
