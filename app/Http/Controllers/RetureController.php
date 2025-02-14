@@ -245,6 +245,7 @@ class RetureController extends Controller
 
             $mappedData = $items->map(function ($item) {
                 $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
+                $detailKasir = DetailKasir::where('id_kasir', $kasir->id)->first();
                 $barang = Barang::find($item->id_barang);
                 $retur = DataReture::find($item->id_retur);
 
@@ -257,6 +258,7 @@ class RetureController extends Controller
                     'id_member' => $kasir->member->id ? $kasir->member->id : "Tidak Ditemukan",
                     'no_nota' => $item->no_nota,
                     'qty' => $item->qty,
+                    'qrcode' => $detailKasir->qrcode,
                     'harga' => $item->harga,
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
