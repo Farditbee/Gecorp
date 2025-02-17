@@ -27,6 +27,9 @@ class RetureSuplierController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
         $menu = [$this->title[0], $this->label[3]];
         return view('reture.suplier.index', compact('menu'));
     }
@@ -35,44 +38,44 @@ class RetureSuplierController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-    
+
         $query = DataReture::where('id_supplier', '!=', null);
-    
+
         $query->orderBy('id', $meta['orderBy']);
-    
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-    
+
             $query->where(function ($query) use ($searchTerm) {
                 // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(id_supplier) LIKE ?", ["%$searchTerm%"]);
             });
         }
-    
+
         if ($request->has('startDate') && $request->has('endDate')) {
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
-            
+
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         $query->join('supplier', 'data_retur.id_supplier', '=', 'supplier.id')
                 ->select('data_retur.*', 'supplier.nama_supplier');
-    
+
         $data = $query->paginate($meta['limit']);
-    
+
         $paginationMeta = [
             'total'        => $data->total(),
             'per_page'     => $data->perPage(),
             'current_page' => $data->currentPage(),
             'total_pages'  => $data->lastPage()
         ];
-    
+
         $data = [
             'data' => $data->items(),
             'meta' => $paginationMeta
         ];
-    
+
         if (empty($data['data'])) {
             return response()->json([
                 'status_code' => 400,
@@ -80,7 +83,7 @@ class RetureSuplierController extends Controller
                 'message' => 'Tidak ada data'
             ], 400);
         }
-    
+
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
@@ -91,7 +94,7 @@ class RetureSuplierController extends Controller
                 'status' => $item['status'],
             ];
         });
-    
+
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
@@ -111,16 +114,16 @@ class RetureSuplierController extends Controller
             'metode_reture' => 'required|array',
             'qty_acc' => 'required|array',
         ]);
-    
+
         try {
             DB::beginTransaction();
-    
+
             foreach ($request->id_retur as $index => $idRetur) {
                 $idTransaksi = $request->id_transaksi[$index];
                 $idBarang = $request->id_barang[$index];
                 $metodeReture = $request->metode_reture[$index];
                 $qtyAcc = $request->qty_acc[$index];
-    
+
                 // Update data di tabel detail_retur
                 DetailRetur::where('id_retur', $idRetur)
                     ->where('id_transaksi', $idTransaksi)
@@ -129,20 +132,20 @@ class RetureSuplierController extends Controller
                         'metode_reture' => $metodeReture,
                         'status_reture' => 'success',
                     ]);
-    
+
                 // Jika metode_reture adalah Barang, update stok di tabel stock_barang
                 if ($metodeReture === 'Barang') {
                     StockBarang::where('id_barang', $idBarang)
                                 ->increment('stock', $qtyAcc);
                 }
             }
-    
+
             // Update status di tabel data_retur
             DataReture::where('no_nota', $request->no_nota)
                 ->update(['status' => 'done']);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'status_code' => 200,
                 'errors' => false,
@@ -151,7 +154,7 @@ class RetureSuplierController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating data: ' . $e->getMessage());
-    
+
             return response()->json([
                 'status_code' => 500,
                 'errors' => true,
@@ -167,9 +170,9 @@ class RetureSuplierController extends Controller
         ]);
 
         try {
-    
+
             $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
-    
+
             if ($detailKasir->isEmpty()) {
                 return response()->json([
                     'error' => true,
@@ -182,15 +185,15 @@ class RetureSuplierController extends Controller
                     ->where('status_reture', 'pending')
                     ->get();
             }
-    
+
             // Ambil data barang berdasarkan id_barang dari detailTransaksi
             $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
-    
+
             // Map nama_barang dari koleksi Barang
             $namaBarang = $barang->mapWithKeys(function ($item) {
                 return [$item->id => $item->nama_barang];
             });
-    
+
             // Map detailTransaksi untuk menambahkan nama_barang
             $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
                 return [
@@ -204,7 +207,7 @@ class RetureSuplierController extends Controller
                     'tgl_retur' => $item->tgl_retur,
                 ];
             });
-    
+
             // Return JSON response
             return response()->json([
                 'error' => false,
@@ -214,7 +217,7 @@ class RetureSuplierController extends Controller
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-    
+
             return response()->json([
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server: " . $th->getMessage(),
@@ -232,14 +235,14 @@ class RetureSuplierController extends Controller
         ]);
 
         $user = Auth::user();
-    
+
         try {
             $deleted = DataReture::where('id', $request->id_retur)
                 ->where('id_supplier', $request->id_supplier)
                 ->where('no_nota', $request->no_nota)
                 ->where('id_users', $user->id)
                 ->delete();
-    
+
             if ($deleted) {
                 return response()->json([
                     'status_code' => 200,
@@ -255,7 +258,7 @@ class RetureSuplierController extends Controller
             }
         } catch (\Exception $e) {
             Log::error('Error deleting data: ' . $e->getMessage());
-    
+
             return response()->json([
                 'status_code' => 500,
                 'errors' => true,

@@ -66,7 +66,10 @@
                             class="pcoded-mtext">Transaksi</span>
                     </a>
                     <ul class="pcoded-submenu">
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
+                        @if (Auth::user()->id_level == 1 ||
+                                Auth::user()->id_level == 2 ||
+                                Auth::user()->id_level == 3 ||
+                                Auth::user()->id_level == 4)
                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                 <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
                                             class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
@@ -87,8 +90,8 @@
                             class="pcoded-mtext">Laporan</span></a>
                     <ul class="pcoded-submenu">
                         @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-                        <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index') }}"><i
-                                    class="fa fa-book"></i> Laporan Pembelian</a></li>
+                            <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index') }}"><i
+                                        class="fa fa-book"></i> Laporan Pembelian</a></li>
                         @endif
                         <li><a class="dropdown-item" href="{{ route('laporan.pengiriman.index') }}"><i
                                     class="fa fa-book"></i> Laporan Pengiriman</a></li>
@@ -101,23 +104,27 @@
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('reture.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
-                                class="icon feather icon-rotate-ccw"></i></span><span
+                    <a href="javascript::void(0)"
+                        class="nav-link {{ request()->routeIs('reture.*') ? $nav_link : '' }}"><span
+                            class="pcoded-micon"><i class="icon feather icon-rotate-ccw"></i></span><span
                             class="pcoded-mtext">Reture</span></a>
                     <ul class="pcoded-submenu">
                         <li>
                             <a href="{{ route('reture.index') }}" class="dropdown-item"><i
                                     class="icon feather icon-rotate-cw"></i> Reture Member</a>
                         </li>
-                        <li>
-                            <a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-corner-down-left"></i> Reture Supplier</a>
-                        </li>
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            <li>
+                                <a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
+                                        class="icon feather icon-corner-down-left"></i> Reture Supplier</a>
+                            </li>
+                        @endif
                     </ul>
                 </li>
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)" class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span class="pcoded-micon"><i
-                                class="icon feather icon-folder"></i></span><span
+                    <a href="javascript::void(0)"
+                        class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span
+                            class="pcoded-micon"><i class="icon feather icon-folder"></i></span><span
                             class="pcoded-mtext">Laporan Keuangan</span></a>
                     <ul class="pcoded-submenu">
                         <li>

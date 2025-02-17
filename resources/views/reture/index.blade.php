@@ -29,9 +29,11 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
+                                @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
+                                @endif
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
