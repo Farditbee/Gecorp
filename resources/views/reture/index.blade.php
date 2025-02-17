@@ -731,7 +731,7 @@
                 status =
                     `<span class="badge badge-secondary"><i class="fa fa-circle-check mr-1 text-success"></i>Sukses dengan Metode <b class="badge ${info}">${data.metode || 'Tidak Valid'}</b></span>`;
             } else {
-                status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}', '${data.id_barang}', '${data.qty}', '${data.id_transaksi}')">
+                status = `<select name="metode[]" class="form form-select select2 select-member" onchange="handleMetodeChange(event, '${rowId}', '${data.id_barang}', '${data.qty}', '${data.id_transaksi}', '${data.qrcode}')">
                     <option value="Cash" selected>Cash</option>
                     <option value="Barang">Barang</option>
                 </select>`;
@@ -761,7 +761,7 @@
             tbody.appendChild(tr);
         }
 
-        async function handleMetodeChange(event, rowId, data_id_barang, data_qty, data_id_transaksi) {
+        async function handleMetodeChange(event, rowId, data_id_barang, data_qty, data_id_transaksi, data_qrcode_barang) {
             const selectedValue = event.target.value;
             const row = document.getElementById(rowId);
             const barangContainer = row.querySelector('.barang-container');
@@ -789,8 +789,10 @@
                     if (qrCode.trim()) {
                         const id_barang = data_id_barang || '';
                         const id_transaksi = data_id_transaksi || '';
+                        const qrcode_barang = data_qrcode_barang || '';
                         const customFilter3 = {
                             qrcode: qrCode,
+                            qrcode_barang: qrcode_barang,
                             id_barang: id_barang,
                             id_transaksi: id_transaksi,
                             rowId: rowId
@@ -817,6 +819,10 @@
 
             if (customFilter3['qrcode']) {
                 filterParams.qrcode = customFilter3['qrcode'];
+            }
+
+            if (customFilter3['qrcode_barang']) {
+                filterParams.qrcode_barang = customFilter3['qrcode_barang'];
             }
 
             if (customFilter3['id_barang']) {
