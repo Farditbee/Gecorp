@@ -85,6 +85,8 @@ class RetureController extends Controller
                     $diskon = $detailKasir->diskon ?? 0;
                     $reture_qty = $detailKasir->reture_qty ?? 0;
 
+                    $detail_beli = DetailPembelianBarang::find($detailKasir->id_detail_pembelian);
+
                     // Check if qty - reture_qty equals 0
                     if ($detailKasir->qty - $reture_qty == 0) {
                         return response()->json([
@@ -107,7 +109,7 @@ class RetureController extends Controller
                             "tipe_transaksi" => "Kasir",
                             "nama_member" => $kasir->member ? $kasir->member->nama_member : "Guest",
                             "harga" => $detailKasir->harga - $diskon,
-                            "qrcode" => $detailKasir->qrcode,
+                            "qrcode" => $detail_beli->qrcode,
                             "nama_barang" => $barang ? $barang->nama_barang : "Tidak Ditemukan",
                             "qty" => $detailKasir->qty - $reture_qty,
                         ],
@@ -187,6 +189,7 @@ class RetureController extends Controller
             'id_barang' => 'required|integer',
             'qty' => 'required|integer',
             'harga' => 'required|integer',
+            'qrcode' => 'required|string'
         ]);
 
         $user = Auth::user();
@@ -197,6 +200,7 @@ class RetureController extends Controller
             DB::table('temp_detail_retur')->insert([
                 'id_users' => $user->id,
                 'id_retur' => $request->input('id_retur'),
+                'qrcode' => $request->input('qrcode'),
                 'id_transaksi' => $request->input('id_transaksi'),
                 'id_barang' => $request->input('id_barang'),
                 'no_nota' => $request->input('no_nota'),
@@ -245,7 +249,6 @@ class RetureController extends Controller
 
             $mappedData = $items->map(function ($item) {
                 $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
-                $detailKasir = DetailKasir::where('id_kasir', $kasir->id)->first();
                 $barang = Barang::find($item->id_barang);
                 $retur = DataReture::find($item->id_retur);
 
@@ -258,7 +261,7 @@ class RetureController extends Controller
                     'id_member' => $kasir->member->id ? $kasir->member->id : "Tidak Ditemukan",
                     'no_nota' => $item->no_nota,
                     'qty' => $item->qty,
-                    'qrcode' => $detailKasir->qrcode,
+                    'qrcode' => $item->qrcode,
                     'harga' => $item->harga,
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
@@ -325,6 +328,7 @@ class RetureController extends Controller
                     'id_member' => $kasir->member->id ? $kasir->member->id : "Tidak Ditemukan",
                     'no_nota' => $item->no_nota,
                     'qty' => $item->qty,
+                    'qrcode' => $item->qrcode,
                     'harga' => $item->harga,
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
@@ -457,6 +461,7 @@ class RetureController extends Controller
             'id_barang' => 'required|array',
             'qty' => 'required|array',
             'harga' => 'required|array',
+            'qrcode' => 'required|array'
         ]);
 
         $userId = Auth::user()->id;
@@ -466,6 +471,7 @@ class RetureController extends Controller
         $idBarang = $request->id_barang;
         $qty = $request->qty;
         $harga = $request->harga;
+        $qrcode = $request->qrcode;
 
         try {
             DB::beginTransaction();
@@ -476,6 +482,7 @@ class RetureController extends Controller
                     'id_retur' => $idRetur,
                     'id_transaksi' => $idTrans,
                     'id_barang' => $idBarang[$index],
+                    'qrcode' => $qrcode[$index],
                     'no_nota' => $noNota,
                     'qty' => $qty[$index],
                     'harga' => $harga[$index],
@@ -552,6 +559,7 @@ class RetureController extends Controller
             'id_retur' => 'required|integer',
             'hpp_baru' => 'required|array',
             'stock_qty' => 'required|array',
+            'qrcode_toko' => 'required|array'
         ]);
 
         $metode = $request->metode;
@@ -561,7 +569,7 @@ class RetureController extends Controller
         $id_retur = $request->id_retur;
         $hpp = $request->hpp_baru;
         $stock = $request->stock_qty;
-
+        $qrcode = $request->qrcode_toko;
         $id_users = Auth::user()->id;
         $id_toko = Auth::user()->id_toko;
 
@@ -570,8 +578,11 @@ class RetureController extends Controller
 
             foreach ($id_kasir as $index => $idKasir) {
                 if ($metode[$index] === 'Cash') {
+                    $detailPembelian = DetailPembelianBarang::where('qrcode', $qrcode[$index])->first();
+
                     $detailKasir = DetailKasir::where('id_kasir', $idKasir)
                                                 ->where('id_barang', $id_barang[$index])
+                                                ->where('id_detail_pembelian', $detailPembelian[$index])
                                                 ->first();
 
                     if ($detailKasir) {
@@ -771,6 +782,7 @@ class RetureController extends Controller
             } elseif ($id_toko != 1) {
                 $stock_toko = DetailToko::where('id_toko', $id_toko)
                     ->where('id_barang', $id_barang)
+                    ->where('qrcode', $qrcode)
                     ->first();
 
                 if (!$stock_toko) {
@@ -778,7 +790,7 @@ class RetureController extends Controller
                 }
 
                 if ($stock_toko->qty == 0) {
-                    return response()->json(['message' => 'Barang sedang kosong'], 200);
+                    return response()->json(['message' => 'Barang sedang kosong'], 404);
                 }
 
                 // Ambil hpp_baru dari tabel StockBarang
