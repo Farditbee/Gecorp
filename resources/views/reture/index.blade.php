@@ -1263,6 +1263,9 @@
                         harga: $("input[name='harga[]']").map(function() {
                             return $(this).val();
                         }).get(),
+                        qrcode: $("input[name='qrcode[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
                     };
 
                     let method = 'POST';
@@ -1313,6 +1316,9 @@
                             return $(this).find('td:nth-child(8) span').text().trim();
                         }).get(),
                         id_barang: $("input[name='id_barang[]']").map(function() {
+                            return $(this).val();
+                        }).get(),
+                        qrcode: $("input[name='qrcode[]']").map(function() {
                             return $(this).val();
                         }).get(),
                     };
