@@ -750,6 +750,7 @@
                 <td class="text-wrap align-top">
                     <span>${data.nama_barang || ''}</span>
                     <input type="hidden" name="id_barang[]" value="${data.id_barang || ''}" class="form-control" readonly required>
+                    <input type="hidden" name="qrcode[]" value="${data.qrcode || ''}" class="form-control" readonly required>
                 </td>
             `;
 
@@ -806,7 +807,6 @@
                 });
             } else if (selectedValue === 'Cash') {}
         }
-
 
         async function getDataQrCode(customFilter3 = {}) {
             let filterParams = {};
@@ -977,7 +977,7 @@
                     const existingPairs = getExistingTransactionItemPairs();
 
                     const isDuplicate = existingPairs.some(pair =>
-                        pair.idBarang == data.id_barang && pair.idTransaksi == data.id_transaksi
+                        pair.idBarang == data.id_barang && pair.idTransaksi == data.id_transaksi && pair.qrCode == data.qrcode
                     );
 
                     if (isDuplicate) {
@@ -987,7 +987,7 @@
                             tbody.removeChild(loadingRow);
                         }
                         notificationAlert('info', 'Pemberitahuan',
-                            'Data dengan Nama Barang dan ID Transaksi ini sudah ada.');
+                            'Data dari QRCode ini sudah ada.');
                         return;
                     } else {
                         await addRowToTable(data);

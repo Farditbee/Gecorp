@@ -27,7 +27,8 @@ class PengirimanBarangController extends Controller
             'Pengiriman Barang',
             'Tambah Data',
             'Detail Data',
-            'Edit Data'
+            'Edit Data',
+            'Reture Data',
         ];
     }
 
@@ -780,7 +781,7 @@ class PengirimanBarangController extends Controller
                     $detailStock->qty_out += $qty;
                     $detailStock->save();
                 }
-                
+
                 DetailPengirimanBarang::create([
                     'id_pengiriman_barang' => $id_pengiriman_barang,
                     'id_barang' => $id_barang,
@@ -907,5 +908,19 @@ class PengirimanBarangController extends Controller
             'toko_pengirim' => 'required'
 
         ]);
+    }
+
+    public function returePengiriman() {
+
+        abort_if(!Auth::check() || !in_array(Auth::user()->id_level, [1, 2, 3]), 403, 'Unauthorized');
+
+        $menu = [$this->title[0], $this->label[1], $this->title[4]];
+        $toko = Toko::all();
+        $detail_toko = DetailToko::all();
+        $stock = StockBarang::all();
+
+        $myToko = $toko->where('id', Auth::user()->id_toko)->first();
+
+        return view('transaksi.pengirimanbarang.reture', compact('menu', 'toko', 'stock', 'detail_toko', 'myToko'));
     }
 }
