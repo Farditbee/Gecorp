@@ -25,7 +25,12 @@
                                     data-toggle="tooltip" data-placement="top" title="Tambah Pengiriman Barang">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
-                                <button class="btn-dynamic btn btn-outline-primary mx-2" type="button"
+                                <a href="{{ route('transaksi.pengirimanbarang.reture') }}"
+                                    class="btn btn-warning mb-2 mb-lg-0 text-dark mx-1" data-container="body"
+                                    data-toggle="tooltip" data-placement="top" title="Reture Pengiriman Barang">
+                                    <i class="fa fa-rotate-left"></i> Reture
+                                </a>
+                                <button class="btn-dynamic btn btn-outline-primary" type="button"
                                     data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
                                     aria-controls="filter-collapse"data-container="body" data-toggle="tooltip"
                                     data-placement="top" title="Filter Pengiriman Barang">
