@@ -30,9 +30,9 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
                                 @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
-                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
-                                    <i class="fa fa-plus-circle"></i> Tambah
-                                </button>
+                                    <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data">
+                                        <i class="fa fa-plus-circle"></i> Tambah
+                                    </button>
                                 @endif
                             </div>
 
@@ -344,7 +344,8 @@
 
             let status = ''
             if (data.status == 'done') {
-                status = `<span class="badge custom-badge badge-success"><i class="fa fa-circle-check mx-1"></i>Sukses</span>`;
+                status =
+                    `<span class="badge custom-badge badge-success"><i class="fa fa-circle-check mx-1"></i>Sukses</span>`;
                 if (data.action === 'edit_detail') {
                     edit_button = `
                     <button class="p-1 btn detail-data action_button"
@@ -364,7 +365,8 @@
                 }
             } else if (data.status == 'pending') {
                 if (data.action === 'edit_temp') {
-                    status = `<span class="badge custom-badge badge-info"><i class="fa fa-circle-half-stroke mx-1"></i>Pending</span>`;
+                    status =
+                        `<span class="badge custom-badge badge-info"><i class="fa fa-circle-half-stroke mx-1"></i>Pending</span>`;
                     edit_button = `
                     <button class="p-1 btn edit-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
@@ -380,7 +382,8 @@
                         </div>
                     </button>`;
                 } else if (data.action === 'edit_detail') {
-                    status = `<span class="badge custom-badge badge-warning"><i class="fa fa-spinner mx-1"></i>Proses</span>`;
+                    status =
+                        `<span class="badge custom-badge badge-warning"><i class="fa fa-spinner mx-1"></i>Proses</span>`;
                     edit_button = `
                     <button class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
@@ -634,10 +637,11 @@
                 $("#tambah-tab").removeClass("d-none").addClass("active").attr("aria-selected", "true");
                 $("#tambah").addClass("show active");
 
-                $("#detail-tab").addClass("disabled").removeClass("active").attr("aria-selected", "false").css({
-                    "pointer-events": "none",
-                    "opacity": "0.6"
-                });
+                $("#detail-tab").addClass("disabled").removeClass("active").attr("aria-selected", "false")
+                    .css({
+                        "pointer-events": "none",
+                        "opacity": "0.6"
+                    });
                 $("#detail").removeClass("show active");
                 $("#submit-reture").removeClass("d-none");
                 updateTableHeaders('edit');
@@ -856,7 +860,7 @@
                         stockElement.classList.add('font-weight-bold', 'text-primary', 'stock-info');
                         barangInput.appendChild(stockElement);
                     }
-                    stockElement.textContent = `Stok Barang Tersisa: ${data.stock_toko_qty}`;
+                    stockElement.textContent = `Stock Barang Tersisa: ${data.stock_toko_qty}`;
 
                     let qtyLabel = barangInput.querySelector('.qty-label');
                     if (!qtyLabel) {
@@ -875,6 +879,23 @@
                         qtyElement.name = `qty_barang[]`;
                         qtyElement.classList.add('form-control', 'qty-input');
                         qtyElement.placeholder = 'Masukkan Qty';
+
+                        qtyElement.addEventListener('input', function() {
+                            let min = parseInt(this.min, 10);
+                            let max = parseInt(this.max, 10);
+                            let value = this.value.trim();
+
+                            if (value === "") {
+                                this.value = min;
+                            } else {
+                                value = parseInt(value, 10);
+                                if (value < min) {
+                                    this.value = min;
+                                } else if (value > max) {
+                                    this.value = max;
+                                }
+                            }
+                        });
 
                         barangInput.appendChild(qtyElement);
                     }
@@ -977,7 +998,8 @@
                     const existingPairs = getExistingTransactionItemPairs();
 
                     const isDuplicate = existingPairs.some(pair =>
-                        pair.idBarang == data.id_barang && pair.idTransaksi == data.id_transaksi && pair.qrCode == data.qrcode
+                        pair.idBarang == data.id_barang && pair.idTransaksi == data.id_transaksi && pair.qrCode ==
+                        data.qrcode
                     );
 
                     if (isDuplicate) {
