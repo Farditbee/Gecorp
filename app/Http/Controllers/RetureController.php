@@ -833,9 +833,9 @@ class RetureController extends Controller
             'tgl_retur' => 'required|date',
             'no_nota' => 'required|string',
         ]);
-    
+
         $user = Auth::user();
-    
+
         try {
             $retur = DataReture::create([
                 'id_users' => $user->id,
@@ -844,11 +844,11 @@ class RetureController extends Controller
                 'tgl_retur' => $request->tgl_retur,
                 'id_supplier' => $request->id_supplier,
             ]);
-    
+
             $supplier = Supplier::find($request->id_supplier);
-    
+
             $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
-    
+
             if ($detailKasir->isEmpty()) {
                 return response()->json([
                     'error' => true,
@@ -861,15 +861,15 @@ class RetureController extends Controller
                     ->where('status_reture', 'pending')
                     ->get();
             }
-    
+
             // Ambil data barang berdasarkan id_barang dari detailTransaksi
             $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
-    
+
             // Map nama_barang dari koleksi Barang
             $namaBarang = $barang->mapWithKeys(function ($item) {
                 return [$item->id => $item->nama_barang];
             });
-    
+
             // Map detailTransaksi untuk menambahkan nama_barang
             $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
                 return [
@@ -883,7 +883,7 @@ class RetureController extends Controller
                     'hpp_jual' => $item->hpp_jual,
                 ];
             });
-    
+
             // Return JSON response
             return response()->json([
                 'error' => false,
@@ -899,7 +899,7 @@ class RetureController extends Controller
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
-    
+
             return response()->json([
                 "error" => true,
                 "message" => "Terjadi kesalahan pada server: " . $th->getMessage(),
@@ -913,15 +913,15 @@ class RetureController extends Controller
         $request->validate([
             'id' => 'required|integer',
         ]);
-    
+
         $id = $request->id;
-    
+
         try {
             // Check if data exists in temp_detail_retur
             $tempExists = DB::table('temp_detail_retur')
                 ->where('id_retur', $id)
                 ->exists();
-    
+
             if ($tempExists) {
                 // If exists, delete from temp_detail_retur
                 DB::table('temp_detail_retur')
@@ -932,11 +932,11 @@ class RetureController extends Controller
                 DetailRetur::where('id_retur', $id)
                     ->delete();
             }
-    
+
             // Delete from data_reture
             DataReture::where('id', $id)
                 ->delete();
-    
+
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil dihapus!',
@@ -944,7 +944,7 @@ class RetureController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error deleting temporary item: ' . $e->getMessage());
-    
+
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat menghapus data sementara.' . $e->getMessage(),

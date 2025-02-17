@@ -772,7 +772,7 @@
                 const barangInputHtml = `
                 <small class="font-weight-bold text-danger">Silahkan masukkan QRCode Barang</small>
                 <div class="d-flex align-items-center">
-                    <input id="qrCode-${rowId}" type="text" name="qrCode_barang-${rowId}" class="form-control w-100 mr-1" placeholder="Masukkan QRCode" required>
+                    <input id="qrCode-${rowId}" type="text" name="qrcode_toko[]" class="form-control w-100 mr-1 qrcode-toko-input" placeholder="Masukkan QRCode" required>
                     <button id="qrCode-search-${rowId}" type="button" class="btn btn-sm btn-primary" data-container="body" data-toggle="tooltip" data-placement="top"
                         title="Submit Pencarian QRCode Barang">
                         <i class="fa fa-magnifying-glass"></i>Cari
@@ -1320,7 +1320,9 @@
                         nama_barang: [],
                         stock_toko_qty: [],
                         hpp_baru: [],
-                        stock_qty: []
+                        stock_qty: [],
+                        qrcode_toko: [],
+                        qrcode_barang: [],
                     };
 
                     let formData = {
@@ -1340,9 +1342,6 @@
                         id_barang: $("input[name='id_barang[]']").map(function() {
                             return $(this).val();
                         }).get(),
-                        qrcode: $("input[name='qrcode[]']").map(function() {
-                            return $(this).val();
-                        }).get(),
                     };
 
                     formData.metode.forEach((metode, index) => {
@@ -1353,6 +1352,9 @@
                             const rowElement = document.getElementById(rowId);
                             const qtyInput = rowElement ? rowElement.querySelector('.qty-input') :
                                 null;
+                            const qrCodeTokoInput = rowElement ? rowElement.querySelector(
+                                    '.qrcode-toko-input').value :
+                                null;
 
                             if (qrCodeData) {
                                 qrCodeDataArray.nama_barang.push(qrCodeData.nama_barang || '');
@@ -1361,18 +1363,24 @@
                                 qrCodeDataArray.hpp_baru.push(qrCodeData.hpp_baru || 0);
                                 qrCodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
+                                qrCodeDataArray.qrcode_toko.push(qrCodeTokoInput);
+                                qrCodeDataArray.qrcode_barang.push('');
                             } else {
                                 qrCodeDataArray.nama_barang.push('');
                                 qrCodeDataArray.stock_toko_qty.push(0);
                                 qrCodeDataArray.hpp_baru.push(0);
                                 qrCodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
+                                qrCodeDataArray.qrcode_toko.push('');
+                                qrCodeDataArray.qrcode_barang.push($("input[name='qrcode[]']").val());
                             }
                         } else {
                             qrCodeDataArray.nama_barang.push('');
                             qrCodeDataArray.stock_toko_qty.push(0);
                             qrCodeDataArray.hpp_baru.push(0);
                             qrCodeDataArray.stock_qty.push(0);
+                            qrCodeDataArray.qrcode_toko.push('');
+                            qrCodeDataArray.qrcode_barang.push($("input[name='qrcode[]']").val());
                         }
                     });
 
