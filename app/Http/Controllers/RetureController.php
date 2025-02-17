@@ -741,6 +741,7 @@ class RetureController extends Controller
     {
         try {
             $qrcode = $request->input('qrcode');
+            $qrcode_barang = $request->input('qrcode_barang');
             $id_toko = $request->input('id_toko');
             $id_barang = $request->input('id_barang');
             $id_transaksi = $request->input('id_transaksi');
@@ -749,11 +750,7 @@ class RetureController extends Controller
             $barang = DetailPembelianBarang::where('qrcode', $qrcode)
                                         ->where('id_barang', $id_barang)
                                         ->first();
-
-            $detailKasir = DetailKasir::where('id_kasir', $id_transaksi)
-                                        ->where('id_barang', $id_barang)
-                                        ->first();
-
+                                        
             if (!$barang) {
                 return response()->json(['message' => 'Tidak ada qrcode atau barang yang ditemukan'], 404);
             }
@@ -762,6 +759,17 @@ class RetureController extends Controller
             if ($barang->id_barang != $id_barang) {
                 return response()->json(['message' => 'Qrcode tidak sesuai dengan barang'], 400);
             }
+
+            $detailPembelian = DetailPembelianBarang::where('qrcode', $qrcode_barang)->first();
+
+            if (!$detailPembelian) {
+                return response()->json(['message' => 'Qrcode barang tidak ditemukan'], 404);
+            }
+
+            $detailKasir = DetailKasir::where('id_kasir', $id_transaksi)
+                                        ->where('id_barang', $id_barang)
+                                        ->where('id_detail_pembelian', $detailPembelian->id)
+                                        ->first();
 
             if ($id_toko == 1) {
                 // Cek stok barang di tabel StockBarang
@@ -791,13 +799,6 @@ class RetureController extends Controller
 
                 if ($stock_toko->qty == 0) {
                     return response()->json(['message' => 'Barang sedang kosong'], 404);
-                }
-
-                // Ambil hpp_baru dari tabel StockBarang
-                $stock = StockBarang::where('id_barang', $id_barang)->first();
-
-                if (!$stock) {
-                    return response()->json(['message' => 'Stok barang tidak ditemukan'], 404);
                 }
 
                 $response_data = [
