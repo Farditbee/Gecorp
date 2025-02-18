@@ -49,6 +49,11 @@ class Kasir extends Model
         return $this->belongsTo(Member::class, 'id_member');
     }
 
+    public function kasbon(): BelongsTo
+    {
+        return $this->belongsTo(Kasbon::class, 'id');
+    }
+
     public function users()
     {
         return $this->belongsTo(User::class, 'id_users');

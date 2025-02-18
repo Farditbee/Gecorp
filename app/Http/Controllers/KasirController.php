@@ -47,7 +47,7 @@ class KasirController extends Controller
 
         $query = Kasir::query();
 
-        $query->with(['member', 'toko', 'users'])->orderBy('id', $meta['orderBy']);
+        $query->with(['member', 'toko', 'users', 'kasbon'])->orderBy('id', $meta['orderBy']);
 
         // Filter berdasarkan id_toko
         if ($request->has('id_toko')) {
@@ -126,6 +126,7 @@ class KasirController extends Controller
                     },
                     'nama_toko' => $item['toko']->nama_toko ?? null,
                     'nama' => $item['users']->nama ?? null,
+                    'utang' => $item['kasbon']->utang ?? null,
                     'tgl_transaksi' => \Carbon\Carbon::parse($item->tgl_transaksi)->format('d-m-Y'),
                     'no_nota' => $item->no_nota,
                     'total_item' => $item->total_item,
