@@ -181,7 +181,6 @@ class KasirController extends Controller
         }
 
         $kasir = $kasirQuery->get();
-
         // Ambil data barang dan member berdasarkan level user
         if ($user->id_level == 1) {
             $barang = StockBarang::all();

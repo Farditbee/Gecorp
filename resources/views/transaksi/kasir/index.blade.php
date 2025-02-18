@@ -478,11 +478,30 @@
                                                         <td class="price-column">
                                                             {{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
                                                     </tr>
+                                                    @if ($ksr->kembalian != 0)
+                                                        <tr>
+                                                            <td colspan="3" style="text-align:left">Kembalian</td>
+                                                            <td class="price-column">
+                                                                {{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
+                                                        </tr>
+                                                    @endif
+                                                    @if ($ksr->kasbon != null)
+                                                        <tr>
+                                                            <td colspan="3" style="text-align:left">Sisa Pembayaran
+                                                            </td>
+                                                            <td class="price-column">
+                                                                {{ number_format($ksr->kasbon->utang, 0, '.', '.') }}
+                                                            </td>
+                                                        </tr>
+                                                    @elseif ($ksr->kasbon == null)
                                                     <tr>
-                                                        <td colspan="3" style="text-align:left">Kembalian</td>
+                                                        <td colspan="3" style="text-align:left">Sisa Pembayaran
+                                                        </td>
                                                         <td class="price-column">
-                                                            {{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
+                                                           woyy
+                                                        </td>
                                                     </tr>
+                                                    @endif
                                                 </tfoot>
                                             </table>
                                         </div>
@@ -962,7 +981,7 @@
 
                         if (remainingRows.length === 0) {
                             delete hargaBarangTerpilih[
-                            idBarang]; // Hapus batasan harga jika semua item dihapus
+                                idBarang]; // Hapus batasan harga jika semua item dihapus
                         }
 
                         updateRowNumbers();
