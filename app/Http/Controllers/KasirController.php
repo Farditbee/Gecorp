@@ -7,6 +7,7 @@ use App\Models\DetailKasir;
 use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
+use App\Models\Kasbon;
 use App\Models\Kasir;
 use App\Models\LevelHarga;
 use App\Models\Member;
@@ -191,72 +192,6 @@ class KasirController extends Controller
 
         return view('transaksi.kasir.index', compact('menu', 'barang', 'kasir', 'member', 'detail_kasir', 'users', 'toko'));
     }
-
-    //     public function getFilteredHarga(Request $request)
-    // {
-    //     $memberId = $request->input('id_member');
-    //     $barangId = $request->input('id_barang');
-
-    //     // Ambil data barang
-    //     $barang = Barang::find($barangId);
-    //     if (!$barang) {
-    //         return response()->json(['error' => 'Barang tidak ditemukan.'], 404);
-    //     }
-
-    //     // Parsing level harga barang jika dalam bentuk JSON string
-    //     $levelHarga = is_string($barang->level_harga) ? json_decode($barang->level_harga, true) : $barang->level_harga;
-
-    //     // Cek apakah member adalah Guest
-    //     if ($memberId === 'Guest') {
-    //         // Urutkan semua level harga barang dari tertinggi ke terendah
-    //         $filteredHarga = collect($levelHarga)
-    //             ->sortByDesc(function ($harga) {
-    //                 // Ekstrak nilai harga dari string untuk pengurutan numerik
-    //                 return (int)explode(' : ', $harga)[1];
-    //             })
-    //             ->values()
-    //             ->map(function ($harga) {
-    //                 return intval(explode(' : ', $harga)[1]); // Hanya ambil nilai harga
-    //             });
-
-    //         return response()->json(['filteredHarga' => $filteredHarga]);
-    //     }
-
-    //     // Lanjutkan dengan logika normal jika bukan Guest
-    //     $member = Member::find($memberId);
-    //     if (!$member) {
-    //         return response()->json(['error' => 'Member tidak ditemukan.'], 404);
-    //     }
-
-    //     // Parsing level_info jika dalam bentuk JSON string
-    //     $levelInfo = is_string($member->level_info) ? json_decode($member->level_info, true) : $member->level_info;
-    //     $jenisBarangId = $barang->id_jenis_barang;
-
-    //     // Ambil ID level yang cocok dengan jenis barang dari level_info
-    //     $levelIds = collect($levelInfo)->map(function ($info) use ($jenisBarangId) {
-    //         list($infoJenisBarangId, $infoLevelId) = explode(' : ', $info);
-    //         return intval($infoJenisBarangId) === intval($jenisBarangId) ? intval($infoLevelId) : null;
-    //     })->filter();
-
-    //     // Ambil nama level harga yang sesuai dari tabel LevelHarga
-    //     $levelNames = LevelHarga::whereIn('id', $levelIds)->pluck('nama_level_harga');
-
-    //     // Filter level harga barang sesuai dengan levelNames
-    //     $filteredHarga = collect($levelHarga)->filter(function ($harga) use ($levelNames) {
-    //         return $levelNames->contains(function ($levelName) use ($harga) {
-    //             return str_contains($harga, $levelName);
-    //         });
-    //     })->map(function ($harga) {
-    //         return intval(explode(' : ', $harga)[1]); // Ambil hanya angka dari harga
-    //     })->values();
-
-    //     Log::info('Filtered Harga:', ['filteredHarga' => $filteredHarga->toArray()]);
-
-    //     // Mengatur respons untuk mengembalikan angka jika hanya satu elemen
-    //     $response = count($filteredHarga) === 1 ? $filteredHarga->first() : $filteredHarga;
-
-    //     return response()->json(['filteredHarga' => $response]);
-    // }
 
     public function getFilteredHarga(Request $request)
     {
@@ -519,13 +454,28 @@ class KasirController extends Controller
                 $counter++;
             }
 
+            $kembalian = $kasir->jml_bayar - ($totalNilai - $totalDiskon);
+            if ($kembalian < 0) {
+                $kembalian = 0;
+            }
             // Update total transaksi di kasir
             $kasir->update([
                 'total_item' => $totalItem,
                 'total_nilai' => $totalNilai,
                 'total_diskon' => $totalDiskon,
-                'kembalian' => $kasir->jml_bayar - ($totalNilai - $totalDiskon),
+                'kembalian' => $kembalian,
             ]);
+
+            $sisaBayar = ($totalNilai - $totalDiskon) - $kasir->jml_bayar;
+
+            if ($sisaBayar > 0) {
+                Kasbon::create([
+                    'id_kasir' => $kasir->id,
+                    'id_member' => $kasir->id_member,
+                    'utang' => $sisaBayar,
+                    'status' => 'BL',
+                ]);
+            }
 
             DB::commit();
             return response()->json([
