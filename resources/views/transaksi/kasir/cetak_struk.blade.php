@@ -216,11 +216,22 @@
                 <td class="price">
                     {{ number_format($kasir->jml_bayar, 0, '.', '.') }}</td>
             </tr>
-            <tr>
-                <td colspan="3" style="text-align:left">Kembalian</td>
-                <td class="price">
-                    {{ number_format($kasir->kembalian, 0, '.', '.') }}</td>
-            </tr>
+            @if ($kasir->kembalian != 0)
+                <tr>
+                    <td colspan="3" style="text-align:left">Kembalian</td>
+                    <td class="price">
+                        {{ number_format($kasir->kembalian, 0, '.', '.') }}</td>
+                </tr>
+            @endif
+            @if ($kasir->kasbon != null)
+                <tr>
+                    <td colspan="3" style="text-align:left">Sisa Pembayaran
+                    </td>
+                    <td class="price">
+                        {{ number_format($kasir->kasbon->utang, 0, '.', '.') }}
+                    </td>
+                </tr>
+            @endif
         </tfoot>
     </table>
 
@@ -232,16 +243,15 @@
 
 <script>
     window.onload = function() {
-    const container = document.querySelector('.receipt-container');
-    const footer = document.querySelector('.receipt-footer');
+        const container = document.querySelector('.receipt-container');
+        const footer = document.querySelector('.receipt-footer');
 
-    // Pastikan tinggi container sesuai dengan konten
-    if (container.scrollHeight > 210) {
-        footer.style.pageBreakAfter = 'always';
-    }
+        // Pastikan tinggi container sesuai dengan konten
+        if (container.scrollHeight > 210) {
+            footer.style.pageBreakAfter = 'always';
+        }
 
-    // Otomatis mencetak setelah halaman dimuat
-    window.print();
-};
-
+        // Otomatis mencetak setelah halaman dimuat
+        window.print();
+    };
 </script>

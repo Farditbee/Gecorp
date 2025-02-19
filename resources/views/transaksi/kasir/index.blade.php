@@ -473,34 +473,26 @@
                                                             {{ number_format($ksr->total_nilai - $ksr->total_diskon, 0, '.', '.') }}
                                                         </th>
                                                     </tr>
-                                                    <tr>
+                                                    <tr class="bg-success text-white">
                                                         <td colspan="3" style="text-align:left">Dibayar</td>
                                                         <td class="price-column">
                                                             {{ number_format($ksr->jml_bayar, 0, '.', '.') }}</td>
                                                     </tr>
                                                     @if ($ksr->kembalian != 0)
-                                                        <tr>
+                                                        <tr class="bg-info text-white">
                                                             <td colspan="3" style="text-align:left">Kembalian</td>
                                                             <td class="price-column">
                                                                 {{ number_format($ksr->kembalian, 0, '.', '.') }}</td>
                                                         </tr>
                                                     @endif
                                                     @if ($ksr->kasbon != null)
-                                                        <tr>
+                                                        <tr class="bg-danger text-white">
                                                             <td colspan="3" style="text-align:left">Sisa Pembayaran
                                                             </td>
                                                             <td class="price-column">
                                                                 {{ number_format($ksr->kasbon->utang, 0, '.', '.') }}
                                                             </td>
                                                         </tr>
-                                                    @elseif ($ksr->kasbon == null)
-                                                    <tr>
-                                                        <td colspan="3" style="text-align:left">Sisa Pembayaran
-                                                        </td>
-                                                        <td class="price-column">
-                                                           woyy
-                                                        </td>
-                                                    </tr>
                                                     @endif
                                                 </tfoot>
                                             </table>

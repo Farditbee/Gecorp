@@ -164,11 +164,11 @@ class KasirController extends Controller
         $detail_kasir = DetailKasir::all();
         $toko = Toko::all();
 
-        // Mengambil data berdasarkan level user
         if ($user->id_level == 1) {
-            $kasirQuery = Kasir::orderBy('id', 'desc');
+            $kasirQuery = Kasir::with('kasbon')->orderBy('id', 'desc');
         } else {
-            $kasirQuery = Kasir::where('id_toko', $user->id_toko)
+            $kasirQuery = Kasir::with('kasbon')
+                ->where('id_toko', $user->id_toko)
                 ->orderBy('id', 'desc');
         }
 
