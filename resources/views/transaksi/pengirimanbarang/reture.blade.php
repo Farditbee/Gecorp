@@ -191,6 +191,10 @@
                                                                         {{ number_format($dt->harga_barang, 2) }}</td>
                                                                     <td class="data-hpp-jual text-right">
                                                                         {{ number_format($dt->hpp_jual, 2) }}</td>
+                                                                    
+                                                                    <!-- Hidden input for data-detail -->
+                                                                    <input type="hidden" class="data-detail" value="{{ $dt->detail_retur_id }}">
+                                                                    <input type="hidden" class="data-idRetur" value="{{ $dt->retur_id }}">
                                                                 </tr>
                                                             @endforeach
                                                         </tbody>
@@ -326,6 +330,8 @@
                     const qrcode = [];
                     const qty = [];
                     const harga_beli = [];
+                    const detail_ids = [];
+                    const returId = [];
 
                     $("#listData tr").each(function() {
                         qrcode.push($(this).find(".data-qrcode").text().trim());
@@ -333,13 +339,17 @@
                             10));
                         harga_beli.push(parseFloat($(this).find(".data-harga-barang")
                             .text().replace(/,/g, '')));
+                        detail_ids.push($(this).find(".data-detail").val());
+                        returId.push($(this).find(".data-idRetur").val());
                     });
 
                     const formData = {
                         id_pengiriman,
                         qrcode,
                         qty,
-                        harga_beli
+                        harga_beli,
+                        detail_ids,
+                        returId,
                     };
 
                     try {

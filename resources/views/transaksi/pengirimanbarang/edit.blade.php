@@ -251,11 +251,13 @@
                         detailIds.push($(this).data("id"));
                         statusArray.push($(this).val());
                     });
-
+                        
                     const formData = {
                         id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
                         detail_ids: detailIds,
-                        status_detail: statusArray
+                        status_detail: statusArray,
+                        tipe_kirim: '{{ $pengiriman_barang->tipe_pengiriman }}',
+                        id_retur: '{{ $pengiriman_barang->id_retur }}',
                     };
 
                     try {

@@ -214,19 +214,13 @@ class MasterController extends Controller
             });
         }
 
-        // // Subquery untuk mengecualikan supplier yang sudah ada di tabel data_retur dengan status pending
-        // $query->whereNotIn('supplier.id', function($subquery) {
-        //     $subquery->select('id_supplier')
-        //              ->from('data_retur')
-        //              ->where('status', 'pending');
-        // });
-
         // Join dengan tabel detail_kasir dan detail_retur
         $query->join('detail_kasir', 'supplier.id', '=', 'detail_kasir.id_supplier')
           ->join('detail_retur', function($join) {
               $join->on('detail_kasir.id_kasir', '=', 'detail_retur.id_transaksi')
                    ->where('detail_retur.status', '=', 'success')
-                   ->where('detail_retur.status_reture', '=', 'pending');
+                   ->where('detail_retur.status_reture', '=', 'pending')
+                   ->where('detail_retur.status_kirim', '=', 'success');
           })
           ->select('supplier.*')
           ->distinct();

@@ -188,7 +188,7 @@
                                                                                         <th class="text-wrap align-top">
                                                                                             Nama Barang</th>
                                                                                         <th class="text-wrap align-top">
-                                                                                            HPP Jual (Rp)</th>
+                                                                                            Harga Beli (Rp)</th>
                                                                                     </tr>
                                                                                 </thead>
                                                                                 <tbody id="listData">
@@ -645,6 +645,7 @@
                     id_barang: dataTempDetail.map(item => item.id_barang),
                     qty_acc: dataTempDetail.map(item => item.qty_acc),
                     metode_reture: metodeRetureValues,
+                    qrcode: dataTempDetail.map(item => item.qrcode),
                 };
 
                 let method = 'POST';

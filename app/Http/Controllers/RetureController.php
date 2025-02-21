@@ -862,10 +862,13 @@ class RetureController extends Controller
                     'status_code' => 404,
                 ], 404);
             } else {
-                $detailTransaksi = DetailRetur::whereIn('id_transaksi', $detailKasir->pluck('id_kasir'))
-                    ->where('status', 'success')
-                    ->where('status_reture', 'pending')
-                    ->get();
+                $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
+                                                ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
+                                                ->where('detail_retur.status', 'success')
+                                                ->where('detail_retur.status_reture', 'pending')
+                                                ->where('detail_retur.status_kirim', 'success')
+                                                ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
+                                                ->get();
             }
 
             // Ambil data barang berdasarkan id_barang dari detailTransaksi
@@ -887,6 +890,7 @@ class RetureController extends Controller
                     'qty_acc' => $item->qty_acc,
                     'metode' => $item->metode,
                     'hpp_jual' => $item->hpp_jual,
+                    'qrcode' => $item->qrcode,
                 ];
             });
 

@@ -7,6 +7,7 @@ use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailRetur;
+use App\Models\DetailStockBarang;
 use App\Models\StockBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -113,6 +114,7 @@ class RetureSuplierController extends Controller
             'id_barang' => 'required|array',
             'metode_reture' => 'required|array',
             'qty_acc' => 'required|array',
+            'qrcode' => 'required|array',
         ]);
 
         try {
@@ -123,6 +125,7 @@ class RetureSuplierController extends Controller
                 $idBarang = $request->id_barang[$index];
                 $metodeReture = $request->metode_reture[$index];
                 $qtyAcc = $request->qty_acc[$index];
+                $qrcode = $request->qrcode[$index];
 
                 // Update data di tabel detail_retur
                 DetailRetur::where('id_retur', $idRetur)
@@ -137,6 +140,9 @@ class RetureSuplierController extends Controller
                 if ($metodeReture === 'Barang') {
                     StockBarang::where('id_barang', $idBarang)
                                 ->increment('stock', $qtyAcc);
+
+                    DetailStockBarang::where('qrcode', $qrcode)
+                                    ->increment('qty_now', $qtyAcc);
                 }
             }
 
@@ -180,10 +186,13 @@ class RetureSuplierController extends Controller
                     'status_code' => 404,
                 ], 404);
             } else {
-                $detailTransaksi = DetailRetur::whereIn('id_transaksi', $detailKasir->pluck('id_kasir'))
-                    ->where('status', 'success')
-                    ->where('status_reture', 'pending')
-                    ->get();
+                $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
+                                        ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
+                                        ->where('detail_retur.status', 'success')
+                                        ->where('detail_retur.status_reture', 'pending')
+                                        ->where('detail_retur.status_kirim', 'success')
+                                        ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
+                                        ->get();
             }
 
             // Ambil data barang berdasarkan id_barang dari detailTransaksi
@@ -205,6 +214,7 @@ class RetureSuplierController extends Controller
                     'metode' => $item->metode,
                     'hpp_jual' => $item->hpp_jual,
                     'tgl_retur' => $item->tgl_retur,
+                    'qrcode' => $item->qrcode,
                 ];
             });
 
