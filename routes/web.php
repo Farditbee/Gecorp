@@ -163,6 +163,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pengirimanbarang/additem', [PengirimanBarangController::class, 'addItem'])->name('transaksi.pengirimanbarang.additem');
         Route::delete('/pengirimanbarang/remove-item/{id}', [PengirimanBarangController::class, 'removeItem']);
         Route::post('/pengirimanbarang/store', [PengirimanBarangController::class, 'store'])->name('transaksi.pengirimanbarang.store');
+        Route::post('/pengirimanbarang/storeR', [PengirimanBarangController::class, 'storeReture'])->name('transaksi.pengirimanbarang.storeReture');
+        Route::post('/pengirimanbarang/storeDR', [PengirimanBarangController::class, 'storeDetailReture'])->name('transaksi.pengirimanbarang.storeDetailReture');
         Route::get('/pengirimanbarang/edit/{id}', [PengirimanBarangController::class, 'edit'])->name('transaksi.pengirimanbarang.edit');
         Route::post('/pengirimanbarang/update_status/{id}', [PengirimanBarangController::class, 'updateStatus'])->name('transaksi.pengirimanbarang.update_status');
         Route::put('/pengirimanbarang/update/{id}', [PengirimanBarangController::class, 'update'])->name('transaksi.pengirimanbarang.update');
