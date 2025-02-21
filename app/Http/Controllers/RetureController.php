@@ -559,9 +559,10 @@ class RetureController extends Controller
             'id_retur' => 'required|integer',
             'hpp_baru' => 'required|array',
             'stock_qty' => 'required|array',
-            'qrcode_toko' => 'required|array'
+            'qrcode_toko' => 'required|array',
+            'qrcode_barang' => 'required|array'
         ]);
-
+    
         $metode = $request->metode;
         $id_kasir = $request->id_transaksi;
         $id_barang = $request->id_barang;
@@ -569,33 +570,33 @@ class RetureController extends Controller
         $id_retur = $request->id_retur;
         $hpp = $request->hpp_baru;
         $stock = $request->stock_qty;
-        $qrcode = $request->qrcode_toko;
+        $qrcode_toko = $request->qrcode_toko;
+        $qrcode_barang = $request->qrcode_barang;
         $id_users = Auth::user()->id;
         $id_toko = Auth::user()->id_toko;
-
+    
         try {
             DB::beginTransaction();
-
+    
             foreach ($id_kasir as $index => $idKasir) {
                 if ($metode[$index] === 'Cash') {
-                    $detailPembelian = DetailPembelianBarang::where('qrcode', $qrcode[$index])->first();
+                    $detailPembelian = DetailPembelianBarang::where('qrcode', $qrcode_barang[$index])->first();
 
                     $detailKasir = DetailKasir::where('id_kasir', $idKasir)
                                                 ->where('id_barang', $id_barang[$index])
-                                                ->where('id_detail_pembelian', $detailPembelian[$index])
+                                                ->where('id_detail_pembelian', $detailPembelian->id)
                                                 ->first();
-
+    
                     if ($detailKasir) {
-
                         $detailKasir->reture = true;
                         $detailKasir->reture_by = $id_users;
-
+    
                         if (is_null($detailKasir->reture_qty)) {
                             $detailKasir->reture_qty = 0;
                         }
-
+    
                         $detailKasir->reture_qty += $qty[$index];
-
+    
                         $detailKasir->save();
                     } else {
                         return response()->json([
@@ -604,7 +605,7 @@ class RetureController extends Controller
                             'status_code' => 404,
                         ], 404);
                     }
-
+    
                     // Update status di tabel detail_retur
                     DetailRetur::where('id_transaksi', $idKasir)
                             ->where('id_barang', $id_barang[$index])
@@ -616,39 +617,45 @@ class RetureController extends Controller
                                 'metode' => $metode[$index],
                             ]);
                 } elseif ($metode[$index] === 'Barang') {
+                    $detailPembelian = DetailPembelianBarang::where('qrcode', $qrcode_toko[$index])->first();
+    
                     $detailKasir = DetailKasir::where('id_kasir', $idKasir)
                                                 ->where('id_barang', $id_barang[$index])
                                                 ->first();
-
+    
                     if ($detailKasir) {
-
                         $detailKasir->reture = true;
                         $detailKasir->reture_by = $id_users;
-
+    
                         if (is_null($detailKasir->reture_qty)) {
                             $detailKasir->reture_qty = 0;
                         }
-
+    
                         $reture_qty = $qty[$index] - $stock[$index];
-
+    
                         if ($reture_qty == 0) {
                             $reture_qty = $stock[$index];
                         }
-
+    
                         $detailKasir->reture_qty += $reture_qty;
-
+    
                         $detailKasir->save();
-
+    
                         // Update stok berdasarkan id_toko
                         if ($id_toko == 1) {
                             // Kurangi stok di tabel StockBarang
-                            $stockBarang = StockBarang::where('id_barang', $id_barang[$index])->first();
-
-                            if ($stockBarang) {
-
+                            $detailStock = DetailStockBarang::where('id_detail_pembelian', $detailPembelian->id)
+                                                        ->first();
+    
+                            $stockBarang = StockBarang::where('id_barang', $id_barang[$index])
+                                                        ->first();
+    
+                            if ($stockBarang && $detailStock) {
                                 $stockBarang->stock -= $reture_qty;
                                 $stockBarang->save();
-
+    
+                                $detailStock->qty_now -= $reture_qty;
+                                $detailStock->save();
                             } else {
                                 return response()->json([
                                     'error' => true,
@@ -660,12 +667,12 @@ class RetureController extends Controller
                             // Kurangi qty di tabel DetailToko
                             $detailToko = DetailToko::where('id_toko', $id_toko)
                                                 ->where('id_barang', $id_barang[$index])
+                                                ->where('qrcode', $qrcode_toko[$index])
                                                 ->first();
-
+    
                             if ($detailToko) {
                                 $detailToko->qty -= $reture_qty;
                                 $detailToko->save();
-
                             } else {
                                 return response()->json([
                                     'error' => true,
@@ -677,11 +684,11 @@ class RetureController extends Controller
                     } else {
                         return response()->json([
                             'error' => true,
-                            'message' => 'Stok tidak ditemukan untuk id_barang: ' . $id_barang[$index],
+                            'message' => 'Data Kasir kosong',
                             'status_code' => 404,
                         ], 404);
                     }
-
+    
                     // Update status di tabel detail_retur
                     DetailRetur::where('id_transaksi', $idKasir)
                             ->where('id_barang', $id_barang[$index])
@@ -689,10 +696,10 @@ class RetureController extends Controller
                             ->update([
                                 'status' => 'success',
                                 'hpp_jual' => $hpp[$index],
+                                'qrcode_barang' => $qrcode_toko[$index],
                                 'qty_acc' => $stock[$index],
                                 'metode' => $metode[$index],
                             ]);
-
                 } else {
                     return response()->json([
                         'error' => true,
@@ -700,16 +707,15 @@ class RetureController extends Controller
                         'status_code' => 400,
                     ], 400);
                 }
-
             }
-
+    
             // Update total_item dan total_harga di tabel retur
             $totalItem = DetailRetur::where('id_retur', $id_retur)
                                     ->sum('qty_acc');
-
+    
             $totalHarga = DetailRetur::where('id_retur', $id_retur)
                                     ->sum(DB::raw('qty_acc * harga'));
-
+    
             DataReture::where('id', $id_retur)
                 ->update([
                     'total_item' => $totalItem,
@@ -717,9 +723,9 @@ class RetureController extends Controller
                     'status' => 'done',
                     'tipe_transaksi' => 'kasir'
                 ]);
-
+    
             DB::commit();
-
+    
             return response()->json([
                 'error' => false,
                 'message' => 'Data berhasil diupdate!',
@@ -728,7 +734,7 @@ class RetureController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error updating nota reture: ' . $e->getMessage());
-
+    
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat mengupdate data.' . $e->getMessage(),
@@ -736,7 +742,7 @@ class RetureController extends Controller
             ], 500);
         }
     }
-
+    
     public function getRetureQrcode(Request $request)
     {
         try {

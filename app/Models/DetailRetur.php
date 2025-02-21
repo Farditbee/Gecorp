@@ -25,4 +25,8 @@ class DetailRetur extends Model
     protected $keyType = 'string';
 
     public $primaryKey = 'id';
+
+    public function barang(){
+        return $this->belongsTo(Barang::class, 'id_barang');
+    }
 }

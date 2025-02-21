@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\DataReture;
 use App\Models\DetailPembelianBarang;
 use App\Models\DetailPengirimanBarang;
+use App\Models\DetailRetur;
 use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
 use App\Models\PengirimanBarang;
@@ -237,6 +239,45 @@ class PengirimanBarangController extends Controller
         // ->with('stock', $stock);
     }
 
+    public function storeReture(Request $request)
+    {
+        $request->validate([
+            'no_resi' => 'required',
+            'tgl_kirim' => 'required',
+            'ekspedisi' => 'required',
+            'tgl_kirim' => 'required',
+            'toko_penerima' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        DB::beginTransaction();
+
+        $pengiriman_barang = PengirimanBarang::create([
+            'no_resi' => $request->no_resi,
+            'toko_pengirim' => $user->id_toko,
+            'nama_pengirim' => $user->nama,
+            'ekspedisi' => $request->ekspedisi,
+            'toko_penerima' => $request->toko_penerima,
+            'tgl_kirim' => $request->tgl_kirim,
+            'tipe_pengiriman' => 'reture',
+        ]);
+
+        $reture_barang = DataReture::where('id_toko', $user->id_toko)->first();
+
+        $detail_reture = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
+                                    ->where('detail_retur.id_retur', $reture_barang->id)
+                                    ->where('detail_retur.status_kirim', 'pending')
+                                    ->get();
+
+        DB::commit();
+        
+        return redirect()->route('transaksi.pengirimanbarang.reture', compact('detail_reture'))
+            ->with('tab', 'detail')
+            ->with('pengiriman_barang', $pengiriman_barang)
+            ->with('detail_reture', $detail_reture);
+    }
+
     public function getUsersByToko($id_toko)
     {
         $users = User::where('id_toko', $id_toko)
@@ -443,6 +484,70 @@ class PengirimanBarangController extends Controller
 
             return redirect()->back()->with('error', 'Failed to update pengeriman barang. ' . $e->getMessage());
         }
+    }
+
+    public function storeDetailReture(Request $request)
+    {
+        $request->validate([
+            'id_pengiriman' => 'required',
+            'qrcode' => 'required|array',
+            'qty' => 'required|array',
+            'harga_beli' => 'required|array',
+        ]);
+
+        $id_pengiriman = $request->id_pengiriman;
+        $qrcodes = $request->qrcode;
+        $qtys = $request->qty;
+        $hargaBelis = $request->harga_beli;
+
+        try {
+            
+            DB::beginTransaction();
+
+            $pengiriman_barang = PengirimanBarang::findOrFail($id_pengiriman);
+
+            $totalItem = 0;
+            $totalNilai = 0;
+
+            foreach ($qrcodes as $index => $qrcode) {
+                $qty = $qtys[$index];
+                $harga_beli = $hargaBelis[$index];
+
+                $detail_pembelian = DetailPembelianBarang::where('qrcode', $qrcode)->first();
+
+                if (!$detail_pembelian) {
+                    return redirect()->back()->with('error', 'Detail pembelian barang tidak ditemukan');
+                }
+
+                $detail_pengiriman = DetailPengirimanBarang::create([
+                    'id_pengiriman_barang' => $pengiriman_barang->id,
+                    'id_detail_pembelian' => $detail_pembelian->id,
+                    'id_barang' => $detail_pembelian->id_barang,
+                    'id_supplier' => $detail_pembelian->id_supplier,
+                    'qrcode' => $qrcode,
+                    'qty' => $qty,
+                    'harga_beli' => $harga_beli,
+                    'total_harga' => $qty * $harga_beli,
+                ]);
+
+                $totalItem += $detail_pengiriman->qty;
+                $totalNilai += $detail_pengiriman->total_harga;
+
+            }
+
+            $pengiriman_barang->total_item = $totalItem;
+            $pengiriman_barang->total_nilai = $totalNilai;
+            $pengiriman_barang->save();
+
+            DB::commit();
+
+            return redirect()->route('transaksi.pengirimanbarang.reture')->with('success', 'Data Reture Barang berhasil ditambahkan');
+        } catch (\Throwable $th) {
+            DB::rollBack();
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $th->getMessage());
+        }
+        
     }
 
     public function edit($id)

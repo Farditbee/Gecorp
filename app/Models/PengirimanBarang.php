@@ -23,6 +23,7 @@ class PengirimanBarang extends Model
         'total_item',
         'total_nilai',
         'status',
+        'tipe_pengiriman',
     ];
 
     public $timestamps = false;

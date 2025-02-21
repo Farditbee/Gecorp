@@ -61,4 +61,9 @@ class Barang extends Model
         return $this->hasMany(Promo::class, 'id_barang');
     }
 
+    public function dt_retur()
+    {
+        return $this->hasMany(DetailRetur::class, 'id_barang');
+    }
+
 }

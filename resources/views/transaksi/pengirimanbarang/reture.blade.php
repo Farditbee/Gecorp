@@ -46,7 +46,7 @@
                                     <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}"
                                         id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
                                         <br>
-                                        <form action="{{ route('transaksi.pengirimanbarang.store') }}" method="POST">
+                                        <form action="{{ route('transaksi.pengirimanbarang.storeReture') }}" method="POST">
                                             @csrf
                                             <div class="row">
                                                 <div class="col-6">
@@ -116,6 +116,11 @@
                                             $pengiriman_barang = session(
                                                 'pengiriman_barang',
                                                 $pengiriman_barang ?? null,
+                                            );
+
+                                            $detail_reture = session(
+                                                'detail_reture',
+                                                $detail_reture ?? null,
                                             );
                                         @endphp
                                         @if ($pengiriman_barang)
@@ -200,17 +205,28 @@
                                                     <table class="table table-bordered">
                                                         <thead>
                                                             <tr>
-                                                                <th>Action</th>
                                                                 <th scope="col">No</th>
-                                                                <th scope="col">Nama Barang</th>
-                                                                <th scope="col">Supplier</th>
+                                                                <th scope="col">Metode Reture</th>
                                                                 <th scope="col">QrCode</th>
+                                                                <th scope="col">Nama Barang</th>
                                                                 <th scope="col">Qty</th>
-                                                                <th scope="col" class="text-right">Harga</th>
-                                                                <th scope="col" class="text-right">Total Harga</th>
+                                                                <th scope="col" class="text-right">Harga Beli</th>
+                                                                <th scope="col" class="text-right">HPP Jual</th>
                                                             </tr>
                                                         </thead>
-                                                        <tbody id="listData"></tbody>
+                                                        <tbody>
+                                                            @foreach ($detail_reture as $dt)
+                                                                <tr>
+                                                                    <td>{{ $loop->iteration }}</td>
+                                                                    <td>{{ $dt->metode }}</td>
+                                                                    <td>{{ $dt->qrcode }}</td>
+                                                                    <td>{{ $dt->barang->nama_barang }}</td>
+                                                                    <td>{{ $dt->qty_acc }}</td>
+                                                                    <td class="text-right">{{ number_format($dt->harga_barang, 2) }}</td>
+                                                                    <td class="text-right">{{ number_format($dt->hpp_jual, 2) }}</td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
                                                         <tfoot>
                                                             <tr>
                                                                 <th scope="col" colspan="7" class="text-right">
@@ -256,7 +272,7 @@
             isUrl: '{{ route('master.toko') }}',
             isFilter: {
                 is_delete: '{{ auth()->user()->id_toko }}',
-                is_admin: true,
+                super_admin: true,
             },
             placeholder: 'Pilih Nama Toko',
         }, {
