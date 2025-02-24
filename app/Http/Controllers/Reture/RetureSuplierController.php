@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
+use App\Models\DetailPembelianBarang;
 use App\Models\DetailRetur;
 use App\Models\DetailStockBarang;
 use App\Models\StockBarang;
@@ -127,6 +128,8 @@ class RetureSuplierController extends Controller
                 $qtyAcc = $request->qty_acc[$index];
                 $qrcode = $request->qrcode[$index];
 
+                $detailBeli = DetailPembelianBarang::where('qrcode', $qrcode)->first();
+
                 // Update data di tabel detail_retur
                 DetailRetur::where('id_retur', $idRetur)
                     ->where('id_transaksi', $idTransaksi)
@@ -141,7 +144,7 @@ class RetureSuplierController extends Controller
                     StockBarang::where('id_barang', $idBarang)
                                 ->increment('stock', $qtyAcc);
 
-                    DetailStockBarang::where('qrcode', $qrcode)
+                    DetailStockBarang::where('id_detail_pembelian', $detailBeli->id)
                                     ->increment('qty_now', $qtyAcc);
                 }
             }

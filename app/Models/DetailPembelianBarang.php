@@ -11,8 +11,6 @@ class DetailPembelianBarang extends Model
 
     protected $table = 'detail_pembelian_barang';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'id_pembelian_barang', 
         'id_barang', 

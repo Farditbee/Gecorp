@@ -16,11 +16,11 @@ return new class extends Migration
             $table->string('id_barang')->nullable();
             $table->string('nama_barang')->nullable();
             $table->integer('stock')->nullable();
-            $table->integer('harga_satuan')->nullable();
             $table->double('hpp_awal')->nullable();
             $table->double('hpp_baru')->nullable();
             $table->double('nilai_total')->nullable();
             $table->string('level_harga')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

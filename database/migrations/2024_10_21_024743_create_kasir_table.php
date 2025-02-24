@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id');
             $table->string('id_member')->nullable();
             $table->string('id_users');
-            $table->date('tgl_transaksi');
+            $table->dateTime('tgl_transaksi');
             $table->string('id_toko');
             $table->string('no_nota');
             $table->double('total_item');

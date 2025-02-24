@@ -13,6 +13,7 @@ use App\Models\Kasir;
 use App\Models\Member;
 use App\Models\StockBarang;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -146,12 +147,19 @@ class RetureController extends Controller
 
         $user = Auth::user();
 
+        // Periksa apakah tgl_nota hanya berisi tanggal tanpa waktu
+        $tglRetur = Carbon::parse($request->tgl_retur);
+        if ($tglRetur->format('H:i:s') === '00:00:00') {
+            // Tambahkan waktu default (waktu saat ini)
+            $tglRetur->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
+        }
+
         try {
             $retur = DataReture::create([
                 'id_users' => $user->id,
                 'id_toko' => $user->id_toko,
                 'no_nota' => $request->no_nota,
-                'tgl_retur' => $request->tgl_retur,
+                'tgl_retur' => $tglRetur,
                 'id_member' => $request->id_member,
             ]);
 
@@ -842,13 +850,20 @@ class RetureController extends Controller
 
         $user = Auth::user();
 
+        $tglRetur = Carbon::parse($request->tgl_retur);
+        if ($tglRetur->format('H:i:s') === '00:00:00') {
+            // Tambahkan waktu default (waktu saat ini)
+            $tglRetur->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
+        }
+
         try {
             $retur = DataReture::create([
                 'id_users' => $user->id,
                 'id_toko' => $user->id_toko,
                 'no_nota' => $request->no_nota,
-                'tgl_retur' => $request->tgl_retur,
+                'tgl_retur' => $tglRetur,
                 'id_supplier' => $request->id_supplier,
+                'tipe_transaksi' => 'supplier',
             ]);
 
             $supplier = Supplier::find($request->id_supplier);

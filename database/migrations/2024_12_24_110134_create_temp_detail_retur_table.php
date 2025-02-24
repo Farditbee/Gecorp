@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('temp_detail_retur', function (Blueprint $table) {
-            $table->id()->primary();
+            $table->id();
+            $table->string('qrcode');
             $table->string('id_users');
             $table->string('id_retur');
             $table->string('id_transaksi');

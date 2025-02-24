@@ -12,8 +12,6 @@ class DetailPengirimanBarang extends Model
 
     protected $table = 'detail_pengiriman_barang';
 
-    public $timestamps = false;
-
     protected $fillable = [
         'id_pengiriman_barang',
         'id_barang',

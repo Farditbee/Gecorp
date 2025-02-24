@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('detail_toko', function (Blueprint $table) {
             $table->id();
+            $table->string('qrcode');
+            $table->string('id_supplier')->nullable();
             $table->string('id_toko')->nullable();
             $table->string('id_barang')->nullable();
             $table->string('qty')->nullable();
             $table->string('harga')->nullable();
-            $table->softDeletes()->nullable();
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 

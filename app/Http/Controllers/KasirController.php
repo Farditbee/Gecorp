@@ -328,7 +328,7 @@ class KasirController extends Controller
             }
 
             $user = Auth::user();
-            $tglTransaksi = now();
+            $tglTransaksi = Carbon::now();
 
             // Inisialisasi transaksi kasir
             $kasir = new Kasir();

@@ -17,10 +17,10 @@ return new class extends Migration
             $table->string('qrcode_path')->nullable();
             $table->string('id_pembelian_barang')->nullable();
             $table->string('id_barang')->nullable();
-            $table->string('nama_barang')->nullable();
             $table->integer('qty')->nullable();
             $table->double('harga_barang')->nullable();
             $table->double('total_harga')->nullable();
+            $table->json('level_harga')->nullable();
             $table->timestamps();
         });
     }

@@ -18,8 +18,6 @@ class Barang extends Model
 
     public $incrementing = false;
 
-    public $timestamps = false;
-
     protected $keyType = 'string';
 
     public $primaryKey = 'id';

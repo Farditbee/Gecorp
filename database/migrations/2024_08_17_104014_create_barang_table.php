@@ -11,13 +11,15 @@ return new class extends Migration
     {
         Schema::create('barang', function (Blueprint $table) {
             $table->id('id');
+            $table->enum('garansi', ['Yes', 'No'])->default('No');
+            $table->string('nama_barang');
             $table->string('barcode')->nullable();
             $table->string('barcode_path')->nullable();
             $table->string('gambar_path')->nullable();
             $table->string('id_jenis_barang');
             $table->string('id_brand_barang');
-            $table->string('nama_barang');
             $table->string('level_harga')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

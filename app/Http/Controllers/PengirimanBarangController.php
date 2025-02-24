@@ -13,6 +13,7 @@ use App\Models\PengirimanBarang;
 use App\Models\StockBarang;
 use App\Models\Toko;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -216,28 +217,32 @@ class PengirimanBarangController extends Controller
 
     public function store(Request $request)
     {
-        // try {
         $toko = Toko::all();
-        $myToko = $toko->where('id', Auth::user()->id_toko)->first();
-        DB::beginTransaction();
-        // dd($request);
 
-        // Simpan data dasar pengiriman
+        $myToko = $toko->where('id', Auth::user()->id_toko)->first();
+
+        DB::beginTransaction();
+
+        
+        $tglKirim = Carbon::parse($request->tgl_kirim);
+        if ($tglKirim->format('H:i:s') === '00:00:00') {
+            // Tambahkan waktu default (waktu saat ini)
+            $tglKirim->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
+        }
+
         $pengiriman_barang = PengirimanBarang::create([
             'no_resi' => $request->no_resi,
             'toko_pengirim' => $myToko->id,
             'nama_pengirim' => Auth::user()->nama,
             'ekspedisi' => $request->ekspedisi,
             'toko_penerima' => $request->toko_penerima,
-            'tgl_kirim' => $request->tgl_kirim
+            'tgl_kirim' => $tglKirim
         ]);
 
         DB::commit();
-        // Redirect ke tab "detail pengiriman" dengan data pengiriman yang baru disimpan
         return redirect()->route('transaksi.pengirimanbarang.create')
             ->with('tab', 'detail')
             ->with('pengiriman_barang', $pengiriman_barang);
-        // ->with('stock', $stock);
     }
 
     public function storeReture(Request $request)
@@ -254,13 +259,19 @@ class PengirimanBarangController extends Controller
 
         DB::beginTransaction();
 
+        $tglKirim = Carbon::parse($request->tgl_kirim);
+        if ($tglKirim->format('H:i:s') === '00:00:00') {
+            // Tambahkan waktu default (waktu saat ini)
+            $tglKirim->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
+        }
+
         $pengiriman_barang = PengirimanBarang::create([
             'no_resi' => $request->no_resi,
             'toko_pengirim' => $user->id_toko,
             'nama_pengirim' => $user->nama,
             'ekspedisi' => $request->ekspedisi,
             'toko_penerima' => $request->toko_penerima,
-            'tgl_kirim' => $request->tgl_kirim,
+            'tgl_kirim' => $tglKirim,
             'tipe_pengiriman' => 'reture',
         ]);
 

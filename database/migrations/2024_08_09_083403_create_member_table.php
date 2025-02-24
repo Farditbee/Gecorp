@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_member');
             $table->string('no_hp');
             $table->string('alamat');
-            $table->date('tgl_registrasi')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

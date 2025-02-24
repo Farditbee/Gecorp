@@ -66,13 +66,5 @@ class UserSeeder extends Seeder
             "wilayah" => "Jakarta",
             "alamat" => 'Jakpus',
         ]);
-        Toko::create([
-            "id" => 2,
-            "nama_toko" => "Global Phone Shop",
-            "singkatan" => "GPS",
-            "id_level_harga" => json_encode(["5", "2"]),
-            "wilayah" => "Plumbon",
-            "alamat" => "Jl. Pangeran Antasari No.8 Plumbon",
-        ]);
     }
 }

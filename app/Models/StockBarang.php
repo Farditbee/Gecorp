@@ -12,11 +12,7 @@ class StockBarang extends Model
 
     protected $table = 'stock_barang';
 
-    protected $fillable = ['id_barang', 'nama_barang', 'stock', 'harga_satuan', 'hpp_awal', 'hpp_baru', 'nilai_total', 'level_harga'];
-
     protected $guarded = [];
-
-    public $timestamps = false;
 
     public function barang()
     {

@@ -12,12 +12,10 @@ return new class extends Migration
 			$table->id('id')->primary();
 			$table->string('id_users');
 			$table->string('id_toko');
-			$table->string('id_pembelian')->nullable();
-			$table->string('id_kasir')->nullable();
 			$table->string('id_member')->nullable();
 			$table->string('id_supplier')->nullable();
 			$table->string('no_nota');
-			$table->date('tgl_retur');
+			$table->dateTime('tgl_retur');
 			$table->integer('total_item')->nullable();
 			$table->double('total_harga')->nullable();
 			$table->enum('tipe_transaksi', ['kasir', 'supplier'])->nullable();

@@ -10,6 +10,7 @@ use App\Models\LevelHarga;
 use App\Models\PembelianBarang;
 use App\Models\StockBarang;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Endroid\QrCode\QrCode;
@@ -145,11 +146,18 @@ class PembelianBarangController extends Controller
 
             $user = Auth::user();
 
+            // Periksa apakah tgl_nota hanya berisi tanggal tanpa waktu
+            $tglNota = Carbon::parse($request->tgl_nota);
+            if ($tglNota->format('H:i:s') === '00:00:00') {
+                // Tambahkan waktu default (waktu saat ini)
+                $tglNota->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
+            }
+            
             $pembelian = PembelianBarang::create([
                 'id_supplier' => $request->id_supplier,
                 'id_users' => $user->id,
                 'no_nota' => $request->no_nota,
-                'tgl_nota' => $request->tgl_nota,
+                'tgl_nota' => $tglNota,
             ]);
 
             DB::commit();
@@ -291,7 +299,6 @@ class PembelianBarangController extends Controller
                             'id_supplier' => $idSupplier,
                         ],
                         [
-                            'nama_barang' => $barang->nama_barang,
                             'qty' => $qty,
                             'harga_barang' => $harga_barang,
                             'total_harga' => $qty * $harga_barang,
@@ -388,7 +395,7 @@ class PembelianBarangController extends Controller
 
             // Ambil data dari tabel berdasarkan id_pembelian
             $tempDetails = DB::table('temp_detail_pembelian_barang')
-                ->select('id_pembelian_barang', 'id_barang', 'nama_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
+                ->select('id_pembelian_barang', 'id_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
                 ->where('id_pembelian_barang', $id_pembelian)
                 ->get();
 
@@ -440,7 +447,6 @@ class PembelianBarangController extends Controller
             $request->validate([
                 'id_pembelian' => 'required|exists:pembelian_barang,id',
                 'id_barang' => 'required|exists:barang,id',
-                'nama_barang' => 'required|string',
                 'qty' => 'required|numeric|min:1',
                 'harga_barang' => 'required|numeric|min:1',
                 'level_harga' => 'array',
@@ -450,7 +456,6 @@ class PembelianBarangController extends Controller
             $tempDetail = DB::table('temp_detail_pembelian_barang')->insert([
                 'id_pembelian_barang' => $request->id_pembelian,
                 'id_barang' => $request->id_barang,
-                'nama_barang' => $request->nama_barang,
                 'qty' => $request->qty,
                 'harga_barang' => $request->harga_barang,
                 'total_harga' => $request->qty * $request->harga_barang,

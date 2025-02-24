@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id('id');
             $table->string('qrcode')->nullable();
             $table->string('qrcode_path')->nullable();
+            $table->string('id_supplier')->nullable();
             $table->string('id_pembelian_barang')->nullable();
             $table->string('id_barang')->nullable();
-            $table->string('nama_barang')->nullable();
             $table->integer('qty')->nullable();
             $table->double('harga_barang')->nullable();
             $table->double('total_harga')->nullable();
             $table->enum('status', ['success', 'failed', 'progress'])->default('progress')->nullable();
+            $table->timestamps();
             $table->softDeletes();
         });
     }

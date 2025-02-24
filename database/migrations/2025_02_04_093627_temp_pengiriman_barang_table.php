@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('temp_detail_pengiriman', function (Blueprint $table) {
             $table->id('id');
             $table->string('id_pengiriman_barang')->nullable();
+            $table->string('id_detail_pembelian');
             $table->string('id_barang')->nullable();
             $table->string('id_supplier')->nullable();
             $table->integer('qty')->nullable();
