@@ -488,26 +488,29 @@
             );
         }
 
-        async function selectList(selectors) {
+        async function selectList(selectors, placeholders) {
             if (!Array.isArray(selectors)) {
                 console.error("Selectors must be an array of element IDs.");
                 return;
             }
 
-            selectors.forEach(selector => {
+            selectors.forEach((selector, index) => {
                 const element = document.getElementById(selector);
                 if (element) {
                     if (element.choicesInstance) {
                         element.choicesInstance.destroy();
                     }
 
+                    const placeholderValue = placeholders[index] ||
+                    '';
+
                     const choicesInstance = new Choices(element, {
-                        removeItemButton: false,
+                        removeItemButton: true,
                         searchEnabled: true,
                         shouldSort: false,
                         allowHTML: true,
                         placeholder: true,
-                        placeholderValue: '',
+                        placeholderValue: placeholderValue,
                         noResultsText: 'Tidak ada hasil',
                         itemSelectText: '',
                     });

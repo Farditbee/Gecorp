@@ -19,8 +19,8 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                <button class="mr-2 btn btn-primary" data-toggle="modal" data-target="#modalTambahData"
-                                    title="Tambah Data Pengeluaran">
+                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data" data-container="body"
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Promo">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                             </div>
@@ -74,44 +74,46 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalTambahData" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataLabel"
+    <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form-label"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahDataLabel">Tambah Data Pengeluaran</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
                     <form id="formTambahData">
                         <div class="form-group">
                             <label for="nama_pengeluaran">Nama Pengeluaran <sup class="text-danger">*</sup></label>
                             <input type="text" class="form-control" id="nama_pengeluaran" name="nama_pengeluaran"
-                                required>
+                                placeholder="Masukkan nama pengeluaran" required>
                         </div>
                         <div class="form-group">
-                            <label for="jenis">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
-                            <select class="form-control" id="jenis" name="jenis">
+                            <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
+                            <select class="form-control" id="id_jenis_pengeluaran" name="id_jenis_pengeluaran">
                                 @foreach ($jenis_pengeluaran as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
                                 @endforeach
                             </select>
                         </div>
+                        <div class="text-center font-weight-bold">Atau</div>
                         <div class="form-group">
-                            <label for="jenis_baru">Jenis Pengeluaran Baru <sup class="text-dark">**</sup></label>
-                            <input type="text" class="form-control" id="jenis_baru" name="jenis_baru">
+                            <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-dark">**</sup></label>
+                            <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
+                                placeholder="Masukkan jenis baru">
                         </div>
                         <div class="form-group">
                             <label for="nilai">Nilai <sup class="text-danger">*</sup></label>
-                            <input type="number" class="form-control" id="nilai" name="nilai" required>
+                            <input type="number" class="form-control" id="nilai" name="nilai"
+                                placeholder="Masukkan nilai" required>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData">Simpan</button>
                 </div>
             </div>
         </div>
@@ -208,8 +210,8 @@
         }
 
         function handleInput() {
-            const jenisSelect = document.getElementById("jenis");
-            const jenisBaruInput = document.getElementById("jenis_baru");
+            const jenisSelect = document.getElementById("id_jenis_pengeluaran");
+            const jenisBaruInput = document.getElementById("nama_jenis");
 
             function toggleInputs() {
                 if (jenisSelect.value) {
@@ -233,11 +235,62 @@
             jenisBaruInput.addEventListener("input", toggleSelect);
         }
 
+        async function addData() {
+            $(document).on("click", ".add-data", function() {
+                $("#modal-title").html(`Form Tambah Pengeluaran`);
+                $("#modal-form").modal("show");
+                $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
+                $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
+            });
+        }
+
+        async function submitForm() {
+            $(document).off("submit").on("submit", "#formTambahData", async function(e) {
+                e.preventDefault();
+                loadingPage(true);
+
+                let actionUrl = $("#formTambahData").data("action-url");
+
+                let formData = {
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    id_jenis_pengeluaran: $('#id_jenis_pengeluaran').val(),
+                    nama_jenis: $('#nama_jenis').val(),
+                    nama_pengeluaran: $('#nama_pengeluaran').val(),
+                    nilai: $('#nilai').val(),
+                };
+
+                try {
+                    let postData = await renderAPI("POST", actionUrl, formData);
+
+                    loadingPage(false);
+                    if (postData.status >= 200 && postData.status < 300) {
+                        notificationAlert("success", "Pemberitahuan", postData.data.message || "Berhasil");
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        setTimeout(() => {
+                            $("#modal-form").modal("hide");
+                        }, 500);
+                    } else {
+                        notificationAlert("info", "Pemberitahuan", postData.data.message ||
+                            "Terjadi kesalahan");
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    let resp = error.response || {};
+                    notificationAlert("error", "Kesalahan", resp.message || "Terjadi kesalahan");
+                }
+            });
+        }
+
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await selectList(['jenis']);
+            await selectList(['id_jenis_pengeluaran'], ['Pilih Jenis Pengeluaran']);
             await handleInput();
+            await addData();
+            await submitForm();
         }
     </script>
 @endsection
