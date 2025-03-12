@@ -236,7 +236,7 @@
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await selectList('jenis');
+            await selectList(['jenis']);
             await handleInput();
         }
     </script>
