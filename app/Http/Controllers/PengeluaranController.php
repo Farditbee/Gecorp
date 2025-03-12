@@ -26,10 +26,10 @@ class PengeluaranController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
-        $menu = [$this->title[0], $this->label[0]];
+        $menu = [$this->title[0]];
         $jenis_pengeluaran = JenisPengeluaran::orderBy('id', 'desc')
             ->get();
-        return view('master.pengeluaran.index', compact('jenis_pengeluaran'));
+        return view('pengeluaran.index', compact('jenis_pengeluaran', 'menu'));
     }
 
     public function getpengeluaran(Request $request)

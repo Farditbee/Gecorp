@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Data User
+    Pengeluaran
 @endsection
 
 @section('css')
@@ -47,21 +47,10 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Tgl</th>
-                                                <th class="text-wrap align-top">Subjek</th>
-                                                <th class="text-wrap align-top">Kategori</th>
-                                                <th class="text-wrap align-top">Item</th>
-                                                <th class="text-wrap align-top">Jml</th>
-                                                <th class="text-wrap align-top">HST</th>
-                                                <th class="text-wrap align-top">Nilai Transaksi</th>
-                                                <th class="text-wrap align-top text-white bg-info">Kas Kecil In</th>
-                                                <th class="text-wrap align-top text-white bg-info">Kas Kecil Out</th>
-                                                <th class="text-wrap align-top text-white bg-success">Kas Besar In</th>
-                                                <th class="text-wrap align-top text-white bg-success">Kas Besar Out</th>
-                                                <th class="text-wrap align-top text-white bg-warning">Piutang In</th>
-                                                <th class="text-wrap align-top text-white bg-warning">Piutang Out</th>
-                                                <th class="text-wrap align-top text-white bg-secondary">Hutang In</th>
-                                                <th class="text-wrap align-top text-white bg-secondary">Hutang Out</th>
+                                                <th class="text-wrap align-top">Nama Toko</th>
+                                                <th class="text-wrap align-top">Nama Pengeluaran</th>
+                                                <th class="text-wrap align-top">Jenis</th>
+                                                <th class="text-wrap align-top">Nilai</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -96,7 +85,7 @@
 
 @section('js')
     <script>
-        let title = 'Data User';
+        let title = 'Pengeluaran';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -111,7 +100,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ asset('dummy/aruskas.json') }}', {
+                '{{ route('master.getpengeluaran') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -145,21 +134,10 @@
         async function handleData(data) {
             return {
                 id: data?.id ?? '-',
-                tgl: data?.tgl ?? '-',
-                subjek: data?.subjek ?? '-',
-                kategori: data?.kategori ?? '-',
-                item: data?.item ?? '-',
-                jml: data?.jml ?? 0,
-                hst: data?.hst ?? 0,
-                nilai_transaksi: data?.nilai_transaksi ?? 0,
-                kas_kecil_in: data?.kas_kecil_in ?? 0,
-                kas_kecil_out: data?.kas_kecil_out ?? 0,
-                kas_besar_in: data?.kas_besar_in ?? 0,
-                kas_besar_out: data?.kas_besar_out ?? 0,
-                piutang_in: data?.piutang_in ?? 0,
-                piutang_out: data?.piutang_out ?? 0,
-                hutang_in: data?.hutang_in ?? 0,
-                hutang_out: data?.hutang_out ?? 0
+                nama_toko: data?.nama_toko ?? '-',
+                nama_pengeluaran: data?.nama_pengeluaran ?? '-',
+                nama_jenis: data?.nama_jenis ?? '-',
+                nilai: data?.nilai ?? '-',
             };
         }
 
@@ -175,21 +153,10 @@
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.tgl}</td>
-                        <td class="${classCol}">${element.subjek}</td>
-                        <td class="${classCol}">${element.kategori}</td>
-                        <td class="${classCol}">${element.item}</td>
-                        <td class="${classCol} text-center">${element.jml}</td>
-                        <td class="${classCol} text-right">${element.hst.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.nilai_transaksi.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.kas_kecil_in.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.kas_kecil_out.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.kas_besar_in.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.kas_besar_out.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.piutang_in.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.piutang_out.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.hutang_in.toLocaleString()}</td>
-                        <td class="${classCol} text-right">${element.hutang_out.toLocaleString()}</td>
+                        <td class="${classCol}">${element.nama_toko}</td>
+                        <td class="${classCol}">${element.nama_pengeluaran}</td>
+                        <td class="${classCol}">${element.nama_jenis}</td>
+                        <td class="${classCol}">${element.nilai}</td>
                     </tr>`;
             });
 
@@ -200,52 +167,9 @@
             renderPagination();
         }
 
-
-        async function deleteData() {
-            $(document).on("click", ".hapus-data", async function() {
-                isActionForm = "destroy";
-                let id = $(this).attr("data-id");
-                let name = $(this).attr("data-name");
-
-                swal({
-                    title: `Hapus User ${name}`,
-                    text: "Apakah anda yakin?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Tidak, Batal!",
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    reverseButtons: true,
-                    confirmButtonClass: "btn btn-danger",
-                    cancelButtonClass: "btn btn-secondary",
-                }).then(async (result) => {
-                    let postDataRest = await renderAPI(
-                        'DELETE',
-                        `user/delete/${id}`
-                    ).then(function(response) {
-                        return response;
-                    }).catch(function(error) {
-                        let resp = error.response;
-                        return resp;
-                    });
-
-                    if (postDataRest.status == 200) {
-                        setTimeout(function() {
-                            getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
-                            .message);
-                    }
-                }).catch(swal.noop);
-            })
-        }
-
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await deleteData();
         }
     </script>
 @endsection
