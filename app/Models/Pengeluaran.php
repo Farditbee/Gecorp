@@ -28,4 +28,8 @@ class Pengeluaran extends Model
     {
         return $this->belongsTo(JenisPengeluaran::class,'id_jenis_pengeluaran', 'id');
     }
+
+    public function toko(): BelongsTo{
+        return $this->belongsTo(Toko::class, 'id_toko', 'id');
+    }
 }

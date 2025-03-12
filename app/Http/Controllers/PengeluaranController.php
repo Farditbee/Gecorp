@@ -6,6 +6,8 @@ use App\Models\JenisPengeluaran;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PengeluaranController extends Controller
 {
@@ -23,7 +25,7 @@ class PengeluaranController extends Controller
 
     public function index()
     {
-        if (!in_array(Auth::user()->id_level, [1, 2])) {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3, 4])) {
             abort(403, 'Unauthorized');
         }
         $menu = [$this->title[0]];
@@ -111,5 +113,47 @@ class PengeluaranController extends Controller
             'message' => 'Sukses',
             'pagination' => $data['meta']
         ], 200);
+    }
+
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'id_toko' => 'required|exists:toko,id',
+            'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id',
+            'nama_jenis' => 'required_without:id_jenis_pengeluaran|string',
+            'nama_pengeluaran' => 'required|string',
+            'nilai' => 'required|numeric',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'];
+            if (empty($id_jenis_pengeluaran)) {
+                $jenis_pengeluaran = JenisPengeluaran::create([
+                    'nama_jenis' => $validatedData['nama_jenis']
+                ]);
+                $id_jenis_pengeluaran = $jenis_pengeluaran->id;
+            }
+
+            Pengeluaran::create([
+                'id_toko' => $validatedData['id_toko'],
+                'id_jenis_pengeluaran' => $id_jenis_pengeluaran,
+                'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
+                'nilai' => $validatedData['nilai'],
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Data berhasil disimpan!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error Tambah Data: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
+        }
     }
 }

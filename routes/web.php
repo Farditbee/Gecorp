@@ -153,6 +153,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Pengeluaran Controller
         Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('master.pengeluaran.index');
+        Route::post('/pengeluaran/store', [PengeluaranController::class, 'store'])->name('master.pengeluaran.store');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
