@@ -11,6 +11,7 @@ use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
+use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
@@ -46,6 +47,7 @@ Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengi
 Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
+Route::get('/getpengeluaran', [PengeluaranController::class, 'getpengeluaran'])->name('master.getpengeluaran');
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');
 Route::get('/getmember', [MemberController::class, 'getmember'])->name('master.getmember');
 Route::get('/getsupplier', [SupplierController::class, 'getsupplier'])->name('master.getsupplier');

@@ -14,6 +14,7 @@ use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
+use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
@@ -149,6 +150,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-item/{id}', [StockBarangController::class, 'getItem'])->name('get.item');
         Route::post('/update-level-harga', [StockBarangController::class, 'updateLevelHarga'])->name('updateLevelHarga');
         // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
+
+        // Pengeluaran Controller
+        Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('master.pengeluaran.index');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

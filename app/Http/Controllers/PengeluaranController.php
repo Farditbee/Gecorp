@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\JenisPengeluaran;
+use App\Models\Pengeluaran;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class PengeluaranController extends Controller
+{
+    private array $menu = [];
+
+    public function __construct()
+    {
+        $this->menu;
+        $this->title = [
+            'Pengeluaran',
+            'Tambah Data',
+            'Edit Data'
+        ];
+    }
+
+    public function index()
+    {
+        if (!in_array(Auth::user()->id_level, [1, 2])) {
+            abort(403, 'Unauthorized');
+        }
+        $menu = [$this->title[0], $this->label[0]];
+        $jenis_pengeluaran = JenisPengeluaran::orderBy('id', 'desc')
+            ->get();
+        return view('master.pengeluaran.index', compact('jenis_pengeluaran'));
+    }
+
+    public function getpengeluaran(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = Pengeluaran::query();
+
+        $query->with(['toko', 'jenis_pengeluaran'])->orderBy('id', $meta['orderBy']);
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                // Pencarian pada kolom langsung
+                $query->orWhereRaw("LOWER(nama_pengeluaran) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
+                });
+                $query->orWhereHas('jenis_pengeluaran', function ($subquery) use ($searchTerm) {
+                    $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        // Filter berdasarkan id_toko
+        if ($request->has('id_toko')) {
+            $idToko = $request->input('id_toko');
+            if ($idToko != 1) {
+                $query->where('id_toko', $idToko);
+            }
+        }
+
+        if ($request->has('startDate') && $request->has('endDate')) {
+            $startDate = $request->input('startDate');
+            $endDate = $request->input('endDate');
+
+            // Lakukan filter berdasarkan tanggal
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = collect($data['data'])->map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_toko' => $item['toko']->nama_toko,
+                'nama_pengeluaran' => $item->nama_pengeluaran,
+                'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis,
+                'nilai' => $item->nilai,
+            ];
+        });
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => true,
+            'message' => 'Sukses',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+}
