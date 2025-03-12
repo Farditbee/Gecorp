@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\JenisPengeluaran;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -102,7 +103,9 @@ class PengeluaranController extends Controller
                 'nama_toko' => $item['toko']->nama_toko,
                 'nama_pengeluaran' => $item->nama_pengeluaran,
                 'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis,
-                'nilai' => $item->nilai,
+                'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                'tanggal' => Carbon::parse($item['created_at'])->format('d-m-Y'),
+
             ];
         });
 
