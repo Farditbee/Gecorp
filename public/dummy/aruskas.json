@@ -1,0 +1,117 @@
+{
+    "error": false,
+    "message": "Successfully",
+    "status_code": 200,
+    "data": [
+        {
+            "id": 1,
+            "tgl": "2025-01-02",
+            "subjek": "Admin Toko A",
+            "kategori": "Biaya Perbaikan Toko",
+            "item": "Belanja Bahan Bangunan",
+            "jml": 2,
+            "hst": 100000,
+            "nilai_transaksi": 200000,
+            "kas_kecil_in": 50000,
+            "kas_kecil_out": 150000,
+            "kas_besar_in": 0,
+            "kas_besar_out": 50000,
+            "piutang_in": 0,
+            "piutang_out": 0,
+            "hutang_in": 100000,
+            "hutang_out": 50000
+        },
+        {
+            "id": 2,
+            "tgl": "2025-01-05",
+            "subjek": "Admin Toko B",
+            "kategori": "Biaya Operasional",
+            "item": "Pembelian ATK",
+            "jml": 5,
+            "hst": 20000,
+            "nilai_transaksi": 100000,
+            "kas_kecil_in": 0,
+            "kas_kecil_out": 100000,
+            "kas_besar_in": 50000,
+            "kas_besar_out": 0,
+            "piutang_in": 0,
+            "piutang_out": 0,
+            "hutang_in": 50000,
+            "hutang_out": 0
+        },
+        {
+            "id": 3,
+            "tgl": "2025-01-07",
+            "subjek": "Admin Toko C",
+            "kategori": "Biaya Transportasi",
+            "item": "Sewa Kendaraan",
+            "jml": 1,
+            "hst": 300000,
+            "nilai_transaksi": 300000,
+            "kas_kecil_in": 0,
+            "kas_kecil_out": 300000,
+            "kas_besar_in": 0,
+            "kas_besar_out": 0,
+            "piutang_in": 100000,
+            "piutang_out": 200000,
+            "hutang_in": 0,
+            "hutang_out": 0
+        },
+        {
+            "id": 4,
+            "tgl": "2025-01-10",
+            "subjek": "Admin Toko A",
+            "kategori": "Biaya Listrik",
+            "item": "Pembayaran Listrik",
+            "jml": 1,
+            "hst": 500000,
+            "nilai_transaksi": 500000,
+            "kas_kecil_in": 0,
+            "kas_kecil_out": 500000,
+            "kas_besar_in": 0,
+            "kas_besar_out": 0,
+            "piutang_in": 0,
+            "piutang_out": 0,
+            "hutang_in": 0,
+            "hutang_out": 500000
+        }
+    ],
+    "data_total": [
+        {
+            "kas_kecil": [
+                {
+                    "saldo_awal": 2000000,
+                    "saldo_akhir": 1500000,
+                    "saldo_berjalan": -500000
+                }
+            ],
+            "kas_besar": [
+                {
+                    "saldo_awal": 5000000,
+                    "saldo_akhir": 4700000,
+                    "saldo_berjalan": -300000
+                }
+            ],
+            "piutang": [
+                {
+                    "saldo_awal": 1000000,
+                    "saldo_akhir": 1200000,
+                    "saldo_berjalan": 200000
+                }
+            ],
+            "hutang": [
+                {
+                    "saldo_awal": 2000000,
+                    "saldo_akhir": 2500000,
+                    "saldo_berjalan": 500000
+                }
+            ]
+        }
+    ],
+    "pagination": {
+        "total": 4,
+        "per_page": 10,
+        "current_page": 1,
+        "total_pages": 1
+    }
+}

@@ -137,6 +137,13 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('pengeluaran.index') }}"
+                        class="nav-link {{ request()->routeIs('pengeluaran.*') ? $nav_link : '' }}">
+                        <span class="pcoded-micon"><i class="feather icon-file"></i></span>
+                        <span class="pcoded-mtext">Pengeluaran</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

@@ -14,6 +14,7 @@ use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
 use App\Http\Controllers\PembelianBarangController;
+use App\Http\Controllers\Pengeluaran\PengeluaranController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
@@ -223,6 +224,10 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('laba-rugi')->as('labarugi.')->group(function () {
                 Route::get('/', [LabaRugiController::class, 'index'])->name('index');
             });
+        });
+
+        Route::prefix('pengeluaran')->as('pengeluaran.')->group(function () {
+            Route::get('/', [PengeluaranController::class, 'index'])->name('index');
         });
     });
 });
