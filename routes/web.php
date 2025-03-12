@@ -228,5 +228,9 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('/', [LabaRugiController::class, 'index'])->name('index');
             });
         });
+
+        Route::prefix('pengeluaran')->as('pengeluaran.')->group(function () {
+            Route::get('/', [PengeluaranController::class, 'index'])->name('index');
+        });
     });
 });
