@@ -19,15 +19,11 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data User">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @endif
+                                <button class="mr-2 btn btn-primary" data-toggle="modal" data-target="#modalTambahData"
+                                    title="Tambah Data Pengeluaran">
+                                    <i class="fa fa-plus-circle"></i> Tambah
+                                </button>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 100px;">
@@ -73,6 +69,49 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalTambahData" tabindex="-1" role="dialog" aria-labelledby="modalTambahDataLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTambahDataLabel">Tambah Data Pengeluaran</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formTambahData">
+                        <div class="form-group">
+                            <label for="nama_pengeluaran">Nama Pengeluaran <sup class="text-danger">*</sup></label>
+                            <input type="text" class="form-control" id="nama_pengeluaran" name="nama_pengeluaran"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label for="jenis">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
+                            <select class="form-control" id="jenis" name="jenis">
+                                @foreach ($jenis_pengeluaran as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="jenis_baru">Jenis Pengeluaran Baru <sup class="text-dark">**</sup></label>
+                            <input type="text" class="form-control" id="jenis_baru" name="jenis_baru">
+                        </div>
+                        <div class="form-group">
+                            <label for="nilai">Nilai <sup class="text-danger">*</sup></label>
+                            <input type="number" class="form-control" id="nilai" name="nilai" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan</button>
                 </div>
             </div>
         </div>
@@ -168,9 +207,37 @@
             renderPagination();
         }
 
+        function handleInput() {
+            const jenisSelect = document.getElementById("jenis");
+            const jenisBaruInput = document.getElementById("jenis_baru");
+
+            function toggleInputs() {
+                if (jenisSelect.value) {
+                    jenisBaruInput.disabled = true;
+                    jenisBaruInput.value = "";
+                } else {
+                    jenisBaruInput.disabled = false;
+                }
+            }
+
+            function toggleSelect() {
+                if (jenisBaruInput.value.trim() !== "") {
+                    jenisSelect.disabled = true;
+                    jenisSelect.value = "";
+                } else {
+                    jenisSelect.disabled = false;
+                }
+            }
+
+            jenisSelect.addEventListener("change", toggleInputs);
+            jenisBaruInput.addEventListener("input", toggleSelect);
+        }
+
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
+            await selectList('jenis');
+            await handleInput();
         }
     </script>
 @endsection
