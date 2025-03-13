@@ -54,9 +54,6 @@
                                     @endif
                                     <div class="mb-2 mx-1">
                                         <select class="form-control select2" id="jenis" name="jenis">
-                                            @foreach ($jenis_pengeluaran as $item)
-                                                <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
-                                            @endforeach
                                         </select>
                                     </div>
                                     <button class="btn btn-info mr-2 h-100 mb-2 mx-1" id="tb-filter" type="submit">
@@ -131,7 +128,7 @@
                         </div>
                         <div class="form-group">
                             <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
-                            <select class="form-control" id="id_jenis_pengeluaran" name="id_jenis_pengeluaran">
+                            <select class="form-control select2" id="id_jenis_pengeluaran" name="id_jenis_pengeluaran">
                                 @foreach ($jenis_pengeluaran as $item)
                                     <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
                                 @endforeach
@@ -176,6 +173,16 @@
             id: '#toko',
             isUrl: '{{ route('master.toko') }}',
             placeholder: 'Pilih Nama Toko',
+        },{
+            id: '#jenis',
+            isUrl: '{{ route('master.jenis') }}',
+            placeholder: 'Pilih Jenis Pengeluaran',
+        },
+        {
+            id: '#id_jenis_pengeluaran',
+            isUrl: '{{ route('master.jenis') }}',
+            placeholder: 'Pilih Jenis Pengeluaran',
+            isModal: '#modal-form'
         }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
@@ -471,7 +478,6 @@
             await selectData(selectOptions);
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await selectList(['id_jenis_pengeluaran', 'jenis'], ['Pilih Jenis Pengeluaran', 'Pilih Jenis Pengeluaran']);
             await handleInput();
             await filterList();
             await addData();
