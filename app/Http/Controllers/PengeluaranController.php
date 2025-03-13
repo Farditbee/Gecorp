@@ -59,12 +59,16 @@ class PengeluaranController extends Controller
             });
         }
 
-        // Filter berdasarkan id_toko
         if ($request->has('id_toko')) {
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
                 $query->where('id_toko', $idToko);
             }
+        }
+
+        if ($request->has('id_jenis_pengeluaran')) {
+            $id_jenis = $request->input('id_jenis_pengeluaran');
+            $query->where('id_jenis_pengeluaran', $id_jenis);
         }
 
         if ($request->has('startDate') && $request->has('endDate')) {
