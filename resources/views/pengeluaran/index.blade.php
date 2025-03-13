@@ -44,9 +44,20 @@
                         <div class="content">
                             <div class="collapse mt-2 pl-4" id="filter-collapse">
                                 <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <input class="form-control w-25 mb-2" type="text" id="daterange" name="daterange"
+                                    <input class="form-control mb-2 w-25" type="text" id="daterange" name="daterange"
                                         placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
+                                    <div class="mb-2 mt-2 mx-1">
+                                        <select class="form-control select2" id="toko" name="toko">
+                                        </select>
+                                    </div>
+                                    <div class="mb-2 mx-1">
+                                        <select class="form-control select2" id="jenis" name="jenis">
+                                            @foreach ($jenis_pengeluaran as $item)
+                                                <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-1" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                     </button>
                                     <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
@@ -101,8 +112,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal" aria-label="Close"><i
-                            class="fa fa-xmark"></i></button>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
                     <form id="formTambahData">
@@ -157,6 +168,15 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let selectOptions = [{
+            id: '#toko',
+            isUrl: '{{ route('master.toko') }}',
+            // isFilter: {
+            //     is_delete: '{{ auth()->user()->id_toko }}',
+            //     is_admin: true,
+            // },
+            placeholder: 'Pilih Nama Toko',
+        }];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -166,6 +186,14 @@
             if (customFilter['startDate'] && customFilter['endDate']) {
                 filterParams.startDate = customFilter['startDate'];
                 filterParams.endDate = customFilter['endDate'];
+            }
+
+            if (customFilter['toko']) {
+                filterParams.toko = customFilter['toko'];
+            }
+
+            if (customFilter['jenis']) {
+                filterParams.jenis = customFilter['jenis'];
             }
 
             let getDataRest = await renderAPI(
@@ -407,8 +435,10 @@
                 }
 
                 customFilter = {
-                    'startDate': $("#daterange").val() != '' ? startDate : '',
-                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                    startDate: $("#daterange").val() != '' ? startDate : '',
+                    endDate: $("#daterange").val() != '' ? endDate : '',
+                    toko: $("#toko").val() || '',
+                    jenis: $("#jenis").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -426,11 +456,11 @@
 
             document.getElementById('tb-reset').addEventListener('click', async function() {
                 $('#daterange').val('');
+                $('#custom-filter select').val(null).trigger('change');
                 customFilter = {};
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
-                await setTimeReport();
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
@@ -438,9 +468,10 @@
 
         async function initPageLoad() {
             await setDynamicButton();
+            await selectData(selectOptions);
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await selectList(['id_jenis_pengeluaran'], ['Pilih Jenis Pengeluaran']);
+            await selectList(['id_jenis_pengeluaran', 'jenis'], ['Pilih Jenis Pengeluaran', 'Pilih Jenis Pengeluaran']);
             await handleInput();
             await filterList();
             await addData();
