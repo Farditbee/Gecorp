@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
 @endsection
 
 @section('content')
@@ -19,9 +20,14 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data" data-container="body"
+                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
                                     data-toggle="tooltip" data-placement="top" title="Tambah Promo">
                                     <i class="fa fa-plus-circle"></i> Tambah
+                                </button>
+                                <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
+                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                    aria-controls="filter-collapse">
+                                    <i class="fa fa-filter"></i> Filter
                                 </button>
                             </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -36,7 +42,18 @@
                             </div>
                         </div>
                         <div class="content">
-                            <x-adminlte-alerts />
+                            <div class="collapse mt-2 pl-4" id="filter-collapse">
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
+                                    <input class="form-control w-25 mb-2" type="text" id="daterange" name="daterange"
+                                        placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
+                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
+                                        <i class="fa fa-rotate mr-2"></i>Reset
+                                    </button>
+                                </form>
+                            </div>
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-striped m-0">
@@ -47,6 +64,7 @@
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-wrap align-top">Jenis</th>
                                                 <th class="text-wrap align-top">Nilai</th>
+                                                <th class="text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -121,6 +139,9 @@
 @endsection
 
 @section('asset_js')
+    <script src="{{ asset('js/moment.js') }}"></script>
+    <script src="{{ asset('js/daterange-picker.js') }}"></script>
+    <script src="{{ asset('js/daterange-custom.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
 @endsection
 
@@ -138,6 +159,11 @@
             $('#listData').html(loadingData());
 
             let filterParams = {};
+
+            if (customFilter['startDate'] && customFilter['endDate']) {
+                filterParams.startDate = customFilter['startDate'];
+                filterParams.endDate = customFilter['endDate'];
+            }
 
             let getDataRest = await renderAPI(
                 'GET',
@@ -164,9 +190,9 @@
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
-            <tr class="text-dark">
-                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-            </tr>`;
+                <tr class="text-dark">
+                    <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                </tr>`;
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
                 $('#totalPage').text("0");
@@ -174,12 +200,35 @@
         }
 
         async function handleData(data) {
+            let elementData = encodeURIComponent(JSON.stringify(data));
+
+            let action_buttons = '';
+            let delete_button = `
+                <a class="p-1 btn delete-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Hapus ${title}" data="${elementData}">
+                    <span class="text-dark">Hapus</span>
+                    <div class="icon text-danger">
+                        <i class="fa fa-trash"></i>
+                    </div>
+                </a>`;
+
+            if (delete_button) {
+                action_buttons = `
+                <div class="d-flex justify-content-start">
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                </div>`;
+            } else {
+                action_buttons = `
+                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
+            }
             return {
                 id: data?.id ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
                 nama_pengeluaran: data?.nama_pengeluaran ?? '-',
                 nama_jenis: data?.nama_jenis ?? '-',
                 nilai: data?.nilai ?? '-',
+                action_buttons,
             };
         }
 
@@ -199,6 +248,7 @@
                         <td class="${classCol}">${element.nama_pengeluaran}</td>
                         <td class="${classCol}">${element.nama_jenis}</td>
                         <td class="${classCol}">${element.nilai}</td>
+                        <td class="${classCol}">${element.action_buttons}</td>
                     </tr>`;
             });
 
@@ -284,13 +334,102 @@
             });
         }
 
+        async function deleteData() {
+            $(document).on("click", ".delete-data", async function() {
+                let rawData = $(this).attr("data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                swal({
+                    title: `Hapus ${title}`,
+                    text: "Apakah anda yakin?",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Ya, Hapus!",
+                    cancelButtonText: "Tidak, Batal!",
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    confirmButtonClass: "btn btn-danger",
+                    cancelButtonClass: "btn btn-secondary",
+                }).then(async (result) => {
+                    let postDataRest = await renderAPI(
+                        'DELETE',
+                        `/admin/pengeluaran/delete/${data.id}`, {}
+                    ).then(function(response) {
+                        return response;
+                    }).catch(function(error) {
+                        let resp = error.response;
+                        return resp;
+                });
+
+                    if (postDataRest.status == 200) {
+                        setTimeout(function() {
+                            getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
+                            .message);
+                    }
+                }).catch(swal.noop);
+            })
+        }
+
+        async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
+
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss');
+                    endDate = endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss');
+                }
+
+                customFilter = {
+                    'startDate': $("#daterange").val() != '' ? startDate : '',
+                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                $('#time-report').html(
+                    `<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${startDate}</b> s/d <b class="text-primary">${endDate}</b>)`
+                );
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#daterange').val('');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await setTimeReport();
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
         async function initPageLoad() {
+            await setDynamicButton();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await selectList(['id_jenis_pengeluaran'], ['Pilih Jenis Pengeluaran']);
             await handleInput();
+            await filterList();
             await addData();
             await submitForm();
+            await deleteData();
         }
     </script>
 @endsection
