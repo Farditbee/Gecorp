@@ -74,6 +74,7 @@ class PengeluaranController extends Controller
             // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
+        $totalNilai = $query->sum('nilai');
 
         $data = $query->paginate($meta['limit']);
 
@@ -105,7 +106,6 @@ class PengeluaranController extends Controller
                 'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis,
                 'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
                 'tanggal' => Carbon::parse($item['created_at'])->format('d-m-Y'),
-
             ];
         });
 
@@ -114,7 +114,8 @@ class PengeluaranController extends Controller
             'status_code' => 200,
             'errors' => true,
             'message' => 'Sukses',
-            'pagination' => $data['meta']
+            'pagination' => $data['meta'],
+            'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, '.', '.')
         ], 200);
     }
 
