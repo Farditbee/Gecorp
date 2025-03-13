@@ -66,8 +66,13 @@ class PengeluaranController extends Controller
             }
         }
 
-        if ($request->has('id_jenis_pengeluaran')) {
-            $id_jenis = $request->input('id_jenis_pengeluaran');
+        if ($request->has('toko')) {
+            $idToko = $request->input('toko');
+                $query->where('id_toko', $idToko);
+        }
+
+        if ($request->has('jenis')) {
+            $id_jenis = $request->input('jenis');
             $query->where('id_jenis_pengeluaran', $id_jenis);
         }
 
