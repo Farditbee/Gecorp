@@ -60,6 +60,7 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-wrap align-top">Jenis</th>
@@ -224,6 +225,7 @@
             }
             return {
                 id: data?.id ?? '-',
+                tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
                 nama_pengeluaran: data?.nama_pengeluaran ?? '-',
                 nama_jenis: data?.nama_jenis ?? '-',
@@ -244,6 +246,7 @@
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol}">${element.tanggal}</td>
                         <td class="${classCol}">${element.nama_toko}</td>
                         <td class="${classCol}">${element.nama_pengeluaran}</td>
                         <td class="${classCol}">${element.nama_jenis}</td>
