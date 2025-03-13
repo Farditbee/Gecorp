@@ -170,20 +170,21 @@
         let defaultSearch = '';
         let customFilter = {};
         let selectOptions = [{
-            id: '#toko',
-            isUrl: '{{ route('master.toko') }}',
-            placeholder: 'Pilih Nama Toko',
-        },{
-            id: '#jenis',
-            isUrl: '{{ route('master.jenis') }}',
-            placeholder: 'Pilih Jenis Pengeluaran',
-        },
-        {
-            id: '#id_jenis_pengeluaran',
-            isUrl: '{{ route('master.jenis') }}',
-            placeholder: 'Pilih Jenis Pengeluaran',
-            isModal: '#modal-form'
-        }];
+                id: '#toko',
+                isUrl: '{{ route('master.toko') }}',
+                placeholder: 'Pilih Nama Toko',
+            }, {
+                id: '#jenis',
+                isUrl: '{{ route('master.jenis') }}',
+                placeholder: 'Pilih Jenis Pengeluaran',
+            },
+            {
+                id: '#id_jenis_pengeluaran',
+                isUrl: '{{ route('master.jenis') }}',
+                placeholder: 'Pilih Jenis Pengeluaran',
+                isModal: '#modal-form'
+            }
+        ];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -311,11 +312,11 @@
         }
 
         function handleInput() {
-            const jenisSelect = document.getElementById("id_jenis_pengeluaran");
+            const jenisSelect = $("#id_jenis_pengeluaran");
             const jenisBaruInput = document.getElementById("nama_jenis");
 
             function toggleInputs() {
-                if (jenisSelect.value) {
+                if (jenisSelect.val()) {
                     jenisBaruInput.disabled = true;
                     jenisBaruInput.value = "";
                 } else {
@@ -325,14 +326,13 @@
 
             function toggleSelect() {
                 if (jenisBaruInput.value.trim() !== "") {
-                    jenisSelect.disabled = true;
-                    jenisSelect.value = "";
+                    jenisSelect.prop("disabled", true).val(null).trigger("change");
                 } else {
-                    jenisSelect.disabled = false;
+                    jenisSelect.prop("disabled", false);
                 }
             }
 
-            jenisSelect.addEventListener("change", toggleInputs);
+            jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
         }
 
