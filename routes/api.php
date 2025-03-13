@@ -49,6 +49,7 @@ Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.tr
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
 Route::get('/getpengeluaran', [PengeluaranController::class, 'getpengeluaran'])->name('master.getpengeluaran');
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');
+Route::get('/getpengeluaran', [PengeluaranController::class, 'getpengeluaran'])->name('master.getpengeluaran');
 Route::get('/getmember', [MemberController::class, 'getmember'])->name('master.getmember');
 Route::get('/getsupplier', [SupplierController::class, 'getsupplier'])->name('master.getsupplier');
 Route::get('/getjenisbarang', [JenisBarangController::class, 'getjenisbarang'])->name('master.getjenisbarang');
