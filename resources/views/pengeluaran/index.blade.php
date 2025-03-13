@@ -46,10 +46,12 @@
                                 <form id="custom-filter" class="d-flex justify-content-start align-items-center">
                                     <input class="form-control mb-2 w-25" type="text" id="daterange" name="daterange"
                                         placeholder="Pilih rentang tanggal">
-                                    <div class="mb-2 mt-2 mx-1">
-                                        <select class="form-control select2" id="toko" name="toko">
-                                        </select>
-                                    </div>
+                                    @if (auth()->user()->id_toko == 1)
+                                        <div class="mb-2 mx-1">
+                                            <select class="form-control select2" id="toko" name="toko">
+                                            </select>
+                                        </div>
+                                    @endif
                                     <div class="mb-2 mx-1">
                                         <select class="form-control select2" id="jenis" name="jenis">
                                             @foreach ($jenis_pengeluaran as $item)
@@ -108,7 +110,7 @@
 
     <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form-label"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
@@ -121,6 +123,11 @@
                             <label for="nama_pengeluaran">Nama Pengeluaran <sup class="text-danger">*</sup></label>
                             <input type="text" class="form-control" id="nama_pengeluaran" name="nama_pengeluaran"
                                 placeholder="Masukkan nama pengeluaran" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
+                            <input type="number" class="form-control" id="nilai" name="nilai"
+                                placeholder="Masukkan nilai" required>
                         </div>
                         <div class="form-group">
                             <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
@@ -136,16 +143,13 @@
                             <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
                                 placeholder="Masukkan jenis baru">
                         </div>
-                        <div class="form-group">
-                            <label for="nilai">Nilai <sup class="text-danger">*</sup></label>
-                            <input type="number" class="form-control" id="nilai" name="nilai"
-                                placeholder="Masukkan nilai" required>
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData"><i
+                            class="fa fa-save mr-1"></i>Simpan</button>
                 </div>
             </div>
         </div>
@@ -171,10 +175,6 @@
         let selectOptions = [{
             id: '#toko',
             isUrl: '{{ route('master.toko') }}',
-            // isFilter: {
-            //     is_delete: '{{ auth()->user()->id_toko }}',
-            //     is_admin: true,
-            // },
             placeholder: 'Pilih Nama Toko',
         }];
 
