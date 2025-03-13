@@ -159,4 +159,25 @@ class PengeluaranController extends Controller
             ], 500);
         }
     }
+
+    public function delete (string $id)
+    {
+        DB::beginTransaction();
+        try {
+            $pengeluaran = Pengeluaran::findOrFail($id);
+            $pengeluaran->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data pengeluaran'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data pengeluaran: ' . $th->getMessage()
+            ], 500);
+        }
+    }
 }
