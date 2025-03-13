@@ -64,7 +64,7 @@
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-wrap align-top">Jenis</th>
-                                                <th class="text-wrap align-top">Nilai</th>
+                                                <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
@@ -260,8 +260,9 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol} text-center"><strong class="text-white">Total</strong></td>
-                <td class="${classCol} text-right" colspan="5"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol}" colspan="4"></td>
+                <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
+                <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
             </tr>`;
 
