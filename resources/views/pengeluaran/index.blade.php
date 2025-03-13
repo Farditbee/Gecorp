@@ -65,11 +65,13 @@
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-wrap align-top">Jenis</th>
                                                 <th class="text-wrap align-top">Nilai</th>
-                                                <th class="text-wrap align-top">Action</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
                                         </tbody>
+                                        <tfoot>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
@@ -187,7 +189,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total_nilai);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
@@ -216,7 +218,7 @@
 
             if (delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-start">
+                <div class="d-flex justify-content-center">
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -234,7 +236,7 @@
             };
         }
 
-        async function setListData(dataList, pagination) {
+        async function setListData(dataList, pagination, total) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
@@ -242,20 +244,30 @@
 
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
+
             dataList.forEach((element, index) => {
                 getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.tanggal}</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.nama_pengeluaran}</td>
-                        <td class="${classCol}">${element.nama_jenis}</td>
-                        <td class="${classCol}">${element.nilai}</td>
-                        <td class="${classCol}">${element.action_buttons}</td>
-                    </tr>`;
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">${element.tanggal}</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
+                    <td class="${classCol}">${element.nama_pengeluaran}</td>
+                    <td class="${classCol}">${element.nama_jenis}</td>
+                    <td class="${classCol} text-right">${element.nilai}</td>
+                    <td class="${classCol}">${element.action_buttons}</td>
+                </tr>`;
             });
 
+            let totalRow = `
+            <tr class="bg-primary">
+                <td class="${classCol} text-center"><strong class="text-white">Total</strong></td>
+                <td class="${classCol} text-right" colspan="5"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol}"></td>
+            </tr>`;
+
             $('#listData').html(getDataTable);
+            $('#listData').closest('table').find('tfoot').html(totalRow);
+
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
@@ -363,7 +375,7 @@
                     }).catch(function(error) {
                         let resp = error.response;
                         return resp;
-                });
+                    });
 
                     if (postDataRest.status == 200) {
                         setTimeout(function() {
