@@ -43,22 +43,29 @@
                         </div>
                         <div class="content">
                             <div class="collapse mt-2 pl-4" id="filter-collapse">
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center flex-wrap">
                                     <input class="form-control mb-2 w-25" type="text" id="daterange" name="daterange"
                                         placeholder="Pilih rentang tanggal">
+
                                     @if (auth()->user()->id_toko == 1)
-                                        <div class="mb-2 mx-1">
-                                            <select class="form-control select2" id="toko" name="toko">
-                                            </select>
+                                        <div class="form-group mb-2 mx-1">
+                                            <select class="form-control select2" id="toko" name="toko"></select>
                                         </div>
                                     @endif
-                                    <div class="mb-2 mx-1">
-                                        <select class="form-control select2" id="jenis" name="jenis">
-                                        </select>
+
+                                    <div class="form-group mb-2 mx-1">
+                                        <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
+
+                                    <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" id="f_is_hutang" name="f_is_hutang">
+                                        <label class="form-check-label ms-2" for="f_is_hutang">Hutang?</label>
+                                    </div>
+
                                     <button class="btn btn-info mr-2 h-100 mb-2 mx-1" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                     </button>
+
                                     <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
                                         <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
@@ -73,7 +80,8 @@
                                                 <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
-                                                <th class="text-wrap align-top">Jenis</th>
+                                                <th class="text-wrap align-top">Hutang?</th>
+                                                <th class="text-wrap align-top">Jenis/Ket</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
@@ -116,29 +124,60 @@
                 </div>
                 <div class="modal-body">
                     <form id="formTambahData">
-                        <div class="form-group">
-                            <label for="nama_pengeluaran">Nama Pengeluaran <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="nama_pengeluaran" name="nama_pengeluaran"
-                                placeholder="Masukkan nama pengeluaran" required>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label for="nama_pengeluaran">Nama Pengeluaran <sup
+                                            class="text-danger">*</sup></label>
+                                    <input type="text" class="form-control" id="nama_pengeluaran"
+                                        name="nama_pengeluaran" placeholder="Masukkan nama pengeluaran" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="tanggal">Tanggal <sup class="text-danger">*</sup></label>
+                                    <input type="date" class="form-control" id="tanggal" name="tanggal"
+                                        placeholder="Masukkan tanggal" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
-                            <input type="number" class="form-control" id="nilai" name="nilai"
-                                placeholder="Masukkan nilai" required>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
+                                    <input type="number" class="form-control" id="nilai" name="nilai"
+                                        placeholder="Masukkan nilai" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <input type="checkbox" id="is_hutang" name="is_hutang">
+                                    <label for="is_hutang">Hutang? <sup class="text-dark">*</sup></label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
-                            <select class="form-control select2" id="id_jenis_pengeluaran" name="id_jenis_pengeluaran">
-                                @foreach ($jenis_pengeluaran as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
-                                @endforeach
-                            </select>
+                        <div id="jenisPengeluaranContainer">
+                            <div class="form-group">
+                                <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup
+                                        class="text-danger">**</sup></label>
+                                <select class="form-control select2" id="id_jenis_pengeluaran"
+                                    name="id_jenis_pengeluaran">
+                                    @foreach ($jenis_pengeluaran as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="text-center font-weight-bold">Atau</div>
+                            <div class="form-group">
+                                <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-danger">**</sup></label>
+                                <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
+                                    placeholder="Masukkan jenis baru">
+                            </div>
                         </div>
-                        <div class="text-center font-weight-bold">Atau</div>
-                        <div class="form-group">
-                            <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-dark">**</sup></label>
-                            <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
-                                placeholder="Masukkan jenis baru">
+                        <div class="form-group d-none" id="keteranganHutangContainer">
+                            <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
+                            <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
+                                placeholder="Masukkan keterangan hutang">
                         </div>
                     </form>
                 </div>
@@ -204,6 +243,10 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
+            if (customFilter['is_hutang']) {
+                filterParams.is_hutang = customFilter['is_hutang'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getpengeluaran') }}', {
@@ -261,12 +304,18 @@
                 action_buttons = `
                 <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
+
+            let hutang_badge = (data.is_hutang == 1 || data.is_hutang === '1') ?
+                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Ya</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Tidak</span>`;
+
             return {
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
+                is_hutang: hutang_badge,
                 nama_pengeluaran: data?.nama_pengeluaran ?? '-',
-                nama_jenis: data?.nama_jenis ?? '-',
+                nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_hutang ?? '-'),
                 nilai: data?.nilai ?? '-',
                 action_buttons,
             };
@@ -288,6 +337,7 @@
                     <td class="${classCol}">${element.tanggal}</td>
                     <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.nama_pengeluaran}</td>
+                    <td class="${classCol}">${element.is_hutang}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
@@ -296,7 +346,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="4"></td>
+                <td class="${classCol}" colspan="5"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
@@ -314,6 +364,9 @@
         function handleInput() {
             const jenisSelect = $("#id_jenis_pengeluaran");
             const jenisBaruInput = document.getElementById("nama_jenis");
+            const isHutangCheckbox = document.getElementById("is_hutang");
+            const keteranganHutangContainer = document.getElementById("keteranganHutangContainer");
+            const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
 
             function toggleInputs() {
                 if (jenisSelect.val()) {
@@ -332,8 +385,19 @@
                 }
             }
 
+            function toggleHutangFields() {
+                if (isHutangCheckbox.checked) {
+                    keteranganHutangContainer.classList.remove("d-none");
+                    jenisPengeluaranContainer.classList.add("d-none");
+                } else {
+                    keteranganHutangContainer.classList.add("d-none");
+                    jenisPengeluaranContainer.classList.remove("d-none");
+                }
+            }
+
             jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
+            isHutangCheckbox.addEventListener("change", toggleHutangFields);
         }
 
         async function addData() {
@@ -352,13 +416,20 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
+                let isHutang = $("#is_hutang").prop("checked") ? 1 : 0;
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
-                    id_jenis_pengeluaran: $('#id_jenis_pengeluaran').val(),
-                    nama_jenis: $('#nama_jenis').val(),
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
                     nilai: $('#nilai').val(),
                 };
+
+                if (isHutang) {
+                    formData.is_hutang = 1;
+                    formData.ket_hutang = $('#ket_hutang').val();
+                } else {
+                    formData.id_jenis_pengeluaran = $('#id_jenis_pengeluaran').val();
+                    formData.nama_jenis = $('#nama_jenis').val();
+                }
 
                 try {
                     let postData = await renderAPI("POST", actionUrl, formData);
@@ -446,6 +517,7 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
+                    is_hutang: $("#f_is_hutang").is(':checked') ? '1' : '',
                 };
 
                 defaultSearch = $('.tb-search').val();
