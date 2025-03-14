@@ -139,7 +139,7 @@
                         </ul>
                     </li>
                 @endif
-                @if (auth()->user()->id_level == 3 || auth()->user()->id_level == 4)
+                @if (auth()->user()->id_level != 5)
                     <li class="nav-item">
                         <a href="{{ route('pengeluaran.index') }}"
                             class="nav-link {{ request()->routeIs('pengeluaran.*') ? $nav_link : '' }}">
