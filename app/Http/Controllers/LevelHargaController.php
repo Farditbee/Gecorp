@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogger;
 use App\Models\LevelHarga;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,6 @@ class LevelHargaController extends Controller
     public function getlevelharga(Request $request)
     {
 
-        // Tes Con
         $meta['orderBy'] = $request->descending ? 'desc' : 'asc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
@@ -36,7 +36,6 @@ class LevelHargaController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_level_harga) LIKE ?", ["%$searchTerm%"]);
             });
         }
@@ -45,7 +44,6 @@ class LevelHargaController extends Controller
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
 
-            // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
@@ -94,7 +92,9 @@ class LevelHargaController extends Controller
         }
 
         $menu = [$this->title[0], $this->label[0]];
+
         $levelharga = LevelHarga::orderBy('id', 'desc')->get();
+
         return view('master.levelharga.index', compact('menu', 'levelharga'));
     }
 
@@ -103,7 +103,9 @@ class LevelHargaController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
+
         return view('master.levelharga.create', compact('menu'));
     }
 
@@ -114,19 +116,20 @@ class LevelHargaController extends Controller
         ], [
             'nama_level_harga.required' => 'Nama level harga tidak boleh kosong.',
         ]);
+
+        ActivityLogger::log('Tambah Level Harga', $request->all());
+
         try {
+
             LevelHarga::create([
                 'nama_level_harga' => $request->nama_level_harga,
             ]);
+
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
-        return redirect()->route('master.levelharga.index')->with('success', 'Berhasil menambahkan Level Baru');
-    }
 
-    public function show(string $id)
-    {
-        //
+        return redirect()->route('master.levelharga.index')->with('success', 'Berhasil menambahkan Level Baru');
     }
 
     public function edit(string $id)
@@ -134,37 +137,53 @@ class LevelHargaController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
+
         $levelharga = LevelHarga::findOrFail($id);
+
         return view('master.levelharga.edit', compact('menu', 'levelharga'));
     }
 
     public function update(Request $request, string $id)
     {
         $levelharga = LevelHarga::findOrFail($id);
+
+        ActivityLogger::log('Update Level Harga', ['id' => $id]);
+
         try {
+
             $levelharga->update([
                 'nama_level_harga' => $request->nama_level_harga,
             ]);
+
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
+
         return redirect()->route('master.levelharga.index')->with('success', 'Sukses Mengubah Data Level Harga');
     }
 
     public function delete(string $id)
     {
-        DB::beginTransaction();
         $levelharga = LevelHarga::findOrFail($id);
+
+        ActivityLogger::log('Delete Level Harga', ['id' => $id]);
+
         try {
+            DB::beginTransaction();
+
             $levelharga->delete();
+
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Sukses menghapus Data Level Harga'
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus Data Level Harga: ' . $th->getMessage()

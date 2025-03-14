@@ -306,23 +306,19 @@ class KasirController extends Controller
         try {
             DB::beginTransaction();
 
-            // Ambil data dari request
-            $idBarangs = $request->input('id_barang', []); // Array dari id_barang
+            $idBarangs = $request->input('id_barang', []);
             $qtys = $request->input('qty', []);
             $hargaBarangs = $request->input('harga', []);
 
-            // Bersihkan elemen kosong dari array
             $idBarangs = array_values(array_filter($idBarangs, fn($value) => !empty($value)));
             $qtys = array_values(array_filter($qtys, fn($value) => !empty($value)));
             $hargaBarangs = array_values(array_filter($hargaBarangs, fn($value) => !empty($value)));
 
-            // Sinkronisasi array berdasarkan jumlah elemen
             $maxCount = max(count($idBarangs), count($qtys), count($hargaBarangs));
             $idBarangs = $this->fillArrayToMatchCount($idBarangs, $maxCount);
             $qtys = $this->fillArrayToMatchCount($qtys, $maxCount);
             $hargaBarangs = $this->fillArrayToMatchCount($hargaBarangs, $maxCount);
 
-            // Validasi kesesuaian jumlah elemen setelah sinkronisasi
             if (count($idBarangs) !== count($qtys) || count($idBarangs) !== count($hargaBarangs)) {
                 return redirect()->back()->with('error', 'Data tidak sinkron. Silakan periksa kembali input Anda.');
             }
@@ -330,7 +326,6 @@ class KasirController extends Controller
             $user = Auth::user();
             $tglTransaksi = Carbon::now();
 
-            // Inisialisasi transaksi kasir
             $kasir = new Kasir();
             $kasir->id_member = $request->id_member == 'Guest' ? 0 : $request->id_member;
             $kasir->id_users = $user->id;
@@ -357,20 +352,17 @@ class KasirController extends Controller
                     continue;
                 }
 
-                // **Ambil ID barang setelah garis miring**
                 $id_barang_parts = explode('/', $id_barang);
                 $barcode = $id_barang_parts[0];
-                $id_barang_final = end($id_barang_parts); // Ambil bagian terakhir setelah "/"
+                $id_barang_final = end($id_barang_parts);
 
-                // Ambil id_detail_pembelian berdasarkan qrcode
-                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "{$barcode}%") // Ambil berdasarkan barcode
-                    ->where('id_barang', $id_barang_final) // Pastikan id_barang cocok
+                $detailPembelian = DetailPembelianBarang::where('qrcode', 'LIKE', "{$barcode}%")
+                    ->where('id_barang', $id_barang_final)
                     ->first();
 
                 $id_detail_pembelian = $detailPembelian ? $detailPembelian->id : null;
 
-                // Ambil id_supplier dari detail_toko berdasarkan id_barang dan id_toko
-                $detailToko = DetailToko::where('qrcode', 'LIKE', "{$barcode}%") // Cari berdasarkan barcode
+                $detailToko = DetailToko::where('qrcode', 'LIKE', "{$barcode}%")
                     ->where('id_toko', $user->id_toko)
                     ->first();
 
@@ -386,8 +378,7 @@ class KasirController extends Controller
                     return redirect()->back()->with('error', "Supplier tidak ditemukan untuk barang ID: $id_barang_final.");
                 }
 
-                // Cek promo yang berlaku
-                $promo = Promo::where('id_barang', $id_barang_final) // Pakai id_barang_final
+                $promo = Promo::where('id_barang', $id_barang_final)
                     ->where('status', 'ongoing')
                     ->where('dari', '<=', $tglTransaksi)
                     ->where('sampai', '>=', $tglTransaksi)
@@ -395,6 +386,7 @@ class KasirController extends Controller
                     ->first();
 
                 $potongan = 0;
+
                 if ($promo && $qty >= $promo->minimal) {
                     $diskon = $promo->diskon;
                     $qtyDiskon = $promo->jumlah ? min($qty, $promo->jumlah - $promo->terjual) : $qty;
@@ -412,7 +404,6 @@ class KasirController extends Controller
                     $promo->save();
                 }
 
-                // Generate QR Code
                 $tglTransaksiFormat = $tglTransaksi->format('dmY');
                 $qrCodeValue = "{$tglTransaksiFormat}TK{$user->id_toko}MM{$kasir->id_member}ID{$kasir->id}-{$counter}";
                 $qrCodePath = "qrcodes/trx_kasir/{$kasir->id}-{$counter}.png";
@@ -430,14 +421,12 @@ class KasirController extends Controller
                 $result = $writer->write($qrCode, null, Label::create("{$qrCodeValue}")->setFont(new NotoSans(12)));
                 $result->saveToFile($fullPath);
 
-                // Ambil hpp_baru dari tabel stock_barang
                 $stock = StockBarang::where('id_barang', $id_barang_final)->first();
                 $hpp_jual = $stock ? $stock->hpp_baru : 0;
 
-                // Simpan detail kasir
                 DetailKasir::create([
                     'id_kasir' => $kasir->id,
-                    'id_barang' => $id_barang_final, // Pakai id_barang_final
+                    'id_barang' => $id_barang_final,
                     'id_supplier' => $id_supplier,
                     'id_detail_pembelian' => $id_detail_pembelian,
                     'qty' => $qty,
@@ -458,7 +447,7 @@ class KasirController extends Controller
             if ($kembalian < 0) {
                 $kembalian = 0;
             }
-            // Update total transaksi di kasir
+
             $kasir->update([
                 'total_item' => $totalItem,
                 'total_nilai' => $totalNilai,
@@ -478,6 +467,7 @@ class KasirController extends Controller
             }
 
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data berhasil disimpan',
@@ -486,6 +476,7 @@ class KasirController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
             Log::error('Error saat menyimpan transaksi:', ['error' => $th->getMessage()]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to save transaction.',
@@ -494,13 +485,13 @@ class KasirController extends Controller
         }
     }
 
-    // Fungsi untuk mengisi array agar memiliki jumlah elemen yang sama
     private function fillArrayToMatchCount(array $array, int $count)
     {
         while (count($array) < $count) {
-            // Tambahkan elemen terakhir jika array lebih pendek
+
             $array[] = end($array) ?: 0;
         }
+        
         return $array;
     }
 }

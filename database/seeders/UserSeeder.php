@@ -20,10 +20,22 @@ class UserSeeder extends Seeder
             "id_level" => 1,
             "nama" => "Super Admin",
             "username" => "admin",
-            "email" => "super_admin@gmail.com",
             "password" =>bcrypt("admin123"),
+            "email" => "super_admin@gmail.com",
             "alamat" => "Cirebon",
             "no_hp" => 8527571268,
+        ]);
+
+        User::create([
+            "id" => 2,
+            "id_toko" => 2,
+            "id_level" => 3,
+            "nama" => "jSk_adminbhn",
+            "username" => "adminbhn",
+            "password" =>bcrypt("admin123"),
+            "email" => "bhns@gmail.com",
+            "alamat" => "Semarang",
+            "no_hp" => 836268927,
         ]);
 
         // Level User Seeder
@@ -62,9 +74,19 @@ class UserSeeder extends Seeder
         Toko::create([
             "id" => 1,
             "nama_toko" => "GSS",
+            "singkatan" => "GSS",
             "id_level_harga" => json_encode([]),
             "wilayah" => "Jakarta",
             "alamat" => 'Jakpus',
+        ]);
+
+        Toko::create([
+            "id" => 2,
+            "nama_toko" => "Bahana",
+            "singkatan" => "BHN",
+            "id_level_harga" => json_encode(["5","4","3","2"]),
+            "wilayah" => "Semarang",
+            "alamat" => "IDHsheu",
         ]);
     }
 }

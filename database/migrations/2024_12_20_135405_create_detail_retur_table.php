@@ -21,8 +21,8 @@ return new class extends Migration
             $table->string('no_nota');
             $table->integer('qty');
             $table->integer('qty_acc')->nullable();
-            $table->double('harga');
-            $table->double('hpp_jual')->nullable();
+            $table->decimal('harga', 15, 2);
+            $table->decimal('hpp_jual', 15, 2)->nullable();
             $table->enum('metode', ['Cash', 'Barang']);
             $table->enum('metode_reture', ['Cash', 'Barang'])->nullable();
             $table->string('qrcode_barang')->nullable();

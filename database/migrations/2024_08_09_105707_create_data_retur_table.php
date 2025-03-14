@@ -17,7 +17,7 @@ return new class extends Migration
 			$table->string('no_nota');
 			$table->dateTime('tgl_retur');
 			$table->integer('total_item')->nullable();
-			$table->double('total_harga')->nullable();
+			$table->decimal('total_harga', 15, 2)->nullable();
 			$table->enum('tipe_transaksi', ['kasir', 'supplier'])->nullable();
 			$table->enum('status', ['done', 'pending', 'progress', 'failed'])->default('pending')->nullable();
 			$table->timestamps();

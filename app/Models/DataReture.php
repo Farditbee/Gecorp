@@ -19,6 +19,7 @@ class DataReture extends Model
         'tgl_retur',
         'id_member',
         'id_supplier',
+        'tipe_transaksi'
     ];
 
     protected $keyType = 'string';

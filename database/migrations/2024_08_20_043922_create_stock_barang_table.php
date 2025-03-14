@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('id_barang')->nullable();
             $table->string('nama_barang')->nullable();
             $table->integer('stock')->nullable();
-            $table->double('hpp_awal')->nullable();
-            $table->double('hpp_baru')->nullable();
-            $table->double('nilai_total')->nullable();
+            $table->decimal('hpp_awal', 15, 2)->nullable();
+            $table->decimal('hpp_baru', 15, 2)->nullable();
+            $table->decimal('nilai_total', 15, 2)->nullable();
             $table->string('level_harga')->nullable();
             $table->timestamps();
             $table->softDeletes();

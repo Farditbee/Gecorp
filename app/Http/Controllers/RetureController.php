@@ -302,14 +302,21 @@ class RetureController extends Controller
         $request->validate([
             'id_retur' => 'required|integer',
         ]);
-
+    
         $idReture = $request->id_retur;
-
+        $user = Auth::user();
+    
         try {
-            $items = DetailRetur::where('id_users', Auth::user()->id)
-                ->where('id_retur', $idReture)
-                ->get();
-
+            // Jika user adalah admin (id_level = 1), tampilkan semua data sesuai id_retur
+            if ($user->id_level == 1) {
+                $items = DetailRetur::where('id_retur', $idReture)->get();
+            } else {
+                // Jika bukan admin, filter berdasarkan id_users
+                $items = DetailRetur::where('id_users', $user->id)
+                    ->where('id_retur', $idReture)
+                    ->get();
+            }
+    
             if ($items->isEmpty()) {
                 return response()->json([
                     'error' => true,
@@ -317,7 +324,7 @@ class RetureController extends Controller
                     'status_code' => 404,
                 ], 404);
             }
-
+    
             $mappedData = $items->map(function ($item) {
                 $kasir = Kasir::with(['toko', 'member'])->find($item->id_transaksi);
                 $barang = Barang::find($item->id_barang);
@@ -326,29 +333,29 @@ class RetureController extends Controller
                     ->where('id_barang', $item->id_barang)
                     ->where('id_retur', $item->id_retur)
                     ->first();
-
+    
                 return [
                     'id' => $item->id,
                     'id_users' => $item->id_users,
                     'id_retur' => $item->id_retur,
                     'id_transaksi' => $item->id_transaksi,
                     'id_barang' => $item->id_barang,
-                    'id_member' => $kasir->member->id ? $kasir->member->id : "Tidak Ditemukan",
+                    'id_member' => $kasir->member->id ?? "Tidak Ditemukan",
                     'no_nota' => $item->no_nota,
                     'qty' => $item->qty,
                     'qrcode' => $item->qrcode,
                     'harga' => $item->harga,
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
-                    'nama_toko' => $kasir->toko ? $kasir->toko->nama_toko : "Tidak Ditemukan",
-                    'nama_member' => $kasir->member ? $kasir->member->nama_member : "Guest",
-                    'nama_barang' => $barang ? $barang->nama_barang : "Tidak Ditemukan",
-                    'tgl_retur' => $retur ? $retur->tgl_retur : "Tidak Ditemukan",
-                    'status' => $detailRetur ? $detailRetur->status : "Tidak Ditemukan",
-                    'metode' => $detailRetur ? $detailRetur->metode : "Tidak Ditemukan",
+                    'nama_toko' => $kasir->toko->nama_toko ?? "Tidak Ditemukan",
+                    'nama_member' => $kasir->member->nama_member ?? "Guest",
+                    'nama_barang' => $barang->nama_barang ?? "Tidak Ditemukan",
+                    'tgl_retur' => $retur->tgl_retur ?? "Tidak Ditemukan",
+                    'status' => $detailRetur->status ?? "Tidak Ditemukan",
+                    'metode' => $detailRetur->metode ?? "Tidak Ditemukan",
                 ];
             });
-
+    
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
@@ -357,7 +364,7 @@ class RetureController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error fetching temporary items: ' . $e->getMessage());
-
+    
             return response()->json([
                 'error' => true,
                 'message' => 'Terjadi kesalahan saat mengambil data Reture.',
@@ -365,13 +372,14 @@ class RetureController extends Controller
             ], 500);
         }
     }
+    
 
     public function getTempoData(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = DataReture::query();
+        $query = DataReture::where('tipe_transaksi', 'kasir');
 
         $query->orderBy('id', $meta['orderBy']);
 
@@ -857,16 +865,7 @@ class RetureController extends Controller
         }
 
         try {
-            $retur = DataReture::create([
-                'id_users' => $user->id,
-                'id_toko' => $user->id_toko,
-                'no_nota' => $request->no_nota,
-                'tgl_retur' => $tglRetur,
-                'id_supplier' => $request->id_supplier,
-                'tipe_transaksi' => 'supplier',
-            ]);
-
-            $supplier = Supplier::find($request->id_supplier);
+            $supplier = Supplier::where('id', $request->id_supplier)->first();
 
             $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
 
@@ -884,7 +883,24 @@ class RetureController extends Controller
                                                 ->where('detail_retur.status_kirim', 'success')
                                                 ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
                                                 ->get();
+
+                if ($detailTransaksi->isEmpty()) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Tidak ada Barang yang bisa di Reture',
+                        'status_code' => 404,
+                    ], 404);
+                }
             }
+
+            $retur = DataReture::create([
+                'id_users' => $user->id,
+                'id_toko' => $user->id_toko,
+                'no_nota' => $request->no_nota,
+                'tgl_retur' => $tglRetur,
+                'id_supplier' => $request->id_supplier,
+                'tipe_transaksi' => 'supplier',
+            ]);
 
             // Ambil data barang berdasarkan id_barang dari detailTransaksi
             $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();

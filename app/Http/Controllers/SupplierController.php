@@ -36,7 +36,6 @@ class SupplierController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_supplier) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(contact) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
@@ -48,7 +47,6 @@ class SupplierController extends Controller
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
 
-            // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
@@ -98,8 +96,11 @@ class SupplierController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0]];
+
         $supplier = Supplier::orderBy('id', 'desc')->get();
+
         return view('master.supplier.index', compact('menu', 'supplier'));
     }
 
@@ -110,6 +111,7 @@ class SupplierController extends Controller
         }
 
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
+
         return view('master.supplier.create', compact('menu'));
     }
 
@@ -138,16 +140,12 @@ class SupplierController extends Controller
             ]);
 
             ActivityLogger::log('Tambah Supplier', $data);
+            
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
 
         return redirect()->route('master.supplier.index')->with('success', 'Berhasil menambahkan Supplier Baru');
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function edit(string $id)
@@ -165,6 +163,7 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
         $supplier = Supplier::findOrFail($id);
+
         try {
             $supplier->update([
                 'nama_supplier' => $request->nama_supplier,
@@ -172,6 +171,9 @@ class SupplierController extends Controller
                 'alamat' => $request->alamat,
                 'contact' => $request->contact,
             ]);
+
+            ActivityLogger::log('Ubah Supplier', $request->all());
+
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -180,11 +182,16 @@ class SupplierController extends Controller
 
     public function delete(String $id)
     {
-        DB::beginTransaction();
         $supplier = Supplier::findOrFail($id);
+
         try {
+            DB::beginTransaction();
+
             $supplier->delete();
+
             DB::commit();
+
+            ActivityLogger::log('Hapus Supplier', ['id' => $id]);
 
             return response()->json([
                 'success' => true,

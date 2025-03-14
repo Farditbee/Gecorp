@@ -7,6 +7,7 @@ use App\Models\JenisBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\ActivityLogger;
 use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
@@ -36,7 +37,6 @@ class BrandController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_brand) LIKE ?", ["%$searchTerm%"]);
             });
         }
@@ -45,7 +45,6 @@ class BrandController extends Controller
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
 
-            // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
@@ -92,11 +91,12 @@ class BrandController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0]];
         $brand = Brand::with('jenis')
-            ->orderBy('id', 'desc')
-            ->get();
-        // $jenis = JenisBarang::all();
+                    ->orderBy('id', 'desc')
+                    ->get();
+
         return view('master.brand.index', compact('menu', 'brand'));
     }
 
@@ -105,8 +105,10 @@ class BrandController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
         $jenis = JenisBarang::all();
+
         return view('master.brand.create', compact('menu', 'jenis'), [
             'jenis' => JenisBarang::all()->pluck('id', 'nama_jenis_barang'),
         ]);
@@ -114,28 +116,29 @@ class BrandController extends Controller
 
     public function getBrandsByJenis(Request $request)
     {
-        // Validasi bahwa id_jenis_barang dikirim melalui AJAX
         $request->validate([
             'id_jenis_barang' => 'required|exists:jenis_barang,id'
         ]);
 
-        // Ambil semua Brand yang memiliki id_jenis_barang sesuai dengan yang dipilih
         $brands = Brand::where('id_jenis_barang', $request->id_jenis_barang)->get();
 
-        // Kembalikan data dalam bentuk JSON
         return response()->json($brands);
     }
+
     public function store(Request $request)
     {
-        // dd($request->all());
-        DB::beginTransaction();
-        try {
-            $validatedData = $request->validate([
-                'nama_brand' => 'required|string|max:255',
-            ], [
-                'nama_brand.required' => 'Nama Brand tidak boleh kosong.',
-            ]);
+        $validatedData = $request->validate([
+            'nama_brand' => 'required|string|max:255',
+        ], [
+            'nama_brand.required' => 'Nama Brand tidak boleh kosong.',
+        ]);
 
+        ActivityLogger::log('Tambah Brand', $request->all());
+
+        try {
+
+            DB::beginTransaction();
+            
             Brand::create([
                 'nama_brand' => $request->nama_brand,
             ]);
@@ -155,6 +158,7 @@ class BrandController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
         $brand = Brand::with('jenis')->findOrFail($id);
 
@@ -164,12 +168,15 @@ class BrandController extends Controller
 
     public function update(Request $request, string $id)
     {
-        DB::beginTransaction();
         $validatedData = $request->validate([
             'nama_brand' => 'required|string|max:255',
         ], [
             'nama_brand.required' => 'Nama Brand tidak boleh kosong.',
         ]);
+
+        ActivityLogger::log('Update Brand', ['id' => $id, 'data' => $request->all()]);
+
+        DB::beginTransaction();
 
         $brand = Brand::findOrFail($id);
 
@@ -184,12 +191,16 @@ class BrandController extends Controller
 
     public function delete(string $id)
     {
-        DB::beginTransaction();
+        ActivityLogger::log('Delete Brand', ['id' => $id]);
+        
         try {
+            DB::beginTransaction();
+
             $brand = Brand::findOrFail($id);
             $brand->delete();
 
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Sukses menghapus Data Brand'

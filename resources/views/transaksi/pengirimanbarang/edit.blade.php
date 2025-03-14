@@ -257,7 +257,7 @@
                         detail_ids: detailIds,
                         status_detail: statusArray,
                         tipe_kirim: '{{ $pengiriman_barang->tipe_pengiriman }}',
-                        id_retur: '{{ $pengiriman_barang->id_retur }}',
+                        id_retur: JSON.parse('{!! $pengiriman_barang->id_retur !!}').map(Number),
                     };
 
                     try {
