@@ -45,7 +45,8 @@
                             <div class="collapse mt-2" id="filter-collapse">
                                 <form id="custom-filter" class="row g-2 align-items-center mx-2">
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <input class="form-control" type="text" id="daterange" name="daterange" placeholder="Pilih rentang tanggal">
+                                        <input class="form-control" type="text" id="daterange" name="daterange"
+                                            placeholder="Pilih rentang tanggal">
                                     </div>
                                     @if (auth()->user()->id_toko == 1)
                                         <div class="col-12 col-md-6 col-lg-2 mb-2">
@@ -57,14 +58,16 @@
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <div class="form-check form-switch d-flex align-items-center">
-                                            <input class="form-check-input" type="checkbox" id="f_is_hutang" name="f_is_hutang">
+                                            <input class="form-check-input" type="checkbox" id="f_is_hutang"
+                                                name="f_is_hutang">
                                             <label class="form-check-label" for="f_is_hutang">Hutang?</label>
                                         </div>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
-                                        <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter" type="submit">
+                                        <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
+                                            type="submit">
                                             <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                         </button>
                                         <button type="button" class="btn btn-secondary" id="tb-reset">
@@ -86,7 +89,8 @@
                                                 <th class="text-wrap align-top">Hutang?</th>
                                                 <th class="text-wrap align-top">Jenis/Ket</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
+                                                <th class="text-right text-wrap align-top"><span
+                                                        class="mr-2">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -193,6 +197,34 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editModalLabel">Edit Nilai</h5>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fa fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2"><span>Nilai Saat ini:</span><span class="ml-1 font-weight-bold"
+                            id="show-nilai"></span></div>
+                    <div class="form-group">
+                        <label for="edit-nilai">Nilai</label>
+                        <input type="number" class="form-control" id="edit-nilai"
+                            placeholder="Masukkan jumlah yang dibayarkan">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
+                    <button type="button" class="btn btn-primary" id="save-edit"><i
+                            class="fa fa-save mr-1"></i>Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('asset_js')
@@ -288,6 +320,7 @@
             let elementData = encodeURIComponent(JSON.stringify(data));
 
             let action_buttons = '';
+
             let delete_button = `
                 <a class="p-1 btn delete-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
@@ -298,9 +331,19 @@
                     </div>
                 </a>`;
 
-            if (delete_button) {
+            let edit_button = (data.is_hutang == 1 || data.is_hutang === '1') ? `
+                <a class="p-1 btn edit-data action_button"
+                    title="Edit ${title}" data="${elementData}">
+                    <span class="text-dark">Edit</span>
+                    <div class="icon text-warning">
+                        <i class="fa fa-edit"></i>
+                    </div>
+                </a>` : '';
+
+            if (delete_button || edit_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-center">
+                <div class="d-flex justify-content-end">
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -549,6 +592,55 @@
             });
         }
 
+        async function editData() {
+            $(document).on("click", ".edit-data", function() {
+                let rawData = $(this).attr("data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                let nilaiAsli = parseInt(data.nilai.replace(/[^\d]/g, ''), 10) || 0;
+
+                $("#editModalLabel").html(`Edit Data: ${data.nama_pengeluaran ?? '-'}`);
+                $("#show-nilai").html(data.nilai);
+                $("#edit-nilai").val(nilaiAsli);
+                $("#edit-nilai").attr({
+                    "max": nilaiAsli,
+                    "min": 1,
+                    "type": "number"
+                });
+
+                $("#editModal").modal("show");
+            });
+
+            $(document).on("input", "#edit-nilai", function() {
+                let maxValue = parseInt($(this).attr("max"), 10);
+                let minValue = parseInt($(this).attr("min"), 10);
+                let currentValue = parseInt($(this).val(), 10) || 0;
+
+                if (currentValue < minValue) {
+                    $(this).val(minValue);
+                }
+
+                if (currentValue > maxValue) {
+                    $(this).val(maxValue);
+                }
+            });
+
+            $(document).on("click", "#save-edit", function() {
+                let id = $("#edit-id").val();
+                let newValue = parseInt($("#edit-nilai").val(), 10) || 0;
+                let maxValue = parseInt($("#edit-nilai").attr("max"), 10);
+
+                if (newValue < 1 || newValue > maxValue) {
+                    alert(`Nilai harus antara 1 dan ${maxValue}`);
+                    return;
+                }
+
+                console.log(`ID: ${id}, Nilai baru: ${newValue}`);
+
+                $("#editModal").modal("hide");
+            });
+        }
+
         async function initPageLoad() {
             await setDynamicButton();
             await selectData(selectOptions);
@@ -559,6 +651,7 @@
             await addData();
             await submitForm();
             await deleteData();
+            await editData();
         }
     </script>
 @endsection
