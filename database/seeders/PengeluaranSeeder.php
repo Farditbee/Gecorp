@@ -24,8 +24,9 @@ class PengeluaranSeeder extends Seeder
         Pengeluaran::create([
             "id" => 2,
             "id_toko" => 3,
+            "nama_pengeluaran" => "Beli Hp",
             "nilai" => 17000000,
-            "is_hutang" => 1,
+            "is_hutang" => '1',
             "ket_hutang" => "Suryadi ngutang hp iphone 13",
             "tanggal" => '2024-03-13',
         ]);
