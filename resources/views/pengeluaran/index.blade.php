@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
+    <style>
+        #daterange[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -329,7 +336,7 @@
                     </div>
                 </a>`;
 
-            let edit_button = (data.is_hutang == 1 || data.is_hutang === '1') ? `
+            let edit_button = (data.is_hutang == 1 || data.is_hutang == 2) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
@@ -603,12 +610,8 @@
                 let rawData = $(this).attr("data");
                 let data = JSON.parse(decodeURIComponent(rawData));
 
-                let nilaiAsli = parseInt(data.nilai.replace(/[^\d]/g, ''), 10) || 0;
-
-                $("#editModalLabel").html(`${data.ket_hutang ?? '-'} sisa ${data.nilai}`);
-                $("#edit-nilai").val(nilaiAsli);
+                $("#editModalLabel").html(`<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
                 $("#edit-nilai").attr({
-                    "max": nilaiAsli,
                     "min": 0,
                     "type": "number"
                 });
@@ -666,15 +669,15 @@
                 } catch (error) {
                     loadingPage(false);
                     let resp = error.response || {};
-                    notificationAlert("error", "Kesalahan", resp.message || "Terjadi kesalahan");
+                    notificationAlert("error", "Kesalahan", resp.data.message || "Terjadi kesalahan");
                 }
             });
         }
 
         async function initPageLoad() {
+            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await setDynamicButton();
             await selectData(selectOptions);
-            await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await handleInput();
             await filterList();
