@@ -604,7 +604,7 @@
                 $("#edit-nilai").val(nilaiAsli);
                 $("#edit-nilai").attr({
                     "max": nilaiAsli,
-                    "min": 1,
+                    "min": 0,
                     "type": "number"
                 });
 
@@ -633,7 +633,7 @@
                 let maxValue = parseInt($("#edit-nilai").attr("max"), 10);
 
                 if (newValue < 1 || newValue > maxValue) {
-                    alert(`Nilai harus antara 1 dan ${maxValue}`);
+                    notificationAlert("info", "Pemberitahuan", `Nilai harus antara 1 dan ${maxValue}`);
                     return;
                 }
 
