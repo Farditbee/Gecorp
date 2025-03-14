@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama_pengeluaran')->nullable();
             $table->string('id_jenis_pengeluaran')->nullable();
             $table->double('nilai')->nullable();
-            $table->boolean('is_hutang')->nullable();
+            $table->enum('is_hutang', (['0', '1', '2']));
             $table->string('ket_hutang')->nullable();
             $table->date('tanggal');
             $table->softDeletes();

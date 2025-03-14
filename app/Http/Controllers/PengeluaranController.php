@@ -137,17 +137,17 @@ class PengeluaranController extends Controller
 
     public function store(Request $request)
     {
-        $is_hutang = $request->input('is_hutang', false);
+        $is_hutang = (string)$request->input('is_hutang', '0');
 
         $validationRules = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_hutang' => 'nullable|boolean'
+            'is_hutang' => 'nullable|in:0,1,2'
         ];
 
-        if ($is_hutang) {
+        if ($is_hutang === '1') {
             $validationRules['ket_hutang'] = 'required|string';
         } else {
             $validationRules['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
@@ -231,8 +231,11 @@ class PengeluaranController extends Controller
                 throw new \Exception('Data pengeluaran ini bukan hutang.');
             }
 
-            if ($validatedData['nilai'] > $pengeluaran->nilai) {
-                throw new \Exception('Nilai pembayaran melebihi sisa hutang.');
+            $totalPembayaran = DetailPengeluaran::where('id_pengeluaran', $pengeluaran->id)
+                ->sum('nilai');
+
+            if (($totalPembayaran + $validatedData['nilai']) > $pengeluaran->nilai) {
+                throw new \Exception('Total pembayaran melebihi nilai hutang.');
             }
 
             DetailPengeluaran::create([
@@ -240,23 +243,67 @@ class PengeluaranController extends Controller
                 'nilai' => $validatedData['nilai']
             ]);
 
-            $pengeluaran->nilai -= $validatedData['nilai'];
-            if ($pengeluaran->nilai == 0) {
-                $pengeluaran->is_hutang = 0;
-            }
+            $sisaHutang = $pengeluaran->nilai - ($totalPembayaran + $validatedData['nilai']);
+
+            $pengeluaran->is_hutang = ($sisaHutang == 0) ? '2' : $pengeluaran->is_hutang;
+
             $pengeluaran->save();
 
             DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Pembayaran hutang berhasil diupdate',
-                'sisa_hutang' => $pengeluaran->nilai
+                'message' => 'Pembayaran hutang berhasil dicatat',
+                'sisa_hutang' => $sisaHutang
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal mengupdate pembayaran hutang: ' . $e->getMessage()
+                'message' => 'Gagal mencatat pembayaran hutang: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function detail(string $id)
+    {
+        try {
+            $pengeluaran = Pengeluaran::with(['toko', 'jenis_pengeluaran'])->findOrFail($id);
+            $detailPembayaran = DetailPengeluaran::where('id_pengeluaran', $id)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                        'tanggal' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s')
+                    ];
+                });
+
+            $totalPembayaran = DetailPengeluaran::where('id_pengeluaran', $id)->sum('nilai');
+            $sisaHutang = $pengeluaran->nilai - $totalPembayaran;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'pengeluaran' => [
+                        'id' => $pengeluaran->id,
+                        'nama_toko' => $pengeluaran->toko->nama_toko,
+                        'nama_pengeluaran' => $pengeluaran->nama_pengeluaran,
+                        'nama_jenis' => $pengeluaran->jenis_pengeluaran->nama_jenis ?? '-',
+                        'nilai' => 'Rp. ' . number_format($pengeluaran->nilai, 0, '.', '.'),
+                        'is_hutang' => $pengeluaran->is_hutang,
+                        'ket_hutang' => $pengeluaran->ket_hutang,
+                        'tanggal' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
+                    ],
+                    'detail_pembayaran' => $detailPembayaran,
+                    'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),
+                    'sisa_hutang' => 'Rp. ' . number_format($sisaHutang, 0, '.', '.')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail pengeluaran: ' . $e->getMessage()
             ], 500);
         }
     }
