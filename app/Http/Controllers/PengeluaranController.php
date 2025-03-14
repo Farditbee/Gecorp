@@ -77,6 +77,11 @@ class PengeluaranController extends Controller
             $query->where('id_jenis_pengeluaran', $id_jenis);
         }
 
+        if ($request->has('is_hutang')) {
+            $isHutang = $request->input('is_hutang');
+                $query->where('is_hutang', $isHutang);
+        }
+
         if ($request->has('startDate') && $request->has('endDate')) {
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
@@ -236,6 +241,9 @@ class PengeluaranController extends Controller
             ]);
 
             $pengeluaran->nilai -= $validatedData['nilai'];
+            if ($pengeluaran->nilai == 0) {
+                $pengeluaran->is_hutang = 0;
+            }
             $pengeluaran->save();
 
             DB::commit();
