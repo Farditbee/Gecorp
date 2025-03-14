@@ -21,7 +21,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Promo">
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                                 <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
@@ -150,9 +150,9 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <div class="form-group">
-                                    <input type="checkbox" id="is_hutang" name="is_hutang">
-                                    <label for="is_hutang">Hutang? <sup class="text-dark">*</sup></label>
+                                <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
+                                    <input class="form-check-input" type="checkbox" id="is_hutang" name="is_hutang">
+                                    <label class="form-check-label ms-2" for="is_hutang">Hutang?</label>
                                 </div>
                             </div>
                         </div>
@@ -416,11 +416,12 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
-                let isHutang = $("#is_hutang").prop("checked") ? 1 : 0;
+                let isHutang = $("#is_hutang").is(':checked') ? 1 : '';
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
                     nilai: $('#nilai').val(),
+                    tanggal: $('#tanggal').val(),
                 };
 
                 if (isHutang) {
