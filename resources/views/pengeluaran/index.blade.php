@@ -608,6 +608,8 @@
                     "type": "number"
                 });
 
+                $("#save-edit").attr("data-id", data.id);
+
                 $("#editModal").modal("show");
             });
 
@@ -625,8 +627,8 @@
                 }
             });
 
-            $(document).on("click", "#save-edit", function() {
-                let id = $("#edit-id").val();
+            $(document).on("click", "#save-edit", async function() {
+                let id = $(this).attr("data-id");
                 let newValue = parseInt($("#edit-nilai").val(), 10) || 0;
                 let maxValue = parseInt($("#edit-nilai").attr("max"), 10);
 
@@ -635,9 +637,32 @@
                     return;
                 }
 
-                console.log(`ID: ${id}, Nilai baru: ${newValue}`);
+                let formData = {
+                    nilai: newValue
+                };
 
-                $("#editModal").modal("hide");
+                try {
+                    let postData = await renderAPI("PUT", `/admin/pengeluaran/update/${id}`, formData);
+
+                    loadingPage(false);
+                    if (postData.status >= 200 && postData.status < 300) {
+                        notificationAlert("success", "Pemberitahuan", postData.data.message || "Berhasil");
+                        setTimeout(async function() {
+                            await getListData(defaultLimitPage, currentPage, defaultAscending,
+                                defaultSearch, customFilter);
+                        }, 500);
+                        setTimeout(() => {
+                            $("#editModal").modal("hide");
+                        }, 500);
+                    } else {
+                        notificationAlert("info", "Pemberitahuan", postData.data.message ||
+                            "Terjadi kesalahan");
+                    }
+                } catch (error) {
+                    loadingPage(false);
+                    let resp = error.response || {};
+                    notificationAlert("error", "Kesalahan", resp.message || "Terjadi kesalahan");
+                }
             });
         }
 
