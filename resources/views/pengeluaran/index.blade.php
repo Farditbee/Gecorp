@@ -57,11 +57,11 @@
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <div class="form-check form-switch d-flex align-items-center">
-                                            <input class="form-check-input" type="checkbox" id="f_is_hutang"
-                                                name="f_is_hutang">
-                                            <label class="form-check-label" for="f_is_hutang">Hutang?</label>
-                                        </div>
+                                        <select class="form-select select2" id="f_is_hutang" name="f_is_hutang">
+                                            <option value="" selected disabled></option>
+                                            <option value="1">Hutang</option>
+                                            <option value="0">Tidak</option>
+                                        </select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                     </div>
@@ -86,7 +86,7 @@
                                                 <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
-                                                <th class="text-wrap align-top">Hutang?</th>
+                                                <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Jenis/Ket</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
@@ -350,7 +350,7 @@
             }
 
             let hutang_badge = (data.is_hutang == 1 || data.is_hutang === '1') ?
-                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Ya</span>` :
+                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang</span>` :
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Tidak</span>`;
 
             return {
@@ -442,6 +442,14 @@
             jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
             isHutangCheckbox.addEventListener("change", toggleHutangFields);
+
+            $(document).ready(function() {
+                $('#f_is_hutang').select2({
+                    placeholder: "Pilih Status Hutang",
+                    allowClear: true,
+                    minimumResultsForSearch: -1
+                });
+            });
         }
 
         async function addData() {
@@ -562,7 +570,7 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
-                    is_hutang: $("#f_is_hutang").is(':checked') ? '1' : '',
+                    is_hutang: $("#f_is_hutang").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
