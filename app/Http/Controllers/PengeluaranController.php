@@ -80,8 +80,7 @@ class PengeluaranController extends Controller
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
 
-            // Lakukan filter berdasarkan tanggal
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+            $query->whereBetween('tanggal', [$startDate, $endDate]);
         }
         $totalNilai = $query->sum('nilai');
 
@@ -132,26 +131,38 @@ class PengeluaranController extends Controller
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
+        $is_hutang = $request->input('is_hutang', false);
+        
+        $validationRules = [
             'id_toko' => 'required|exists:toko,id',
-            'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id',
-            'nama_jenis' => 'nullable_without:id_jenis_pengeluaran|string',
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_hutang' => 'nullable|boolean',
-            'ket_hutang' => 'nullable|string',
-        ]);
+            'is_hutang' => 'nullable|boolean'
+        ];
+
+        if ($is_hutang) {
+            $validationRules['ket_hutang'] = 'required|string';
+        } else {
+            $validationRules['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
+            $validationRules['nama_jenis'] = 'required_without:id_jenis_pengeluaran|string';
+            $validationRules['ket_hutang'] = 'nullable|string';
+        }
+
+        $validatedData = $request->validate($validationRules);
 
         try {
             DB::beginTransaction();
 
-            $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'];
-            if (empty($id_jenis_pengeluaran)) {
-                $jenis_pengeluaran = JenisPengeluaran::create([
-                    'nama_jenis' => $validatedData['nama_jenis']
-                ]);
-                $id_jenis_pengeluaran = $jenis_pengeluaran->id;
+            $id_jenis_pengeluaran = null;
+            if (!$is_hutang) {
+                $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'] ?? null;
+                if (empty($id_jenis_pengeluaran) && isset($validatedData['nama_jenis'])) {
+                    $jenis_pengeluaran = JenisPengeluaran::create([
+                        'nama_jenis' => $validatedData['nama_jenis']
+                    ]);
+                    $id_jenis_pengeluaran = $jenis_pengeluaran->id;
+                }
             }
 
             Pengeluaran::create([
@@ -160,8 +171,8 @@ class PengeluaranController extends Controller
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
-                'is_hutang' => $validatedData['is_hutang'] ?? false,
-                'ket_hutang' => $validatedData['ket_hutang'],
+                'is_hutang' => $is_hutang,
+                'ket_hutang' => $validatedData['ket_hutang'] ?? null,
             ]);
 
             DB::commit();
