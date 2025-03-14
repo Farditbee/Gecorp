@@ -121,29 +121,33 @@
                         @endif
                     </ul>
                 </li>
-                <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)"
-                        class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span
-                            class="pcoded-micon"><i class="icon feather icon-folder"></i></span><span
-                            class="pcoded-mtext">Laporan Keuangan</span></a>
-                    <ul class="pcoded-submenu">
-                        <li>
-                            <a href="{{ route('laporankeuangan.aruskas.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-file-text"></i> Arus Kas</a>
-                        </li>
-                        <li>
-                            <a href="{{ route('laporankeuangan.labarugi.index') }}" class="dropdown-item"><i
-                                    class="icon feather icon-file-minus"></i> Laba Rugi</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('pengeluaran.index') }}"
-                        class="nav-link {{ request()->routeIs('pengeluaran.*') ? $nav_link : '' }}">
-                        <span class="pcoded-micon"><i class="feather icon-file"></i></span>
-                        <span class="pcoded-mtext">Pengeluaran</span>
-                    </a>
-                </li>
+                @if (auth()->user()->id_level == 1 || auth()->user()->id_level == 2 || auth()->user()->id_level == 6)
+                    <li class="nav-item pcoded-hasmenu">
+                        <a href="javascript::void(0)"
+                            class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span
+                                class="pcoded-micon"><i class="icon feather icon-folder"></i></span><span
+                                class="pcoded-mtext">Laporan Keuangan</span></a>
+                        <ul class="pcoded-submenu">
+                            <li>
+                                <a href="{{ route('laporankeuangan.aruskas.index') }}" class="dropdown-item"><i
+                                        class="icon feather icon-file-text"></i> Arus Kas</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('laporankeuangan.labarugi.index') }}" class="dropdown-item"><i
+                                        class="icon feather icon-file-minus"></i> Laba Rugi</a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+                @if (auth()->user()->id_level != 5)
+                    <li class="nav-item">
+                        <a href="{{ route('pengeluaran.index') }}"
+                            class="nav-link {{ request()->routeIs('pengeluaran.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="feather icon-file"></i></span>
+                            <span class="pcoded-mtext">Pengeluaran</span>
+                        </a>
+                    </li>
+                @endif
             </ul>
         </div>
     </div>

@@ -21,7 +21,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Promo">
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                                 <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
@@ -43,12 +43,29 @@
                         </div>
                         <div class="content">
                             <div class="collapse mt-2 pl-4" id="filter-collapse">
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <input class="form-control w-25 mb-2" type="text" id="daterange" name="daterange"
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center flex-wrap">
+                                    <input class="form-control mb-2 w-25" type="text" id="daterange" name="daterange"
                                         placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
+
+                                    @if (auth()->user()->id_toko == 1)
+                                        <div class="form-group mb-2 mx-1">
+                                            <select class="form-control select2" id="toko" name="toko"></select>
+                                        </div>
+                                    @endif
+
+                                    <div class="form-group mb-2 mx-1">
+                                        <select class="form-control select2" id="jenis" name="jenis"></select>
+                                    </div>
+
+                                    <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
+                                        <input class="form-check-input" type="checkbox" id="f_is_hutang" name="f_is_hutang">
+                                        <label class="form-check-label ms-2" for="f_is_hutang">Hutang?</label>
+                                    </div>
+
+                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-1" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                     </button>
+
                                     <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
                                         <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
@@ -60,15 +77,19 @@
                                         <thead>
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
+                                                <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pengeluaran</th>
-                                                <th class="text-wrap align-top">Jenis</th>
-                                                <th class="text-wrap align-top">Nilai</th>
-                                                <th class="text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top">Hutang?</th>
+                                                <th class="text-wrap align-top">Jenis/Ket</th>
+                                                <th class="text-right text-wrap align-top">Nilai</th>
+                                                <th class="text-center text-wrap align-top">Action</th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
                                         </tbody>
+                                        <tfoot>
+                                        </tfoot>
                                     </table>
                                 </div>
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
@@ -94,44 +115,77 @@
 
     <div class="modal fade" id="modal-form" tabindex="-1" role="dialog" aria-labelledby="modal-form-label"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal" aria-label="Close"><i
-                            class="fa fa-xmark"></i></button>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
                     <form id="formTambahData">
-                        <div class="form-group">
-                            <label for="nama_pengeluaran">Nama Pengeluaran <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="nama_pengeluaran" name="nama_pengeluaran"
-                                placeholder="Masukkan nama pengeluaran" required>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label for="nama_pengeluaran">Nama Pengeluaran <sup
+                                            class="text-danger">*</sup></label>
+                                    <input type="text" class="form-control" id="nama_pengeluaran"
+                                        name="nama_pengeluaran" placeholder="Masukkan nama pengeluaran" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="tanggal">Tanggal <sup class="text-danger">*</sup></label>
+                                    <input type="date" class="form-control" id="tanggal" name="tanggal"
+                                        placeholder="Masukkan tanggal" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup class="text-dark">**</sup></label>
-                            <select class="form-control" id="id_jenis_pengeluaran" name="id_jenis_pengeluaran">
-                                @foreach ($jenis_pengeluaran as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
-                                @endforeach
-                            </select>
+                        <div class="row d-flex align-items-center">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
+                                    <input type="number" class="form-control" id="nilai" name="nilai"
+                                        placeholder="Masukkan nilai" required>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
+                                    <input class="form-check-input" type="checkbox" id="is_hutang" name="is_hutang">
+                                    <label class="form-check-label ms-2" for="is_hutang">Hutang?</label>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center font-weight-bold">Atau</div>
-                        <div class="form-group">
-                            <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-dark">**</sup></label>
-                            <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
-                                placeholder="Masukkan jenis baru">
+                        <div id="jenisPengeluaranContainer">
+                            <div class="form-group">
+                                <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup
+                                        class="text-danger">**</sup></label>
+                                <select class="form-control select2" id="id_jenis_pengeluaran"
+                                    name="id_jenis_pengeluaran">
+                                    @foreach ($jenis_pengeluaran as $item)
+                                        <option value="{{ $item->id }}">{{ $item->nama_jenis }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="text-center font-weight-bold">Atau</div>
+                            <div class="form-group">
+                                <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-danger">**</sup></label>
+                                <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
+                                    placeholder="Masukkan jenis baru">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="nilai">Nilai <sup class="text-danger">*</sup></label>
-                            <input type="number" class="form-control" id="nilai" name="nilai"
-                                placeholder="Masukkan nilai" required>
+                        <div class="form-group d-none" id="keteranganHutangContainer">
+                            <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
+                            <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
+                                placeholder="Masukkan keterangan hutang">
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
+                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData"><i
+                            class="fa fa-save mr-1"></i>Simpan</button>
                 </div>
             </div>
         </div>
@@ -154,6 +208,22 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let selectOptions = [{
+                id: '#toko',
+                isUrl: '{{ route('master.toko') }}',
+                placeholder: 'Pilih Nama Toko',
+            }, {
+                id: '#jenis',
+                isUrl: '{{ route('master.jenis') }}',
+                placeholder: 'Pilih Jenis Pengeluaran',
+            },
+            {
+                id: '#id_jenis_pengeluaran',
+                isUrl: '{{ route('master.jenis') }}',
+                placeholder: 'Pilih Jenis Pengeluaran',
+                isModal: '#modal-form'
+            }
+        ];
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
@@ -163,6 +233,18 @@
             if (customFilter['startDate'] && customFilter['endDate']) {
                 filterParams.startDate = customFilter['startDate'];
                 filterParams.endDate = customFilter['endDate'];
+            }
+
+            if (customFilter['toko']) {
+                filterParams.toko = customFilter['toko'];
+            }
+
+            if (customFilter['jenis']) {
+                filterParams.jenis = customFilter['jenis'];
+            }
+
+            if (customFilter['is_hutang']) {
+                filterParams.is_hutang = customFilter['is_hutang'];
             }
 
             let getDataRest = await renderAPI(
@@ -186,7 +268,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total_nilai);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
@@ -215,24 +297,31 @@
 
             if (delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-start">
+                <div class="d-flex justify-content-center">
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
                 <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
+
+            let hutang_badge = (data.is_hutang == 1 || data.is_hutang === '1') ?
+                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Ya</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Tidak</span>`;
+
             return {
                 id: data?.id ?? '-',
+                tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
+                is_hutang: hutang_badge,
                 nama_pengeluaran: data?.nama_pengeluaran ?? '-',
-                nama_jenis: data?.nama_jenis ?? '-',
+                nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_hutang ?? '-'),
                 nilai: data?.nilai ?? '-',
                 action_buttons,
             };
         }
 
-        async function setListData(dataList, pagination) {
+        async function setListData(dataList, pagination, total) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
@@ -240,19 +329,32 @@
 
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
+
             dataList.forEach((element, index) => {
                 getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.nama_pengeluaran}</td>
-                        <td class="${classCol}">${element.nama_jenis}</td>
-                        <td class="${classCol}">${element.nilai}</td>
-                        <td class="${classCol}">${element.action_buttons}</td>
-                    </tr>`;
+                <tr class="text-dark">
+                    <td class="${classCol} text-center">${display_from + index}.</td>
+                    <td class="${classCol}">${element.tanggal}</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
+                    <td class="${classCol}">${element.nama_pengeluaran}</td>
+                    <td class="${classCol}">${element.is_hutang}</td>
+                    <td class="${classCol}">${element.nama_jenis}</td>
+                    <td class="${classCol} text-right">${element.nilai}</td>
+                    <td class="${classCol}">${element.action_buttons}</td>
+                </tr>`;
             });
 
+            let totalRow = `
+            <tr class="bg-primary">
+                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
+                <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol}"></td>
+            </tr>`;
+
             $('#listData').html(getDataTable);
+            $('#listData').closest('table').find('tfoot').html(totalRow);
+
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
@@ -260,11 +362,14 @@
         }
 
         function handleInput() {
-            const jenisSelect = document.getElementById("id_jenis_pengeluaran");
+            const jenisSelect = $("#id_jenis_pengeluaran");
             const jenisBaruInput = document.getElementById("nama_jenis");
+            const isHutangCheckbox = document.getElementById("is_hutang");
+            const keteranganHutangContainer = document.getElementById("keteranganHutangContainer");
+            const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
 
             function toggleInputs() {
-                if (jenisSelect.value) {
+                if (jenisSelect.val()) {
                     jenisBaruInput.disabled = true;
                     jenisBaruInput.value = "";
                 } else {
@@ -274,15 +379,25 @@
 
             function toggleSelect() {
                 if (jenisBaruInput.value.trim() !== "") {
-                    jenisSelect.disabled = true;
-                    jenisSelect.value = "";
+                    jenisSelect.prop("disabled", true).val(null).trigger("change");
                 } else {
-                    jenisSelect.disabled = false;
+                    jenisSelect.prop("disabled", false);
                 }
             }
 
-            jenisSelect.addEventListener("change", toggleInputs);
+            function toggleHutangFields() {
+                if (isHutangCheckbox.checked) {
+                    keteranganHutangContainer.classList.remove("d-none");
+                    jenisPengeluaranContainer.classList.add("d-none");
+                } else {
+                    keteranganHutangContainer.classList.add("d-none");
+                    jenisPengeluaranContainer.classList.remove("d-none");
+                }
+            }
+
+            jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
+            isHutangCheckbox.addEventListener("change", toggleHutangFields);
         }
 
         async function addData() {
@@ -301,13 +416,21 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
+                let isHutang = $("#is_hutang").is(':checked') ? 1 : '';
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
-                    id_jenis_pengeluaran: $('#id_jenis_pengeluaran').val(),
-                    nama_jenis: $('#nama_jenis').val(),
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
                     nilai: $('#nilai').val(),
+                    tanggal: $('#tanggal').val(),
                 };
+
+                if (isHutang) {
+                    formData.is_hutang = 1;
+                    formData.ket_hutang = $('#ket_hutang').val();
+                } else {
+                    formData.id_jenis_pengeluaran = $('#id_jenis_pengeluaran').val();
+                    formData.nama_jenis = $('#nama_jenis').val();
+                }
 
                 try {
                     let postData = await renderAPI("POST", actionUrl, formData);
@@ -360,7 +483,7 @@
                     }).catch(function(error) {
                         let resp = error.response;
                         return resp;
-                });
+                    });
 
                     if (postDataRest.status == 200) {
                         setTimeout(function() {
@@ -391,8 +514,11 @@
                 }
 
                 customFilter = {
-                    'startDate': $("#daterange").val() != '' ? startDate : '',
-                    'endDate': $("#daterange").val() != '' ? endDate : ''
+                    startDate: $("#daterange").val() != '' ? startDate : '',
+                    endDate: $("#daterange").val() != '' ? endDate : '',
+                    toko: $("#toko").val() || '',
+                    jenis: $("#jenis").val() || '',
+                    is_hutang: $("#f_is_hutang").is(':checked') ? '1' : '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -410,11 +536,11 @@
 
             document.getElementById('tb-reset').addEventListener('click', async function() {
                 $('#daterange').val('');
+                $('#custom-filter select').val(null).trigger('change');
                 customFilter = {};
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
-                await setTimeReport();
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
@@ -422,9 +548,9 @@
 
         async function initPageLoad() {
             await setDynamicButton();
+            await selectData(selectOptions);
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
-            await selectList(['id_jenis_pengeluaran'], ['Pilih Jenis Pengeluaran']);
             await handleInput();
             await filterList();
             await addData();

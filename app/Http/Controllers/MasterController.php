@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailToko;
+use App\Models\JenisPengeluaran;
 use App\Models\Member;
 use App\Models\StockBarang;
 use App\Models\Supplier;
@@ -30,7 +31,7 @@ class MasterController extends Controller
         if (!empty($request['super_admin'])) {
             $query->where('id', '=', 1);
         }
-        
+
         if (!empty($request['is_delete'])) {
             $query->where('id', '!=', $request['is_delete']);
         }
@@ -73,6 +74,73 @@ class MasterController extends Controller
                 'id' => $item['id'],
                 'text' => $item['nama_toko'],
                 'optional' => $item['singkatan'],
+            ];
+        }, $data['data']);
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
+    public function getJenis(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = JenisPengeluaran::query();
+
+        if (!empty($request['is_admin'])) {
+            $query->where('id', '!=', 1);
+        }
+
+        if (!empty($request['super_admin'])) {
+            $query->where('id', '=', 1);
+        }
+
+        if (!empty($request['is_delete'])) {
+            $query->where('id', '!=', $request['is_delete']);
+        }
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        $query->orderBy('id', $meta['orderBy']);
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = array_map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'text' => $item['nama_jenis'],
             ];
         }, $data['data']);
 
@@ -338,9 +406,9 @@ class MasterController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-    
+
         $id_toko = $request->id_toko;
-    
+
         if (!$id_toko) {
             return response()->json([
                 'status_code' => 400,
@@ -348,7 +416,7 @@ class MasterController extends Controller
                 'message' => 'ID Toko harus diisi',
             ], 400);
         }
-    
+
         $query = DetailToko::join('barang', 'detail_toko.id_barang', '=', 'barang.id')
             ->join('supplier', 'detail_toko.id_supplier', '=', 'supplier.id')
             ->join('detail_pembelian_barang as dt_barang', 'detail_toko.qrcode', '=', 'dt_barang.qrcode')
@@ -364,10 +432,10 @@ class MasterController extends Controller
                 'detail_toko.harga',
                 'dt_barang.qrcode'
             );
-    
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-    
+
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
             });
@@ -378,16 +446,16 @@ class MasterController extends Controller
                 'message' => 'Silahkan masukkan qrcode',
             ], 400);
         }
-    
+
         $data = $query->paginate($meta['limit']);
-    
+
         $paginationMeta = [
             'total'        => $data->total(),
             'per_page'     => $data->perPage(),
             'current_page' => $data->currentPage(),
             'total_pages'  => $data->lastPage()
         ];
-    
+
         if ($data->isEmpty()) {
             return response()->json([
                 'status_code' => 400,
@@ -395,14 +463,14 @@ class MasterController extends Controller
                 'message' => 'Tidak ada data',
             ], 400);
         }
-    
+
         $mappedData = $data->map(function ($item) {
             return [
                 'id' => $item->qrcode . '/'. $item->id_barang,
                 'text' => "{$item->nama_barang} / Sisa Stock: ({$item->qty}) /  QRcode: {$item->qrcode}",
             ];
         });
-    
+
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
@@ -411,5 +479,5 @@ class MasterController extends Controller
             'pagination' => $paginationMeta
         ], 200);
     }
-    
+
 }

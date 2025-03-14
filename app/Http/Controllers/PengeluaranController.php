@@ -59,12 +59,21 @@ class PengeluaranController extends Controller
             });
         }
 
-        // Filter berdasarkan id_toko
         if ($request->has('id_toko')) {
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
                 $query->where('id_toko', $idToko);
             }
+        }
+
+        if ($request->has('toko')) {
+            $idToko = $request->input('toko');
+                $query->where('id_toko', $idToko);
+        }
+
+        if ($request->has('jenis')) {
+            $id_jenis = $request->input('jenis');
+            $query->where('id_jenis_pengeluaran', $id_jenis);
         }
 
         if ($request->has('startDate') && $request->has('endDate')) {
@@ -74,6 +83,7 @@ class PengeluaranController extends Controller
             // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
+        $totalNilai = $query->sum('nilai');
 
         $data = $query->paginate($meta['limit']);
 
@@ -102,10 +112,11 @@ class PengeluaranController extends Controller
                 'id' => $item['id'],
                 'nama_toko' => $item['toko']->nama_toko,
                 'nama_pengeluaran' => $item->nama_pengeluaran,
-                'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis,
+                'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
-                'tanggal' => Carbon::parse($item['created_at'])->format('d-m-Y'),
-
+                'is_hutang' => $item->is_hutang,
+                'ket_hutang' => $item->ket_hutang,
+                'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
             ];
         });
 
@@ -114,7 +125,8 @@ class PengeluaranController extends Controller
             'status_code' => 200,
             'errors' => true,
             'message' => 'Sukses',
-            'pagination' => $data['meta']
+            'pagination' => $data['meta'],
+            'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, '.', '.')
         ], 200);
     }
 
@@ -123,9 +135,12 @@ class PengeluaranController extends Controller
         $validatedData = $request->validate([
             'id_toko' => 'required|exists:toko,id',
             'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id',
-            'nama_jenis' => 'required_without:id_jenis_pengeluaran|string',
-            'nama_pengeluaran' => 'required|string',
+            'nama_jenis' => 'nullable_without:id_jenis_pengeluaran|string',
+            'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
+            'tanggal' => 'required|date',
+            'is_hutang' => 'nullable|boolean',
+            'ket_hutang' => 'nullable|string',
         ]);
 
         try {
@@ -144,6 +159,9 @@ class PengeluaranController extends Controller
                 'id_jenis_pengeluaran' => $id_jenis_pengeluaran,
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
+                'tanggal' => $validatedData['tanggal'],
+                'is_hutang' => $validatedData['is_hutang'] ?? false,
+                'ket_hutang' => $validatedData['ket_hutang'],
             ]);
 
             DB::commit();

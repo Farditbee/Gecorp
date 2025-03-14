@@ -18,7 +18,16 @@ class PengeluaranSeeder extends Seeder
             "id_toko" => 3,
             "id_jenis_pengeluaran" => 1,
             "nama_pengeluaran" => "Beli Alat Pancing",
-            "Nilai" => 50000,
+            "nilai" => 50000,
+            "tanggal" => '2024-03-12',
+        ]);
+        Pengeluaran::create([
+            "id" => 2,
+            "id_toko" => 3,
+            "nilai" => 17000000,
+            "is_hutang" => 1,
+            "ket_hutang" => "Suryadi ngutang hp iphone 13",
+            "tanggal" => '2024-03-13',
         ]);
     }
 }

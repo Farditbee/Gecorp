@@ -14,9 +14,12 @@ return new class extends Migration
         Schema::create('pengeluaran', function (Blueprint $table) {
             $table->id();
             $table->string('id_toko');
-            $table->string('nama_pengeluaran');
+            $table->string('nama_pengeluaran')->nullable();
             $table->string('id_jenis_pengeluaran')->nullable();
             $table->double('nilai')->nullable();
+            $table->boolean('is_hutang')->nullable();
+            $table->string('ket_hutang')->nullable();
+            $table->date('tanggal');
             $table->softDeletes();
             $table->timestamps();
         });
