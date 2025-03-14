@@ -155,6 +155,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('master.pengeluaran.index');
         Route::post('/pengeluaran/store', [PengeluaranController::class, 'store'])->name('master.pengeluaran.store');
         Route::delete('/pengeluaran/delete/{id}', [PengeluaranController::class, 'delete'])->name('master.pengeluaran.delete');
+        Route::put('/pengeluaran/update/{id}', [PengeluaranController::class, 'updatehutang'])->name('master.pengeluaran.update');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

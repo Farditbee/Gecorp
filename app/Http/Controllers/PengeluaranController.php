@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailPengeluaran;
 use App\Models\JenisPengeluaran;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
@@ -132,7 +133,7 @@ class PengeluaranController extends Controller
     public function store(Request $request)
     {
         $is_hutang = $request->input('is_hutang', false);
-        
+
         $validationRules = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pengeluaran' => 'nullable|string',
@@ -206,6 +207,48 @@ class PengeluaranController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus Data pengeluaran: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updatehutang(Request $request, string $id)
+    {
+        $validatedData = $request->validate([
+            'nilai' => 'required|numeric|min:0'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $pengeluaran = Pengeluaran::findOrFail($id);
+
+            if (!$pengeluaran->is_hutang) {
+                throw new \Exception('Data pengeluaran ini bukan hutang.');
+            }
+
+            if ($validatedData['nilai'] > $pengeluaran->nilai) {
+                throw new \Exception('Nilai pembayaran melebihi sisa hutang.');
+            }
+
+            DetailPengeluaran::create([
+                'id_pengeluaran' => $pengeluaran->id,
+                'nilai' => $validatedData['nilai']
+            ]);
+
+            $pengeluaran->nilai -= $validatedData['nilai'];
+            $pengeluaran->save();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Pembayaran hutang berhasil diupdate',
+                'sisa_hutang' => $pengeluaran->nilai
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengupdate pembayaran hutang: ' . $e->getMessage()
             ], 500);
         }
     }
