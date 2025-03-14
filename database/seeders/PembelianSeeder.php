@@ -30,10 +30,7 @@ class PembelianSeeder extends Seeder
 
         DB::table('pembelian_barang')->truncate();
         DB::table('detail_pembelian_barang')->truncate();
-        DB::table('stock_barang')->truncate();
         DB::table('temp_detail_pengiriman')->truncate();
-        DB::table('pengiriman_barang')->truncate();
-        DB::table('detail_pengiriman_barang')->truncate();
 
         // Delete all files in the qrcodes/pembelian directory
         $qrCodeDirectory = storage_path('app/public/qrcodes/pembelian');
@@ -48,23 +45,23 @@ class PembelianSeeder extends Seeder
 
         PembelianBarang::create([
             "id" => 1,
-            "id_supplier" => "1",
-            "id_users" => "1",
-            "no_nota" => "123",
-            "tgl_nota" => "2021-08-01",
-            "total_item" => 40,
-            "total_nilai" => 16000000,
+            "id_supplier" => 1,
+            "id_user" => 1,
+            "no_nota" => "221",
+            "tgl_nota" => "2025-03-12 11:44:21",
+            "total_item" => 20,
+            "total_nilai" => 30000.00,
             "status" => "success",
         ]);
 
         PembelianBarang::create([
-            "id" => 2,
-            "id_supplier" => "2",
-            "id_users" => "1",
-            "no_nota" => "124",
-            "tgl_nota" => "2021-08-01",
-            "total_item" => 20,
-            "total_nilai" => 8000000,
+            "id" => 1,
+            "id_supplier" => 2,
+            "id_user" => 1,
+            "no_nota" => "621",
+            "tgl_nota" => "2025-03-12 12:17:21",
+            "total_item" => 40,
+            "total_nilai" => 40000.00,
             "status" => "success",
         ]);
         
@@ -75,12 +72,12 @@ class PembelianSeeder extends Seeder
             "id" => 1,
             "qrcode" => $qrCodeData1['qrcode'],
             "qrcode_path" => $qrCodeData1['qrcode_path'],
-            "id_pembelian_barang" => "1",
-            "id_barang" => "1",
-            "id_supplier" => "1",
-            "qty" => 20,
-            "harga_barang" => 500000,
-            "total_harga" => 10000000,
+            "id_supplier" => 1,
+            "id_pembelian_barang" => 1,
+            "id_barang" => 1,
+            "qty" => 10,
+            "harga_barang" => 1000.00,
+            "total_harga" => 10000.00,
             "status" => "success",
         ]);
 
@@ -90,12 +87,12 @@ class PembelianSeeder extends Seeder
             "id" => 2,
             "qrcode" => $qrCodeData2['qrcode'],
             "qrcode_path" => $qrCodeData2['qrcode_path'],
-            "id_pembelian_barang" => "1",
-            "id_barang" => "2",
-            "id_supplier" => "1",
-            "qty" => 20,
-            "harga_barang" => 300000,
-            "total_harga" => 6000000,
+            "id_supplier" => 1,
+            "id_pembelian_barang" => 1,
+            "id_barang" => 2,
+            "qty" => 10,
+            "harga_barang" => 2000.00,
+            "total_harga" => 20000.00,
             "status" => "success",
         ]);
 
@@ -105,12 +102,12 @@ class PembelianSeeder extends Seeder
             "id" => 3,
             "qrcode" => $qrCodeData3['qrcode'],
             "qrcode_path" => $qrCodeData3['qrcode_path'],
-            "id_pembelian_barang" => "2",
-            "id_barang" => "1",
-            "id_supplier" => "2",
-            "qty" => 10,
-            "harga_barang" => 500000,
-            "total_harga" => 5000000,
+            "id_supplier" => 2,
+            "id_pembelian_barang" => 2,
+            "id_barang" => 1,
+            "qty" => 20,
+            "harga_barang" => 700.00,
+            "total_harga" => 14000.00,
             "status" => "success",
         ]);
 
@@ -120,32 +117,15 @@ class PembelianSeeder extends Seeder
             "id" => 4,
             "qrcode" => $qrCodeData4['qrcode'],
             "qrcode_path" => $qrCodeData4['qrcode_path'],
-            "id_pembelian_barang" => "2",
-            "id_barang" => "2",
-            "id_supplier" => "2",
-            "qty" => 10,
-            "harga_barang" => 300000,
-            "total_harga" => 3000000,
+            "id_supplier" => 2,
+            "id_pembelian_barang" => 2,
+            "id_barang" => 2,
+            "qty" => 20,
+            "harga_barang" => 1300.00,
+            "total_harga" => 26000.00,
             "status" => "success",
         ]);
 
-        StockBarang::create([
-            "id" => 1,
-            "id_barang" => "1",
-            "stock" => 30,
-            "hpp_awal" => 500000,
-            "hpp_baru" => 500000,
-            "nilai_total" => 15000000,
-        ]);
-
-        StockBarang::create([
-            "id" => 2,
-            "id_barang" => "2",
-            "stock" => 30,
-            "hpp_awal" => 300000,
-            "hpp_baru" => 300000,
-            "nilai_total" => 9000000,
-        ]);
     }
 
     protected function generateQrCode($pembelianId, $barangId, $supplierId)

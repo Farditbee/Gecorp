@@ -134,8 +134,19 @@
         }
 
         async function handleData(data) {
-            let gambar_barcode = data?.barcode_path && data.barcode_path !== "" ?
-                `<img src="{{ asset('storage') }}/${data.barcode_path}" width="200" class="barcode-img" alt="Barcode">` :
+            let view_button = data?.barcode_path && data.barcode_path !== "" ?
+                `<a href="{{ asset('storage') }}/${data.barcode_path}" target="_blank" class="p-1 btn view-barcode action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Lihat Barcode ${title}: ${data.nama_barang}"
+                    data-id='${data.id}'>
+                    <span class="text-dark">Lihat</span>
+                    <div class="icon text-info">
+                        <i class="fa fa-eye"></i>
+                    </div>
+                </a>` :
+                ``;
+            let gambar_barcode = data?.barcode && data.barcode !== "" ?
+                `<img src="{{ asset('storage') }}/barcodes/${data.barcode}.png" width="200" class="barcode-img" alt="Barcode">` :
                 `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
 
             let edit_button = `
@@ -180,6 +191,7 @@
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
+                    ${view_button ? `<div class="hovering p-1">${view_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `

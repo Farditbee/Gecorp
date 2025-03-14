@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ActivityLogger;
 use App\Models\JenisBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,7 +35,6 @@ class JenisBarangController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(nama_jenis_barang) LIKE ?", ["%$searchTerm%"]);
             });
         }
@@ -43,7 +43,6 @@ class JenisBarangController extends Controller
             $startDate = $request->input('startDate');
             $endDate = $request->input('endDate');
 
-            // Lakukan filter berdasarkan tanggal
             $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
@@ -90,8 +89,11 @@ class JenisBarangController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0]];
+
         $jenisbarang = JenisBarang::orderBy('id', 'desc')->get();
+
         return view('master.jenisbarang.index', compact('menu', 'jenisbarang'));
     }
 
@@ -100,7 +102,9 @@ class JenisBarangController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[0], $this->title[1]];
+
         return view('master.jenisbarang.create', compact('menu'));
     }
 
@@ -111,20 +115,19 @@ class JenisBarangController extends Controller
         ], [
             'nama_jenis_barang.required' => 'Jenis Barang tidak boleh kosong.',
         ]);
+
+        ActivityLogger::log('Tambah Jenis Barang', $request->all());
+
         try {
 
             JenisBarang::create([
                 'nama_jenis_barang' => $request->nama_jenis_barang,
             ]);
+
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
         return redirect()->route('master.jenisbarang.index')->with('success', 'Sukses menambahkan Jenis Barang Baru');
-    }
-
-    public function show(string $id)
-    {
-        //
     }
 
     public function edit(string $id)
@@ -134,17 +137,24 @@ class JenisBarangController extends Controller
         }
 
         $menu = [$this->title[0], $this->label[0], $this->title[2]];
+
         $jenisbarang = JenisBarang::findOrFail($id);
+
         return view('master.jenisbarang.edit', compact('menu', 'jenisbarang'));
     }
 
     public function update(Request $request, string $id)
     {
         $jenisbarang = JenisBarang::findOrFail($id);
+
+        ActivityLogger::log('Update Jenis Barang', ['id' => $id, 'data' => $request->all()]);
+
         try {
+
             $jenisbarang->update([
                 'nama_jenis_barang' => $request->nama_jenis_barang,
             ]);
+
             return redirect()->route('master.jenisbarang.index')->with('success', 'Sukses Mengubah Data Jenis Barang');
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
@@ -153,11 +163,17 @@ class JenisBarangController extends Controller
 
     public function delete(string $id)
     {
-        DB::beginTransaction();
         $jenisbarang = JenisBarang::findOrFail($id);
+
+        ActivityLogger::log('Delete Jenis Barang', ['id' => $id]);
+
         try {
+            DB::beginTransaction();
+
             $jenisbarang->delete();
+
             DB::commit();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Sukses menghapus Data Jenis Barang'

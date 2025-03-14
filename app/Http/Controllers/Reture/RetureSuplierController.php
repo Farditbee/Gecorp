@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reture;
 
+use App\Helpers\ActivityLogger;
 use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\DataReture;
@@ -32,7 +33,9 @@ class RetureSuplierController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+
         $menu = [$this->title[0], $this->label[3]];
+
         return view('reture.suplier.index', compact('menu'));
     }
 
@@ -49,7 +52,6 @@ class RetureSuplierController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
                 $query->orWhereRaw("LOWER(id_supplier) LIKE ?", ["%$searchTerm%"]);
             });
         }
@@ -118,6 +120,8 @@ class RetureSuplierController extends Controller
             'qrcode' => 'required|array',
         ]);
 
+        ActivityLogger::log('Tambah Reture Supplier', $request->all());
+
         try {
             DB::beginTransaction();
 
@@ -130,7 +134,6 @@ class RetureSuplierController extends Controller
 
                 $detailBeli = DetailPembelianBarang::where('qrcode', $qrcode)->first();
 
-                // Update data di tabel detail_retur
                 DetailRetur::where('id_retur', $idRetur)
                     ->where('id_transaksi', $idTransaksi)
                     ->where('id_barang', $idBarang)
@@ -139,7 +142,6 @@ class RetureSuplierController extends Controller
                         'status_reture' => 'success',
                     ]);
 
-                // Jika metode_reture adalah Barang, update stok di tabel stock_barang
                 if ($metodeReture === 'Barang') {
                     StockBarang::where('id_barang', $idBarang)
                                 ->increment('stock', $qtyAcc);
@@ -149,7 +151,6 @@ class RetureSuplierController extends Controller
                 }
             }
 
-            // Update status di tabel data_retur
             DataReture::where('no_nota', $request->no_nota)
                 ->update(['status' => 'done']);
 
@@ -162,6 +163,7 @@ class RetureSuplierController extends Controller
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
+
             Log::error('Error updating data: ' . $e->getMessage());
 
             return response()->json([
@@ -184,10 +186,10 @@ class RetureSuplierController extends Controller
 
             if ($detailKasir->isEmpty()) {
                 return response()->json([
-                    'error' => true,
-                    'message' => 'Data tidak ditemukan',
-                    'status_code' => 404,
-                ], 404);
+                        'error' => true,
+                        'message' => 'Data tidak ditemukan',
+                        'status_code' => 404,
+                    ], 404);
             } else {
                 $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
                                         ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
@@ -196,17 +198,22 @@ class RetureSuplierController extends Controller
                                         ->where('detail_retur.status_kirim', 'success')
                                         ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
                                         ->get();
+
+                if ($detailTransaksi->isEmpty()) {
+                    return response()->json([
+                        'error' => true,
+                        'message' => 'Data tidak ditemukan',
+                        'status_code' => 404,
+                    ], 404);
+                }
             }
 
-            // Ambil data barang berdasarkan id_barang dari detailTransaksi
             $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
 
-            // Map nama_barang dari koleksi Barang
             $namaBarang = $barang->mapWithKeys(function ($item) {
                 return [$item->id => $item->nama_barang];
             });
 
-            // Map detailTransaksi untuk menambahkan nama_barang
             $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
                 return [
                     'id_transaksi' => $item->id_transaksi,
@@ -218,10 +225,10 @@ class RetureSuplierController extends Controller
                     'hpp_jual' => $item->hpp_jual,
                     'tgl_retur' => $item->tgl_retur,
                     'qrcode' => $item->qrcode,
+                    'no_nota' => $item->no_nota,
                 ];
             });
 
-            // Return JSON response
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
@@ -247,6 +254,8 @@ class RetureSuplierController extends Controller
             'no_nota' => 'required|string',
         ]);
 
+        ActivityLogger::log('Hapus Reture Supplier', $request->all());
+
         $user = Auth::user();
 
         try {
@@ -257,6 +266,7 @@ class RetureSuplierController extends Controller
                 ->delete();
 
             if ($deleted) {
+
                 return response()->json([
                     'status_code' => 200,
                     'errors' => false,
@@ -269,7 +279,9 @@ class RetureSuplierController extends Controller
                     'message' => 'Data tidak ditemukan',
                 ], 404);
             }
+            
         } catch (\Exception $e) {
+            
             Log::error('Error deleting data: ' . $e->getMessage());
 
             return response()->json([

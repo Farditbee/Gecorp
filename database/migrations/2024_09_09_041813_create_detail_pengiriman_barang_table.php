@@ -18,8 +18,8 @@ return new class extends Migration
             $table->string('id_barang')->nullable();
             $table->string('id_supplier')->nullable();
             $table->integer('qty')->nullable();
-            $table->double('harga')->nullable();
-            $table->double('total_harga')->nullable();
+            $table->decimal('harga', 15, 2)->nullable();
+            $table->decimal('total_harga', 15, 2)->nullable();
             $table->enum('status', ['success', 'failed', 'progress'])->default('progress')->nullable();
             $table->timestamps();
             $table->softDeletes();

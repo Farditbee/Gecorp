@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id');
             $table->string('id_kasir');
             $table->string('id_member');
-            $table->double('utang');
+            $table->decimal('utang', 15, 2);
             $table->enum('status', ['L', 'BL'])->default('BL');
             $table->timestamps();
             $table->softDeletes();

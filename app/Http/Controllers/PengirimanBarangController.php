@@ -275,13 +275,29 @@ class PengirimanBarangController extends Controller
             'tipe_pengiriman' => 'reture',
         ]);
 
-        $reture_barang = DataReture::where('id_toko', $user->id_toko)->first();
+        $reture_barang = DataReture::where('id_toko', $user->id_toko)->get();
 
-        $detail_reture = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
-                                    ->where('detail_retur.id_retur', $reture_barang->id)
-                                    ->where('detail_retur.status_kirim', 'pending')
-                                    ->select('detail_retur.id as detail_retur_id', 'detail_retur.id_retur as retur_id', 'detail_retur.*', 'detail_pembelian_barang.*')
-                                    ->get();
+        // dd($reture_barang);
+
+        $detail_reture = collect(); // Inisialisasi collection kosong
+
+        foreach ($reture_barang as $retur) {
+            $detail = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
+                ->where('detail_retur.id_retur', $retur->id)
+                ->where('detail_retur.status_kirim', 'pending')
+                ->select(
+                    'detail_retur.id as detail_retur_id',
+                    'detail_retur.id_retur as retur_id',
+                    'detail_retur.*',
+                    'detail_pembelian_barang.*'
+                )
+                ->get();
+        
+            $detail_reture = $detail_reture->merge($detail); // Gabungkan hasil query
+        }
+        
+        // dd($detail_reture);
+        
 
         DB::commit();
         
@@ -519,10 +535,12 @@ class PengirimanBarangController extends Controller
         $detailIds = $request->detail_ids;
         $idRetur = $request->returId;
 
-        $id_retur = null;
-        if (count(array_unique($idRetur)) === 1) {
-            $id_retur = $idRetur[0];
-        }
+        // dd($idRetur);
+
+        // $id_retur = null;
+        // if (count(array_unique($idRetur)) === 1) {
+        //     $id_retur = $idRetur[0];
+        // }
         
         try {
             
@@ -566,7 +584,7 @@ class PengirimanBarangController extends Controller
 
             $pengiriman_barang->total_item = $totalItem;
             $pengiriman_barang->total_nilai = $totalNilai;
-            $pengiriman_barang->id_retur = $id_retur;
+            $pengiriman_barang->id_retur = $idRetur;
             $pengiriman_barang->status = 'progress';
             $pengiriman_barang->save();
             
@@ -620,7 +638,7 @@ class PengirimanBarangController extends Controller
         $detail_ids = $request->input('detail_ids', []);
         $statuses = $request->input('status_detail', []);
         $tipe_kirim = $request->tipe_kirim;
-        $id_retur = $request->id_retur;
+        $id_retur = $request->input('id_retur', []);
 
         // dd($request->all());
     
@@ -638,7 +656,9 @@ class PengirimanBarangController extends Controller
                     $detail->save();
                 }
 
-                $detail_retur = DetailRetur::where('id_retur', $id_retur)->get();
+                $detail_retur = DetailRetur::whereIn('id_retur', $id_retur)->get();
+
+                // dd($detail_retur);
                 
                 foreach ($detail_retur as $key => $detail) {
                     $detail->status_kirim = 'success';

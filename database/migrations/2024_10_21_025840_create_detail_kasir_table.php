@@ -21,10 +21,10 @@ return new class extends Migration
             $table->string('qrcode_path')->nullable();
             $table->integer('reture_qty')->nullable();
             $table->integer('qty');
-            $table->double('harga');
+            $table->decimal('harga', 15, 2);
             $table->integer('diskon')->nullable();
-            $table->double('total_harga');
-            $table->double('hpp_jual');
+            $table->decimal('total_harga', 15, 2);
+            $table->decimal('hpp_jual', 15, 2);
             $table->boolean('reture')->default(false)->nullable();
             $table->string('reture_by')->nullable();
             $table->timestamps();
