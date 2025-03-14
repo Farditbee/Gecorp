@@ -42,35 +42,38 @@
                             </div>
                         </div>
                         <div class="content">
-                            <div class="collapse mt-2 pl-4" id="filter-collapse">
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center flex-wrap">
-                                    <input class="form-control mb-2 w-25" type="text" id="daterange" name="daterange"
-                                        placeholder="Pilih rentang tanggal">
-
+                            <div class="collapse mt-2" id="filter-collapse">
+                                <form id="custom-filter" class="row g-2 align-items-center mx-2">
+                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        <input class="form-control" type="text" id="daterange" name="daterange" placeholder="Pilih rentang tanggal">
+                                    </div>
                                     @if (auth()->user()->id_toko == 1)
-                                        <div class="form-group mb-2 mx-1">
+                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
                                             <select class="form-control select2" id="toko" name="toko"></select>
                                         </div>
                                     @endif
-
-                                    <div class="form-group mb-2 mx-1">
+                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
-
-                                    <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
-                                        <input class="form-check-input" type="checkbox" id="f_is_hutang" name="f_is_hutang">
-                                        <label class="form-check-label ms-2" for="f_is_hutang">Hutang?</label>
+                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        <div class="form-check form-switch d-flex align-items-center">
+                                            <input class="form-check-input" type="checkbox" id="f_is_hutang" name="f_is_hutang">
+                                            <label class="form-check-label" for="f_is_hutang">Hutang?</label>
+                                        </div>
                                     </div>
-
-                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-1" id="tb-filter" type="submit">
-                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
-                                    </button>
-
-                                    <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
-                                        <i class="fa fa-rotate mr-2"></i>Reset
-                                    </button>
+                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                    </div>
+                                    <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
+                                        <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter" type="submit">
+                                            <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="tb-reset">
+                                            <i class="fa fa-rotate mr-2"></i>Reset
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
+
                             <div class="card-body p-0">
                                 <div class="table-responsive table-scroll-wrapper">
                                     <table class="table table-striped m-0">
