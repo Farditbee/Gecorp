@@ -208,10 +208,8 @@
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-2"><span>Nilai Saat ini:</span><span class="ml-1 font-weight-bold"
-                            id="show-nilai"></span></div>
                     <div class="form-group">
-                        <label for="edit-nilai">Nilai</label>
+                        <label for="edit-nilai">Jumlah Bayar</label>
                         <input type="number" class="form-control" id="edit-nilai"
                             placeholder="Masukkan jumlah yang dibayarkan">
                     </div>
@@ -599,8 +597,7 @@
 
                 let nilaiAsli = parseInt(data.nilai.replace(/[^\d]/g, ''), 10) || 0;
 
-                $("#editModalLabel").html(`Edit Data: ${data.nama_pengeluaran ?? '-'}`);
-                $("#show-nilai").html(data.nilai);
+                $("#editModalLabel").html(`${data.ket_hutang ?? '-'} sisa ${data.nilai}`);
                 $("#edit-nilai").val(nilaiAsli);
                 $("#edit-nilai").attr({
                     "max": nilaiAsli,
