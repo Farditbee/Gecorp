@@ -403,9 +403,11 @@
                 <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
 
-            let hutang_badge = (data.is_hutang == 1 || data.is_hutang === '1') ?
-                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Tidak</span>`;
+            let hutang_badge = (data.is_hutang == 1) ?
+                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
+                (data.is_hutang == 2) ?
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Out</span>`;
 
             return {
                 id: data?.id ?? '-',
@@ -583,7 +585,7 @@
                             <thead>
                                 <tr class="tb-head">
                                     <th class="text-center text-wrap align-top">No</th>
-                                    <th class="text-wrap align-top">Tanggal</th>
+                                    <th class="text-wrap align-top">Tanggal Bayar</th>
                                     <th class="text-right text-wrap align-top">Nilai</th>
                                 </tr>
                             </thead>
@@ -824,18 +826,14 @@
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Hutang:</strong>
-                            <span>${data.is_hutang ? 'Ya' : 'Tidak'}</span>
-                        </div>
                         ${data.is_hutang ? `
-                                                            <div class="d-flex justify-content-between">
-                                                                <strong>Keterangan:</strong>
-                                                                <span>${data.ket_hutang}</span>
-                                                            </div>
-                                                            ` : ''}
+                                                                <div class="d-flex justify-content-between">
+                                                                    <strong>Keterangan:</strong>
+                                                                    <span>${data.ket_hutang}</span>
+                                                                </div>
+                                                                ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal:</strong>
+                            <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
                         </div>
                     </div>
