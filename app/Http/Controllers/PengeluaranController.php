@@ -115,6 +115,7 @@ class PengeluaranController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
+                'id_toko' => $item['toko']->id,
                 'nama_toko' => $item['toko']->nama_toko,
                 'nama_pengeluaran' => $item->nama_pengeluaran,
                 'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis ?? '-',
