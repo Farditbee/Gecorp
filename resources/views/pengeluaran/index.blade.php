@@ -372,7 +372,7 @@
                     </div>
                 </a>`;
 
-            let detail_button = `
+            let detail_button = (data.is_hutang == 1 || data.is_hutang == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -380,9 +380,9 @@
                     <div class="icon text-info">
                         <i class="fa fa-book"></i>
                     </div>
-                </a>`;
+                </a>` : '';
 
-            let edit_button = (data.is_hutang == 1 || data.is_hutang == 2) ? `
+            let edit_button = (data.is_hutang == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
