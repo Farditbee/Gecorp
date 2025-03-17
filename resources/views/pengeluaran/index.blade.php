@@ -216,9 +216,17 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="edit-nilai">Jumlah Bayar</label>
+                        <label for="edit-nilai">Jumlah Bayar <sup>(Rp)</sup> <sup class="text-danger">*</sup></label>
                         <input type="number" class="form-control" id="edit-nilai"
                             placeholder="Masukkan jumlah yang dibayarkan">
+                    </div>
+                    <div class="card shadow-sm mb-3 border-0">
+                        <div class="card-body p-3">
+                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Riwayat Pembayaran</h5>
+                            <div class="mt-3">
+                                <div id="tableEditData"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -226,6 +234,34 @@
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="button" class="btn btn-primary" id="save-edit"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">Detail Nilai</h5>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fa fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div id="detailDataContainer"></div>
+                    <div class="card shadow-sm mb-3 border-0">
+                        <div class="card-body p-3">
+                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Riwayat Pembayaran</h5>
+                            <div class="mt-3">
+                                <div id="tableDetailData"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
+                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                 </div>
             </div>
         </div>
@@ -336,6 +372,16 @@
                     </div>
                 </a>`;
 
+            let detail_button = `
+                <a class="p-1 btn detail-data action_button"
+                    data-container="body" data-toggle="tooltip" data-placement="top"
+                    title="Detail ${title}" data="${elementData}">
+                    <span class="text-dark">Detail</span>
+                    <div class="icon text-info">
+                        <i class="fa fa-book"></i>
+                    </div>
+                </a>`;
+
             let edit_button = (data.is_hutang == 1 || data.is_hutang == 2) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
@@ -345,9 +391,10 @@
                     </div>
                 </a>` : '';
 
-            if (delete_button || edit_button) {
+            if (delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
@@ -516,6 +563,74 @@
             });
         }
 
+        async function getDetailData(id, selector) {
+            $(selector).html('');
+
+            let getDataRest = await renderAPI(
+                'GET',
+                `/admin/pengeluaran/detail/${id}`, {}
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                return error.response;
+            });
+
+            if (getDataRest.status === 200) {
+                let data = getDataRest.data.data;
+                let tableList = `
+                    <div class="table-responsive table-scroll-wrapper">
+                        <table class="table table-striped m-0">
+                            <thead>
+                                <tr class="tb-head">
+                                    <th class="text-center text-wrap align-top">No</th>
+                                    <th class="text-wrap align-top">Tanggal</th>
+                                    <th class="text-right text-wrap align-top">Nilai</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailData-${selector}"></tbody>
+                            <tfoot></tfoot>
+                        </table>
+                    </div>
+                `;
+
+                $(`#${selector}`).html(tableList);
+
+                let getDataTable = '';
+                let classCol = 'align-center text-dark text-wrap';
+
+                data.detail_pembayaran.forEach((element, index) => {
+                    getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${index + 1}.</td>
+                        <td class="${classCol}">${element.tanggal}</td>
+                        <td class="${classCol} text-right">${element.nilai}</td>
+                    </tr>`;
+                });
+
+                let totalRow = `
+                <tr class="bg-success">
+                    <td class="${classCol}" colspan="1"></td>
+                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total Pembayaran</strong></td>
+                    <td class="${classCol} text-right"><strong class="text-white" id="totalDetailData">${data.total_pembayaran}</strong></td>
+                </tr>
+                <tr class="bg-danger">
+                    <td class="${classCol}" colspan="1"></td>
+                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Hutang</strong></td>
+                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_hutang}</strong></td>
+                </tr>`;
+
+                $(`#${selector}`).find(`#detailData-${selector}`).html('');
+                $(`#${selector}`).find(`#detailData-${selector}`).append(getDataTable);
+
+                $(`#${selector}`).find('tfoot').html('');
+                $(`#${selector}`).find('tfoot').append(totalRow);
+
+                return data;
+            } else {
+                return;
+            }
+        }
+
         async function deleteData() {
             $(document).on("click", ".delete-data", async function() {
                 let rawData = $(this).attr("data");
@@ -592,7 +707,6 @@
                     customFilter);
             });
 
-
             document.getElementById('tb-reset').addEventListener('click', async function() {
                 $('#daterange').val('');
                 $('#custom-filter select').val(null).trigger('change');
@@ -605,20 +719,39 @@
             });
         }
 
-        async function editData() {
-            $(document).on("click", ".edit-data", function() {
+        async function detailData() {
+            $(document).off("click", ".detail-data").on("click", ".detail-data", async function() {
                 let rawData = $(this).attr("data");
                 let data = JSON.parse(decodeURIComponent(rawData));
 
-                $("#editModalLabel").html(`<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
+                $("#detailModalLabel").html(`<i class="fa fa-book mr-2"></i>Detail Data`);
+                $("#detailModal").modal("show");
+
+                let dataList = await getDetailData(data.id, 'tableDetailData');
+                renderDetailData(dataList.pengeluaran);
+            });
+        }
+
+        async function editData() {
+            $(document).off("click", ".edit-data").on("click", ".edit-data", async function() {
+                let rawData = $(this).attr("data");
+                let data = JSON.parse(decodeURIComponent(rawData));
+
+                $("#editModalLabel").html(
+                    `<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
+                $("#save-edit").attr("data-id", data.id);
+                $("#editModal").modal("show");
+
+                let dataList = await getDetailData(data.id, 'tableEditData');
+
+                let sisaHutang = dataList.sisa_hutang.replace(/[^\d]/g, "");
+                let sisaHutangNum = parseInt(sisaHutang, 10) || 0;
+
                 $("#edit-nilai").attr({
                     "min": 0,
+                    "max": sisaHutangNum,
                     "type": "number"
-                });
-
-                $("#save-edit").attr("data-id", data.id);
-
-                $("#editModal").modal("show");
+                }).val(sisaHutangNum);
             });
 
             $(document).on("input", "#edit-nilai", function() {
@@ -674,6 +807,44 @@
             });
         }
 
+        function renderDetailData(data) {
+            const html = `
+                <div class="card shadow-sm mb-3 border-0">
+                    <div class="card-body p-3">
+                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pengeluaran</h5>
+                        <div class="d-flex justify-content-between">
+                            <strong>Nama Toko:</strong>
+                            <span>${data.nama_toko}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <strong>Pengeluaran:</strong>
+                            <span>${data.nama_pengeluaran}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <strong>Nilai:</strong>
+                            <span>${data.nilai}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <strong>Hutang:</strong>
+                            <span>${data.is_hutang ? 'Ya' : 'Tidak'}</span>
+                        </div>
+                        ${data.is_hutang ? `
+                                                            <div class="d-flex justify-content-between">
+                                                                <strong>Keterangan:</strong>
+                                                                <span>${data.ket_hutang}</span>
+                                                            </div>
+                                                            ` : ''}
+                        <div class="d-flex justify-content-between border-top pt-2 mt-3">
+                            <strong>Tanggal:</strong>
+                            <span>${data.tanggal}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            $("#detailDataContainer").html(html);
+        }
+
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await setDynamicButton();
@@ -685,6 +856,7 @@
             await submitForm();
             await deleteData();
             await editData();
+            await detailData();
         }
     </script>
 @endsection
