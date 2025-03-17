@@ -407,7 +407,9 @@
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
                 (data.is_hutang == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Out</span>`;
+                (data.id_toko == 1) ?
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
 
             return {
                 id: data?.id ?? '-',
@@ -827,11 +829,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                <div class="d-flex justify-content-between">
-                                                                    <strong>Keterangan:</strong>
-                                                                    <span>${data.ket_hutang}</span>
-                                                                </div>
-                                                                ` : ''}
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <strong>Keterangan:</strong>
+                                                                        <span>${data.ket_hutang}</span>
+                                                                    </div>
+                                                                    ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
