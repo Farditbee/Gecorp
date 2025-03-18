@@ -13,6 +13,7 @@ use App\Http\Controllers\LapPengirimanController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengirimanBarangController;
@@ -152,11 +153,13 @@ Route::middleware(['auth'])->group(function () {
         // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
 
         // Pengeluaran Controller
-        Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('master.pengeluaran.index');
+        Route::get('/pengeluaran', [PengeluaranController::class, 'index'])->name('keuangan.pengeluaran.index');
         Route::post('/pengeluaran/store', [PengeluaranController::class, 'store'])->name('master.pengeluaran.store');
         Route::delete('/pengeluaran/delete/{id}', [PengeluaranController::class, 'delete'])->name('master.pengeluaran.delete');
         Route::put('/pengeluaran/update/{id}', [PengeluaranController::class, 'updatehutang'])->name('master.pengeluaran.update');
         Route::get('/pengeluaran/detail/{id}', [PengeluaranController::class, 'detail'])->name('master.pengeluaran.detail');
+
+        Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('keuangan.pemasukan.index');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
@@ -231,10 +234,6 @@ Route::middleware(['auth'])->group(function () {
             Route::prefix('laba-rugi')->as('labarugi.')->group(function () {
                 Route::get('/', [LabaRugiController::class, 'index'])->name('index');
             });
-        });
-
-        Route::prefix('pengeluaran')->as('pengeluaran.')->group(function () {
-            Route::get('/', [PengeluaranController::class, 'index'])->name('index');
         });
     });
 });

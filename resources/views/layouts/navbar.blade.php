@@ -140,12 +140,24 @@
                     </li>
                 @endif
                 @if (auth()->user()->id_level != 5)
-                    <li class="nav-item">
-                        <a href="{{ route('pengeluaran.index') }}"
-                            class="nav-link {{ request()->routeIs('pengeluaran.*') ? $nav_link : '' }}">
-                            <span class="pcoded-micon"><i class="feather icon-file"></i></span>
-                            <span class="pcoded-mtext">Pengeluaran</span>
+                    <li class="nav-item pcoded-hasmenu">
+                        <a href="javascript::void(0)"
+                            class="nav-link {{ request()->routeIs('keuangan.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="icon feather icon-folder"></i></span>
+                            <span class="pcoded-mtext">Keuangan</span>
                         </a>
+                        <ul class="pcoded-submenu">
+                            <li>
+                                <a href="{{ route('keuangan.pemasukan.index') }}" class="dropdown-item">
+                                    <i class="icon feather icon-file-text"></i> Pemasukan
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('keuangan.pengeluaran.index') }}" class="dropdown-item">
+                                    <i class="icon feather icon-file-minus"></i> Pengeluaran
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
             </ul>

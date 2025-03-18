@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Pengeluaran
+    Pemasukan
 @endsection
 
 @section('css')
@@ -28,7 +28,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran">
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Pemasukan">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                                 <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
@@ -92,7 +92,7 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
-                                                <th class="text-wrap align-top">Nama Pengeluaran</th>
+                                                <th class="text-wrap align-top">Nama Pemasukan</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Jenis/Ket</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
@@ -132,7 +132,7 @@
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
+                    <h5 class="modal-title" id="modal-title">Tambah Data Pemasukan</h5>
                     <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
@@ -141,7 +141,7 @@
                         <div class="row d-flex align-items-center">
                             <div class="col-md-10">
                                 <div class="form-group">
-                                    <label for="nama_pengeluaran">Nama Pengeluaran <sup
+                                    <label for="nama_pemasukan">Nama Pemasukan <sup
                                             class="text-danger">*</sup></label>
                                     <input type="text" class="form-control" id="nama_pengeluaran"
                                         name="nama_pengeluaran" placeholder="Masukkan nama pengeluaran" required>
@@ -274,7 +274,7 @@
 
 @section('js')
     <script>
-        let title = 'Pengeluaran';
+        let title = 'Pemasukan';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
