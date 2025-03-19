@@ -93,6 +93,8 @@ class KasirController extends Controller
                 $query->whereBetween('tgl_transaksi', [$startDate, $endDate]);
             }
 
+            $totalNilai = $query->sum('total_nilai');
+
             $data = $query->paginate($meta['limit']);
 
             $paginationMeta = [
@@ -140,7 +142,8 @@ class KasirController extends Controller
                 'status_code' => 200,
                 'errors' => false,
                 'message' => 'Sukses',
-                'pagination' => $data['meta']
+                'pagination' => $data['meta'],
+                'total' => 'Rp. ' . number_format($totalNilai, 0, '.', '.')
             ], 200);
         }
     }
@@ -491,7 +494,7 @@ class KasirController extends Controller
 
             $array[] = end($array) ?: 0;
         }
-        
+
         return $array;
     }
 }
