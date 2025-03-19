@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <style>
-        th.th-data {
+        .th-data {
             width: 140px;
         }
     </style>
@@ -51,58 +51,62 @@
                                     <table class="table table-bordered table-striped m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center text-nowrap align-middle" rowspan="4">No</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Tgl</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Subjek</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Kategori</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Item</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Jml</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">HST</th>
-                                                <th class="text-nowrap align-middle" rowspan="4">Nilai Transaksi</th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-info">Saldo Akhir</th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-info"
-                                                    id="akhir_kas_kecil"></th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-success">Saldo Akhir</th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-success"
-                                                    id="akhir_kas_besar"></th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-warning">Saldo Akhir</th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-warning"
-                                                    id="akhir_piutang"></th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-secondary">Saldo Akhir
+                                                <th class="text-center text-nowrap align-middle" rowspan="5">No</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Tgl</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Subjek</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Kategori</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Item</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Jml</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">HST</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Nilai Transaksi</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-info">Saldo Akhir
                                                 </th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-secondary"
-                                                    id="akhir_hutang"></th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-info text-right"
+                                                    id="akhir_kas_kecil">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-success">Saldo
+                                                    Akhir</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-success text-right"
+                                                    id="akhir_kas_besar">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-warning">Saldo
+                                                    Akhir</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-warning text-right"
+                                                    id="akhir_piutang">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-secondary">Saldo
+                                                    Akhir
+                                                </th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-secondary text-right"
+                                                    id="akhir_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Saldo Berjalan</th>
-                                                <th class="text-nowrap align-middle text-white bg-info"
-                                                    id="berjalan_kas_kecil"></th>
+                                                <th class="text-nowrap align-middle text-white bg-info text-right"
+                                                    id="berjalan_kas_kecil">-</th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Saldo Berjalan
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-success"
-                                                    id="berjalan_kas_besar"></th>
+                                                <th class="text-nowrap align-middle text-white bg-success text-right"
+                                                    id="berjalan_kas_besar">-</th>
                                                 <th class="text-nowrap align-middle text-white bg-warning">Saldo Berjalan
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-warning"
-                                                    id="berjalan_piutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-warning text-right"
+                                                    id="berjalan_piutang">-</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Saldo Berjalan
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary"
-                                                    id="berjalan_hutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary text-right"
+                                                    id="berjalan_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Saldo Awal</th>
-                                                <th class="text-nowrap align-middle text-white bg-info" id="awal_kas_kecil">
+                                                <th class="text-nowrap align-middle text-white bg-info text-right" id="awal_kas_kecil">-
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Saldo Awal</th>
-                                                <th class="text-nowrap align-middle text-white bg-success"
-                                                    id="awal_kas_besar"></th>
+                                                <th class="text-nowrap align-middle text-white bg-success text-right"
+                                                    id="awal_kas_besar">-</th>
                                                 <th class="text-nowrap align-middle text-white bg-warning">Saldo Awal</th>
-                                                <th class="text-nowrap align-middle text-white bg-warning"
-                                                    id="awal_piutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-warning text-right"
+                                                    id="awal_piutang">-</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Saldo Awal</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary"
-                                                    id="awal_hutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary text-right"
+                                                    id="awal_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Kas Kecil In</th>
@@ -114,6 +118,18 @@
                                                 <th class="text-nowrap align-middle text-white bg-warning">Piutang Out</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Hutang In</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Hutang Out
+                                                </th>
+                                            </tr>
+                                            <tr class="tb-head">
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info" id="total_kas_kecil_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info" id="total_kas_kecil_out">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success" id="total_kas_besar_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success" id="total_kas_besar_out">-
+                                                </th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning" id="total_piutang_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning" id="total_piutang_out">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary" id="total_hutang_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary" id="total_hutang_out">-
                                                 </th>
                                             </tr>
                                         </thead>
