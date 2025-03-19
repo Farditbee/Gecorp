@@ -8,6 +8,11 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        th.th-data {
+            width: 140px;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -42,28 +47,77 @@
                         <div class="content">
                             <x-adminlte-alerts />
                             <div class="card-body p-0">
-                                <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-striped m-0">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Tgl</th>
-                                                <th class="text-wrap align-top">Subjek</th>
-                                                <th class="text-wrap align-top">Kategori</th>
-                                                <th class="text-wrap align-top">Item</th>
-                                                <th class="text-wrap align-top">Jml</th>
-                                                <th class="text-wrap align-top">HST</th>
-                                                <th class="text-wrap align-top">Nilai Transaksi</th>
-                                                <th class="text-wrap align-top text-white bg-info">Kas Kecil In</th>
-                                                <th class="text-wrap align-top text-white bg-info">Kas Kecil Out</th>
-                                                <th class="text-wrap align-top text-white bg-success">Kas Besar In</th>
-                                                <th class="text-wrap align-top text-white bg-success">Kas Besar Out</th>
-                                                <th class="text-wrap align-top text-white bg-warning">Piutang In</th>
-                                                <th class="text-wrap align-top text-white bg-warning">Piutang Out</th>
-                                                <th class="text-wrap align-top text-white bg-secondary">Hutang In</th>
-                                                <th class="text-wrap align-top text-white bg-secondary">Hutang Out</th>
+                                                <th class="text-center text-nowrap align-middle" rowspan="4">No</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Tgl</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Subjek</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Kategori</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Item</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Jml</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">HST</th>
+                                                <th class="text-nowrap align-middle" rowspan="4">Nilai Transaksi</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-info">Saldo Akhir</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-info"
+                                                    id="akhir_kas_kecil"></th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-success">Saldo Akhir</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-success"
+                                                    id="akhir_kas_besar"></th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-warning">Saldo Akhir</th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-warning"
+                                                    id="akhir_piutang"></th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-secondary">Saldo Akhir
+                                                </th>
+                                                <th class="text-nowrap th-data align-middle text-white bg-secondary"
+                                                    id="akhir_hutang"></th>
+                                            </tr>
+                                            <tr class="tb-head">
+                                                <th class="text-nowrap align-middle text-white bg-info">Saldo Berjalan</th>
+                                                <th class="text-nowrap align-middle text-white bg-info"
+                                                    id="berjalan_kas_kecil"></th>
+                                                <th class="text-nowrap align-middle text-white bg-success">Saldo Berjalan
+                                                </th>
+                                                <th class="text-nowrap align-middle text-white bg-success"
+                                                    id="berjalan_kas_besar"></th>
+                                                <th class="text-nowrap align-middle text-white bg-warning">Saldo Berjalan
+                                                </th>
+                                                <th class="text-nowrap align-middle text-white bg-warning"
+                                                    id="berjalan_piutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Berjalan
+                                                </th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary"
+                                                    id="berjalan_hutang"></th>
+                                            </tr>
+                                            <tr class="tb-head">
+                                                <th class="text-nowrap align-middle text-white bg-info">Saldo Awal</th>
+                                                <th class="text-nowrap align-middle text-white bg-info" id="awal_kas_kecil">
+                                                </th>
+                                                <th class="text-nowrap align-middle text-white bg-success">Saldo Awal</th>
+                                                <th class="text-nowrap align-middle text-white bg-success"
+                                                    id="awal_kas_besar"></th>
+                                                <th class="text-nowrap align-middle text-white bg-warning">Saldo Awal</th>
+                                                <th class="text-nowrap align-middle text-white bg-warning"
+                                                    id="awal_piutang"></th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Awal</th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary"
+                                                    id="awal_hutang"></th>
+                                            </tr>
+                                            <tr class="tb-head">
+                                                <th class="text-nowrap align-middle text-white bg-info">Kas Kecil In</th>
+                                                <th class="text-nowrap align-middle text-white bg-info">Kas Kecil Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-success">Kas Besar In</th>
+                                                <th class="text-nowrap align-middle text-white bg-success">Kas Besar Out
+                                                </th>
+                                                <th class="text-nowrap align-middle text-white bg-warning">Piutang In</th>
+                                                <th class="text-nowrap align-middle text-white bg-warning">Piutang Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary">Hutang In</th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary">Hutang Out
+                                                </th>
                                             </tr>
                                         </thead>
+
                                         <tbody id="listData">
                                         </tbody>
                                     </table>
