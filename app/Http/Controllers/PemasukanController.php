@@ -105,12 +105,12 @@ class PemasukanController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'id_toko' => $item['toko']->id,
+                'id_toko' => $item['toko'] ? $item['toko']->id : null,
                 'nama_toko' => $item['toko']->nama_toko,
-                'nama_pemasukan' => $item->nama_pemasukan,
-                'nama_jenis' => $item['jenis_pemasukan']->nama_jenis ?? '-',
-                'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
-                'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
+                'nama_pemasukan' => $item->nama_pemasukan ?? '-',
+                'nama_jenis' => $item['jenis_pemasukan'] ? $item['jenis_pemasukan']->nama_jenis : '-',
+                'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
+                'tanggal' => $item['tanggal'] ? Carbon::parse($item['tanggal'])->format('d-m-Y') : '-',
             ];
         });
 

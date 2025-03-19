@@ -15,7 +15,7 @@ class PemasukanSeeder extends Seeder
     {
         Pemasukan::create([
             "id" => 1,
-            "id_toko" => 5,
+            "id_toko" => 3,
             "id_jenis_pemasukan" => 1,
             "nama_pemasukan" => "Donatur Haji 969",
             "nilai" => 10000000,
