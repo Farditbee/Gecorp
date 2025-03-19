@@ -242,7 +242,7 @@
 
         async function setListData(dataList, data) {
             let getDataTable = '';
-            let kas_kecil = data?.kas_kecil[0] ?? 0;
+            let kas_kecil = data?.kas_kecil ?? 0;
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
