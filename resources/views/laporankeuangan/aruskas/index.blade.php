@@ -24,15 +24,12 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data User">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @endif
+                                <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
+                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                    aria-controls="filter-collapse">
+                                    <i class="fa fa-filter"></i> Filter
+                                </button>
                             </div>
-
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
                                     style="width: 100px;">
@@ -45,8 +42,29 @@
                             </div>
                         </div>
                         <div class="content">
-                            <x-adminlte-alerts />
                             <div class="card-body p-0">
+                                <div class="collapse mt-2" id="filter-collapse">
+                                    <form id="custom-filter" class="row g-2 align-items-center mx-2">
+                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                            <select class="form-select select2" id="f_is_hutang" name="f_is_hutang">
+                                                <option value="" selected disabled></option>
+                                                <option value="1">Hutang</option>
+                                                <option value="0">Tidak</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        </div>
+                                        <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
+                                            <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
+                                                type="submit">
+                                                <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                            </button>
+                                            <button type="button" class="btn btn-secondary" id="tb-reset">
+                                                <i class="fa fa-rotate mr-2"></i>Reset
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped m-0">
                                         <thead>
@@ -134,23 +152,9 @@
                                                 </th>
                                             </tr>
                                         </thead>
-
                                         <tbody id="listData">
                                         </tbody>
                                     </table>
-                                </div>
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
-                                    <div class="text-center text-md-start mb-2 mb-md-0">
-                                        <div class="pagination">
-                                            <div>Menampilkan <span id="countPage">0</span> dari <span
-                                                    id="totalPage">0</span> data</div>
-                                        </div>
-                                    </div>
-                                    <nav class="text-center text-md-end">
-                                        <ul class="pagination justify-content-center justify-content-md-end"
-                                            id="pagination-js">
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -182,7 +186,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ asset('dummy/aruskas.json') }}', {
+                '{{ route('master.kasir.get') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -200,16 +204,14 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setListData(handleDataArray);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
-            <tr class="text-dark">
-                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-            </tr>`;
+                    <tr class="text-dark">
+                        <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                    </tr>`;
                 $('#listData').html(errorRow);
-                $('#countPage').text("0 - 0");
-                $('#totalPage').text("0");
             }
         }
 
@@ -220,7 +222,7 @@
                 subjek: data?.subjek ?? '-',
                 kategori: data?.kategori ?? '-',
                 item: data?.item ?? '-',
-                satuan: data?.satuan ?? '-',
+                sat: data?.sat ?? '-',
                 jml: data?.jml ?? 0,
                 hst: data?.hst ?? 0,
                 nilai_transaksi: data?.nilai_transaksi ?? 0,
@@ -235,23 +237,18 @@
             };
         }
 
-        async function setListData(dataList, pagination) {
-            totalPage = pagination.total_pages;
-            currentPage = pagination.current_page;
-            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
-            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
-
+        async function setListData(dataList) {
             let getDataTable = '';
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
                     <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
+                        <td class="${classCol} text-center">${index + 1}.</td>
                         <td class="${classCol}">${element.tgl}</td>
                         <td class="${classCol}">${element.subjek}</td>
                         <td class="${classCol}">${element.kategori}</td>
                         <td class="${classCol}">${element.item}</td>
-                        <td class="${classCol} text-center">${element.satuan}</td>
+                        <td class="${classCol} text-center">${element.sat}</td>
                         <td class="${classCol} text-center">${element.jml}</td>
                         <td class="${classCol} text-right">${element.hst.toLocaleString()}</td>
                         <td class="${classCol} text-right">${element.nilai_transaksi.toLocaleString()}</td>
@@ -267,8 +264,6 @@
             });
 
             $('#listData').html(getDataTable);
-            $('#totalPage').text(pagination.total);
-            $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
@@ -316,6 +311,7 @@
         }
 
         async function initPageLoad() {
+            await setDynamicButton();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await deleteData();
