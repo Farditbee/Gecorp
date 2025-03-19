@@ -31,6 +31,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/print/{id}', [KasirController::class, 'cetakEppos']);
+Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
+
+Route::get('/arusKasir', [ArusKasController::class, 'transaksi_kasir'])->name('master.kasir.get');
 
 Route::get('/get-komparasi-toko', [DashboardController::class, 'getKomparasiToko'])->name('dashboard.komparasi');
 Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->name('master.index.kasir');
