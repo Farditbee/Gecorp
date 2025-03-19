@@ -143,13 +143,13 @@
                     <li class="nav-item pcoded-hasmenu">
                         <a href="javascript::void(0)"
                             class="nav-link {{ request()->routeIs('keuangan.*') ? $nav_link : '' }}">
-                            <span class="pcoded-micon"><i class="icon feather icon-folder"></i></span>
-                            <span class="pcoded-mtext">Keuangan</span>
+                            <span class="pcoded-micon"><i class="icon feather icon-briefcase"></i></span>
+                            <span class="pcoded-mtext">Akuntansi Keuangan</span>
                         </a>
                         <ul class="pcoded-submenu">
                             <li>
                                 <a href="{{ route('keuangan.pemasukan.index') }}" class="dropdown-item">
-                                    <i class="icon feather icon-file-text"></i> Pemasukan
+                                    <i class="icon feather icon-file-plus"></i> Pemasukan
                                 </a>
                             </li>
                             <li>

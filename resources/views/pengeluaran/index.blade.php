@@ -599,14 +599,21 @@
                 let getDataTable = '';
                 let classCol = 'align-center text-dark text-wrap';
 
-                data.detail_pembayaran.forEach((element, index) => {
+                if (data.detail_pembayaran.length > 0) {
+                    data.detail_pembayaran.forEach((element, index) => {
+                        getDataTable += `
+                            <tr class="text-dark">
+                                <td class="${classCol} text-center">${index + 1}.</td>
+                                <td class="${classCol}">${element.tanggal}</td>
+                                <td class="${classCol} text-right">${element.nilai}</td>
+                            </tr>`;
+                    });
+                } else {
                     getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${index + 1}.</td>
-                        <td class="${classCol}">${element.tanggal}</td>
-                        <td class="${classCol} text-right">${element.nilai}</td>
-                    </tr>`;
-                });
+                        <tr class="text-dark">
+                            <td class="${classCol} text-center" colspan="3"><i class="fa fa-circle-info mr-1"></i>Belum ada pembayaran</td>
+                        </tr>`;
+                }
 
                 let totalRow = `
                 <tr class="bg-success">
@@ -826,11 +833,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                    <div class="d-flex justify-content-between">
-                                                                        <strong>Keterangan:</strong>
-                                                                        <span>${data.ket_hutang}</span>
-                                                                    </div>
-                                                                    ` : ''}
+                                                                        <div class="d-flex justify-content-between">
+                                                                            <strong>Keterangan:</strong>
+                                                                            <span>${data.ket_hutang}</span>
+                                                                        </div>
+                                                                        ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
