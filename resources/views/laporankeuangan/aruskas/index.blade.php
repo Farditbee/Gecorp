@@ -56,6 +56,7 @@
                                                 <th class="text-nowrap align-middle" rowspan="5">Subjek</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Kategori</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Item</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Satuan</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Jml</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">HST</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Nilai Transaksi</th>
@@ -219,6 +220,7 @@
                 subjek: data?.subjek ?? '-',
                 kategori: data?.kategori ?? '-',
                 item: data?.item ?? '-',
+                satuan: data?.satuan ?? '-',
                 jml: data?.jml ?? 0,
                 hst: data?.hst ?? 0,
                 nilai_transaksi: data?.nilai_transaksi ?? 0,
@@ -249,6 +251,7 @@
                         <td class="${classCol}">${element.subjek}</td>
                         <td class="${classCol}">${element.kategori}</td>
                         <td class="${classCol}">${element.item}</td>
+                        <td class="${classCol} text-center">${element.satuan}</td>
                         <td class="${classCol} text-center">${element.jml}</td>
                         <td class="${classCol} text-right">${element.hst.toLocaleString()}</td>
                         <td class="${classCol} text-right">${element.nilai_transaksi.toLocaleString()}</td>
