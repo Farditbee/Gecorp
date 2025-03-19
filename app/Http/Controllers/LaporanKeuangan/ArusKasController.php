@@ -54,11 +54,50 @@ class ArusKasController extends Controller
                 ];
             });
     
+            // Hitung total untuk data_total
+            $kas_kecil_in = $kasirList->sum('total_nilai');
+            $kas_kecil_out = 0;
+            $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
+            $saldo_awal = 0;
+            $saldo_akhir = $saldo_berjalan - $saldo_awal;
+    
+            $data_total = [
+                'kas_kecil' => [[
+                    'saldo_awal' => $saldo_awal,
+                    'saldo_akhir' => $saldo_akhir,
+                    'saldo_berjalan' => $saldo_berjalan,
+                    'kas_kecil_in' => $kas_kecil_in,
+                    'kas_kecil_out' => $kas_kecil_out,
+                ]],
+                'kas_besar' => [[
+                    'saldo_awal' => 0,
+                    'saldo_akhir' => 0,
+                    'saldo_berjalan' => 0,
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => 0,
+                ]],
+                'piutang' => [[
+                    'saldo_awal' => 0,
+                    'saldo_akhir' => 0,
+                    'saldo_berjalan' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                ]],
+                'hutang' => [[
+                    'saldo_awal' => 0,
+                    'saldo_akhir' => 0,
+                    'saldo_berjalan' => 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ]]
+            ];
+    
             return response()->json([
                 'status' => 'success',
                 'message' => 'Data berhasil diambil',
                 'status_code' => 200,
                 'data' => $data,
+                'data_total' => $data_total,
             ]);
         } catch (\Throwable $th) {
             return response()->json([
@@ -68,5 +107,6 @@ class ArusKasController extends Controller
             ]);
         }
     }
+    
     
 }
