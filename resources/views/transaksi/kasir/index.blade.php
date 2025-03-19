@@ -75,14 +75,16 @@
                                                 <th class="text-wrap align-top">Member</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Item</th>
-                                                <th class="text-wrap align-top">Nilai</th>
-                                                <th class="text-wrap align-top">Payment</th>
-                                                <th class="text-wrap align-top">Kasir</th>
-                                                <th class="text-wrap align-top">Action</th>
+                                                <th class="text-wrap align-top text-right">Nilai</th>
+                                                <th class="text-wrap align-top text-right">Payment</th>
+                                                <th class="text-wrap align-top text-right">Kasir</th>
+                                                <th class="text-right text-wrap align-top"><span
+                                                        class="mr-2">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
                                         </tbody>
+                                        <tfoot></tfoot>
                                     </table>
                                 </div>
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
@@ -595,7 +597,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total);
             } else {
                 errorMessage = getDataRest?.data?.message;
                 let errorRow = `
@@ -635,7 +637,7 @@
             let action_buttons = '';
             if (detail_button || delete_button) {
                 action_buttons = `
-                <div class="d-flex justify-content-start">
+                <div class="d-flex justify-content-end">
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
 \                </div>`;
             } else {
@@ -657,7 +659,7 @@
             };
         }
 
-        async function setListData(dataList, pagination) {
+        async function setListData(dataList, pagination, total) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
@@ -674,14 +676,24 @@
                                 <td class="${classCol}">${element.nama_member}</td>
                                 <td class="${classCol}">${element.nama_toko}</td>
                                 <td class="${classCol}">${element.total_item}</td>
-                                <td class="${classCol}">${element.total_nilai}</td>
-                                <td class="${classCol}">${element.metode}</td>
-                                <td class="${classCol}">${element.nama}</td>
-                                <td class="${classCol}">${element.action_buttons}</td>
+                                <td class="${classCol} text-right">${element.total_nilai}</td>
+                                <td class="${classCol} text-right">${element.metode}</td>
+                                <td class="${classCol} text-right">${element.nama}</td>
+                                <td class="${classCol} text-right">${element.action_buttons}</td>
                             </tr>`;
             });
 
+            let totalRow = `
+            <tr class="bg-primary">
+                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
+                <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol}" colspan="3"></td>
+            </tr>`;
+
             $('#listData').html(getDataTable);
+            $('#listData').closest('table').find('tfoot').html(totalRow);
+
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
