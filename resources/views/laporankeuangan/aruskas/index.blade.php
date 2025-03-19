@@ -207,7 +207,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray);
+                await setListData(handleDataArray, getDataRest.data.data_total);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
@@ -240,8 +240,9 @@
             };
         }
 
-        async function setListData(dataList) {
+        async function setListData(dataList, data) {
             let getDataTable = '';
+            let kas_kecil = data?.kas_kecil[0] ?? 0;
             let classCol = 'align-center text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
@@ -266,11 +267,16 @@
                     </tr>`;
             });
 
+            $('#akhir_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
+            $('#berjalan_kas_kecil').html(kas_kecil.saldo_berjalan ?? 0);
+            $('#awal_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
+            $('#total_kas_kecil_in').html(kas_kecil.kas_kecil_in ?? 0);
+            $('#total_kas_kecil_out').html(kas_kecil.kas_kecil_out ?? 0);
+
             $('#listData').html(getDataTable);
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
         }
-
 
         async function deleteData() {
             $(document).on("click", ".hapus-data", async function() {

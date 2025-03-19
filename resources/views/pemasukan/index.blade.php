@@ -63,14 +63,7 @@
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <select class="form-select select2" id="f_is_hutang" name="f_is_hutang">
-                                            <option value="" selected disabled></option>
-                                            <option value="1">Hutang</option>
-                                            <option value="0">Tidak</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                    <div class="col-12 col-md-6 col-lg-4 mb-2">
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
                                         <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
@@ -93,8 +86,7 @@
                                                 <th class="text-wrap align-top">Tanggal</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pemasukan</th>
-                                                <th class="text-wrap align-top">Status</th>
-                                                <th class="text-wrap align-top">Jenis/Ket</th>
+                                                <th class="text-wrap align-top">Jenis</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
                                                         class="mr-2">Action</span></th>
@@ -141,10 +133,9 @@
                         <div class="row d-flex align-items-center">
                             <div class="col-md-10">
                                 <div class="form-group">
-                                    <label for="nama_pemasukan">Nama Pemasukan <sup
-                                            class="text-danger">*</sup></label>
-                                    <input type="text" class="form-control" id="nama_pengeluaran"
-                                        name="nama_pengeluaran" placeholder="Masukkan nama pengeluaran" required>
+                                    <label for="nama_pemasukan">Nama Pemasukan <sup class="text-danger">*</sup></label>
+                                    <input type="text" class="form-control" id="nama_pemasukan" name="nama_pemasukan"
+                                        placeholder="Masukkan nama pemasukan" required>
                                 </div>
                             </div>
                             <div class="col-md-2">
@@ -156,39 +147,26 @@
                             </div>
                         </div>
                         <div class="row d-flex align-items-center">
-                            <div class="col-md-10">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
                                     <input type="number" class="form-control" id="nilai" name="nilai"
                                         placeholder="Masukkan nilai" required>
                                 </div>
                             </div>
-                            <div class="col-md-2">
-                                <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
-                                    <input class="form-check-input" type="checkbox" id="is_hutang" name="is_hutang">
-                                    <label class="form-check-label ms-2" for="is_hutang">Hutang?</label>
-                                </div>
-                            </div>
                         </div>
-                        <div id="jenisPengeluaranContainer">
+                        <div id="jenisPemasukanContainer">
                             <div class="form-group">
-                                <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup
-                                        class="text-danger">**</sup></label>
-                                <select class="form-control select2" id="id_jenis_pengeluaran"
-                                    name="id_jenis_pengeluaran">
+                                <label for="id_jenis_pemasukan">Jenis Pemasukan <sup class="text-danger">**</sup></label>
+                                <select class="form-control select2" id="id_jenis_pemasukan" name="id_jenis_pemasukan">
                                 </select>
                             </div>
                             <div class="text-center font-weight-bold">Atau</div>
                             <div class="form-group">
-                                <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-danger">**</sup></label>
+                                <label for="nama_jenis">Jenis Pemasukan Baru <sup class="text-danger">**</sup></label>
                                 <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
                                     placeholder="Masukkan jenis baru">
                             </div>
-                        </div>
-                        <div class="form-group d-none" id="keteranganHutangContainer">
-                            <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
-                                placeholder="Masukkan keterangan hutang">
                         </div>
                     </form>
                 </div>
@@ -197,68 +175,6 @@
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                     <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editModalLabel">Edit Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
-                        aria-label="Close"><i class="fa fa-xmark"></i></button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="edit-nilai">Jumlah Bayar <sup>(Rp)</sup> <sup class="text-danger">*</sup></label>
-                        <input type="number" class="form-control" id="edit-nilai"
-                            placeholder="Masukkan jumlah yang dibayarkan">
-                    </div>
-                    <div class="card shadow-sm mb-3 border-0">
-                        <div class="card-body p-3">
-                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Riwayat Pembayaran</h5>
-                            <div class="mt-3">
-                                <div id="tableEditData"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
-                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
-                    <button type="button" class="btn btn-primary" id="save-edit"><i
-                            class="fa fa-save mr-1"></i>Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="detailModalLabel">Detail Nilai</h5>
-                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
-                        aria-label="Close"><i class="fa fa-xmark"></i></button>
-                </div>
-                <div class="modal-body">
-                    <div id="detailDataContainer"></div>
-                    <div class="card shadow-sm mb-3 border-0">
-                        <div class="card-body p-3">
-                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Riwayat Pembayaran</h5>
-                            <div class="mt-3">
-                                <div id="tableDetailData"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
-                            class="fa fa-circle-xmark mr-1"></i>Tutup</button>
                 </div>
             </div>
         </div>
@@ -288,12 +204,12 @@
             }, {
                 id: '#jenis',
                 isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
+                placeholder: 'Pilih Jenis Pemasukan',
             },
             {
-                id: '#id_jenis_pengeluaran',
+                id: '#id_jenis_pemasukan',
                 isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
+                placeholder: 'Pilih Jenis Pemasukan',
                 isModal: '#modal-form'
             }
         ];
@@ -322,7 +238,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.getpengeluaran') }}', {
+                '{{ route('master.getpemasukan') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -391,8 +307,6 @@
             if (delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -400,20 +314,11 @@
                 <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
 
-            let hutang_badge = (data.is_hutang == 1) ?
-                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
-                (data.is_hutang == 2) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
-                (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
-
             return {
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
-                is_hutang: hutang_badge,
-                nama_pengeluaran: data?.nama_pengeluaran ?? '-',
+                nama_pemasukan: data?.nama_pemasukan ?? '-',
                 nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_hutang ?? '-'),
                 nilai: data?.nilai ?? '-',
                 action_buttons,
@@ -435,8 +340,7 @@
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.tanggal}</td>
                     <td class="${classCol}">${element.nama_toko}</td>
-                    <td class="${classCol}">${element.nama_pengeluaran}</td>
-                    <td class="${classCol}">${element.is_hutang}</td>
+                    <td class="${classCol}">${element.nama_pemasukan}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
@@ -461,11 +365,9 @@
         }
 
         function handleInput() {
-            const jenisSelect = $("#id_jenis_pengeluaran");
+            const jenisSelect = $("#id_jenis_pemasukan");
             const jenisBaruInput = document.getElementById("nama_jenis");
-            const isHutangCheckbox = document.getElementById("is_hutang");
-            const keteranganHutangContainer = document.getElementById("keteranganHutangContainer");
-            const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
+            const jenisPemasukanContainer = document.getElementById("jenisPemasukanContainer");
 
             function toggleInputs() {
                 if (jenisSelect.val()) {
@@ -484,32 +386,13 @@
                 }
             }
 
-            function toggleHutangFields() {
-                if (isHutangCheckbox.checked) {
-                    keteranganHutangContainer.classList.remove("d-none");
-                    jenisPengeluaranContainer.classList.add("d-none");
-                } else {
-                    keteranganHutangContainer.classList.add("d-none");
-                    jenisPengeluaranContainer.classList.remove("d-none");
-                }
-            }
-
             jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
-            isHutangCheckbox.addEventListener("change", toggleHutangFields);
-
-            $(document).ready(function() {
-                $('#f_is_hutang').select2({
-                    placeholder: "Pilih Status Hutang",
-                    allowClear: true,
-                    minimumResultsForSearch: -1
-                });
-            });
         }
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
-                $("#modal-title").html(`Form Tambah Pengeluaran`);
+                $("#modal-title").html(`Form Tambah Pemasukan`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
@@ -523,21 +406,15 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
-                let isHutang = $("#is_hutang").is(':checked') ? 1 : '';
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
-                    nama_pengeluaran: $('#nama_pengeluaran').val(),
+                    nama_pemasukan: $('#nama_pemasukan').val(),
                     nilai: $('#nilai').val(),
                     tanggal: $('#tanggal').val(),
                 };
 
-                if (isHutang) {
-                    formData.is_hutang = 1;
-                    formData.ket_hutang = $('#ket_hutang').val();
-                } else {
-                    formData.id_jenis_pengeluaran = $('#id_jenis_pengeluaran').val();
-                    formData.nama_jenis = $('#nama_jenis').val();
-                }
+                formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
+                formData.nama_jenis = $('#nama_jenis').val();
 
                 try {
                     let postData = await renderAPI("POST", actionUrl, formData);
@@ -693,7 +570,6 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
-                    is_hutang: $("#f_is_hutang").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -720,128 +596,6 @@
             });
         }
 
-        async function detailData() {
-            $(document).off("click", ".detail-data").on("click", ".detail-data", async function() {
-                let rawData = $(this).attr("data");
-                let data = JSON.parse(decodeURIComponent(rawData));
-
-                $("#detailModalLabel").html(`<i class="fa fa-book mr-2"></i>Detail Data`);
-                $("#detailModal").modal("show");
-
-                let dataList = await getDetailData(data.id, 'tableDetailData');
-                renderDetailData(dataList.pengeluaran);
-            });
-        }
-
-        async function editData() {
-            $(document).off("click", ".edit-data").on("click", ".edit-data", async function() {
-                let rawData = $(this).attr("data");
-                let data = JSON.parse(decodeURIComponent(rawData));
-
-                $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
-                $("#save-edit").attr("data-id", data.id);
-                $("#editModal").modal("show");
-
-                let dataList = await getDetailData(data.id, 'tableEditData');
-
-                let sisaHutang = dataList.sisa_hutang.replace(/[^\d]/g, "");
-                let sisaHutangNum = parseInt(sisaHutang, 10) || 0;
-
-                $("#edit-nilai").attr({
-                    "min": 0,
-                    "max": sisaHutangNum,
-                    "type": "number"
-                }).val(sisaHutangNum);
-            });
-
-            $(document).on("input", "#edit-nilai", function() {
-                let maxValue = parseInt($(this).attr("max"), 10);
-                let minValue = parseInt($(this).attr("min"), 10);
-                let currentValue = parseInt($(this).val(), 10) || 0;
-
-                if (currentValue < minValue) {
-                    $(this).val(minValue);
-                }
-
-                if (currentValue > maxValue) {
-                    $(this).val(maxValue);
-                }
-            });
-
-            $(document).on("click", "#save-edit", async function() {
-                let id = $(this).attr("data-id");
-                let newValue = parseInt($("#edit-nilai").val(), 10) || 0;
-                let maxValue = parseInt($("#edit-nilai").attr("max"), 10);
-
-                if (newValue < 1 || newValue > maxValue) {
-                    notificationAlert("info", "Pemberitahuan", `Nilai harus antara 1 dan ${maxValue}`);
-                    return;
-                }
-
-                let formData = {
-                    nilai: newValue
-                };
-
-                try {
-                    let postData = await renderAPI("PUT", `/admin/pengeluaran/update/${id}`, formData);
-
-                    loadingPage(false);
-                    if (postData.status >= 200 && postData.status < 300) {
-                        notificationAlert("success", "Pemberitahuan", postData.data.message || "Berhasil");
-                        setTimeout(async function() {
-                            await getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        setTimeout(() => {
-                            $("#editModal").modal("hide");
-                        }, 500);
-                    } else {
-                        notificationAlert("info", "Pemberitahuan", postData.data.message ||
-                            "Terjadi kesalahan");
-                    }
-                } catch (error) {
-                    loadingPage(false);
-                    let resp = error.response || {};
-                    notificationAlert("error", "Kesalahan", resp.data.message || "Terjadi kesalahan");
-                }
-            });
-        }
-
-        function renderDetailData(data) {
-            const html = `
-                <div class="card shadow-sm mb-3 border-0">
-                    <div class="card-body p-3">
-                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pengeluaran</h5>
-                        <div class="d-flex justify-content-between">
-                            <strong>Nama Toko:</strong>
-                            <span>${data.nama_toko}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Pengeluaran:</strong>
-                            <span>${data.nama_pengeluaran}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Nilai:</strong>
-                            <span>${data.nilai}</span>
-                        </div>
-                        ${data.is_hutang ? `
-                                                                    <div class="d-flex justify-content-between">
-                                                                        <strong>Keterangan:</strong>
-                                                                        <span>${data.ket_hutang}</span>
-                                                                    </div>
-                                                                    ` : ''}
-                        <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal Pengeluaran:</strong>
-                            <span>${data.tanggal}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            $("#detailDataContainer").html(html);
-        }
-
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await setDynamicButton();
@@ -852,8 +606,6 @@
             await addData();
             await submitForm();
             await deleteData();
-            await editData();
-            await detailData();
         }
     </script>
 @endsection
