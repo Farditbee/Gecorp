@@ -12,6 +12,9 @@
         .th-data {
             width: 140px;
         }
+        .td-data {
+            width: 100px;
+        }
     </style>
 @endsection
 
@@ -244,10 +247,10 @@
                 getDataTable += `
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${index + 1}.</td>
-                        <td class="${classCol}">${element.tgl}</td>
-                        <td class="${classCol}">${element.subjek}</td>
+                        <td class="${classCol} td-data">${element.tgl}</td>
+                        <td class="${classCol} td-data">${element.subjek}</td>
                         <td class="${classCol}">${element.kategori}</td>
-                        <td class="${classCol}">${element.item}</td>
+                        <td class="${classCol} td-data">${element.item}</td>
                         <td class="${classCol} text-center">${element.sat}</td>
                         <td class="${classCol} text-center">${element.jml}</td>
                         <td class="${classCol} text-right">${element.hst.toLocaleString()}</td>
