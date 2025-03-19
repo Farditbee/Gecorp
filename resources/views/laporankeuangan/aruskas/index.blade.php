@@ -71,7 +71,7 @@
                                 <div class="table-responsive">
                                     <table class="table table-bordered table-striped m-0">
                                         <thead>
-                                            <tr class="tb-head">
+                                            <tr class="tb-head" id="head-table">
                                                 <th class="text-center text-nowrap align-middle" rowspan="5">No</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Tgl</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Subjek</th>
@@ -212,7 +212,7 @@
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
                     <tr class="text-dark">
-                        <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                        <th class="text-center" colspan="${$('#head-table th').length}"> ${errorMessage} </th>
                     </tr>`;
                 $('#listData').html(errorRow);
             }
