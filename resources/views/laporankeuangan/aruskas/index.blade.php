@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Data User
+    Arus Kas
 @endsection
 
 @section('css')
@@ -214,22 +214,69 @@
                 `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
             );
 
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
             flatpickr("#bulan_tahun", {
                 plugins: [
                     new monthSelectPlugin({
-                        shorthand: true,
+                        shorthand: false,
                         dateFormat: "F Y",
                         theme: "light"
                     })
                 ],
-                disableMobile: true
+                disableMobile: true,
+                locale: {
+                    firstDayOfWeek: 1,
+                    months: {
+                        shorthand: bulanID,
+                        longhand: bulanID
+                    }
+                },
+                onReady: function(selectedDates, dateStr, instance) {
+                    setTimeout(() => translateMonthPicker(), 10);
+                    if (selectedDates.length > 0) {
+                        instance.setDate(
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`,
+                            false);
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        instance.input.value =
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`;
+                    }
+                },
+                onOpen: function() {
+                    setTimeout(() => translateMonthPicker(), 10);
+                }
             });
+        }
+
+        function translateMonthPicker() {
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            setTimeout(() => {
+                $(".flatpickr-monthSelect-month").each(function(index) {
+                    $(this).text(bulanID[index]);
+                });
+            }, 50);
         }
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
 
             let filterParams = {};
+
+            if (customFilter['month'] && customFilter['year']) {
+                filterParams.month = customFilter['month'];
+                filterParams.year = customFilter['year'];
+            }
 
             let getDataRest = await renderAPI(
                 'GET',
@@ -367,13 +414,24 @@
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                let bulanTahun = $("#bulan_tahun").val();
-                let [monthText, year] = bulanTahun.split(" ");
-                let month = getMonthNumber(monthText);
+                let bulanTahun = document.getElementById("bulan_tahun").value.trim();
+
+                let monthText = '',
+                    year = '',
+                    month = '';
+
+                if (bulanTahun) {
+                    let parts = bulanTahun.split(" ");
+                    if (parts.length === 2) {
+                        monthText = parts[0];
+                        year = parts[1];
+                        month = getMonthNumber(monthText);
+                    }
+                }
 
                 customFilter = {
-                    year: year ?? '',
-                    month: month ?? '',
+                    year: year || '',
+                    month: month || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -381,7 +439,7 @@
                 currentPage = 1;
 
                 $('#time-report').html(
-                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (<b class="text-primary">Bulan ${monthText}</b> tahun <b class="text-primary">${year}</b>)`
+                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
                 );
 
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
@@ -389,7 +447,7 @@
             });
 
             document.getElementById('tb-reset').addEventListener('click', async function() {
-                $('#bulan_tahun').val(''); // Reset nilai bulan_tahun
+                $('#bulan_tahun').val('').trigger('change');
                 $('#custom-filter select').val(null).trigger('change');
                 customFilter = {};
                 defaultSearch = $('.tb-search').val();
@@ -402,21 +460,22 @@
 
         function getMonthNumber(monthName) {
             const monthNames = {
-                "Januari": 1,
-                "Februari": 2,
-                "Maret": 3,
-                "April": 4,
-                "Mei": 5,
-                "Juni": 6,
-                "Juli": 7,
-                "Agustus": 8,
-                "September": 9,
-                "Oktober": 10,
-                "November": 11,
-                "Desember": 12
+                "Januari": "1",
+                "Februari": "2",
+                "Maret": "3",
+                "April": "4",
+                "Mei": "5",
+                "Juni": "6",
+                "Juli": "7",
+                "Agustus": "8",
+                "September": "9",
+                "Oktober": "10",
+                "November": "11",
+                "Desember": "12"
             };
             return monthNames[monthName] || '';
         }
+
 
         async function initPageLoad() {
             await setDynamicButton();
