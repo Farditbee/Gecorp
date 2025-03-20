@@ -220,6 +220,7 @@
 
         async function saveData() {
             $(document).on("click", "#save-data", async function(e) {
+                console.log('test kirim');
                 e.preventDefault();
                 const saveButton = document.getElementById('save-data');
 
@@ -237,27 +238,27 @@
                     reverseButtons: true,
                 }).then(async (willSave) => {
                     if (!willSave) return;
-
+                    
                     saveButton.disabled = true;
                     const originalContent = saveButton.innerHTML;
                     saveButton.innerHTML =
-                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
                     loadingPage(true);
-
+                    
                     let detailIds = [];
                     let statusArray = [];
-
+                    
                     $(".status-check").each(function() {
                         detailIds.push($(this).data("id"));
                         statusArray.push($(this).val());
                     });
-                        
+                    
                     const formData = {
                         id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
                         detail_ids: detailIds,
                         status_detail: statusArray,
                         tipe_kirim: '{{ $pengiriman_barang->tipe_pengiriman }}',
-                        id_retur: JSON.parse('{!! $pengiriman_barang->id_retur !!}').map(Number),
+                        id_retur: '{{ $pengiriman_barang->id_retur }}' ? JSON.parse('{!! $pengiriman_barang->id_retur !!}').map(Number) : null,
                     };
 
                     try {

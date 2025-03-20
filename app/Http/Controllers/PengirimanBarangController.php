@@ -736,8 +736,13 @@ class PengirimanBarangController extends Controller
 
             return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
         } catch (\Exception $e) {
-            DB::rollBack();  // Rollback jika terjadi error
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
+                'status_code' => 500,
+            ], 500);
+            // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
     
