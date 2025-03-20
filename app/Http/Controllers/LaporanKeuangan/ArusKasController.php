@@ -33,18 +33,21 @@ class ArusKasController extends Controller
             $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
             $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-            // Get data from Pengeluaran model
-            $pengeluaranQuery = Pengeluaran::with('toko', 'jenis_pengeluaran')->orderBy('id', $meta['orderBy']);
-            // Get data from Kasir model
-            $kasirQuery = Kasir::with('toko', 'users')->orderBy('id', $meta['orderBy']);
+            // Get current month and year if not provided in request
+            $month = $request->has('month') ? $request->month : Carbon::now()->month;
+            $year = $request->has('year') ? $request->year : Carbon::now()->year;
 
-            // Filter based on month and year from request
-            if ($request->has('month') && $request->has('year')) {
-                $pengeluaranQuery->whereMonth('tanggal', $request->month)
-                    ->whereYear('tanggal', $request->year);
-                $kasirQuery->whereMonth('tgl_transaksi', $request->month)
-                    ->whereYear('tgl_transaksi', $request->year);
-            }
+            // Get data from Pengeluaran model
+            $pengeluaranQuery = Pengeluaran::with('toko', 'jenis_pengeluaran')
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->orderBy('id', $meta['orderBy']);
+
+            // Get data from Kasir model
+            $kasirQuery = Kasir::with('toko', 'users')
+                ->whereMonth('tgl_transaksi', $month)
+                ->whereYear('tgl_transaksi', $year)
+                ->orderBy('id', $meta['orderBy']);
 
             // Get filtered data
             $pengeluaranList = $pengeluaranQuery->get();
