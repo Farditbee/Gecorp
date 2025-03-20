@@ -203,12 +203,12 @@
                 placeholder: 'Pilih Nama Toko',
             }, {
                 id: '#jenis',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenismasuk') }}',
                 placeholder: 'Pilih Jenis Pemasukan',
             },
             {
                 id: '#id_jenis_pemasukan',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenismasuk') }}',
                 placeholder: 'Pilih Jenis Pemasukan',
                 isModal: '#modal-form'
             }
@@ -349,7 +349,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" colspan="4"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
@@ -395,7 +395,7 @@
                 $("#modal-title").html(`Form Tambah Pemasukan`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
-                $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
+                $("#formTambahData").data("action-url", '{{ route('master.pemasukan.store') }}');
             });
         }
 
@@ -441,74 +441,6 @@
             });
         }
 
-        async function getDetailData(id, selector) {
-            $(selector).html('');
-
-            let getDataRest = await renderAPI(
-                'GET',
-                `/admin/pengeluaran/detail/${id}`, {}
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                return error.response;
-            });
-
-            if (getDataRest.status === 200) {
-                let data = getDataRest.data.data;
-                let tableList = `
-                    <div class="table-responsive table-scroll-wrapper">
-                        <table class="table table-striped m-0">
-                            <thead>
-                                <tr class="tb-head">
-                                    <th class="text-center text-wrap align-top">No</th>
-                                    <th class="text-wrap align-top">Tanggal Bayar</th>
-                                    <th class="text-right text-wrap align-top">Nilai</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailData-${selector}"></tbody>
-                            <tfoot></tfoot>
-                        </table>
-                    </div>
-                `;
-
-                $(`#${selector}`).html(tableList);
-
-                let getDataTable = '';
-                let classCol = 'align-center text-dark text-wrap';
-
-                data.detail_pembayaran.forEach((element, index) => {
-                    getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${index + 1}.</td>
-                        <td class="${classCol}">${element.tanggal}</td>
-                        <td class="${classCol} text-right">${element.nilai}</td>
-                    </tr>`;
-                });
-
-                let totalRow = `
-                <tr class="bg-success">
-                    <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total Pembayaran</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="totalDetailData">${data.total_pembayaran}</strong></td>
-                </tr>
-                <tr class="bg-danger">
-                    <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Hutang</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_hutang}</strong></td>
-                </tr>`;
-
-                $(`#${selector}`).find(`#detailData-${selector}`).html('');
-                $(`#${selector}`).find(`#detailData-${selector}`).append(getDataTable);
-
-                $(`#${selector}`).find('tfoot').html('');
-                $(`#${selector}`).find('tfoot').append(totalRow);
-
-                return data;
-            } else {
-                return;
-            }
-        }
-
         async function deleteData() {
             $(document).on("click", ".delete-data", async function() {
                 let rawData = $(this).attr("data");
@@ -529,7 +461,7 @@
                 }).then(async (result) => {
                     let postDataRest = await renderAPI(
                         'DELETE',
-                        `/admin/pengeluaran/delete/${data.id}`, {}
+                        `/admin/pemasukan/delete/${data.id}`, {}
                     ).then(function(response) {
                         return response;
                     }).catch(function(error) {
