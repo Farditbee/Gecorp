@@ -139,7 +139,7 @@ class PengeluaranController extends Controller
     {
         $is_hutang = (string)$request->input('is_hutang', '0');
 
-        $validationRules = [
+        $validation = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
@@ -148,14 +148,14 @@ class PengeluaranController extends Controller
         ];
 
         if ($is_hutang === '1') {
-            $validationRules['ket_hutang'] = 'required|string';
+            $validation['ket_hutang'] = 'required|string';
         } else {
-            $validationRules['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
-            $validationRules['nama_jenis'] = 'required_without:id_jenis_pengeluaran|string';
-            $validationRules['ket_hutang'] = 'nullable|string';
+            $validation['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
+            $validation['nama_jenis'] = 'required_without:id_jenis_pengeluaran|string';
+            $validation['ket_hutang'] = 'nullable|string';
         }
 
-        $validatedData = $request->validate($validationRules);
+        $validatedData = $request->validate($validation);
 
         try {
             DB::beginTransaction();
