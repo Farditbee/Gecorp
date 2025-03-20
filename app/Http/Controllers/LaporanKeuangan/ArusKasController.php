@@ -28,92 +28,29 @@ class ArusKasController extends Controller
     }
 
     public function getaruskas(Request $request)
-{
-    try {
-        // Panggil fungsi transaksi_kasir dan pengeluarankas
-        $transaksiKasir = $this->transaksi_kasir($request);
-        $pengeluaranKas = $this->pengeluarankas($request);
-
-        // Decode JSON response dari kedua fungsi
-        $transaksiData = json_decode($transaksiKasir->getContent(), true);
-        $pengeluaranData = json_decode($pengeluaranKas->getContent(), true);
-
-        // Gabungkan data dari transaksi_kasir dan pengeluaran kas
-        $mergedData = collect($transaksiData['data'])->merge($pengeluaranData['data'])->sortBy('tgl')->values();
-
-        // Hitung total gabungan
-        $kas_kecil_in = $mergedData->sum('kas_kecil_in');
-        $kas_kecil_out = $mergedData->sum('kas_kecil_out');
-        $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
-        $saldo_awal = 0;
-        $saldo_akhir = $saldo_berjalan - $saldo_awal;
-
-        $data_total = [
-            'kas_kecil' => [
-                'saldo_awal' => $saldo_awal,
-                'saldo_akhir' => $saldo_akhir,
-                'saldo_berjalan' => $saldo_berjalan,
-                'kas_kecil_in' => $kas_kecil_in,
-                'kas_kecil_out' => $kas_kecil_out,
-            ],
-            'kas_besar' => [
-                'saldo_awal' => 0,
-                'saldo_akhir' => 0,
-                'saldo_berjalan' => 0,
-                'kas_besar_in' => 0,
-                'kas_besar_out' => 0,
-            ],
-            'piutang' => [
-                'saldo_awal' => 0,
-                'saldo_akhir' => 0,
-                'saldo_berjalan' => 0,
-                'piutang_in' => 0,
-                'piutang_out' => 0,
-            ],
-            'hutang' => [
-                'saldo_awal' => 0,
-                'saldo_akhir' => 0,
-                'saldo_berjalan' => 0,
-                'hutang_in' => 0,
-                'hutang_out' => 0,
-            ],
-        ];
-
-        return response()->json([
-            'data' => $mergedData,
-            'data_total' => $data_total,
-            'status_code' => 200,
-            'errors' => false,
-            'message' => 'Berhasil menggabungkan data transaksi dan pengeluaran',
-        ], 200);
-    } catch (\Throwable $th) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $th->getMessage(),
-            'status_code' => 500,
-        ]);
-    }
-}
-
-    public function transaksi_kasir(Request $request)
     {
         try {
             $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
             $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-            // Ambil data dari model Kasir beserta relasi toko dan users
-            $query = Kasir::with('toko', 'users')->orderBy('id', $meta['orderBy']);
+            // Get data from Pengeluaran model
+            $pengeluaranQuery = Pengeluaran::with('toko', 'jenis_pengeluaran')->orderBy('id', $meta['orderBy']);
+            // Get data from Kasir model
+            $kasirQuery = Kasir::with('toko', 'users')->orderBy('id', $meta['orderBy']);
 
-            // Filter berdasarkan bulan dan tahun dari request
+            // Filter based on month and year from request
             if ($request->has('month') && $request->has('year')) {
-                $query->whereMonth('tgl_transaksi', $request->month)
+                $pengeluaranQuery->whereMonth('tanggal', $request->month)
+                    ->whereYear('tanggal', $request->year);
+                $kasirQuery->whereMonth('tgl_transaksi', $request->month)
                     ->whereYear('tgl_transaksi', $request->year);
             }
 
-            // Ambil semua data setelah filter diterapkan
-            $kasirList = $query->get();
+            // Get filtered data
+            $pengeluaranList = $pengeluaranQuery->get();
+            $kasirList = $kasirQuery->get();
 
-            if ($kasirList->isEmpty()) {
+            if ($pengeluaranList->isEmpty() && $kasirList->isEmpty()) {
                 return response()->json([
                     'status_code' => 404,
                     'errors' => true,
@@ -123,22 +60,47 @@ class ArusKasController extends Controller
                 ], 404);
             }
 
-            // Kelompokkan data berdasarkan tanggal (tanpa jam-menit-detik) dan id_toko
-            $groupedData = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->created_at)->toDateString() . '_' . $kasir->toko->id);
+            // Group pengeluaran data
+            $pengeluaranGrouped = $pengeluaranList->groupBy(fn($pengeluaran) => Carbon::parse($pengeluaran->tanggal) . '_' . $pengeluaran->toko->id);
+            // Group kasir data
+            $kasirGrouped = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->created_at)->toDateString() . '_' . $kasir->toko->id);
 
-            // Format ulang data yang telah dikelompokkan
-            $data = $groupedData->map(function ($group) {
-                $first = $group->first(); // Ambil data pertama dari grup
-
+            // Format pengeluaran data
+            $pengeluaranData = $pengeluaranGrouped->map(function ($group) {
+                $first = $group->first();
                 return [
-                    'id' => $first->id, // ID dari transaksi pertama dalam kelompok
-                    'tgl' => Carbon::parse($first->created_at)->toDateString(), // Ambil tanggal tanpa waktu
+                    'id' => $first->id,
+                    'tgl' => ($first->tanggal),
+                    'subjek' => "Toko {$first->toko->singkatan}",
+                    'kategori' => $first->jenis_pengeluaran ? $first->jenis_pengeluaran->nama_jenis : ($first->ket_hutang ?? 'Tidak Terkategori'),
+                    'item' => $first->nama_pengeluaran,
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => $group->sum('nilai'),
+                    'nilai_transaksi' => $group->sum('nilai'),
+                    'kas_kecil_in' => 0,
+                    'kas_kecil_out' => $first->is_hutang ? 0 : $group->sum('nilai'),
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => $first->is_hutang ? $group->sum('nilai') : 0,
+                    'hutang_out' => 0,
+                ];
+            })->values();
+
+            // Format kasir data
+            $kasirData = $kasirGrouped->map(function ($group) {
+                $first = $group->first();
+                return [
+                    'id' => $first->id,
+                    'tgl' => Carbon::parse($first->created_at)->toDateString(),
                     'subjek' => "Toko {$first->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
                     'item' => "Pendapatan Harian",
                     'jml' => 1,
                     'sat' => "Ls",
-                    'hst' => $group->sum('total_nilai'), // Harga satuan total
+                    'hst' => $group->sum('total_nilai'),
                     'nilai_transaksi' => $group->sum('total_nilai'),
                     'kas_kecil_in' => $group->sum('total_nilai'),
                     'kas_kecil_out' => 0,
@@ -149,124 +111,23 @@ class ArusKasController extends Controller
                     'hutang_in' => 0,
                     'hutang_out' => 0,
                 ];
-            })->values(); // Reset index array
-
-            // Hitung total untuk data_total
-            $kas_kecil_in = $data->sum('kas_kecil_in');
-            $kas_kecil_out = 0;
-            $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
-            $saldo_awal = 0;
-            $saldo_akhir = $saldo_berjalan - $saldo_awal;
-
-            $data_total = [
-                'kas_kecil' => [
-                    'saldo_awal' => $saldo_awal,
-                    'saldo_akhir' => $saldo_akhir,
-                    'saldo_berjalan' => $saldo_berjalan,
-                    'kas_kecil_in' => $kas_kecil_in,
-                    'kas_kecil_out' => $kas_kecil_out,
-                ],
-                'kas_besar' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'kas_besar_in' => 0,
-                    'kas_besar_out' => 0,
-                ],
-                'piutang' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'piutang_in' => 0,
-                    'piutang_out' => 0,
-                ],
-                'hutang' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'hutang_in' => 0,
-                    'hutang_out' => 0,
-                ],
-            ];
-
-            return response()->json([
-                'data' => $data,
-                'data_total' => $data_total,
-                'status_code' => 200,
-                'errors' => false,
-                'message' => 'Berhasil'
-            ], 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'errors' => true,
-                'message' => $th->getMessage(),
-                'status_code' => 500,
-            ]);
-        }
-    }
-
-    public function pengeluarankas(Request $request)
-    {
-        try {
-            $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
-            $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-
-            // Ambil data dari model Pengeluaran beserta relasi toko dan jenis_pengeluaran
-            $query = Pengeluaran::with('toko', 'jenis_pengeluaran')->orderBy('id', $meta['orderBy']);
-
-            // Filter berdasarkan bulan dan tahun dari request
-            if ($request->has('month') && $request->has('year')) {
-                $query->whereMonth('tanggal', $request->month)
-                    ->whereYear('tanggal', $request->year);
-            }
-
-            // Ambil semua data setelah filter diterapkan
-            $pengeluaranList = $query->get();
-
-            if ($pengeluaranList->isEmpty()) {
-                return response()->json([
-                    'status_code' => 404,
-                    'errors' => true,
-                    'message' => 'Data tidak ditemukan',
-                    'data' => [],
-                    'data_total' => null,
-                ], 404);
-            }
-
-            // Kelompokkan data berdasarkan tanggal dan id_toko
-            $groupedData = $pengeluaranList->groupBy(fn($pengeluaran) => Carbon::parse($pengeluaran->tanggal) . '_' . $pengeluaran->toko->id);
-
-            // Format ulang data yang telah dikelompokkan
-            $data = $groupedData->map(function ($group) {
-                $first = $group->first(); // Ambil data pertama dari grup
-
-                return [
-                    'id' => $first->id,
-                    'tgl' => Carbon::parse($first->tanggal),
-                    'subjek' => "Toko {$first->toko->singkatan}",
-                    'kategori' => $first->jenis_pengeluaran->nama_jenis,
-                    'item' => $first->nama_pengeluaran,
-                    'jml' => 1,
-                    'sat' => "Ls",
-                    'hst' => $group->sum('nilai'),
-                    'nilai_transaksi' => $group->sum('nilai'),
-                    'kas_kecil_in' => 0,
-                    'kas_kecil_out' => $group->sum('nilai'),
-                    'kas_besar_in' => 0,
-                    'kas_besar_out' => 0,
-                    'piutang_in' => 0,
-                    'piutang_out' => 0,
-                    'hutang_in' => 0,
-                    'hutang_out' => 0,
-                ];
             })->values();
 
-            // Hitung total untuk data_total
+            // Merge and sort data
+            $data = $pengeluaranData->concat($kasirData)->sortBy('tgl')->values();
+
+            // Calculate totals
+            $kas_kecil_in = $data->sum('kas_kecil_in');
             $kas_kecil_out = $data->sum('kas_kecil_out');
-            $kas_kecil_in = 0;
             $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
             $saldo_awal = 0;
             $saldo_akhir = $saldo_berjalan - $saldo_awal;
+
+            $hutang_out = $data->sum('hutang_out');
+            $hutang_in = $data->sum('hutang_in');
+            $hutang_saldo_berjalan = $hutang_in - $hutang_out;
+            $hutang_saldo_awal = 0;
+            $hutang_saldo_akhir = $hutang_saldo_berjalan - $hutang_saldo_awal;
 
             $data_total = [
                 'kas_kecil' => [
@@ -291,11 +152,11 @@ class ArusKasController extends Controller
                     'piutang_out' => 0,
                 ],
                 'hutang' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'hutang_in' => 0,
-                    'hutang_out' => 0,
+                    'saldo_awal' => $hutang_saldo_awal,
+                    'saldo_akhir' => $hutang_saldo_akhir,
+                    'saldo_berjalan' => $hutang_saldo_berjalan,
+                    'hutang_in' => $hutang_in,
+                    'hutang_out' => $hutang_out,
                 ],
             ];
 
