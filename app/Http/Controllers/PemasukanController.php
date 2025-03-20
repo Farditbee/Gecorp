@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\JenisPemasukan;
 use App\Models\Pemasukan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PemasukanController extends Controller
 {
@@ -122,6 +125,73 @@ class PemasukanController extends Controller
             'pagination' => $data['meta'],
             'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, '.', '.')
         ], 200);
+    }
+
+    public function store(Request $request)
+    {
+        $validation = [
+            'id_toko' => 'required|exists:toko,id',
+            'nama_pemasukan' => 'nullable|string',
+            'nilai' => 'required|numeric',
+            'tanggal' => 'required|date',
+            'id_jenis_pemasukan' => 'nullable|exists:jenis_pemasukan,id',
+            'nama_jenis' => 'required_without:id_jenis_pemasukan|string'
+        ];
+
+        $validatedData = $request->validate($validation);
+
+        try {
+            DB::beginTransaction();
+
+            $id_jenis_pemasukan = $validatedData['id_jenis_pemasukan'] ?? null;
+            if (empty($id_jenis_pemasukan) && isset($validatedData['nama_jenis'])) {
+                $jenis_pemasukan = JenisPemasukan::create([
+                    'nama_jenis' => $validatedData['nama_jenis']
+                ]);
+                $id_jenis_pemasukan = $jenis_pemasukan->id;
+            }
+
+            Pemasukan::create([
+                'id_toko' => $validatedData['id_toko'],
+                'id_jenis_pemasukan' => $id_jenis_pemasukan,
+                'nama_pemasukan' => $validatedData['nama_pemasukan'],
+                'nilai' => $validatedData['nilai'],
+                'tanggal' => $validatedData['tanggal']
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Data berhasil disimpan!'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error Tambah Data: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => true,
+                'message' => 'Terjadi kesalahan saat menyimpan data.',
+                'status_code' => 500,
+            ], 500);
+        }
+    }
+
+    public function delete (string $id)
+    {
+        DB::beginTransaction();
+        try {
+            $pemasukan = Pemasukan::findOrFail($id);
+            $pemasukan->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data pemasukan'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data pemasukan: ' . $th->getMessage()
+            ], 500);
+        }
     }
 
 }
