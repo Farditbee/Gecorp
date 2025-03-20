@@ -44,8 +44,8 @@ class ArusKasController extends Controller
                     'tgl' => Carbon::parse($first->tgl_transaksi)->toDateString(), // Ambil tanggal tanpa waktu
                     'subjek' => "Toko {$first->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
-                    'item' => "Pendapatan Harian Toko {$first->toko->nama_toko}",
-                    'jml' => $group->sum('total_item'), // Jumlah item dijumlahkan
+                    'item' => "Pendapatan Harian",
+                    'jml' => 1,
                     'sat' => "Ls",
                     'hst' => $group->sum('total_nilai'), // Harga satuan total
                     'nilai_transaksi' => $group->sum('total_nilai'),
@@ -69,40 +69,40 @@ class ArusKasController extends Controller
     
             $data_total = [
                     'kas_kecil' => [
-                        [
+                        
                             'saldo_awal' => $saldo_awal,
                             'saldo_akhir' => $saldo_akhir,
                             'saldo_berjalan' => $saldo_berjalan,
                             'kas_kecil_in' => $kas_kecil_in,
                             'kas_kecil_out' => $kas_kecil_out,
-                        ]
+                        
                     ],
                     'kas_besar' => [
-                        [
+                        
                             'saldo_awal' => 0,
                             'saldo_akhir' => 0,
                             'saldo_berjalan' => 0,
                             'kas_besar_in' => 0,
                             'kas_besar_out' => 0,
-                        ]
+                        
                     ],
                     'piutang' => [
-                        [
+                        
                             'saldo_awal' => 0,
                             'saldo_akhir' => 0,
                             'saldo_berjalan' => 0,
                             'piutang_in' => 0,
                             'piutang_out' => 0,
-                        ]
+                        
                     ],
                     'hutang' => [
-                        [
+                        
                             'saldo_awal' => 0,
                             'saldo_akhir' => 0,
                             'saldo_berjalan' => 0,
                             'hutang_in' => 0,
                             'hutang_out' => 0,
-                        ]
+                        
                     ],
             ];
     
