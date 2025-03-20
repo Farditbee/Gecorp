@@ -4,6 +4,7 @@ namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
 use App\Models\Kasir;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ArusKasController extends Controller
@@ -31,19 +32,24 @@ class ArusKasController extends Controller
             // Ambil data dari model Kasir beserta relasi toko dan users
             $kasirList = Kasir::with('toko', 'users')->get();
     
-            // Format data untuk response JSON
-            $data = $kasirList->map(function ($kasir) {
+            // Kelompokkan data berdasarkan tanggal (tanpa jam-menit-detik) dan id_toko
+            $groupedData = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->tgl_transaksi)->toDateString() . '_' . $kasir->toko->id);
+    
+            // Format ulang data yang telah dikelompokkan
+            $data = $groupedData->map(function ($group) {
+                $first = $group->first(); // Ambil data pertama dari grup
+    
                 return [
-                    'id' => $kasir->id,
-                    'tgl' => $kasir->tgl_transaksi,
-                    'subjek' => "Admin Toko {$kasir->users->nama}",
+                    'id' => $first->id, // ID dari transaksi pertama dalam kelompok
+                    'tgl' => Carbon::parse($first->tgl_transaksi)->toDateString(), // Ambil tanggal tanpa waktu
+                    'subjek' => "Toko {$first->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
-                    'item' => "Pendapatan Harian Toko {$kasir->toko->nama_toko}",
-                    'jml' => $kasir->total_item,
+                    'item' => "Pendapatan Harian Toko {$first->toko->nama_toko}",
+                    'jml' => $group->sum('total_item'), // Jumlah item dijumlahkan
                     'sat' => "Ls",
-                    'hst' => $kasir->total_nilai,
-                    'nilai_transaksi' => $kasir->total_nilai,
-                    'kas_kecil_in' => $kasir->total_nilai,
+                    'hst' => $group->sum('total_nilai'), // Harga satuan total
+                    'nilai_transaksi' => $group->sum('total_nilai'),
+                    'kas_kecil_in' => $group->sum('total_nilai'),
                     'kas_kecil_out' => 0,
                     'kas_besar_in' => 0,
                     'kas_besar_out' => 0,
@@ -52,17 +58,16 @@ class ArusKasController extends Controller
                     'hutang_in' => 0,
                     'hutang_out' => 0,
                 ];
-            });
+            })->values(); // Reset index array
     
             // Hitung total untuk data_total
-            $kas_kecil_in = $kasirList->sum('total_nilai');
+            $kas_kecil_in = $data->sum('kas_kecil_in');
             $kas_kecil_out = 0;
             $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
             $saldo_awal = 0;
             $saldo_akhir = $saldo_berjalan - $saldo_awal;
     
             $data_total = [
-                [
                     'kas_kecil' => [
                         [
                             'saldo_awal' => $saldo_awal,
@@ -99,8 +104,7 @@ class ArusKasController extends Controller
                             'hutang_out' => 0,
                         ]
                     ],
-                ]
-            ];                      
+            ];
     
             return response()->json([
                 'status' => 'success',
@@ -117,6 +121,6 @@ class ArusKasController extends Controller
             ]);
         }
     }
-    
+
     
 }
