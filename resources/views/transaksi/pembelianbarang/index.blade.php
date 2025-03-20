@@ -83,6 +83,7 @@
                                         </thead>
                                         <tbody id="listData">
                                         </tbody>
+                                        <tfoot></tfoot>
                                     </table>
                                 </div>
                                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
@@ -394,7 +395,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total, getDataRest.data.totals);
             } else {
                 errorMessage = getDataRest?.data?.message;
                 let errorRow = `
@@ -498,7 +499,7 @@
             };
         }
 
-        async function setListData(dataList, pagination) {
+        async function setListData(dataList, pagination, total, totals) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
@@ -510,19 +511,30 @@
             dataList.forEach((element, index) => {
                 let classStatus = element.is_status === 'Sukses' ? 'clickable-row' : '';
                 getDataTable += `
-            <tr class="text-dark ${classStatus}" data-id="${element.id}">
-                <td class="${classCol} text-center">${display_from + index}.</td>
-                <td class="${classCol}">${element.status}</td>
-                <td class="${classCol}">${element.no_nota}</td>
-                <td class="${classCol}">${element.tgl_nota}</td>
-                <td class="${classCol}">${element.nama_supplier}</td>
-                <td class="${classCol}">${element.total_item}</td>
-                <td class="${classCol}">${element.total_nilai}</td>
-                <td class="${classCol}">${element.action_buttons}</td>
-            </tr>`;
+                        <tr class="text-dark ${classStatus}" data-id="${element.id}">
+                            <td class="${classCol} text-center">${display_from + index}.</td>
+                            <td class="${classCol}">${element.status}</td>
+                            <td class="${classCol}">${element.no_nota}</td>
+                            <td class="${classCol}">${element.tgl_nota}</td>
+                            <td class="${classCol}">${element.nama_supplier}</td>
+                            <td class="${classCol}">${element.total_item}</td>
+                            <td class="${classCol}">${element.total_nilai}</td>
+                            <td class="${classCol}">${element.action_buttons}</td>
+                        </tr>`;
             });
 
+            let totalRow = `
+            <tr class="bg-primary">
+                <td class="${classCol}" colspan="4"></td>
+                <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
+                <td class="${classCol} text-left"><strong class="text-white" id="totalData">${totals}</strong></td>
+                <td class="${classCol} text-left"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol}" colspan="3"></td>
+            </tr>`;
+
             $('#listData').html(getDataTable);
+            $('#listData').closest('table').find('tfoot').html(totalRow);
+
             $('#totalPage').text(pagination.total);
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
