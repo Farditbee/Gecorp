@@ -375,11 +375,20 @@
 
         async function totalListData(data) {
             let kas_kecil;
+            let kas_besar;
+            let piutang;
+            let hutang;
 
             if (data == null) {
                 kas_kecil = 0;
+                kas_besar = 0;
+                piutang = 0;
+                hutang = 0;
             } else {
                 kas_kecil = data?.kas_kecil ?? 0;
+                kas_besar = data?.kas_besar ?? 0;
+                piutang = data?.piutang ?? 0;
+                hutang = data?.hutang ?? 0;
             }
 
             $('#akhir_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
@@ -387,6 +396,25 @@
             $('#awal_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
             $('#total_kas_kecil_in').html(kas_kecil.kas_kecil_in ?? 0);
             $('#total_kas_kecil_out').html(kas_kecil.kas_kecil_out ?? 0);
+
+            $('#akhir_kas_besar').html(kas_besar.saldo_akhir ?? 0);
+            $('#berjalan_kas_besar').html(kas_besar.saldo_berjalan ?? 0);
+            $('#awal_kas_besar').html(kas_besar.saldo_awal ?? 0);
+            $('#total_kas_besar_in').html(kas_besar.kas_besar_in ?? 0);
+            $('#total_kas_besar_out').html(kas_besar.kas_besar_out ?? 0);
+
+            $('#akhir_piutang').html(piutang.saldo_akhir ?? 0);
+            $('#berjalan_piutang').html(piutang.saldo_berjalan ?? 0);
+            $('#awal_piutang').html(piutang.saldo_awal ?? 0);
+            $('#total_piutang_in').html(piutang.piutang_in ?? 0);
+            $('#total_piutang_out').html(piutang.piutang_out ?? 0);
+            
+            $('#akhir_hutang').html(hutang.saldo_akhir ?? 0);
+            $('#berjalan_hutang').html(hutang.saldo_berjalan ?? 0);
+            $('#awal_hutang').html(hutang.saldo_awal ?? 0);
+            $('#total_hutang_in').html(hutang.hutang_in ?? 0);
+            $('#total_hutang_out').html(hutang.hutang_out ?? 0);
+            
         }
 
         async function deleteData() {
