@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Kasir;
 use App\Models\Pengeluaran;
 use App\Models\DetailPengeluaran;
+use App\Models\PembelianBarang;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -50,11 +51,18 @@ class ArusKasController extends Controller
                 ->whereYear('tgl_transaksi', $year)
                 ->orderBy('id', $meta['orderBy']);
 
+            // Get data from PembelianBarang model
+            $pembelianQuery = PembelianBarang::with('supplier')
+                ->whereMonth('tgl_nota', $month)
+                ->whereYear('tgl_nota', $year)
+                ->orderBy('id', $meta['orderBy']);
+
             // Get filtered data
             $pengeluaranList = $pengeluaranQuery->get();
             $kasirList = $kasirQuery->get();
+            $pembelianList = $pembelianQuery->get();
 
-            if ($pengeluaranList->isEmpty() && $kasirList->isEmpty()) {
+            if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty()) {
                 return response()->json([
                     'status_code' => 404,
                     'errors' => true,
@@ -80,13 +88,13 @@ class ArusKasController extends Controller
                     'item' => $first->nama_pengeluaran,
                     'jml' => 1,
                     'sat' => "Ls",
-                    'hst' => $group->sum('nilai'),
-                    'nilai_transaksi' => $group->sum('nilai'),
+                    'hst' => (int)$group->sum('nilai'),
+                    'nilai_transaksi' => (int)$group->sum('nilai'),
                     'kas_kecil_in' => 0,
-                    'kas_kecil_out' => $first->is_hutang ? 0 : $group->sum('nilai'),
+                    'kas_kecil_out' => $first->is_hutang ? 0 : (int)$group->sum('nilai'),
                     'kas_besar_in' => 0,
                     'kas_besar_out' => 0,
-                    'piutang_in' => $first->is_hutang ? $group->sum('nilai') : 0,
+                    'piutang_in' => $first->is_hutang ? (int)$group->sum('nilai') : 0,
                     'piutang_out' => 0,
                     'hutang_in' => 0,
                     'hutang_out' => 0,
@@ -105,14 +113,14 @@ class ArusKasController extends Controller
                             'item' => 'Pembayaran ' . $first->nama_pengeluaran,
                             'jml' => 1,
                             'sat' => "Ls",
-                            'hst' => $detail->nilai,
-                            'nilai_transaksi' => $detail->nilai,
+                            'hst' => (int)$detail->nilai,
+                            'nilai_transaksi' => (int)$detail->nilai,
                             'kas_kecil_in' => 0,
                             'kas_kecil_out' => 0,
                             'kas_besar_in' => 0,
                             'kas_besar_out' => 0,
                             'piutang_in' => 0,
-                            'piutang_out' => $detail->nilai,
+                            'piutang_out' => (int)$detail->nilai,
                             'hutang_in' => 0,
                             'hutang_out' => 0,
                         ];
@@ -121,6 +129,29 @@ class ArusKasController extends Controller
 
                 return $rows;
             })->flatten(1)->values();
+
+            // Format pembelian data
+            $pembelianData = $pembelianList->map(function ($pembelian) {
+                return [
+                    'id' => $pembelian->id,
+                    'tgl' => Carbon::parse($pembelian->tgl_nota)->format('d-m-Y'),
+                    'subjek' => $pembelian->supplier ? $pembelian->supplier->nama_supplier : 'Supplier Tidak Diketahui',
+                    'kategori' => 'Transaksi',
+                    'item' => 'Pembelian Barang',
+                    'jml' => 1,
+                    'sat' => 'Ls',
+                    'hst' => (int)$pembelian->total_nilai,
+                    'nilai_transaksi' => (int)$pembelian->total_nilai,
+                    'kas_kecil_in' => 0,
+                    'kas_kecil_out' => 0,
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => (int)$pembelian->total_nilai,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ];
+            });
 
             // Format kasir data
             $kasirData = $kasirGrouped->map(function ($group) {
@@ -133,21 +164,21 @@ class ArusKasController extends Controller
                     'item' => "Pendapatan Harian",
                     'jml' => 1,
                     'sat' => "Ls",
-                    'hst' => $group->sum('total_nilai'),
-                    'nilai_transaksi' => $group->sum('total_nilai'),
-                    'kas_kecil_in' => $group->sum('total_nilai'),
+                    'hst' => (int)$group->sum('total_nilai'),
+                    'nilai_transaksi' => (int)$group->sum('total_nilai'),
+                    'kas_kecil_in' => (int)$group->sum('total_nilai'),
                     'kas_kecil_out' => 0,
                     'kas_besar_in' => 0,
                     'kas_besar_out' => 0,
                     'piutang_in' => 0,
-                    'piutang_out' => $first->detail_pengeluaran ? $first->detail_pengeluaran->sum('nilai') : 0,
+                    'piutang_out' => $first->detail_pengeluaran ? (int)$first->detail_pengeluaran->sum('nilai') : 0,
                     'hutang_in' => 0,
                     'hutang_out' => 0,
                 ];
             })->values();
 
             // Merge and sort data
-            $data = $pengeluaranData->concat($kasirData)->sortByDesc('tgl')->values();
+            $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->sortByDesc('tgl')->values();
 
             // Calculate totals
             $kas_kecil_in = $data->sum('kas_kecil_in');
@@ -155,6 +186,12 @@ class ArusKasController extends Controller
             $saldo_berjalan = $kas_kecil_in - $kas_kecil_out;
             $saldo_awal = 0;
             $saldo_akhir = $saldo_berjalan - $saldo_awal;
+
+            $kas_besar_in = $data->sum('kas_besar_in');
+            $kas_besar_out = $data->sum('kas_besar_out');
+            $kas_besar_saldo_berjalan = $kas_besar_in - $kas_besar_out;
+            $kas_besar_saldo_awal = 0;
+            $kas_besar_saldo_akhir = $kas_besar_saldo_berjalan - $kas_besar_saldo_awal;
 
             $piutang_out = $data->sum('piutang_out');
             $piutang_in = $data->sum('piutang_in');
@@ -171,11 +208,11 @@ class ArusKasController extends Controller
                     'kas_kecil_out' => $kas_kecil_out,
                 ],
                 'kas_besar' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'kas_besar_in' => 0,
-                    'kas_besar_out' => 0,
+                    'saldo_awal' => $kas_besar_saldo_awal,
+                    'saldo_akhir' => $kas_besar_saldo_akhir,
+                    'saldo_berjalan' => $kas_besar_saldo_berjalan,
+                    'kas_besar_in' => $kas_besar_in,
+                    'kas_besar_out' => $kas_besar_out,
                 ],
                 'piutang' => [
                     'saldo_awal' => $piutang_saldo_awal,
