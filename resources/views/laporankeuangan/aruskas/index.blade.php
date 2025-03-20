@@ -289,7 +289,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.kasir.get') }}', {
+                '{{ route('master.aruskas.get') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
