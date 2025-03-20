@@ -32,4 +32,9 @@ class Pengeluaran extends Model
     public function toko(): BelongsTo{
         return $this->belongsTo(Toko::class, 'id_toko', 'id');
     }
+
+    public function detail_pengeluaran()
+    {
+        return $this->hasMany(DetailPengeluaran::class, 'id_pengeluaran', 'id')->withTrashed();
+    }
 }
