@@ -488,7 +488,7 @@
             );
         }
 
-        async function selectList(selectors, placeholders) {
+        async function selectList(selectors, placeholders = null) {
             if (!Array.isArray(selectors)) {
                 console.error("Selectors must be an array of element IDs.");
                 return;
@@ -501,8 +501,7 @@
                         element.choicesInstance.destroy();
                     }
 
-                    const placeholderValue = placeholders[index] ||
-                    '';
+                    const placeholderValue = placeholders?.[index] ?? '';
 
                     const choicesInstance = new Choices(element, {
                         removeItemButton: true,

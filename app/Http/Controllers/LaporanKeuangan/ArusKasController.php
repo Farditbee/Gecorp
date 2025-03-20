@@ -124,7 +124,7 @@ class ArusKasController extends Controller
             }
 
             // Kelompokkan data berdasarkan tanggal (tanpa jam-menit-detik) dan id_toko
-            $groupedData = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->tgl_transaksi)->toDateString() . '_' . $kasir->toko->id);
+            $groupedData = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->created_at)->toDateString() . '_' . $kasir->toko->id);
 
             // Format ulang data yang telah dikelompokkan
             $data = $groupedData->map(function ($group) {
@@ -132,7 +132,7 @@ class ArusKasController extends Controller
 
                 return [
                     'id' => $first->id, // ID dari transaksi pertama dalam kelompok
-                    'tgl' => Carbon::parse($first->tgl_transaksi)->toDateString(), // Ambil tanggal tanpa waktu
+                    'tgl' => Carbon::parse($first->created_at)->toDateString(), // Ambil tanggal tanpa waktu
                     'subjek' => "Toko {$first->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
                     'item' => "Pendapatan Harian",
@@ -198,7 +198,7 @@ class ArusKasController extends Controller
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([
-                'status' => 'error',
+                'errors' => true,
                 'message' => $th->getMessage(),
                 'status_code' => 500,
             ]);
