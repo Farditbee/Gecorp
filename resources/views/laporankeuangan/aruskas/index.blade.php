@@ -19,6 +19,15 @@
             width: 100px;
         }
 
+        .data-total {
+            min-width: 140px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+
         #bulan_tahun[readonly] {
             background-color: white !important;
             cursor: pointer !important;
@@ -81,7 +90,7 @@
                                         <thead>
                                             <tr class="tb-head" id="head-table">
                                                 <th class="text-center text-nowrap align-middle" rowspan="5">No</th>
-                                                <th class="text-nowrap align-middle" rowspan="5">Tgl</th>
+                                                <th class="text-nowrap align-middle" rowspan="5">Tanggal</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Subjek</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Kategori</th>
                                                 <th class="text-nowrap align-middle" rowspan="5">Item</th>
@@ -142,15 +151,15 @@
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Kas Kecil In</th>
-                                                <th class="text-nowrap align-middle text-white bg-info">Kas Kecil Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-info data-total">Kas Kecil Out</th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Kas Besar In
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-success">Kas Besar Out
+                                                <th class="text-nowrap align-middle text-white bg-success data-total">Kas Besar Out
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-warning">Piutang In</th>
-                                                <th class="text-nowrap align-middle text-white bg-warning">Piutang Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-warning data-total">Piutang Out</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Hutang In</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary">Hutang Out
+                                                <th class="text-nowrap align-middle text-white bg-secondary data-total">Hutang Out
                                                 </th>
                                             </tr>
                                             <tr class="tb-head">
@@ -298,8 +307,10 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.data_total);
+                await totalListData(getDataRest.data.data_total);
+                await setListData(handleDataArray);
             } else {
+                await totalListData(null);
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
                     <tr class="text-dark">
@@ -331,10 +342,9 @@
             };
         }
 
-        async function setListData(dataList, data) {
+        async function setListData(dataList) {
             let getDataTable = '';
-            let kas_kecil = data?.kas_kecil ?? 0;
-            let classCol = 'align-center text-dark text-wrap';
+            let classCol = 'align-top text-dark text-wrap';
             dataList.forEach((element, index) => {
                 getDataTable += `
                     <tr class="text-dark">
@@ -358,15 +368,25 @@
                     </tr>`;
             });
 
+            $('#listData').html(getDataTable);
+            $('[data-toggle="tooltip"]').tooltip();
+            renderPagination();
+        }
+
+        async function totalListData(data) {
+            let kas_kecil;
+
+            if (data == null) {
+                kas_kecil = 0;
+            } else {
+                kas_kecil = data?.kas_kecil ?? 0;
+            }
+
             $('#akhir_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
             $('#berjalan_kas_kecil').html(kas_kecil.saldo_berjalan ?? 0);
             $('#awal_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
             $('#total_kas_kecil_in').html(kas_kecil.kas_kecil_in ?? 0);
             $('#total_kas_kecil_out').html(kas_kecil.kas_kecil_out ?? 0);
-
-            $('#listData').html(getDataTable);
-            $('[data-toggle="tooltip"]').tooltip();
-            renderPagination();
         }
 
         async function deleteData() {
