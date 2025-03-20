@@ -1,19 +1,28 @@
 @extends('layouts.main')
 
 @section('title')
-    Data User
+    Arus Kas
 @endsection
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
     <style>
         .th-data {
-            width: 140px;
+            width: 160px;
         }
+
         .td-data {
             width: 100px;
+        }
+
+        #bulan_tahun[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
         }
     </style>
 @endsection
@@ -26,12 +35,13 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
+                            <div class="d-flex mb-2 mb-lg-0 align-items-center">
                                 <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
                                     data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
                                     aria-controls="filter-collapse">
                                     <i class="fa fa-filter"></i> Filter
                                 </button>
+                                <span id="time-report" class="font-weight-bold ml-2"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
                                 <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
@@ -49,15 +59,13 @@
                                 <div class="collapse mt-2" id="filter-collapse">
                                     <form id="custom-filter" class="row g-2 align-items-center mx-2">
                                         <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                            <select class="form-select select2" id="f_is_hutang" name="f_is_hutang">
-                                                <option value="" selected disabled></option>
-                                                <option value="1">Hutang</option>
-                                                <option value="0">Tidak</option>
-                                            </select>
+                                            <input type="text" id="bulan_tahun" class="form-control"
+                                                placeholder="Pilih Bulan & Tahun" readonly>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        <div class="col-12 col-md-6 col-lg-8 mb-2">
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
+                                        <div
+                                            class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
                                             <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
                                                 type="submit">
                                                 <i class="fa fa-magnifying-glass mr-2"></i>Cari
@@ -118,7 +126,8 @@
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Saldo Awal</th>
-                                                <th class="text-nowrap align-middle text-white bg-info text-right" id="awal_kas_kecil">-
+                                                <th class="text-nowrap align-middle text-white bg-info text-right"
+                                                    id="awal_kas_kecil">-
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Saldo Awal</th>
                                                 <th class="text-nowrap align-middle text-white bg-success text-right"
@@ -126,14 +135,16 @@
                                                 <th class="text-nowrap align-middle text-white bg-warning">Saldo Awal</th>
                                                 <th class="text-nowrap align-middle text-white bg-warning text-right"
                                                     id="awal_piutang">-</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Awal</th>
+                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Awal
+                                                </th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary text-right"
                                                     id="awal_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Kas Kecil In</th>
                                                 <th class="text-nowrap align-middle text-white bg-info">Kas Kecil Out</th>
-                                                <th class="text-nowrap align-middle text-white bg-success">Kas Besar In</th>
+                                                <th class="text-nowrap align-middle text-white bg-success">Kas Besar In
+                                                </th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Kas Besar Out
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-warning">Piutang In</th>
@@ -143,15 +154,23 @@
                                                 </th>
                                             </tr>
                                             <tr class="tb-head">
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info" id="total_kas_kecil_in">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info" id="total_kas_kecil_out">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success" id="total_kas_besar_in">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success" id="total_kas_besar_out">-
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info"
+                                                    id="total_kas_kecil_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-info"
+                                                    id="total_kas_kecil_out">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success"
+                                                    id="total_kas_besar_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-success"
+                                                    id="total_kas_besar_out">-
                                                 </th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning" id="total_piutang_in">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning" id="total_piutang_out">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary" id="total_hutang_in">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary" id="total_hutang_out">-
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning"
+                                                    id="total_piutang_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-warning"
+                                                    id="total_piutang_out">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary"
+                                                    id="total_hutang_in">-</th>
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary"
+                                                    id="total_hutang_out">-
                                                 </th>
                                             </tr>
                                         </thead>
@@ -170,11 +189,13 @@
 
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/flatpickr.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 @endsection
 
 @section('js')
     <script>
-        let title = 'Data User';
+        let title = 'Arus Kas';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -182,10 +203,80 @@
         let defaultSearch = '';
         let customFilter = {};
 
+        function setInputFilter() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const monthText = now.toLocaleString('id-ID', {
+                month: 'long'
+            });
+
+            $('#time-report').html(
+                `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
+            );
+
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            flatpickr("#bulan_tahun", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: false,
+                        dateFormat: "F Y",
+                        theme: "light"
+                    })
+                ],
+                disableMobile: true,
+                locale: {
+                    firstDayOfWeek: 1,
+                    months: {
+                        shorthand: bulanID,
+                        longhand: bulanID
+                    }
+                },
+                onReady: function(selectedDates, dateStr, instance) {
+                    setTimeout(() => translateMonthPicker(), 10);
+                    if (selectedDates.length > 0) {
+                        instance.setDate(
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`,
+                            false);
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        instance.input.value =
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`;
+                    }
+                },
+                onOpen: function() {
+                    setTimeout(() => translateMonthPicker(), 10);
+                }
+            });
+        }
+
+        function translateMonthPicker() {
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            setTimeout(() => {
+                $(".flatpickr-monthSelect-month").each(function(index) {
+                    $(this).text(bulanID[index]);
+                });
+            }, 50);
+        }
+
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
 
             let filterParams = {};
+
+            if (customFilter['month'] && customFilter['year']) {
+                filterParams.month = customFilter['month'];
+                filterParams.year = customFilter['year'];
+            }
 
             let getDataRest = await renderAPI(
                 'GET',
@@ -319,10 +410,79 @@
             })
         }
 
+        async function filterList() {
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                let bulanTahun = document.getElementById("bulan_tahun").value.trim();
+
+                let monthText = '',
+                    year = '',
+                    month = '';
+
+                if (bulanTahun) {
+                    let parts = bulanTahun.split(" ");
+                    if (parts.length === 2) {
+                        monthText = parts[0];
+                        year = parts[1];
+                        month = getMonthNumber(monthText);
+                    }
+                }
+
+                customFilter = {
+                    year: year || '',
+                    month: month || '',
+                };
+
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+
+                $('#time-report').html(
+                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
+                );
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#bulan_tahun').val('').trigger('change');
+                $('#custom-filter select').val(null).trigger('change');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
+        function getMonthNumber(monthName) {
+            const monthNames = {
+                "Januari": "1",
+                "Februari": "2",
+                "Maret": "3",
+                "April": "4",
+                "Mei": "5",
+                "Juni": "6",
+                "Juli": "7",
+                "Agustus": "8",
+                "September": "9",
+                "Oktober": "10",
+                "November": "11",
+                "Desember": "12"
+            };
+            return monthNames[monthName] || '';
+        }
+
+
         async function initPageLoad() {
             await setDynamicButton();
+            await setInputFilter();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
+            await filterList();
             await deleteData();
         }
     </script>
