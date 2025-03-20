@@ -382,9 +382,9 @@
                 kas_kecil = data?.kas_kecil ?? 0;
             }
 
-            $('#akhir_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
+            $('#akhir_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
             $('#berjalan_kas_kecil').html(kas_kecil.saldo_berjalan ?? 0);
-            $('#awal_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
+            $('#awal_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
             $('#total_kas_kecil_in').html(kas_kecil.kas_kecil_in ?? 0);
             $('#total_kas_kecil_out').html(kas_kecil.kas_kecil_out ?? 0);
         }
