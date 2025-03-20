@@ -60,6 +60,9 @@ class PembelianBarangController extends Controller
             $query->whereBetween('tgl_nota', [$startDate, $endDate]);
         }
 
+        $totalNilai = $query->sum('total_nilai');
+        $totalItem = $query->sum('total_item');
+
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
@@ -104,7 +107,9 @@ class PembelianBarangController extends Controller
             'status_code' => 200,
             'errors' => false,
             'message' => 'Sukses',
-            'pagination' => $paginationMeta
+            'pagination' => $paginationMeta,
+            'total' => 'Rp. ' . number_format($totalNilai, 0, '.', '.'),
+            'totals' => $totalItem
         ], 200);
     }
 
@@ -152,7 +157,7 @@ class PembelianBarangController extends Controller
                 // Tambahkan waktu default (waktu saat ini)
                 $tglNota->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
             }
-            
+
             $pembelian = PembelianBarang::create([
                 'id_supplier' => $request->id_supplier,
                 'id_users' => $user->id,
@@ -407,7 +412,7 @@ class PembelianBarangController extends Controller
             )
             ->where('temp_detail_pembelian_barang.id_pembelian_barang', $id_pembelian)
             ->get();
-            
+
 
             // Decode kolom level_harga dari JSON ke array
             foreach ($tempDetails as $detail) {
