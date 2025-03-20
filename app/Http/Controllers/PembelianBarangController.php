@@ -393,11 +393,21 @@ class PembelianBarangController extends Controller
             // Ambil id_pembelian dari request
             $id_pembelian = $request->input('id_pembelian');
 
-            // Ambil data dari tabel berdasarkan id_pembelian
+            // Ambil data dari tabel berdasarkan id_pembelian dan join ke tabel barang
             $tempDetails = DB::table('temp_detail_pembelian_barang')
-                ->select('id_pembelian_barang', 'id_barang', 'qty', 'harga_barang', 'total_harga', 'level_harga')
-                ->where('id_pembelian_barang', $id_pembelian)
-                ->get();
+            ->join('barang', 'temp_detail_pembelian_barang.id_barang', '=', 'barang.id') // Join dengan tabel barang
+            ->select(
+                'temp_detail_pembelian_barang.id_pembelian_barang',
+                'temp_detail_pembelian_barang.id_barang',
+                'barang.nama_barang', // Ambil nama_barang dari tabel barang
+                'temp_detail_pembelian_barang.qty',
+                'temp_detail_pembelian_barang.harga_barang',
+                'temp_detail_pembelian_barang.total_harga',
+                'temp_detail_pembelian_barang.level_harga'
+            )
+            ->where('temp_detail_pembelian_barang.id_pembelian_barang', $id_pembelian)
+            ->get();
+            
 
             // Decode kolom level_harga dari JSON ke array
             foreach ($tempDetails as $detail) {
@@ -407,6 +417,8 @@ class PembelianBarangController extends Controller
             // Kirimkan response JSON
             return response()->json([
                 'status' => 'success',
+                'errors' => false,
+                'status_code' => 200,
                 'message' => 'Data berhasil diambil',
                 'data' => $tempDetails,
             ]);
@@ -414,6 +426,8 @@ class PembelianBarangController extends Controller
             // Tangani error dan kirimkan response JSON
             return response()->json([
                 'status' => 'error',
+                'errors' => true,
+                'status_code' => 500,
                 'message' => $e->getMessage(),
             ], 500);
         }
