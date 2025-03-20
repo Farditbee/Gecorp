@@ -610,7 +610,7 @@
                             totalHargaAll += totalHarga;
 
                             $("#tempData").append(`
-                        <tr>
+                        <tr data-barang="${item.id_barang}">
                             <td><button onclick="removeRow({id_pembelian: '${idPembelianEdit}', id_barang: '${item.id_barang}' })" type="button" class="btn btn-danger btn-sm remove-item"><i class="fa fa-circle-minus mr-1"></i>Remove</button></td>
                             <td class="numbered">${$("#tempData tr").length + 1}</td>
                             <td><input type="hidden" name="id_barang[]" value="${item.id_barang}">${item.nama_barang}</td>
@@ -726,7 +726,7 @@
                 id_pembelian,
                 id_barang
             }).then(() => {
-                // Mengupdate subtotal setelah penghapusan baris
+                rowGlobal = rowGlobal.filter(row => row.id_barang !== id_barang);
                 updateSubtotalAfterRemoval();
             });
         }
@@ -740,7 +740,7 @@
                 );
                 if (postDataRest && postDataRest.status === 200) {
                     // Hapus baris di DOM setelah berhasil dihapus dari API
-                    const row = document.querySelector(`tr[data-id="${data.id_barang}"]`);
+                    const row = document.querySelector(`tr[data-barang="${data.id_barang}"]`);
                     if (row) {
                         row.remove();
                     }
