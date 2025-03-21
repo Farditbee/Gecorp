@@ -56,8 +56,12 @@
                                     <ul class="list-group list-group-flush">
                                         <hr class="m-0">
                                         <li class="list-group-item d-flex justify-content-between">
-                                            <strong><i class="fa fa-barcode"></i> Nama Member</strong>
+                                            <strong><i class="fa fa-user-tie"></i> Nama Member</strong>
                                             <span class="badge badge-primary">{{ $kasbon->member->nama_member }}</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between">
+                                            <strong><i class="fa fa-file-text"></i> Sisa Hutang (Rp)</strong>
+                                            <span>{{ $kasbon->utang_sisa }}</span>
                                         </li>
                                         <hr class="m-0">
                                     </ul>
@@ -66,47 +70,45 @@
                                     <ul class="list-group list-group-flush">
                                         <hr class="m-0">
                                         <li class="list-group-item d-flex justify-content-between">
-                                            <strong><i class="fa fa-truck"></i> Tgl Kasbon</strong>
+                                            <strong><i class="fa fa-calendar-day"></i> Tgl Kasbon</strong>
                                             <span>{{ $kasbon->created_at }}</span>
                                         </li>
                                         <hr class="m-0">
                                     </ul>
                                 </div>
                             </div>
-
                             <div id="item-container">
                                 <div class="item-group">
                                     <div class="row">
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="qr_barang" class="form-control-label">
-                                                    <i class="mr-2 fa fa-qrcode"></i>Jumlah Bayar <sup
-                                                        class="text-success">*</sup>
+                                                <label for="bayar" class="form-control-label">
+                                                    Jumlah Bayar <sup class="text-success">*</sup>
                                                 </label>
-                                                <input id="qr_barang" type="text" class="form-control"
-                                                    placeholder="Gunakan alat Scan QRCode" >
+                                                <input id="bayar" type="number" class="form-control" min="0"
+                                                    max="{{ $kasbon->utang_sisa }}" placeholder="Masukkan Jumlah Bayar"
+                                                    value="{{ $kasbon->utang_sisa }}">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <div class="form-group">
-                                                <label for="qr_barang" class="form-control-label">
-                                                    <i class="mr-2 fa fa-qrcode"></i>Tipe Bayar <sup
-                                                        class="text-success">*</sup>
+                                                <label for="tipe_bayar" class="form-control-label">
+                                                    Tipe Bayar <sup class="text-success">*</sup>
                                                 </label>
-                                                <input id="qr_barang" type="text" class="form-control"
-                                                    placeholder="Gunakan alat Scan QRCode" >
+                                                <select class="form-control" name="tipe_bayar" id="tipe_bayar">
+                                                    <option value="Tunai">Tunai</option>
+                                                    <option value="Non Tunai">Non Tunai</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div class="col-md-1 d-flex align-items-center">
-                                            <button type="button" id="add-item-detail"
-                                                class="btn btn-success btn-sm">
+                                            <button type="button" id="save-data" class="btn btn-success btn-md mt-2">
                                                 <i class="fa fa-circle-plus"></i> Bayar
                                             </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="row">
                                 <div class="col-12">
                                     <div class="table-responsive-md">
@@ -149,10 +151,8 @@
 
 @section('js')
     <script>
-
         async function saveData() {
             $(document).on("click", "#save-data", async function(e) {
-                console.log('test kirim');
                 e.preventDefault();
                 const saveButton = document.getElementById('save-data');
 
@@ -168,57 +168,45 @@
                     confirmButtonText: 'Ya, Simpan',
                     cancelButtonText: 'Batal',
                     reverseButtons: true,
-                }).then(async (willSave) => {
-                    if (!willSave) return;
-                    
+                }).then((result) => {
+                    if (!result) return;
+
                     saveButton.disabled = true;
                     const originalContent = saveButton.innerHTML;
                     saveButton.innerHTML =
-                    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
+                        `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
                     loadingPage(true);
-                    
-                    let detailIds = [];
-                    let statusArray = [];
-                    
-                    $(".status-check").each(function() {
-                        detailIds.push($(this).data("id"));
-                        statusArray.push($(this).val());
-                    });
-                    
+
                     const formData = {
-                        id_pengiriman_barang: '',
-                        detail_ids: detailIds,
-                        status_detail: statusArray,
-                        tipe_kirim: '',
+                        id_kasbon: {{ $kasbon->id }},
+                        bayar: $('#bayar').val(),
+                        tipe_bayar: $('#tipe_bayar').val(),
+                        id_member: {{ $kasbon->member->id }},
                     };
 
-                    try {
-                        const postData = await renderAPI('POST',
-                            '{{ route('kasbon.bayar') }}',
-                            formData);
-                        loadingPage(false);
+                    return renderAPI('POST', '{{ route('kasbon.bayar') }}', formData)
+                        .then((postData) => {
+                            loadingPage(false);
 
-                        if (postData.status >= 200 && postData.status < 300) {
-                            swal("Berhasil!", "Data berhasil disimpan.", "success");
-                            setTimeout(() => {
-                                window.location.href =
-                                    '{{ route('transaksi.pengirimanbarang.index') }}';
-                            }, 1000);
-                        } else {
-                            swal("Pemberitahuan", postData.message ||
+                            if (postData.status >= 200 && postData.status < 300) {
+                                swal("Berhasil!", "Data berhasil disimpan.", "success");
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 1000);
+                            } else {
+                                swal("Pemberitahuan", postData.data.message ||
+                                    "Terjadi kesalahan saat menyimpan.", "warning");
+                            }
+                        })
+                        .catch((error) => {
+                            loadingPage(false);
+                            swal("Pemberitahuan", error.response?.data?.message ||
                                 "Terjadi kesalahan saat menyimpan.", "warning");
-                        }
-                    } catch (error) {
-                        console.error("Error:", error);
-                        swal("Error", "Terjadi kesalahan dalam mengirim data.", "error");
-                    } finally {
-                        saveButton.disabled = false;
-                        saveButton.innerHTML = originalContent;
-                    }
-                }).catch(function(error) {
-                    let resp = error.response;
-                    swal("Kesalahan", resp || "Terjadi kesalahan saat menyimpan data.", "error");
-                    return resp;
+                        })
+                        .finally(() => {
+                            saveButton.disabled = false;
+                            saveButton.innerHTML = originalContent;
+                        });
                 });
             });
         }

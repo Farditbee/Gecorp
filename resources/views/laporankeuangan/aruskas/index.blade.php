@@ -151,15 +151,19 @@
                                             </tr>
                                             <tr class="tb-head">
                                                 <th class="text-nowrap align-middle text-white bg-info">Kas Kecil In</th>
-                                                <th class="text-nowrap align-middle text-white bg-info data-total">Kas Kecil Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-info data-total">Kas
+                                                    Kecil Out</th>
                                                 <th class="text-nowrap align-middle text-white bg-success">Kas Besar In
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-success data-total">Kas Besar Out
+                                                <th class="text-nowrap align-middle text-white bg-success data-total">Kas
+                                                    Besar Out
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-warning">Piutang In</th>
-                                                <th class="text-nowrap align-middle text-white bg-warning data-total">Piutang Out</th>
+                                                <th class="text-nowrap align-middle text-white bg-warning data-total">
+                                                    Piutang Out</th>
                                                 <th class="text-nowrap align-middle text-white bg-secondary">Hutang In</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary data-total">Hutang Out
+                                                <th class="text-nowrap align-middle text-white bg-secondary data-total">
+                                                    Hutang Out
                                                 </th>
                                             </tr>
                                             <tr class="tb-head">
@@ -374,47 +378,47 @@
         }
 
         async function totalListData(data) {
-            let kas_kecil;
-            let kas_besar;
-            let piutang;
-            let hutang;
+            let kas_kecil, kas_besar, piutang, hutang;
 
             if (data == null) {
-                kas_kecil = 0;
-                kas_besar = 0;
-                piutang = 0;
-                hutang = 0;
+                kas_kecil = {};
+                kas_besar = {};
+                piutang = {};
+                hutang = {};
             } else {
-                kas_kecil = data?.kas_kecil ?? 0;
-                kas_besar = data?.kas_besar ?? 0;
-                piutang = data?.piutang ?? 0;
-                hutang = data?.hutang ?? 0;
+                kas_kecil = data?.kas_kecil ?? {};
+                kas_besar = data?.kas_besar ?? {};
+                piutang = data?.piutang ?? {};
+                hutang = data?.hutang ?? {};
             }
 
-            $('#akhir_kas_kecil').html(kas_kecil.saldo_akhir ?? 0);
-            $('#berjalan_kas_kecil').html(kas_kecil.saldo_berjalan ?? 0);
-            $('#awal_kas_kecil').html(kas_kecil.saldo_awal ?? 0);
-            $('#total_kas_kecil_in').html(kas_kecil.kas_kecil_in ?? 0);
-            $('#total_kas_kecil_out').html(kas_kecil.kas_kecil_out ?? 0);
+            function formatNumber(value) {
+                return (value ?? 0).toLocaleString('id-ID');
+            }
 
-            $('#akhir_kas_besar').html(kas_besar.saldo_akhir ?? 0);
-            $('#berjalan_kas_besar').html(kas_besar.saldo_berjalan ?? 0);
-            $('#awal_kas_besar').html(kas_besar.saldo_awal ?? 0);
-            $('#total_kas_besar_in').html(kas_besar.kas_besar_in ?? 0);
-            $('#total_kas_besar_out').html(kas_besar.kas_besar_out ?? 0);
+            $('#akhir_kas_kecil').html(formatNumber(kas_kecil.saldo_akhir));
+            $('#berjalan_kas_kecil').html(formatNumber(kas_kecil.saldo_berjalan));
+            $('#awal_kas_kecil').html(formatNumber(kas_kecil.saldo_awal));
+            $('#total_kas_kecil_in').html(formatNumber(kas_kecil.kas_kecil_in));
+            $('#total_kas_kecil_out').html(formatNumber(kas_kecil.kas_kecil_out));
 
-            $('#akhir_piutang').html(piutang.saldo_akhir ?? 0);
-            $('#berjalan_piutang').html(piutang.saldo_berjalan ?? 0);
-            $('#awal_piutang').html(piutang.saldo_awal ?? 0);
-            $('#total_piutang_in').html(piutang.piutang_in ?? 0);
-            $('#total_piutang_out').html(piutang.piutang_out ?? 0);
-            
-            $('#akhir_hutang').html(hutang.saldo_akhir ?? 0);
-            $('#berjalan_hutang').html(hutang.saldo_berjalan ?? 0);
-            $('#awal_hutang').html(hutang.saldo_awal ?? 0);
-            $('#total_hutang_in').html(hutang.hutang_in ?? 0);
-            $('#total_hutang_out').html(hutang.hutang_out ?? 0);
-            
+            $('#akhir_kas_besar').html(formatNumber(kas_besar.saldo_akhir));
+            $('#berjalan_kas_besar').html(formatNumber(kas_besar.saldo_berjalan));
+            $('#awal_kas_besar').html(formatNumber(kas_besar.saldo_awal));
+            $('#total_kas_besar_in').html(formatNumber(kas_besar.kas_besar_in));
+            $('#total_kas_besar_out').html(formatNumber(kas_besar.kas_besar_out));
+
+            $('#akhir_piutang').html(formatNumber(piutang.saldo_akhir));
+            $('#berjalan_piutang').html(formatNumber(piutang.saldo_berjalan));
+            $('#awal_piutang').html(formatNumber(piutang.saldo_awal));
+            $('#total_piutang_in').html(formatNumber(piutang.piutang_in));
+            $('#total_piutang_out').html(formatNumber(piutang.piutang_out));
+
+            $('#akhir_hutang').html(formatNumber(hutang.saldo_akhir));
+            $('#berjalan_hutang').html(formatNumber(hutang.saldo_berjalan));
+            $('#awal_hutang').html(formatNumber(hutang.saldo_awal));
+            $('#total_hutang_in').html(formatNumber(hutang.hutang_in));
+            $('#total_hutang_out').html(formatNumber(hutang.hutang_out));
         }
 
         async function deleteData() {

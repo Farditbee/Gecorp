@@ -680,24 +680,10 @@
         }
 
         async function filterList() {
-            let dateRangePickerList = initializeDateRangePicker();
-
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                let startDate = dateRangePickerList.data('daterangepicker').startDate;
-                let endDate = dateRangePickerList.data('daterangepicker').endDate;
-
-                if (!startDate || !endDate) {
-                    startDate = null;
-                    endDate = null;
-                } else {
-                    startDate = startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss');
-                    endDate = endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss');
-                }
 
                 customFilter = {
-                    startDate: $("#daterange").val() != '' ? startDate : '',
-                    endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
                     is_hutang: $("#f_is_hutang").val() || '',
@@ -707,16 +693,11 @@
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
-                $('#time-report').html(
-                    `<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${startDate}</b> s/d <b class="text-primary">${endDate}</b>)`
-                );
-
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
 
             document.getElementById('tb-reset').addEventListener('click', async function() {
-                $('#daterange').val('');
                 $('#custom-filter select').val(null).trigger('change');
                 customFilter = {};
                 defaultSearch = $('.tb-search').val();
