@@ -61,7 +61,7 @@
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between">
                                             <strong><i class="fa fa-file-text"></i> Sisa Hutang (Rp)</strong>
-                                            <span>{{ $kasbon->utang_sisa }}</span>
+                                            <span>{{ intval($kasbon->utang_sisa) }}</span>
                                         </li>
                                         <hr class="m-0">
                                     </ul>
@@ -87,7 +87,7 @@
                                                 </label>
                                                 <input id="bayar" type="number" class="form-control" min="0"
                                                     max="{{ $kasbon->utang_sisa }}" placeholder="Masukkan Jumlah Bayar"
-                                                    value="{{ $kasbon->utang_sisa }}">
+                                                    value="{{ intval($kasbon->utang_sisa) }}">
                                             </div>
                                         </div>
                                         <div class="col-md-4">
@@ -97,7 +97,7 @@
                                                 </label>
                                                 <select class="form-control" name="tipe_bayar" id="tipe_bayar">
                                                     <option value="Tunai">Tunai</option>
-                                                    <option value="Non Tunai">Non Tunai</option>
+                                                    <option value="Non-Tunai">Non Tunai</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -122,12 +122,12 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                @if (empty($dt_kasbon))
+                                                @if (!empty($dt_kasbon))
                                                     @foreach ($dt_kasbon as $dt)
                                                         <tr>
                                                             <td class="text-center">{{ $loop->iteration }}</td>
                                                             <td class="text-wrap">{{ $dt->tgl_bayar }}</td>
-                                                            <td class="text-wrap">{{ $dt->bayar }}</td>
+                                                            <td class="text-wrap">Rp. {{ intval($dt->bayar) }}</td>
                                                             <td class="text-wrap">{{ $dt->tipe_bayar }}</td>
                                                         </tr>
                                                     @endforeach

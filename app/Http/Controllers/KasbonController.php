@@ -32,7 +32,7 @@ class KasbonController extends Controller
     {
         $menu = [$this->title[1]];
         $kasbon = Kasbon::find($id);
-        $dt_kasbon = DetailKasbon::where('id_kasbon', $id)->get();
+        $dt_kasbon = DetailKasbon::where('id_kasbon', $id)->latest()->get();
 
         return view('master.kasbon.detail', compact('menu', 'kasbon', 'dt_kasbon'));
     }
@@ -91,7 +91,7 @@ class KasbonController extends Controller
     
             // Jika sisa utang 0, ubah status jadi Lunas
             if ($kasbon->utang_sisa == 0) {
-                $kasbon->status = 'Lunas';
+                $kasbon->status = 'L';
             }
     
             $kasbon->save();
