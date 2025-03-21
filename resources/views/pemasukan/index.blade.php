@@ -64,7 +64,7 @@
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <select class="form-select select2" id="f_is_pinjaman" name="f_is_pinjaman">
+                                        <select class="form-select select2" id="f_is_pinjam" name="f_is_pinjam">
                                             <option value="" selected disabled></option>
                                             <option value="1">Pinjaman</option>
                                             <option value="0">Tidak</option>
@@ -164,8 +164,8 @@
                             </div>
                             <div class="col-md-2">
                                 <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
-                                    <input class="form-check-input" type="checkbox" id="is_pinjaman" name="is_pinjaman">
-                                    <label class="form-check-label ms-2" for="is_pinjaman">Pinjaman?</label>
+                                    <input class="form-check-input" type="checkbox" id="is_pinjam" name="is_pinjam">
+                                    <label class="form-check-label ms-2" for="is_pinjam">Pinjaman?</label>
                                 </div>
                             </div>
                         </div>
@@ -183,8 +183,8 @@
                             </div>
                         </div>
                         <div class="form-group d-none" id="keteranganPinjamanContainer">
-                            <label for="ket_pinjaman">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="ket_pinjaman" name="ket_pinjaman"
+                            <label for="ket_pinjam">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
+                            <input type="text" class="form-control" id="ket_pinjam" name="ket_pinjam"
                                 placeholder="Masukkan keterangan pinjaman">
                         </div>
                     </form>
@@ -313,8 +313,8 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
-            if (customFilter['is_pinjaman']) {
-                filterParams.is_pinjaman = customFilter['is_pinjaman'];
+            if (customFilter['is_pinjam']) {
+                filterParams.is_pinjam = customFilter['is_pinjam'];
             }
 
             let getDataRest = await renderAPI(
@@ -366,7 +366,7 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.is_pinjaman == 1 || data.is_pinjaman == 2) ? `
+            let detail_button = (data.is_pinjam == 1 || data.is_pinjam == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -376,7 +376,7 @@
                     </div>
                 </a>` : '';
 
-            let edit_button = (data.is_pinjaman == 1) ? `
+            let edit_button = (data.is_pinjam == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
@@ -397,9 +397,9 @@
                 <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
             }
 
-            let pinjaman_badge = (data.is_pinjaman == 1) ?
+            let pinjaman_badge = (data.is_pinjam == 1) ?
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
-                (data.is_pinjaman == 2) ?
+                (data.is_pinjam == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
                 (data.id_toko == 1) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
@@ -409,9 +409,9 @@
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
-                is_pinjaman: pinjaman_badge,
+                is_pinjam: pinjaman_badge,
                 nama_pemasukan: data?.nama_pemasukan ?? '-',
-                nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_pinjaman ?? '-'),
+                nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_pinjam ?? '-'),
                 nilai: data?.nilai ?? '-',
                 action_buttons,
             };
@@ -433,7 +433,7 @@
                     <td class="${classCol}">${element.tanggal}</td>
                     <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.nama_pemasukan}</td>
-                    <td class="${classCol}">${element.is_pinjaman}</td>
+                    <td class="${classCol}">${element.is_pinjam}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
@@ -460,7 +460,7 @@
         function handleInput() {
             const jenisSelect = $("#id_jenis_pemasukan");
             const jenisBaruInput = document.getElementById("nama_jenis");
-            const isPinjamanCheckbox = document.getElementById("is_pinjaman");
+            const isPinjamanCheckbox = document.getElementById("is_pinjam");
             const keteranganPinjamanContainer = document.getElementById("keteranganPinjamanContainer");
             const jenisPemasukanContainer = document.getElementById("jenisPemasukanContainer");
 
@@ -496,7 +496,7 @@
             isPinjamanCheckbox.addEventListener("change", togglePinjamanFields);
 
             $(document).ready(function() {
-                $('#f_is_pinjaman').select2({
+                $('#f_is_pinjam').select2({
                     placeholder: "Pilih Status Pinjaman",
                     allowClear: true,
                     minimumResultsForSearch: -1
@@ -520,7 +520,7 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
-                let isPinjaman = $("#is_pinjaman").is(':checked') ? 1 : '';
+                let isPinjaman = $("#is_pinjam").is(':checked') ? 1 : '';
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pemasukan: $('#nama_pemasukan').val(),
@@ -529,8 +529,8 @@
                 };
 
                 if (isPinjaman) {
-                    formData.is_pinjaman = 1;
-                    formData.ket_pinjaman = $('#ket_pinjaman').val();
+                    formData.is_pinjam = 1;
+                    formData.ket_pinjam = $('#ket_pinjam').val();
                 } else {
                     formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
                     formData.nama_jenis = $('#nama_jenis').val();
@@ -683,7 +683,7 @@
                 customFilter = {
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
-                    is_pinjaman: $("#f_is_pinjaman").val() || '',
+                    is_pinjam: $("#f_is_pinjam").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -810,10 +810,10 @@
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
                         </div>
-                        ${data.is_pinjaman ? `
+                        ${data.is_pinjam ? `
                                                                         <div class="d-flex justify-content-between">
                                                                             <strong>Keterangan:</strong>
-                                                                            <span>${data.ket_pinjaman}</span>
+                                                                            <span>${data.ket_pinjam}</span>
                                                                         </div>
                                                                         ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
