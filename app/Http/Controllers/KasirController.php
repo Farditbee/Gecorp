@@ -465,6 +465,7 @@ class KasirController extends Controller
                     'id_kasir' => $kasir->id,
                     'id_member' => $kasir->id_member,
                     'utang' => $sisaBayar,
+                    'utang_sisa' => $sisaBayar,
                     'status' => 'BL',
                 ]);
             }
