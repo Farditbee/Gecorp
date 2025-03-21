@@ -620,8 +620,8 @@
                 </tr>
                 <tr class="bg-danger">
                     <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Hutang</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_hutang}</strong></td>
+                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Pinjaman</strong></td>
+                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_pinjaman}</strong></td>
                 </tr>`;
 
                 $(`#${selector}`).find(`#detailData-${selector}`).html('');
@@ -724,20 +724,20 @@
                 let data = JSON.parse(decodeURIComponent(rawData));
 
                 $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
+                    `<i class="fa fa-edit mr-2"></i>${data.ket_pinjam ?? '-'}`);
                 $("#save-edit").attr("data-id", data.id);
                 $("#editModal").modal("show");
 
                 let dataList = await getDetailData(data.id, 'tableEditData');
 
-                let sisaHutang = dataList.sisa_hutang.replace(/[^\d]/g, "");
-                let sisaHutangNum = parseInt(sisaHutang, 10) || 0;
+                let sisaPinjaman = dataList.sisa_pinjaman.replace(/[^\d]/g, "");
+                let sisaPinjamanNum = parseInt(sisaPinjaman, 10) || 0;
 
                 $("#edit-nilai").attr({
                     "min": 0,
-                    "max": sisaHutangNum,
+                    "max": sisaPinjamanNum,
                     "type": "number"
-                }).val(sisaHutangNum);
+                }).val(sisaPinjamanNum);
             });
 
             $(document).on("input", "#edit-nilai", function() {
