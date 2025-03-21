@@ -181,11 +181,11 @@
                                 <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
                                     placeholder="Masukkan jenis baru">
                             </div>
-                            <div class="form-group d-none" id="keteranganPinjamanContainer">
-                                <label for="ket_pinjaman">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
-                                <input type="text" class="form-control" id="ket_pinjaman" name="ket_pinjaman"
-                                    placeholder="Masukkan keterangan pinjaman">
-                            </div>
+                        </div>
+                        <div class="form-group d-none" id="keteranganPinjamanContainer">
+                            <label for="ket_pinjaman">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
+                            <input type="text" class="form-control" id="ket_pinjaman" name="ket_pinjaman"
+                                placeholder="Masukkan keterangan pinjaman">
                         </div>
                     </form>
                 </div>
