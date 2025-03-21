@@ -61,7 +61,7 @@
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between">
                                             <strong><i class="fa fa-file-text"></i> Sisa Hutang (Rp)</strong>
-                                            <span>{{ $kasbon->utang_sisa }}</span>
+                                            <span>{{ $kasbon->utang_sisa ?? 'Lunas' }}</span>
                                         </li>
                                         <hr class="m-0">
                                     </ul>
@@ -77,38 +77,40 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div id="item-container">
-                                <div class="item-group">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="bayar" class="form-control-label">
-                                                    Jumlah Bayar <sup class="text-success">*</sup>
-                                                </label>
-                                                <input id="bayar" type="number" class="form-control" min="0"
-                                                    max="{{ $kasbon->utang_sisa }}" placeholder="Masukkan Jumlah Bayar"
-                                                    value="{{ $kasbon->utang_sisa }}">
+                            @if ($kasbon == 'BL')
+                                <div id="item-container">
+                                    <div class="item-group">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="bayar" class="form-control-label">
+                                                        Jumlah Bayar <sup class="text-success">*</sup>
+                                                    </label>
+                                                    <input id="bayar" type="number" class="form-control" min="0"
+                                                        max="{{ $kasbon->utang_sisa }}" placeholder="Masukkan Jumlah Bayar"
+                                                        value="{{ $kasbon->utang_sisa }}">
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <div class="form-group">
-                                                <label for="tipe_bayar" class="form-control-label">
-                                                    Tipe Bayar <sup class="text-success">*</sup>
-                                                </label>
-                                                <select class="form-control" name="tipe_bayar" id="tipe_bayar">
-                                                    <option value="Tunai">Tunai</option>
-                                                    <option value="Non Tunai">Non Tunai</option>
-                                                </select>
+                                            <div class="col-md-4">
+                                                <div class="form-group">
+                                                    <label for="tipe_bayar" class="form-control-label">
+                                                        Tipe Bayar <sup class="text-success">*</sup>
+                                                    </label>
+                                                    <select class="form-control" name="tipe_bayar" id="tipe_bayar">
+                                                        <option value="Tunai">Tunai</option>
+                                                        <option value="Non Tunai">Non Tunai</option>
+                                                    </select>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="col-md-1 d-flex align-items-center">
-                                            <button type="button" id="save-data" class="btn btn-success btn-md mt-2">
-                                                <i class="fa fa-circle-plus"></i> Bayar
-                                            </button>
+                                            <div class="col-md-1 d-flex align-items-center">
+                                                <button type="button" id="save-data" class="btn btn-success btn-md mt-2">
+                                                    <i class="fa fa-circle-plus"></i> Bayar
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            @endif
                             <div class="row">
                                 <div class="col-12">
                                     <div class="table-responsive-md">
