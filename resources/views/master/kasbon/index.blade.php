@@ -19,7 +19,7 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                
+
                             </div>
 
                             <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
@@ -40,11 +40,13 @@
                                     <table class="table table-striped m-0">
                                         <thead>
                                             <tr class="tb-head">
-                                                <th class="text-left text-wrap align-top" style="width: 10%;"><span class="ml-4">No</span></th>
+                                                <th class="text-left text-wrap align-top" style="width: 10%;"><span
+                                                        class="ml-4">No</span></th>
                                                 <th class="text-wrap align-top">Nama Member</th>
                                                 <th class="text-wrap align-top">Hutang</th>
                                                 <th class="text-wrap align-top">Status</th>
-                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span class="mr-4">Action</span></th>
+                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span
+                                                        class="mr-4">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -128,17 +130,33 @@
 
         async function handleData(data) {
             let id_user = '{{ Auth::user()->id }}';
-            
-                let edit_button = `
-                <a href='kasbon/detail/${data.id}' class="p-1 btn edit-data action_button"
-                    data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Edit ${title}: ${data.nama_member} - ${data.id}"
-                    data-id='${data.id}'>
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </a>`;
+            let edit_button = '';
+
+            if (data.status == 'Belum Lunas') {
+                edit_button = `
+                    <a href='kasbon/detail/${data.id}' class="p-1 btn edit-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Edit ${title}: ${data.nama_member} - ${data.id}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Edit</span>
+                        <div class="icon text-warning">
+                            <i class="fa fa-edit"></i>
+                        </div>
+                    </a>`;
+            }
+
+            if (data.status == 'Lunas') {
+                edit_button = `
+                    <a href='kasbon/detail/${data.id}' class="p-1 btn edit-data action_button"
+                        data-container="body" data-toggle="tooltip" data-placement="top"
+                        title="Detail ${title}: ${data.nama_member} - ${data.id}"
+                        data-id='${data.id}'>
+                        <span class="text-dark">Detail</span>
+                        <div class="icon text-info">
+                            <i class="fa fa-book"></i>
+                        </div>
+                    </a>`;
+            }
 
             return {
                 id: data?.id ?? '-',
