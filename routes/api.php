@@ -49,7 +49,6 @@ Route::get('/getpembelianbarang', [PembelianBarangController::class, 'getpembeli
 Route::get('/gettemppembelian', [PembelianBarangController::class, 'gettemppembelian'])->name('master.temppembelian.get');
 Route::delete('/hapustemp', [PembelianBarangController::class, 'hapusTemp'])->name('master.temppembelian.hapus');
 Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengirimanbarang'])->name('master.pengiriman.get');
-Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
 Route::get('/getpengeluaran', [PengeluaranController::class, 'getpengeluaran'])->name('master.getpengeluaran');
@@ -82,5 +81,6 @@ Route::prefix('master')->as('master.')->group(function () {
     Route::get('suplier', [MasterController::class, 'getSuplier'])->name('suplier');
     Route::get('barang-pengiriman', [MasterController::class, 'getBarangPengiriman'])->name('barangKirim');
     Route::get('barang-kasir', [MasterController::class, 'getBarangKasir'])->name('barangKasir');
+    Route::get('kasbon', [MasterController::class, 'getKasbon'])->name('kasbon');
 });
 
