@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailPemasukan;
 use App\Models\JenisPemasukan;
 use App\Models\Pemasukan;
 use Carbon\Carbon;
@@ -111,8 +112,10 @@ class PemasukanController extends Controller
                 'id_toko' => $item['toko'] ? $item['toko']->id : null,
                 'nama_toko' => $item['toko']->nama_toko,
                 'nama_pemasukan' => $item->nama_pemasukan ?? '-',
-                'nama_jenis' => $item['jenis_pemasukan'] ? $item['jenis_pemasukan']->nama_jenis : '-',
+                'nama_jenis' => $item['jenis_pemasukan']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
+                'is_pinjam' => $item->is_pinjam,
+                'ket_pinjam' => $item->ket_pinjam,
                 'tanggal' => $item['tanggal'] ? Carbon::parse($item['tanggal'])->format('d-m-Y') : '-',
             ];
         });
@@ -129,26 +132,40 @@ class PemasukanController extends Controller
 
     public function store(Request $request)
     {
+        $is_pinjam = (string)$request->input('is_pinjam', '0');
+
         $validation = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pemasukan' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'id_jenis_pemasukan' => 'nullable|exists:jenis_pemasukan,id',
-            'nama_jenis' => 'required_without:id_jenis_pemasukan|string'
+            'is_pinjam' => 'nullable|in:0,1,2'
         ];
+
+        if ($is_pinjam) {
+            $validation['ket_pinjam'] = 'required|string';
+        } else {
+            $validation['id_jenis_pemasukan'] = 'nullable|exists:jenis_pemasukan,id';
+            $validation['nama_jenis'] = 'required_without:id_jenis_pemasukan|string|required_if:is_pinjam,0';
+            $validation['ket_pinjam'] = 'nullable|string';
+        }
 
         $validatedData = $request->validate($validation);
 
         try {
             DB::beginTransaction();
 
-            $id_jenis_pemasukan = $validatedData['id_jenis_pemasukan'] ?? null;
-            if (empty($id_jenis_pemasukan) && isset($validatedData['nama_jenis'])) {
-                $jenis_pemasukan = JenisPemasukan::create([
-                    'nama_jenis' => $validatedData['nama_jenis']
-                ]);
-                $id_jenis_pemasukan = $jenis_pemasukan->id;
+            $id_jenis_pemasukan = null;
+            if (!$is_pinjam) {
+                $id_jenis_pemasukan = $validatedData['id_jenis_pemasukan'] ?? null;
+                if (empty($id_jenis_pemasukan) && isset($validatedData['nama_jenis'])) {
+                    $jenis_pemasukan = JenisPemasukan::create([
+                        'nama_jenis' => $validatedData['nama_jenis']
+                    ]);
+                    $id_jenis_pemasukan = $jenis_pemasukan->id;
+                }
+            } else {
+                $id_jenis_pemasukan = null;
             }
 
             Pemasukan::create([
@@ -156,7 +173,9 @@ class PemasukanController extends Controller
                 'id_jenis_pemasukan' => $id_jenis_pemasukan,
                 'nama_pemasukan' => $validatedData['nama_pemasukan'],
                 'nilai' => $validatedData['nilai'],
-                'tanggal' => $validatedData['tanggal']
+                'tanggal' => $validatedData['tanggal'],
+                'is_pinjam' => $is_pinjam,
+                'ket_pinjam' => $validatedData['ket_pinjam'] ?? null,
             ]);
 
             DB::commit();
@@ -194,4 +213,92 @@ class PemasukanController extends Controller
         }
     }
 
+    public function updatepinjam(Request $request, string $id)
+    {
+        $validation = [
+            'nilai' => 'required|numeric',
+        ];
+
+        $validatedData = $request->validate($validation);
+
+        try {
+            DB::beginTransaction();
+
+            $pemasukan = Pemasukan::findOrFail($id);
+            if ($pemasukan->is_pinjam != '1') {
+                throw new \Exception('Data bukan merupakan pinjaman!');
+            }
+
+            if ($validatedData['nilai'] > $pemasukan->nilai) {
+                throw new \Exception('Nilai bayar melebihi nilai pinjaman!');
+            }
+
+            DetailPemasukan::create([
+                'id_pemasukan' => $pemasukan->id,
+                'nilai' => $validatedData['nilai'],
+            ]);
+
+            $totalBayar = DetailPemasukan::where('id_pemasukan', $pemasukan->id)->sum('nilai');
+
+            if ($totalBayar >= $pemasukan->nilai) {
+                $pemasukan->update(['is_pinjam' => '2']);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil melakukan pembayaran pinjaman'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan pembayaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function detail(string $id)
+    {
+        try {
+            $pemasukan = Pemasukan::with(['toko', 'jenis_pemasukan'])->findOrFail($id);
+            $detailPembayaran = DetailPemasukan::where('id_pemasukan', $id)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                        'tanggal' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s')
+                    ];
+                });
+
+            $totalPembayaran = DetailPemasukan::where('id_pemasukan', $id)->sum('nilai');
+            $sisaPinjaman = $pemasukan->nilai - $totalPembayaran;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'pemasukan' => [
+                        'id' => $pemasukan->id,
+                        'nama_toko' => $pemasukan->toko->nama_toko,
+                        'nama_pemasukan' => $pemasukan->nama_pemasukan ?? '-',
+                        'nama_jenis' => $pemasukan->jenis_pemasukan->nama_jenis ?? '-',
+                        'nilai' => 'Rp. ' . number_format($pemasukan->nilai, 0, '.', '.'),
+                        'is_pinjam' => $pemasukan->is_pinjam,
+                        'ket_pinjam' => $pemasukan->ket_pinjam,
+                        'tanggal' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y'),
+                    ],
+                    'detail_pembayaran' => $detailPembayaran,
+                    'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),
+                    'sisa_pinjaman' => 'Rp. ' . number_format($sisaPinjaman, 0, '.', '.')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail pemasukan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

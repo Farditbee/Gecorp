@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailPemasukan;
 use App\Models\Kasir;
 use App\Models\Pengeluaran;
 use App\Models\DetailPengeluaran;
 use App\Models\PembelianBarang;
+use App\Models\Pemasukan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -57,12 +59,19 @@ class ArusKasController extends Controller
                 ->whereYear('tgl_nota', $year)
                 ->orderBy('id', $meta['orderBy']);
 
+            // Get data from Pemasukan model
+            $pemasukanQuery = Pemasukan::with('jenis_pemasukan')
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->orderBy('id', $meta['orderBy']);
+
             // Get filtered data
             $pengeluaranList = $pengeluaranQuery->get();
             $kasirList = $kasirQuery->get();
             $pembelianList = $pembelianQuery->get();
+            $pemasukanList = $pemasukanQuery->get();
 
-            if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty()) {
+            if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
                 return response()->json([
                     'status_code' => 404,
                     'errors' => true,
@@ -104,23 +113,29 @@ class ArusKasController extends Controller
 
                 // Add separate row for piutang_out if it exists
                 if ($first->detail_pengeluaran->isNotEmpty()) {
-                    foreach ($first->detail_pengeluaran as $detail) {
+                    $detailPengeluaran = $first->detail_pengeluaran
+                        ->groupBy(function($detail) {
+                            return Carbon::parse($detail->created_at)->format('Y-m-d');
+                        });
+
+                    foreach ($detailPengeluaran as $date => $details) {
+                        $totalNilai = $details->sum('nilai');
                         $rows[] = [
                             'id' => $first->id,
-                            'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y'),
+                            'tgl' => Carbon::parse($date)->format('d-m-Y'),
                             'subjek' => "Toko {$first->toko->singkatan}",
                             'kategori' => 'Pembayaran Piutang',
                             'item' => 'Pembayaran ' . $first->nama_pengeluaran,
                             'jml' => 1,
                             'sat' => "Ls",
-                            'hst' => (int)$detail->nilai,
-                            'nilai_transaksi' => (int)$detail->nilai,
+                            'hst' => (int)$totalNilai,
+                            'nilai_transaksi' => (int)$totalNilai,
                             'kas_kecil_in' => 0,
                             'kas_kecil_out' => 0,
                             'kas_besar_in' => 0,
                             'kas_besar_out' => 0,
                             'piutang_in' => 0,
-                            'piutang_out' => (int)$detail->nilai,
+                            'piutang_out' => (int)$totalNilai,
                             'hutang_in' => 0,
                             'hutang_out' => 0,
                         ];
@@ -177,8 +192,68 @@ class ArusKasController extends Controller
                 ];
             })->values();
 
+            // Format pemasukan data
+            $pemasukanData = $pemasukanList->map(function ($pemasukan) {
+                $rows = [];
+
+                // Main row for pemasukan (hutang_in)
+                $rows[] = [
+                    'id' => $pemasukan->id,
+                    'tgl' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y'),
+                    'subjek' => "Toko {$pemasukan->toko->singkatan}",
+                    'kategori' => 'Pemasukan',
+                    'item' => $pemasukan->nama_pemasukan,
+                    'jml' => 1,
+                    'sat' => 'Ls',
+                    'hst' => (int)$pemasukan->nilai,
+                    'nilai_transaksi' => (int)$pemasukan->nilai,
+                    'kas_kecil_in' => 0,
+                    'kas_kecil_out' => 0,
+                    'kas_besar_in' => $pemasukan->is_pinjam ? 0 : (int)$pemasukan->nilai,
+                    'kas_besar_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => $pemasukan->is_pinjam ? (int)$pemasukan->nilai : 0,
+                    'hutang_out' => 0,
+                ];
+
+                // Add separate row for hutang_out if it exists
+                if ($pemasukan->is_pinjam) {
+                    $detailPemasukan = DetailPemasukan::where('id_pemasukan', $pemasukan->id)
+                        ->get()
+                        ->groupBy(function($detail) {
+                            return Carbon::parse($detail->created_at)->format('Y-m-d');
+                        });
+
+                    foreach ($detailPemasukan as $date => $details) {
+                        $totalNilai = $details->sum('nilai');
+                        $rows[] = [
+                            'id' => $pemasukan->id,
+                            'tgl' => Carbon::parse($date)->format('d-m-Y'),
+                            'subjek' => "Toko {$pemasukan->toko->singkatan}",
+                            'kategori' => 'Pembayaran Hutang',
+                            'item' => 'Pembayaran ' . $pemasukan->nama_pemasukan,
+                            'jml' => 1,
+                            'sat' => 'Ls',
+                            'hst' => (int)$totalNilai,
+                            'nilai_transaksi' => (int)$totalNilai,
+                            'kas_kecil_in' => 0,
+                            'kas_kecil_out' => 0,
+                            'kas_besar_in' => 0,
+                            'kas_besar_out' => 0,
+                            'piutang_in' => 0,
+                            'piutang_out' => 0,
+                            'hutang_in' => 0,
+                            'hutang_out' => (int)$totalNilai,
+                        ];
+                    }
+                }
+
+                return $rows;
+            })->flatten(1);
+
             // Merge and sort data
-            $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->sortByDesc('tgl')->values();
+            $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->concat($pemasukanData)->sortByDesc('tgl')->values();
 
             // Calculate totals
             $kas_kecil_in = $data->sum('kas_kecil_in');
@@ -198,6 +273,12 @@ class ArusKasController extends Controller
             $piutang_saldo_berjalan = $piutang_in - $piutang_out;
             $piutang_saldo_awal = 0;
             $piutang_saldo_akhir = $piutang_saldo_berjalan - $piutang_saldo_awal;
+
+            $hutang_in = $data->sum('hutang_in');
+            $hutang_out = $data->sum('hutang_out');
+            $hutang_saldo_berjalan = $hutang_in - $hutang_out;
+            $hutang_saldo_awal = 0;
+            $hutang_saldo_akhir = $hutang_saldo_berjalan - $hutang_saldo_awal;
 
             $data_total = [
                 'kas_kecil' => [
@@ -222,11 +303,11 @@ class ArusKasController extends Controller
                     'piutang_out' => $piutang_out,
                 ],
                 'hutang' => [
-                    'saldo_awal' => 0,
-                    'saldo_akhir' => 0,
-                    'saldo_berjalan' => 0,
-                    'hutang_in' => 0,
-                    'hutang_out' => 0,
+                    'saldo_awal' => $hutang_saldo_awal,
+                    'saldo_akhir' => $hutang_saldo_akhir,
+                    'saldo_berjalan' => $hutang_saldo_berjalan,
+                    'hutang_in' => $hutang_in,
+                    'hutang_out' => $hutang_out,
                 ],
             ];
 

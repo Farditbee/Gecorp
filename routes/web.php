@@ -163,6 +163,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('keuangan.pemasukan.index');
         Route::post('/pemasukan/store', [PemasukanController::class,'store'])->name('master.pemasukan.store');
         Route::delete('/pemasukan/delete/{id}', [PemasukanController::class, 'delete'])->name('master.pemasukan.delete');
+        Route::put('/pemasukan/update/{id}', [PemasukanController::class, 'updatepinjam'])->name('master.pemasukan.update');
+        Route::get('/pemasukan/detail/{id}', [PemasukanController::class, 'detail'])->name('master.pemasukan.detail');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

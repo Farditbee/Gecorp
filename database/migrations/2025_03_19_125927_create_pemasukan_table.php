@@ -14,9 +14,11 @@ return new class extends Migration
         Schema::create('pemasukan', function (Blueprint $table) {
             $table->id();
             $table->string('id_toko');
-            $table->string('nama_pemasukan');
-            $table->string('id_jenis_pemasukan');
-            $table->double('nilai');
+            $table->string('nama_pemasukan')->nullable();
+            $table->string('id_jenis_pemasukan')->nullable();
+            $table->double('nilai')->nullable();
+            $table->enum('is_pinjam', (['0', '1', '2']));
+            $table->string('ket_pinjam')->nullable();
             $table->date('tanggal');
             $table->timestamps();
             $table->softDeletes();

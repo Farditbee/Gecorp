@@ -32,4 +32,9 @@ class Pemasukan extends Model
     public function toko(): BelongsTo{
         return $this->belongsTo(Toko::class, 'id_toko', 'id');
     }
+
+    public function detail_pemasukan()
+    {
+        return $this->hasMany(DetailPemasukan::class, 'id_pemasukan', 'id')->withTrashed();
+    }
 }
