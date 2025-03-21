@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\JenisBarangController;
+use App\Http\Controllers\KasbonController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LaporanKeuangan\ArusKasController;
 use App\Http\Controllers\LaporanKeuangan\LabaRugiController;
@@ -227,6 +228,12 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/store', [RetureSuplierController::class, 'store'])->name('store');
                 Route::delete('/delete', [RetureSuplierController::class, 'delete'])->name('delete');
             });
+        });
+
+        Route::prefix('kasbon')->as('kasbon.')->group(function () {
+            Route::get('/', [KasbonController::class, 'index'])->name('index');
+            Route::get('/detail/{id}', [KasbonController::class, 'detail'])->name('detail');
+            Route::post('/bayar', [KasbonController::class, 'bayar'])->name('bayar');
         });
 
         Route::prefix('laporan-keuangan')->as('laporankeuangan.')->group(function () {

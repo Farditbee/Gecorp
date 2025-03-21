@@ -16,6 +16,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'tamu' => RedirectIfAuthenticated::class
         ]);
+
+        $middleware->statefulApi();
         
         $middleware->use([
             \App\Http\Middleware\LogLastActivity::class,

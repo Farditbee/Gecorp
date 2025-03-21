@@ -66,10 +66,12 @@
                             class="pcoded-mtext">Transaksi</span>
                     </a>
                     <ul class="pcoded-submenu">
-                        @if (Auth::user()->id_level == 1 ||
+                        @if (
+                                Auth::user()->id_level == 1 ||
                                 Auth::user()->id_level == 2 ||
                                 Auth::user()->id_level == 3 ||
-                                Auth::user()->id_level == 4)
+                                Auth::user()->id_level == 4
+                            )
                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                 <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
                                             class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
@@ -80,6 +82,9 @@
                             @endif
                             <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
                                         class="fa fa-laptop"></i> Transaksi Kasir</a></li>
+
+                            <li><a class="dropdown-item" href="{{ route('kasbon.index') }}"><i
+                                        class="fa fa-laptop"></i> Kasbon</a></li>
                         @endif
                     </ul>
                 </li>

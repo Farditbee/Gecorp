@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('kasbon', function(Blueprint $table) {
-            $table->id('id');
-            $table->string('id_kasir');
-            $table->string('id_member');
-            $table->decimal('utang', 15, 2);
-            $table->decimal('utang_sisa', 15, 2)->nullable();
-            $table->enum('status', ['L', 'BL'])->default('BL');
-            $table->timestamps();
+        Schema::create('detail_kasbon', function (Blueprint $table) {
+            $table->id();
+            $table->string('id_kasbon');
+            $table->dateTime('tgl_bayar');
+            $table->decimal('bayar', 15, 2);
+            $table->enum('tipe_bayar', ['Tunai', 'Non-Tunai']);
             $table->softDeletes();
+            $table->timestamps();
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('detail_kasbon');
     }
 };

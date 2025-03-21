@@ -27,4 +27,9 @@ class Kasbon extends Model
     {
         return $this->belongsTo(Kasir::class, 'id_kasir', 'id');
     }
+
+    public function detailKasbon()
+    {
+        return $this->hasMany(DetailKasbon::class, 'id_kasbon', 'id');
+    }
 }

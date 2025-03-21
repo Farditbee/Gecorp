@@ -8,10 +8,12 @@ use App\Models\DataReture;
 use App\Models\DetailToko;
 use App\Models\JenisPemasukan;
 use App\Models\JenisPengeluaran;
+use App\Models\Kasbon;
 use App\Models\Member;
 use App\Models\StockBarang;
 use App\Models\Supplier;
 use App\Models\Toko;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -545,6 +547,81 @@ class MasterController extends Controller
             'errors' => false,
             'message' => 'Berhasil',
             'pagination' => $paginationMeta
+        ], 200);
+    }
+
+    public function getKasbon(Request $request)
+    {   
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $userId = $request->id_user;
+
+        if ($userId == 1) {
+            // Jika user ID adalah 1, tampilkan semua data kasbon
+            $query = Kasbon::query();
+        } else {
+            // Ambil id_toko dari user yang sedang login
+            $userTokoId = User::where('id', $userId)->value('id_toko');
+            
+            // Ambil semua member yang memiliki id_toko yang sama
+            $memberIds = Member::where('id_toko', $userTokoId)->pluck('id');
+            
+            // Tampilkan kasbon yang sesuai dengan member dari toko tersebut
+            $query = Kasbon::with('member')->whereIn('id_member', $memberIds);
+        }
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(id_member) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereHas('member', function ($query) use ($searchTerm) {
+                    $query->whereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
+                    $query->whereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
+                });
+            });
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = array_map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'nama_member' => $item['member']['nama_member'],
+                'no_hp' => $item['member']['no_hp'],
+                'utang' => intval($item['utang']),
+                'tgl_kasbon' => $item['created_at'],
+                'status' => $item['status'] === 'BL' ? 'Belum Lunas' : 'Lunas',
+            ];
+        }, $data['data']);
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $data['meta']
         ], 200);
     }
 
