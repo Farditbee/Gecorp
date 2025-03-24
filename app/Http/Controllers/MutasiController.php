@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mutasi;
+use App\Models\Pemasukan;
 use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MutasiController extends Controller
 {
@@ -163,8 +165,24 @@ class MutasiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(Mutasi $mutasi)
+    public function delete(String $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $mutasi = Mutasi::findOrFail($id);
+            $mutasi->delete();
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Sukses menghapus Data mutasi'
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal menghapus Data mutasi: ' . $th->getMessage()
+            ], 500);
+        }
     }
 }

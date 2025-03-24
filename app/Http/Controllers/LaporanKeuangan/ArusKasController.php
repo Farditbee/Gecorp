@@ -7,6 +7,7 @@ use App\Models\DetailPemasukan;
 use App\Models\Kasir;
 use App\Models\Pengeluaran;
 use App\Models\DetailPengeluaran;
+use App\Models\Mutasi;
 use App\Models\PembelianBarang;
 use App\Models\Pemasukan;
 use Carbon\Carbon;
@@ -65,11 +66,18 @@ class ArusKasController extends Controller
                 ->whereYear('tanggal', $year)
                 ->orderBy('id', $meta['orderBy']);
 
+            // Get data from Mutasi model
+            $mutasiQuery = Mutasi::with(['toko', 'tokoPengirim'])
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->orderBy('id', $meta['orderBy']);
+
             // Get filtered data
             $pengeluaranList = $pengeluaranQuery->get();
             $kasirList = $kasirQuery->get();
             $pembelianList = $pembelianQuery->get();
             $pemasukanList = $pemasukanQuery->get();
+            $mutasiList = $mutasiQuery->get();
 
             if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
                 return response()->json([
@@ -252,8 +260,31 @@ class ArusKasController extends Controller
                 return $rows;
             })->flatten(1);
 
+            // Format mutasi data
+            $mutasiData = $mutasiList->map(function ($mutasi) {
+                return [
+                    'id' => $mutasi->id,
+                    'tgl' => Carbon::parse($mutasi->created_at)->format('d-m-Y'),
+                    'subjek' => "Toko {$mutasi->tokoPengirim->singkatan}",
+                    'kategori' => 'Mutasi',
+                    'item' => 'Mutasi Kas',
+                    'jml' => 1,
+                    'sat' => 'Ls',
+                    'hst' => (int)$mutasi->nilai,
+                    'nilai_transaksi' => (int)$mutasi->nilai,
+                    'kas_kecil_in' => $mutasi->id_toko_pengirim == 1 ? (int)$mutasi->nilai : 0,
+                    'kas_kecil_out' => $mutasi->id_toko_pengirim != 1 ? (int)$mutasi->nilai : 0,
+                    'kas_besar_in' => $mutasi->id_toko_pengirim != 1 ? (int)$mutasi->nilai : 0,
+                    'kas_besar_out' => $mutasi->id_toko_pengirim == 1 ? (int)$mutasi->nilai : 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ];
+            });
+
             // Merge and sort data
-            $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->concat($pemasukanData)->sortByDesc('tgl')->values();
+            $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->concat($pemasukanData)->concat($mutasiData)->sortByDesc('tgl')->values();
 
             // Calculate totals
             $kas_kecil_in = $data->sum('kas_kecil_in');

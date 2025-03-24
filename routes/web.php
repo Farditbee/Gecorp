@@ -171,6 +171,7 @@ Route::middleware(['auth'])->group(function () {
         // Mutasi Controller
         Route::get('/mutasi', [MutasiController::class, 'index'])->name('keuangan.mutasi.index');
         Route::post('mutasi/store', [MutasiController::class, 'store'])->name('master.mutasi.store');
+        Route::delete('/mutasi/delete/{id}', [MutasiController::class, 'delete'])->name('master.mutasi.delete');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

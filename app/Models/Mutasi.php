@@ -33,4 +33,9 @@ class Mutasi extends Model
     {
         return $this->belongsTo(Toko::class, 'id_toko_penerima', 'id');
     }
+
+    public function toko(): BelongsTo
+    {
+        return $this->belongsTo(Toko::class, 'id_toko', 'id');
+    }
 }
