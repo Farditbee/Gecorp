@@ -14,6 +14,7 @@ use App\Http\Controllers\LapPengirimanController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengeluaranController;
@@ -160,11 +161,16 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/pengeluaran/update/{id}', [PengeluaranController::class, 'updatehutang'])->name('master.pengeluaran.update');
         Route::get('/pengeluaran/detail/{id}', [PengeluaranController::class, 'detail'])->name('master.pengeluaran.detail');
 
+        // Pemasukan Controller
         Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('keuangan.pemasukan.index');
         Route::post('/pemasukan/store', [PemasukanController::class,'store'])->name('master.pemasukan.store');
         Route::delete('/pemasukan/delete/{id}', [PemasukanController::class, 'delete'])->name('master.pemasukan.delete');
         Route::put('/pemasukan/update/{id}', [PemasukanController::class, 'updatepinjam'])->name('master.pemasukan.update');
         Route::get('/pemasukan/detail/{id}', [PemasukanController::class, 'detail'])->name('master.pemasukan.detail');
+
+        // Mutasi Controller
+        Route::get('/mutasi', [MutasiController::class, 'index'])->name('keuangan.mutasi.index');
+        Route::get('mutasi/store', [MutasiController::class, 'store'])->name('master.mutasi.store');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');

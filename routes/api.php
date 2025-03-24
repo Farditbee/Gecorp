@@ -11,6 +11,7 @@ use App\Http\Controllers\LaporanKeuangan\ArusKasController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
+use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengeluaranController;
@@ -53,6 +54,7 @@ Route::get('/getpengirimanbarang', [PengirimanBarangController::class, 'getpengi
 Route::get('/getdatauser', [UserController::class, 'getdatauser'])->name('master.getdatauser');
 Route::get('/getpengeluaran', [PengeluaranController::class, 'getpengeluaran'])->name('master.getpengeluaran');
 Route::get('/getpemasukan', [PemasukanController::class, 'getpemasukan'])->name('master.getpemasukan');
+Route::get('/getmutasi', [MutasiController::class, 'getmutasi'])->name('master.getmutasi');
 Route::get('/gettoko', [TokoController::class, 'gettoko'])->name('master.gettoko');
 Route::get('/getmember', [MemberController::class, 'getmember'])->name('master.getmember');
 Route::get('/getsupplier', [SupplierController::class, 'getsupplier'])->name('master.getsupplier');
