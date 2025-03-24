@@ -17,12 +17,12 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             LevelHargaSeeder::class,
-            BarangSeeder::class,
-            SupplierSeeder::class,
-            MemberSeeder::class,
-            PembelianSeeder::class,
-            StockBarangSeeder::class,
-            DetailStockSeeder::class,
+            // BarangSeeder::class,
+            // SupplierSeeder::class,
+            // MemberSeeder::class,
+            // PembelianSeeder::class,
+            // StockBarangSeeder::class,
+            // DetailStockSeeder::class,
         ]);
     }
 }

@@ -162,6 +162,11 @@
                                     <i class="icon feather icon-file-minus"></i> Pengeluaran
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ route('keuangan.mutasi.index') }}" class="dropdown-item">
+                                    <i class="icon feather icon-file-text"></i> Mutasi
+                                </a>
+                            </li>
                         </ul>
                     </li>
                 @endif

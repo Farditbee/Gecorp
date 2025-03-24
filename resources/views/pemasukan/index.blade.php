@@ -677,10 +677,24 @@
         }
 
         async function filterList() {
+            let dateRangePickerList = initializeDateRangePicker();
+
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                let startDate = dateRangePickerList.data('daterangepicker').startDate;
+                let endDate = dateRangePickerList.data('daterangepicker').endDate;
+
+                if (!startDate || !endDate) {
+                    startDate = null;
+                    endDate = null;
+                } else {
+                    startDate = startDate.startOf('day').format('YYYY-MM-DD HH:mm:ss');
+                    endDate = endDate.endOf('day').format('YYYY-MM-DD HH:mm:ss');
+                }
 
                 customFilter = {
+                    startDate: $("#daterange").val() != '' ? startDate : '',
+                    endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
                     is_pinjam: $("#f_is_pinjam").val() || '',
@@ -811,11 +825,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_pinjam ? `
-                                                                        <div class="d-flex justify-content-between">
-                                                                            <strong>Keterangan:</strong>
-                                                                            <span>${data.ket_pinjam}</span>
-                                                                        </div>
-                                                                        ` : ''}
+                                                                            <div class="d-flex justify-content-between">
+                                                                                <strong>Keterangan:</strong>
+                                                                                <span>${data.ket_pinjam}</span>
+                                                                            </div>
+                                                                            ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pemasukan:</strong>
                             <span>${data.tanggal}</span>
