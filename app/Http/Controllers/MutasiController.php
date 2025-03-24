@@ -24,7 +24,7 @@ class MutasiController extends Controller
      */
     public function index()
     {
-        if (!in_array(Auth::user()->id_level, [1, 2, 6])) {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3, 4, 6])) {
             abort(403, 'Unauthorized');
         }
         $menu = [$this->title[0], $this->label[5]];
@@ -40,15 +40,15 @@ class MutasiController extends Controller
 
         $query = Mutasi::query();
 
-        $query->with(['toko_pengirim', 'toko_penerima'])->orderBy('id', $meta['orderBy']);
+        $query->with(['tokoPengirim', 'tokoPenerima'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                $query->orWhereHas('toko_pengirim', function ($subquery) use ($searchTerm) {
+                $query->orWhereHas('tokoPengirim', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
-                })->orWhereHas('toko_penerima', function ($subquery) use ($searchTerm) {
+                })->orWhereHas('tokoPenerima', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 });
             });
@@ -57,13 +57,19 @@ class MutasiController extends Controller
         if ($request->has('id_toko')) {
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
-                $query->where('id_toko', $idToko);
+                $query->where(function($q) use ($idToko) {
+                    $q->where('id_toko_pengirim', $idToko)
+                      ->orWhere('id_toko_penerima', $idToko);
+                });
             }
         }
 
         if ($request->has('toko')) {
             $idToko = $request->input('toko');
-            $query->where('id_toko', $idToko);
+            $query->where(function($q) use ($idToko) {
+                $q->where('id_toko_pengirim', $idToko)
+                  ->orWhere('id_toko_penerima', $idToko);
+            });
         }
 
         if ($request->has('startDate') && $request->has('endDate')) {
@@ -99,10 +105,10 @@ class MutasiController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'id_toko_pengirim' => $item['toko_pengirim'] ? $item['toko_pengirim']->id : null,
-                'nama_toko_pengirim' => $item['toko_pengirim'] ? $item['toko_pengirim']->nama_toko : null,
-                'id_toko_penerima' => $item['toko_penerima'] ? $item['toko_penerima']->id : null,
-                'nama_toko_penerima' => $item['toko_penerima'] ? $item['toko_penerima']->nama_toko : null,
+                'id_toko_pengirim' => $item['tokoPengirim'] ? $item['tokoPengirim']->id : null,
+                'nama_toko_pengirim' => $item['tokoPengirim'] ? $item['tokoPengirim']->singkatan : null,
+                'id_toko_penerima' => $item['tokoPenerima'] ? $item['tokoPenerima']->id : null,
+                'nama_toko_penerima' => $item['tokoPenerima'] ? $item['tokoPenerima']->singkatan : null,
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
             ];
         });
