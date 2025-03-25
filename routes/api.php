@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LaporanKeuangan\ArusKasController;
+use App\Http\Controllers\LaporanKeuangan\LabaRugiController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
@@ -37,6 +38,7 @@ Route::post('/print/{id}', [KasirController::class, 'cetakEppos']);
 Route::get('/getkasirs', [KasirController::class, 'getkasirs'])->name('master.transaksi.get');
 
 Route::get('/arusKasir', [ArusKasController::class, 'getaruskas'])->name('master.aruskas.get');
+Route::get('/labarugi', [LabaRugiController::class, 'getlabarugi'])->name('master.labarugi.get');
 
 Route::get('/get-komparasi-toko', [DashboardController::class, 'getKomparasiToko'])->name('dashboard.komparasi');
 Route::get('/penjualan_kasir', [DashboardController::class, 'laporan_kasir'])->name('master.index.kasir');
