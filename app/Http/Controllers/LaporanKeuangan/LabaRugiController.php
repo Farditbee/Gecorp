@@ -48,6 +48,11 @@ class LabaRugiController extends Controller
                 $bebanOperasional[] = ['3.' . ($index + 1) . ' ' . $jenis->nama_jenis, number_format($nilai, 0, ',', '.')];
             }
 
+            // Add biaya lain-lain (non-debt expenses)
+            $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')->sum('nilai');
+            $totalBeban += $biayaLainLain;
+            $bebanOperasional[] = ['3.11 Biaya Lain-lain', number_format($biayaLainLain, 0, ',', '.')];
+
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 
