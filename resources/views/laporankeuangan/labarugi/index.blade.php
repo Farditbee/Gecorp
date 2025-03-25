@@ -158,7 +158,7 @@
 
             let getDataRest = await renderAPI(
                     'GET',
-                    '{{ asset('dummy/labarugi.json') }}', {
+                    '{{ route('master.labarugi.get') }}', {
                         page: page,
                         limit: limit,
                         ascending: ascending,
