@@ -67,11 +67,11 @@
                             <div class="card-body p-0">
                                 <div class="collapse mt-2" id="filter-collapse">
                                     <form id="custom-filter" class="row g-2 align-items-center mx-2">
-                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        <div class="col-12 col-md-6 col-lg-4 mb-2">
                                             <input type="text" id="bulan_tahun" class="form-control"
                                                 placeholder="Pilih Bulan & Tahun" readonly>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-8 mb-2">
+                                        <div class="col-12 col-md-6 col-lg-6 mb-2">
                                         </div>
                                         <div
                                             class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
