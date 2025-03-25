@@ -178,12 +178,12 @@
                                     name="id_jenis_pengeluaran">
                                 </select>
                             </div>
-                            <div class="text-center font-weight-bold">Atau</div>
+                            {{-- <div class="text-center font-weight-bold">Atau</div>
                             <div class="form-group">
                                 <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-danger">**</sup></label>
                                 <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
                                     placeholder="Masukkan jenis baru">
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="form-group d-none" id="keteranganHutangContainer">
                             <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
@@ -494,8 +494,8 @@
                 }
             }
 
-            jenisSelect.on("change", toggleInputs);
-            jenisBaruInput.addEventListener("input", toggleSelect);
+            // jenisSelect.on("change", toggleInputs);
+            // jenisBaruInput.addEventListener("input", toggleSelect);
             isHutangCheckbox.addEventListener("change", toggleHutangFields);
 
             $(document).ready(function() {
