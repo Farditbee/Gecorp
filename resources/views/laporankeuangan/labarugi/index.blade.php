@@ -194,11 +194,12 @@
             dataList.forEach(([kategori, items]) => {
                 getDataTable += `<tr class="font-weight-bold"><td colspan="3">${kategori}</td></tr>`;
 
-                items.forEach(([nama, nilai]) => {
+                items.forEach(([nama, nilai], index) => {
                     let classBadge = parseFloat(nilai) < 0 ? 'text-danger' : '';
+                    let isLastItem = index === items.length - 1 ? 'font-weight-bold' : '';
 
                     getDataTable += `
-                    <tr>
+                    <tr class="${isLastItem}">
                         <td class="space-blank"></td>
                         <td>${nama}</td>
                         <td class="text-right ${classBadge}">${nilai.toLocaleString()}</td>
