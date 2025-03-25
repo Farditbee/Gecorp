@@ -21,6 +21,6 @@ class LabaRugiController extends Controller
     {
         $menu = [$this->title[0], $this->label[4]];
 
-        return view('laporankeuangan.aruskas.index', compact('menu'));
+        return view('laporankeuangan.labarugi.index', compact('menu'));
     }
 }

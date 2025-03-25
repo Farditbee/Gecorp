@@ -1,0 +1,126 @@
+{
+    "error": false,
+    "message": "Successfully",
+    "status_code": 200,
+    "data": [
+        [
+            "I. Pendapatan",
+            [
+                [
+                    "1.1 Penjualan Umum",
+                    12231163
+                ],
+                [
+                    "1.2 Pendapatan Lainnya",
+                    60000
+                ],
+                [
+                    "Total Pendapatan",
+                    12291163
+                ]
+            ]
+        ],
+        [
+            "II. HPP",
+            [
+                [
+                    "HPP",
+                    10486969
+                ]
+            ]
+        ],
+        [
+            "III. Beban Operasional",
+            [
+                [
+                    "3.1 Biaya Gaji Staf",
+                    4400000
+                ],
+                [
+                    "3.2 Biaya Transport",
+                    637000
+                ],
+                [
+                    "3.3 Biaya Konsumsi",
+                    43000
+                ],
+                [
+                    "3.4 Biaya Perlengkapan",
+                    2489035
+                ],
+                [
+                    "3.5 Biaya Listrik",
+                    0
+                ],
+                [
+                    "3.6 Biaya Iklan",
+                    2438895
+                ],
+                [
+                    "3.7 Biaya Administrasi",
+                    0
+                ],
+                [
+                    "3.8 Biaya K3",
+                    50000
+                ],
+                [
+                    "3.9 Biaya Perbaikan Bangunan",
+                    0
+                ],
+                [
+                    "3.10 Biaya Tak Terduga",
+                    320500
+                ],
+                [
+                    "Total Operational Expenses",
+                    10378430
+                ]
+            ]
+        ],
+        [
+            "IV. Beban Penyusutan Aset",
+            [
+                [
+                    "4.1 Sewa Bangunan Bln ke-*",
+                    875000
+                ],
+                [
+                    "4.2 Layanan Internet Bln ke-*",
+                    230625
+                ],
+                [
+                    "Total Penyusutan Aset",
+                    1105625
+                ],
+                [
+                    "Laba Bersih Sebelum Pajak",
+                    -9679861
+                ]
+            ]
+        ],
+        [
+            "VI. Pajak",
+            [
+                [
+                    "Beban Pajak",
+                    0
+                ]
+            ]
+        ]
+    ],
+    "data_total": [
+        [
+            "Laba (Rugi) Setelah Pajak",
+            -9679861
+        ],
+        [
+            "Zakat 2.5%",
+            0
+        ],
+        [
+            "Laba (Rugi) Ditahan",
+            -9679861
+        ]
+    ]
+}

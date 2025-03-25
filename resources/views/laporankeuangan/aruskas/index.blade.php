@@ -421,47 +421,6 @@
             $('#total_hutang_out').html(formatNumber(hutang.hutang_out));
         }
 
-        async function deleteData() {
-            $(document).on("click", ".hapus-data", async function() {
-                isActionForm = "destroy";
-                let id = $(this).attr("data-id");
-                let name = $(this).attr("data-name");
-
-                swal({
-                    title: `Hapus User ${name}`,
-                    text: "Apakah anda yakin?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Tidak, Batal!",
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    reverseButtons: true,
-                    confirmButtonClass: "btn btn-danger",
-                    cancelButtonClass: "btn btn-secondary",
-                }).then(async (result) => {
-                    let postDataRest = await renderAPI(
-                        'DELETE',
-                        `user/delete/${id}`
-                    ).then(function(response) {
-                        return response;
-                    }).catch(function(error) {
-                        let resp = error.response;
-                        return resp;
-                    });
-
-                    if (postDataRest.status == 200) {
-                        setTimeout(function() {
-                            getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
-                            .message);
-                    }
-                }).catch(swal.noop);
-            })
-        }
-
         async function filterList() {
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -535,7 +494,6 @@
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
             await filterList();
-            await deleteData();
         }
     </script>
 @endsection

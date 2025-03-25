@@ -177,7 +177,7 @@ class MutasiController extends Controller
                 'success' => true,
                 'message' => 'Sukses menghapus Data mutasi'
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Throwable $th) { 
             DB::rollBack();
             return response()->json([
                 'success' => false,

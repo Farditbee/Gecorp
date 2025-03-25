@@ -1,13 +1,21 @@
 @extends('layouts.main')
 
 @section('title')
-    Data User
+    Laba Rugi
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <style>
+        #bulan_tahun[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -18,61 +26,35 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1)
-                                    <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data User">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                @endif
+                            <div class="d-flex mb-2 mb-lg-0 align-items-center flex-grow-1">
+                                <span id="time-report" class="font-weight-bold ml-2"></span>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
-                            </div>
+                            <form id="custom-filter" class="row g-2 align-items-center ms-auto">
+                                <div class="col-12 col-md-6 col-lg-6 mb-2">
+                                    <input type="text" id="bulan_tahun" class="form-control"
+                                        placeholder="Pilih Bulan & Tahun" readonly>
+                                </div>
+                                <div class="col-12 col-md-6 col-lg-6 mb-2 d-flex justify-content-end align-items-start">
+                                    <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter" type="submit">
+                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="tb-reset">
+                                        <i class="fa fa-rotate mr-2"></i>Reset
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <div class="content">
-                            <x-adminlte-alerts />
-                            <div class="card-body p-0">
-                                <div class="table-responsive table-scroll-wrapper">
-                                    <table class="table table-striped m-0">
-                                        <thead>
-                                            <tr class="tb-head">
-                                                <th class="text-center text-wrap align-top">No</th>
-                                                <th class="text-wrap align-top">Nama User</th>
-                                                <th class="text-wrap align-top">Level</th>
-                                                <th class="text-wrap align-top">Toko</th>
-                                                <th class="text-wrap align-top">Username</th>
-                                                <th class="text-wrap align-top">Email</th>
-                                                <th class="text-wrap align-top">No. HP</th>
-                                                <th class="text-wrap align-top">Alamat</th>
-                                                <th class="text-center text-wrap align-top">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="listData">
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center p-3">
-                                    <div class="text-center text-md-start mb-2 mb-md-0">
-                                        <div class="pagination">
-                                            <div>Menampilkan <span id="countPage">0</span> dari <span
-                                                    id="totalPage">0</span> data</div>
+                            <div class="d-flex justify-content-center">
+                                <div class="card w-50">
+                                    <div class="card-body p-2">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped m-0">
+                                                <tbody id="listData" class="container-fluid">
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
-                                    <nav class="text-center text-md-end">
-                                        <ul class="pagination justify-content-center justify-content-md-end"
-                                            id="pagination-js">
-                                        </ul>
-                                    </nav>
                                 </div>
                             </div>
                         </div>
@@ -85,11 +67,13 @@
 
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/flatpickr.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 @endsection
 
 @section('js')
     <script>
-        let title = 'Data User';
+        let title = 'Laba Rugi';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -97,178 +81,216 @@
         let defaultSearch = '';
         let customFilter = {};
 
+        function setInputFilter() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const monthText = now.toLocaleString('id-ID', {
+                month: 'long'
+            });
+
+            $('#time-report').html(
+                `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
+            );
+
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            flatpickr("#bulan_tahun", {
+                plugins: [
+                    new monthSelectPlugin({
+                        shorthand: false,
+                        dateFormat: "F Y",
+                        theme: "light"
+                    })
+                ],
+                disableMobile: true,
+                locale: {
+                    firstDayOfWeek: 1,
+                    months: {
+                        shorthand: bulanID,
+                        longhand: bulanID
+                    }
+                },
+                onReady: function(selectedDates, dateStr, instance) {
+                    setTimeout(() => translateMonthPicker(), 10);
+                    if (selectedDates.length > 0) {
+                        instance.setDate(
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`,
+                            false);
+                    }
+                },
+                onChange: function(selectedDates, dateStr, instance) {
+                    if (selectedDates.length > 0) {
+                        instance.input.value =
+                            `${bulanID[selectedDates[0].getMonth()]} ${selectedDates[0].getFullYear()}`;
+                    }
+                },
+                onOpen: function() {
+                    setTimeout(() => translateMonthPicker(), 10);
+                }
+            });
+        }
+
+        function translateMonthPicker() {
+            const bulanID = [
+                "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+            ];
+
+            setTimeout(() => {
+                $(".flatpickr-monthSelect-month").each(function(index) {
+                    $(this).text(bulanID[index]);
+                });
+            }, 50);
+        }
+
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listData').html(loadingData());
 
             let filterParams = {};
 
+            if (customFilter['month'] && customFilter['year']) {
+                filterParams.month = customFilter['month'];
+                filterParams.year = customFilter['year'];
+            }
+
             let getDataRest = await renderAPI(
-                'GET',
-                '{{ route('master.getdatauser') }}', {
-                    page: page,
-                    limit: limit,
-                    ascending: ascending,
-                    search: search,
-                    id_toko: '{{ auth()->user()->id_toko }}',
-                    ...filterParams
-                }
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                let resp = error.response;
-                return resp;
-            });
+                    'GET',
+                    '{{ asset('dummy/labarugi.json') }}', {
+                        page: page,
+                        limit: limit,
+                        ascending: ascending,
+                        search: search,
+                        ...filterParams
+                    }
+                ).then(response => response)
+                .catch(error => error.response || {});
 
             if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
-                let handleDataArray = await Promise.all(
-                    getDataRest.data.data.map(async item => await handleData(item))
-                );
-                await setListData(handleDataArray, getDataRest.data.pagination);
+                let handleDataArray = getDataRest.data.data.map(item => {
+                    let kategori = item[0];
+                    let items = item[1].map(subItem => [subItem[0], subItem[1]]);
+                    return [kategori, items];
+                });
+
+                let handleDataTotalArray = (getDataRest.data.data_total ?? []).map(subItem => [subItem[0], subItem[1]]);
+
+                await setListData(handleDataArray, handleDataTotalArray);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
-            <tr class="text-dark">
-                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
-            </tr>`;
+                <tr class="text-dark">
+                    <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                </tr>`;
                 $('#listData').html(errorRow);
-                $('#countPage').text("0 - 0");
-                $('#totalPage').text("0");
             }
         }
 
-        async function handleData(data) {
-            let status = '';
-            if (data?.status === 'Sukses') {
-                status =
-                    `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
-            } else if (data?.status === 'Gagal') {
-                status =
-                    `<span class="badge badge-danger custom-badge"><i class="mx-1 fa fa-circle-xmark"></i>Gagal</span>`;
-            } else {
-                status = `<span class="badge badge-secondary custom-badge">Tidak Diketahui</span>`;
-            }
-
-            let edit_button = `
-            <a href='user/edit/${data.id}' class="p-1 btn edit-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Edit ${title}: ${data.nama}"
-                data-id='${data.id}'>
-                <span class="text-dark">Edit</span>
-                <div class="icon text-warning">
-                    <i class="fa fa-edit"></i>
-                </div>
-            </a>`;
-
-            let delete_button = `
-            <a class="p-1 btn hapus-data action_button"
-                data-container="body" data-toggle="tooltip" data-placement="top"
-                title="Hapus ${title}: ${data.nama}"
-                data-id='${data.id}'
-                data-name='${data.nama}'>
-                <span class="text-dark">Hapus</span>
-                <div class="icon text-danger">
-                    <i class="fa fa-trash"></i>
-                </div>
-            </a>`;
-
-            return {
-                id: data?.id ?? '-',
-                nama: data?.nama ?? '-',
-                nama_level: data?.nama_level ?? '-',
-                nama_toko: data?.nama_toko ?? '-',
-                username: data?.username ?? '-',
-                email: data?.email ?? '-',
-                no_hp: data?.no_hp ?? '-',
-                alamat: data?.alamat ?? '-',
-                edit_button,
-                delete_button,
-            };
-        }
-
-        async function setListData(dataList, pagination) {
-            totalPage = pagination.total_pages;
-            currentPage = pagination.current_page;
-            let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
-            let display_to = Math.min(display_from + dataList.length - 1, pagination.total);
-
+        async function setListData(dataList, dataTotalList) {
             let getDataTable = '';
-            let classCol = 'align-center text-dark text-wrap';
-            dataList.forEach((element, index) => {
-                getDataTable += `
-                    <tr class="text-dark">
-                        <td class="${classCol} text-center">${display_from + index}.</td>
-                        <td class="${classCol}">${element.nama}</td>
-                        <td class="${classCol}">${element.nama_level}</td>
-                        <td class="${classCol}">${element.nama_toko}</td>
-                        <td class="${classCol}">${element.username}</td>
-                        <td class="${classCol}">${element.email}</td>
-                        <td class="${classCol}">${element.no_hp}</td>
-                        <td class="${classCol}">${element.alamat}</td>
-                        <td class="${classCol}">
-                            <div class="d-flex justify-content-center w-100">
-                                <div class="hovering p-1">
-                                    ${element.edit_button}
-                                </div>
-                                <div class="hovering p-1">
-                                    ${element.delete_button}
-                                </div>
-                            </div>
-                        </td>
+
+            dataList.forEach(([kategori, items]) => {
+                getDataTable += `<tr class="font-weight-bold"><td colspan="3">${kategori}</td></tr>`;
+
+                items.forEach(([nama, nilai]) => {
+                    let classBadge = parseFloat(nilai) < 0 ? 'text-danger' : '';
+
+                    getDataTable += `
+                    <tr>
+                        <td class="space-blank"></td>
+                        <td>${nama}</td>
+                        <td class="text-right ${classBadge}">${nilai.toLocaleString()}</td>
                     </tr>`;
+                });
+            });
+
+            getDataTable += `<tr><td colspan="3" class="py-2"></td></tr>`;
+
+            dataTotalList.forEach(([nama, nilai]) => {
+                let classBadge = parseFloat(nilai) < 0 ? 'text-danger' : '';
+
+                getDataTable += `
+                <tr class="font-weight-bold">
+                    <td></td>
+                    <td>${nama}</td>
+                    <td class="text-right ${classBadge}">${nilai.toLocaleString()}</td>
+                </tr>`;
             });
 
             $('#listData').html(getDataTable);
-            $('#totalPage').text(pagination.total);
-            $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
-            renderPagination();
         }
 
-        async function deleteData() {
-            $(document).on("click", ".hapus-data", async function() {
-                isActionForm = "destroy";
-                let id = $(this).attr("data-id");
-                let name = $(this).attr("data-name");
+        async function filterList() {
+            document.getElementById('custom-filter').addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-                swal({
-                    title: `Hapus User ${name}`,
-                    text: "Apakah anda yakin?",
-                    type: "warning",
-                    showCancelButton: true,
-                    confirmButtonText: "Ya, Hapus!",
-                    cancelButtonText: "Tidak, Batal!",
-                    confirmButtonColor: '#dc3545',
-                    cancelButtonColor: '#6c757d',
-                    reverseButtons: true,
-                    confirmButtonClass: "btn btn-danger",
-                    cancelButtonClass: "btn btn-secondary",
-                }).then(async (result) => {
-                    let postDataRest = await renderAPI(
-                        'DELETE',
-                        `user/delete/${id}`
-                    ).then(function(response) {
-                        return response;
-                    }).catch(function(error) {
-                        let resp = error.response;
-                        return resp;
-                    });
+                let bulanTahun = document.getElementById("bulan_tahun").value.trim();
 
-                    if (postDataRest.status == 200) {
-                        setTimeout(function() {
-                            getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        notificationAlert('success', 'Pemberitahuan', postDataRest.data
-                            .message);
+                let monthText = '',
+                    year = '',
+                    month = '';
+
+                if (bulanTahun) {
+                    let parts = bulanTahun.split(" ");
+                    if (parts.length === 2) {
+                        monthText = parts[0];
+                        year = parts[1];
+                        month = getMonthNumber(monthText);
                     }
-                }).catch(swal.noop);
-            })
+                }
+
+                customFilter = {
+                    year: year || '',
+                    month: month || '',
+                };
+
+                currentPage = 1;
+
+                $('#time-report').html(
+                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
+                );
+
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+
+            document.getElementById('tb-reset').addEventListener('click', async function() {
+                $('#bulan_tahun').val('').trigger('change');
+                $('#custom-filter select').val(null).trigger('change');
+                customFilter = {};
+                defaultSearch = $('.tb-search').val();
+                defaultLimitPage = $("#limitPage").val();
+                currentPage = 1;
+                await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
+                    customFilter);
+            });
+        }
+
+        function getMonthNumber(monthName) {
+            const monthNames = {
+                "Januari": "1",
+                "Februari": "2",
+                "Maret": "3",
+                "April": "4",
+                "Mei": "5",
+                "Juni": "6",
+                "Juli": "7",
+                "Agustus": "8",
+                "September": "9",
+                "Oktober": "10",
+                "November": "11",
+                "Desember": "12"
+            };
+            return monthNames[monthName] || '';
         }
 
         async function initPageLoad() {
+            await setInputFilter();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
-            await searchList();
-            await deleteData();
+            await filterList();
         }
     </script>
 @endsection
