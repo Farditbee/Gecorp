@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/style.css">
+    <link rel="stylesheet" href="{{ asset('css/month-select.css') }}">
     <style>
         #bulan_tahun[readonly] {
             background-color: white !important;
@@ -68,7 +68,7 @@
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
     <script src="{{ asset('js/flatpickr.js') }}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
+    <script src="{{ asset('js/month-select.js') }}"></script>
 @endsection
 
 @section('js')
