@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('nama_pengeluaran')->nullable();
             $table->string('id_jenis_pengeluaran')->nullable();
             $table->double('nilai')->nullable();
+            $table->enum('is_asset', (['Asset Peralatan Kecil', 'Asset Peralatan Besar']))->nullable();
             $table->enum('is_hutang', (['0', '1', '2']));
             $table->string('ket_hutang')->nullable();
             $table->date('tanggal');

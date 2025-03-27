@@ -138,21 +138,30 @@ class PengeluaranController extends Controller
     public function store(Request $request)
     {
         $is_hutang = (string)$request->input('is_hutang', '0');
+        $is_asset = $request->input('is_asset');
 
         $validation = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_hutang' => 'nullable|in:0,1,2'
+            'is_hutang' => 'nullable|in:0,1,2',
+            'is_asset' => 'nullable|in:Asset Peralatan Kecil,Asset Peralatan Besar'
         ];
 
-        if ($is_hutang === '1') {
+        if ($is_asset) {
+            $is_hutang = '0';
+            $validation['id_jenis_pengeluaran'] = 'prohibited';
+            $validation['nama_jenis'] = 'prohibited';
+            $validation['ket_hutang'] = 'nullable|string';
+        } else if ($is_hutang === '1') {
             $validation['ket_hutang'] = 'required|string';
+            $validation['is_asset'] = 'prohibited';
         } else {
             $validation['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
             $validation['nama_jenis'] = 'required_without:id_jenis_pengeluaran|string';
             $validation['ket_hutang'] = 'nullable|string';
+            $validation['is_asset'] = 'prohibited';
         }
 
         $validatedData = $request->validate($validation);
@@ -173,12 +182,13 @@ class PengeluaranController extends Controller
 
             Pengeluaran::create([
                 'id_toko' => $validatedData['id_toko'],
-                'id_jenis_pengeluaran' => $id_jenis_pengeluaran,
+                'id_jenis_pengeluaran' => $is_asset ? null : $id_jenis_pengeluaran,
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
                 'is_hutang' => $is_hutang,
                 'ket_hutang' => $validatedData['ket_hutang'] ?? null,
+                'is_asset' => $validatedData['is_asset'] ?? null,
             ]);
 
             DB::commit();
