@@ -15,6 +15,41 @@
             cursor: pointer !important;
             color: inherit !important;
         }
+
+        .space-blank {
+            width: 30px;
+        }
+
+        #listData {
+            width: 100%;
+            table-layout: fixed;
+            border-collapse: collapse;
+        }
+
+        #listData td,
+        #listData th {
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            vertical-align: top;
+        }
+
+        #listData .kategori-data td:nth-child(1),
+        #listData .kategori-data td:nth-child(5){
+            width: 4%;
+        }
+        #listData .kategori-data td:nth-child(2),
+        #listData .kategori-data td:nth-child(6) {
+            width: 34%;
+        }
+
+        #listData .kategori-data td:nth-child(3),
+        #listData .kategori-data td:nth-child(7) {
+            width: 10%;
+        }
+
+        #listData .kategori-data td:nth-child(4) {
+            width: 5%;
+        }
     </style>
 @endsection
 
@@ -46,7 +81,7 @@
                         </div>
                         <div class="content">
                             <div class="d-flex justify-content-center">
-                                <div class="card w-50">
+                                <div class="card w-75">
                                     <div class="card-body p-2">
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-striped m-0">
@@ -158,7 +193,7 @@
 
             let getDataRest = await renderAPI(
                     'GET',
-                    '{{ route('master.labarugi.get') }}', {
+                    '{{ asset('dummy/neraca.json') }}', {
                         page: page,
                         limit: limit,
                         ascending: ascending,
@@ -169,15 +204,8 @@
                 .catch(error => error.response || {});
 
             if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
-                let handleDataArray = getDataRest.data.data.map(item => {
-                    let kategori = item[0];
-                    let items = item[1].map(subItem => [subItem[0], subItem[1]]);
-                    return [kategori, items];
-                });
-
-                let handleDataTotalArray = (getDataRest.data.data_total ?? []).map(subItem => [subItem[0], subItem[1]]);
-
-                await setListData(handleDataArray, handleDataTotalArray);
+                let handleDataArray = getDataRest.data.data;
+                await setListData(handleDataArray);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
@@ -188,37 +216,86 @@
             }
         }
 
-        async function setListData(dataList, dataTotalList) {
+        async function setListData(dataList) {
             let getDataTable = '';
 
-            dataList.forEach(([kategori, items]) => {
-                getDataTable += `<tr class="font-weight-bold"><td colspan="3">${kategori}</td></tr>`;
+            const aktiva = dataList.find(k => k.kategori === 'AKTIVA');
+            const pasiva = dataList.find(k => k.kategori === 'PASIVA');
 
-                items.forEach(([nama, nilai], index) => {
-                    let classBadge = parseFloat(nilai) < 0 ? 'text-danger' : '';
-                    let isLastItem = index === items.length - 1 ? 'font-weight-bold' : '';
+            const subAktiva = aktiva?.subkategori || [];
+            const subPasiva = pasiva?.subkategori || [];
 
-                    getDataTable += `
-                    <tr class="${isLastItem}">
-                        <td class="space-blank"></td>
-                        <td>${nama}</td>
-                        <td class="text-right ${classBadge}">${nilai.toLocaleString()}</td>
-                    </tr>`;
-                });
-            });
+            const maxSub = Math.max(subAktiva.length, subPasiva.length);
 
-            getDataTable += `<tr><td colspan="3" class="py-2"></td></tr>`;
+            getDataTable += `
+                <tr class="font-weight-bold bg-light">
+                    <td colspan="2">AKTIVA</td>
+                    <td colspan="1" class="text-right">${aktiva.total.toLocaleString()}</td>
+                    <td colspan="1"></td>
+                    <td colspan="2">PASIVA</td>
+                    <td colspan="1" class="text-right">${pasiva.total.toLocaleString()}</td>
+                </tr>
+            `;
 
-            dataTotalList.forEach(([nama, nilai]) => {
-                let classBadge = parseFloat(nilai) < 0 ? 'text-danger' : '';
+            for (let i = 0; i < maxSub; i++) {
+                const subA = subAktiva[i];
+                const subP = subPasiva[i];
+
+                const aItems = subA ? subA.item : [];
+                const pItems = subP ? subP.item : [];
+
+                const aRows = aItems.map(item => ({
+                    kode: item.kode,
+                    nama: item.nama,
+                    nilai: item.nilai
+                }));
+
+                const pRows = pItems.map(item => ({
+                    kode: item.kode,
+                    nama: item.nama,
+                    nilai: item.nilai
+                }));
+
+                const maxRow = Math.max(aRows.length, pRows.length);
 
                 getDataTable += `
-                <tr class="font-weight-bold">
-                    <td></td>
-                    <td>${nama}</td>
-                    <td class="text-right ${classBadge}">${nilai.toLocaleString()}</td>
-                </tr>`;
-            });
+                    <tr class="font-weight-bold bg-secondary text-white">
+                        <td colspan="2">${subA ? subA.judul : ''}</td>
+                        <td colspan="1" class="text-right">${subA ? subA.total.toLocaleString() : ''}</td>
+                        <td colspan="1"></td>
+                        <td colspan="2">${subP ? subP.judul : ''}</td>
+                        <td colspan="1" class="text-right">${subP ? subP.total.toLocaleString() : ''}</td>
+                    </tr>
+                `;
+
+                for (let j = 0; j < maxRow; j++) {
+                    const aData = aRows[j] || {
+                        kode: '',
+                        nama: '',
+                        nilai: ''
+                    };
+                    const pData = pRows[j] || {
+                        kode: '',
+                        nama: '',
+                        nilai: ''
+                    };
+
+                    const aBadge = parseFloat(aData.nilai) < 0 ? 'text-danger' : '';
+                    const pBadge = parseFloat(pData.nilai) < 0 ? 'text-danger' : '';
+
+                    getDataTable += `
+                        <tr class="kategori-data">
+                            <td class="text-center">${aData.kode}</td>
+                            <td>${aData.nama}</td>
+                            <td class="text-right ${aBadge}">${aData.nilai !== '' ? `${parseFloat(aData.nilai).toLocaleString()}` : ''}</td>
+                            <td colspan="1"></td>
+                            <td class="text-center">${pData.kode}</td>
+                            <td>${pData.nama}</td>
+                            <td class="text-right ${pBadge}">${pData.nilai !== '' ? `${parseFloat(pData.nilai).toLocaleString()}` : ''}</td>
+                        </tr>
+                    `;
+                }
+            }
 
             $('#listData').html(getDataTable);
             $('[data-toggle="tooltip"]').tooltip();

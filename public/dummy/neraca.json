@@ -1,0 +1,133 @@
+{
+    "error": false,
+    "message": "Successfully",
+    "status_code": 200,
+    "data": [
+        {
+            "kategori": "AKTIVA",
+            "total": 65710405,
+            "subkategori": [
+                {
+                    "judul": "I. ASET LANCAR",
+                    "total": 33408556,
+                    "item": [
+                        {
+                            "kode": "I.1",
+                            "nama": "Kas Besar",
+                            "nilai": 7347242
+                        },
+                        {
+                            "kode": "I.2",
+                            "nama": "Kas Kecil",
+                            "nilai": 1358168
+                        },
+                        {
+                            "kode": "I.3",
+                            "nama": "Piutang (Kasbon)",
+                            "nilai": 13066000
+                        },
+                        {
+                            "kode": "I.4",
+                            "nama": "Persediaan Bahan Baku (Sate)",
+                            "nilai": 446450
+                        },
+                        {
+                            "kode": "I.5",
+                            "nama": "Persediaan Bahan Baku (Lainnya)",
+                            "nilai": 823821
+                        },
+                        {
+                            "kode": "I.6",
+                            "nama": "Sewa Resto di Muka (11 Bulan)",
+                            "nilai": 9625000
+                        },
+                        {
+                            "kode": "I.7",
+                            "nama": "Sewa Internet di Muka (3 Bulan)",
+                            "nilai": 691875
+                        },
+                        {
+                            "kode": "I.X",
+                            "nama": "Penyesuaian",
+                            "nilai": 50000
+                        }
+                    ]
+                },
+                {
+                    "judul": "II. ASET TETAP",
+                    "total": 32301849,
+                    "item": [
+                        {
+                            "kode": "II.1",
+                            "nama": "Peralatan Besar",
+                            "nilai": 19976539
+                        },
+                        {
+                            "kode": "II.2",
+                            "nama": "Peralatan Kecil",
+                            "nilai": 12325310
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kategori": "PASIVA",
+            "total": 65710405,
+            "subkategori": [
+                {
+                    "judul": "III. HUTANG",
+                    "total": 19191984,
+                    "item": [
+                        {
+                            "kode": "III.1",
+                            "nama": "Hutang Jangka Pendek (Pak Wandi & Gata)",
+                            "nilai": 5238324
+                        },
+                        {
+                            "kode": "III.2",
+                            "nama": "Hutang Jangka Panjang (Bpk. Gata)",
+                            "nilai": 13953660
+                        }
+                    ]
+                },
+                {
+                    "judul": "IV. EKUITAS",
+                    "total": 46518421,
+                    "item": [
+                        {
+                            "kode": "IV.1",
+                            "nama": "Modal",
+                            "nilai": 80000000
+                        },
+                        {
+                            "kode": "IV.2",
+                            "nama": "Laba (Rugi) Ditahan Periode Agustus",
+                            "nilai": -368158
+                        },
+                        {
+                            "kode": "IV.3",
+                            "nama": "Laba (Rugi) Ditahan Periode September",
+                            "nilai": -9352400
+                        },
+                        {
+                            "kode": "IV.4",
+                            "nama": "Laba (Rugi) Ditahan Periode Oktober",
+                            "nilai": -7246100
+                        },
+                        {
+                            "kode": "IV.5",
+                            "nama": "Laba (Rugi) Ditahan Periode November",
+                            "nilai": -6835060
+                        },
+                        {
+                            "kode": "IV.6",
+                            "nama": "Laba (Rugi) Ditahan Periode Berjalan",
+                            "nilai": -9679861
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
