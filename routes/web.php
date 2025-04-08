@@ -9,6 +9,7 @@ use App\Http\Controllers\KasbonController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LaporanKeuangan\ArusKasController;
 use App\Http\Controllers\LaporanKeuangan\LabaRugiController;
+use App\Http\Controllers\LaporanKeuangan\NeracaController;
 use App\Http\Controllers\LapPembelianController;
 use App\Http\Controllers\LapPengirimanController;
 use App\Http\Controllers\LevelHargaController;
@@ -251,6 +252,9 @@ Route::middleware(['auth'])->group(function () {
             });
             Route::prefix('laba-rugi')->as('labarugi.')->group(function () {
                 Route::get('/', [LabaRugiController::class, 'index'])->name('index');
+            });
+            Route::prefix('neraca')->as('neraca.')->group(function () {
+                Route::get('/', [NeracaController::class, 'index'])->name('index');
             });
         });
     });

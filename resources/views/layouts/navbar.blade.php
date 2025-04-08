@@ -141,6 +141,10 @@
                                 <a href="{{ route('laporankeuangan.labarugi.index') }}" class="dropdown-item"><i
                                         class="icon feather icon-file-minus"></i> Laba Rugi</a>
                             </li>
+                            <li>
+                                <a href="{{ route('laporankeuangan.neraca.index') }}" class="dropdown-item"><i
+                                        class="icon feather icon-book"></i> Neraca</a>
+                            </li>
                         </ul>
                     </li>
                 @endif
