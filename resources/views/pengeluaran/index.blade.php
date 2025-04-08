@@ -170,6 +170,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="d-none" id="keteranganHutangContainer">
+                            <div class="form-group">
+                                <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
+                                <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
+                                    placeholder="Masukkan keterangan hutang">
+                            </div>
+                            <div class="form-group">
+                                <label for="jangka_hutang">Jangka Hutang <sup class="text-danger">*</sup></label>
+                                <select class="form-control" id="jangka_hutang" name="jangka_hutang" required>
+                                    <option value="" disabled selected>Pilih Jangka Hutang</option>
+                                    <option value="1">Hutang Jangka Panjang</option>
+                                    <option value="2">Hutang Jangka Pendek</option>
+                                </select>
+                            </div>
+                        </div>
                         <div id="jenisPengeluaranContainer">
                             <div class="form-group">
                                 <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup
@@ -178,12 +193,6 @@
                                     name="id_jenis_pengeluaran">
                                 </select>
                             </div>
-                            {{-- <div class="text-center font-weight-bold">Atau</div>
-                            <div class="form-group">
-                                <label for="nama_jenis">Jenis Pengeluaran Baru <sup class="text-danger">**</sup></label>
-                                <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
-                                    placeholder="Masukkan jenis baru">
-                            </div> --}}
                         </div>
                         <div class="form-group d-none" id="assetContainer">
                             <label for="is_asset">Asset <sup class="text-danger">*</sup></label>
@@ -192,11 +201,6 @@
                                 <option value="Asset Peralatan Kecil">Asset Peralatan Kecil</option>
                                 <option value="Asset Peralatan Besar">Asset Peralatan Besar</option>
                             </select>
-                        </div>
-                        <div class="form-group d-none" id="keteranganHutangContainer">
-                            <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
-                                placeholder="Masukkan keterangan hutang">
                         </div>
                     </form>
                 </div>
@@ -479,8 +483,8 @@
             function toggleHutangFields() {
                 if (isHutangCheckbox.checked) {
                     keteranganHutangContainer.classList.remove("d-none");
-                    jenisPengeluaranContainer.classList.add("d-none");
-                    assetContainer.classList.add("d-none");
+                    // jenisPengeluaranContainer.classList.add("d-none");
+                    // assetContainer.classList.add("d-none");
                 } else {
                     keteranganHutangContainer.classList.add("d-none");
                     jenisPengeluaranContainer.classList.remove("d-none");
@@ -541,18 +545,17 @@
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
                     nilai: $('#nilai').val(),
                     tanggal: $('#tanggal').val(),
+                    id_jenis_pengeluaran: $('#id_jenis_pengeluaran').val(),
                 };
 
                 if (isHutang) {
                     formData.is_hutang = 1;
                     formData.ket_hutang = $('#ket_hutang').val();
-                } else {
-                    formData.id_jenis_pengeluaran = $('#id_jenis_pengeluaran').val();
-                    formData.nama_jenis = $('#nama_jenis').val();
+                    formData.jangka_hutang = $('#jangka_hutang').val();
+                }
 
-                    if (selectedJenisText.trim() === "Biaya Perlengkapan") {
-                        formData.is_asset = $('#is_asset').val();
-                    }
+                if (selectedJenisText.trim() === "Biaya Perlengkapan") {
+                    formData.is_asset = $('#is_asset').val();
                 }
 
                 try {
@@ -844,11 +847,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                                            <div class="d-flex justify-content-between">
-                                                                                                <strong>Keterangan:</strong>
-                                                                                                <span>${data.ket_hutang}</span>
-                                                                                            </div>
-                                                                                            ` : ''}
+                                                                                                        <div class="d-flex justify-content-between">
+                                                                                                            <strong>Keterangan:</strong>
+                                                                                                            <span>${data.ket_hutang}</span>
+                                                                                                        </div>
+                                                                                                        ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
