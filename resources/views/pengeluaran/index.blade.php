@@ -489,11 +489,16 @@
             }
 
             function toggleAssetField() {
-                const selectedText = jenisSelect.find("option:selected").text().trim();
-                if (selectedText === "Biaya Perlengkapan") {
-                    assetContainer.classList.remove("d-none");
+                const selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
+                const assetContainer = $('#assetContainer');
+                const isAssetSelect = $('#is_asset');
+
+                if (selectedJenisText.trim() === "Biaya Perlengkapan") {
+                    assetContainer.removeClass('d-none');
+                    isAssetSelect.prop('required', true);
                 } else {
-                    assetContainer.classList.add("d-none");
+                    assetContainer.addClass('d-none');
+                    isAssetSelect.prop('required', false).val('');
                 }
             }
 
@@ -839,11 +844,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                                        <div class="d-flex justify-content-between">
-                                                                                            <strong>Keterangan:</strong>
-                                                                                            <span>${data.ket_hutang}</span>
-                                                                                        </div>
-                                                                                        ` : ''}
+                                                                                            <div class="d-flex justify-content-between">
+                                                                                                <strong>Keterangan:</strong>
+                                                                                                <span>${data.ket_hutang}</span>
+                                                                                            </div>
+                                                                                            ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
