@@ -69,39 +69,34 @@ class ArusKasService
             ], 404);
         }
 
-        // Group pengeluaran data
-        $pengeluaranGrouped = $pengeluaranList->groupBy(fn($pengeluaran) => Carbon::parse($pengeluaran->tanggal) . '_' . $pengeluaran->toko->id);
-        // Group kasir data
-        $kasirGrouped = $kasirList->groupBy(fn($kasir) => Carbon::parse($kasir->created_at)->toDateString() . '_' . $kasir->toko->id);
+        // Format pengeluaran data without grouping
+        $pengeluaranData = $pengeluaranList->map(function ($pengeluaran) {
+            $rows = [];
 
-        // Format pengeluaran data
-        $pengeluaranData = $pengeluaranGrouped->map(function ($group) {
-            $first = $group->first();
-            $mainRow = [
-                'id' => $first->id,
-                'tgl' => Carbon::parse($first->tanggal)->format('d-m-Y'),
-                'subjek' => "Toko {$first->toko->singkatan}",
-                'kategori' => $first->jenis_pengeluaran ? $first->jenis_pengeluaran->nama_jenis : ($first->ket_hutang ?? 'Tidak Terkategori'),
-                'item' => $first->nama_pengeluaran,
+            // Add main transaction row
+            $rows[] = [
+                'id' => $pengeluaran->id,
+                'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
+                'subjek' => "Toko {$pengeluaran->toko->singkatan}",
+                'kategori' => $pengeluaran->jenis_pengeluaran ? $pengeluaran->jenis_pengeluaran->nama_jenis : ($pengeluaran->ket_hutang ?? 'Tidak Terkategori'),
+                'item' => $pengeluaran->nama_pengeluaran,
                 'jml' => 1,
                 'sat' => "Ls",
-                'hst' => (int)$group->sum('nilai'),
-                'nilai_transaksi' => (int)$group->sum('nilai'),
+                'hst' => (int)$pengeluaran->nilai,
+                'nilai_transaksi' => (int)$pengeluaran->nilai,
                 'kas_kecil_in' => 0,
-                'kas_kecil_out' => $first->is_hutang ? 0 : (int)$group->sum('nilai'),
+                'kas_kecil_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id != 1 ? (int)$pengeluaran->nilai : 0),
                 'kas_besar_in' => 0,
-                'kas_besar_out' => 0,
-                'piutang_in' => $first->is_hutang ? (int)$group->sum('nilai') : 0,
+                'kas_besar_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id == 1 ? (int)$pengeluaran->nilai : 0),
+                'piutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
                 'piutang_out' => 0,
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];
 
-            $rows = [$mainRow];
-
             // Add separate row for piutang_out if it exists
-            if ($first->detail_pengeluaran->isNotEmpty()) {
-                $detailPengeluaran = $first->detail_pengeluaran
+            if ($pengeluaran->detail_pengeluaran->isNotEmpty()) {
+                $detailPengeluaran = $pengeluaran->detail_pengeluaran
                     ->groupBy(function($detail) {
                         return Carbon::parse($detail->created_at)->format('Y-m-d');
                     });
@@ -109,11 +104,11 @@ class ArusKasService
                 foreach ($detailPengeluaran as $date => $details) {
                     $totalNilai = $details->sum('nilai');
                     $rows[] = [
-                        'id' => $first->id,
+                        'id' => $pengeluaran->id,
                         'tgl' => Carbon::parse($date)->format('d-m-Y'),
-                        'subjek' => "Toko {$first->toko->singkatan}",
+                        'subjek' => "Toko {$pengeluaran->toko->singkatan}",
                         'kategori' => 'Pembayaran Piutang',
-                        'item' => 'Pembayaran ' . $first->nama_pengeluaran,
+                        'item' => 'Pembayaran ' . $pengeluaran->nama_pengeluaran,
                         'jml' => 1,
                         'sat' => "Ls",
                         'hst' => (int)$totalNilai,
@@ -157,28 +152,27 @@ class ArusKasService
         });
 
         // Format kasir data
-        $kasirData = $kasirGrouped->map(function ($group) {
-            $first = $group->first();
+        $kasirData = $kasirList->map(function ($kasir) {
             return [
-                'id' => $first->id,
-                'tgl' => Carbon::parse($first->created_at)->format('d-m-Y'),
-                'subjek' => "Toko {$first->toko->singkatan}",
+                'id' => $kasir->id,
+                'tgl' => Carbon::parse($kasir->created_at)->format('d-m-Y'),
+                'subjek' => "Toko {$kasir->toko->singkatan}",
                 'kategori' => "Pendapatan Umum",
                 'item' => "Pendapatan Harian",
                 'jml' => 1,
                 'sat' => "Ls",
-                'hst' => (int)$group->sum('total_nilai'),
-                'nilai_transaksi' => (int)$group->sum('total_nilai'),
-                'kas_kecil_in' => (int)$group->sum('total_nilai'),
+                'hst' => (int)$kasir->total_nilai,
+                'nilai_transaksi' => (int)$kasir->total_nilai,
+                'kas_kecil_in' => (int)$kasir->total_nilai,
                 'kas_kecil_out' => 0,
                 'kas_besar_in' => 0,
                 'kas_besar_out' => 0,
                 'piutang_in' => 0,
-                'piutang_out' => $first->detail_pengeluaran ? (int)$first->detail_pengeluaran->sum('nilai') : 0,
+                'piutang_out' => $kasir->detail_pengeluaran ? (int)$kasir->detail_pengeluaran->sum('nilai') : 0,
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];
-        })->values();
+        });
 
         // Format pemasukan data
         $pemasukanData = $pemasukanList->map(function ($pemasukan) {
