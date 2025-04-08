@@ -410,10 +410,10 @@
             let pinjaman_badge = (data.is_pinjam == 1) ?
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
                 (data.is_pinjam == 2) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang In</span>` :
                 (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i c lass="fa fa-info-circle"></i> Kas Kecil Out</span>`;
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar In</span>` :
+                `<span class="custom-badge badge badge-info"><i c lass="fa fa-info-circle"></i> Kas Kecil In</span>`;
 
             return {
                 id: data?.id ?? '-',
