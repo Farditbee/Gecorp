@@ -185,6 +185,14 @@
                                     placeholder="Masukkan jenis baru">
                             </div> --}}
                         </div>
+                        <div class="form-group d-none" id="assetContainer">
+                            <label for="is_asset">Asset <sup class="text-danger">*</sup></label>
+                            <select class="form-control" id="is_asset" name="is_asset" required>
+                                <option value="" disabled selected>Pilih Jenis Asset</option>
+                                <option value="Asset Peralatan Kecil">Asset Peralatan Kecil</option>
+                                <option value="Asset Peralatan Besar">Asset Peralatan Besar</option>
+                            </select>
+                        </div>
                         <div class="form-group d-none" id="keteranganHutangContainer">
                             <label for="ket_hutang">Keterangan Hutang <sup class="text-danger">*</sup></label>
                             <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
@@ -466,36 +474,33 @@
             const isHutangCheckbox = document.getElementById("is_hutang");
             const keteranganHutangContainer = document.getElementById("keteranganHutangContainer");
             const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
-
-            function toggleInputs() {
-                if (jenisSelect.val()) {
-                    jenisBaruInput.disabled = true;
-                    jenisBaruInput.value = "";
-                } else {
-                    jenisBaruInput.disabled = false;
-                }
-            }
-
-            function toggleSelect() {
-                if (jenisBaruInput.value.trim() !== "") {
-                    jenisSelect.prop("disabled", true).val(null).trigger("change");
-                } else {
-                    jenisSelect.prop("disabled", false);
-                }
-            }
+            const assetContainer = document.getElementById("assetContainer");
 
             function toggleHutangFields() {
                 if (isHutangCheckbox.checked) {
                     keteranganHutangContainer.classList.remove("d-none");
                     jenisPengeluaranContainer.classList.add("d-none");
+                    assetContainer.classList.add("d-none");
                 } else {
                     keteranganHutangContainer.classList.add("d-none");
                     jenisPengeluaranContainer.classList.remove("d-none");
+                    toggleAssetField();
                 }
             }
 
-            // jenisSelect.on("change", toggleInputs);
-            // jenisBaruInput.addEventListener("input", toggleSelect);
+            function toggleAssetField() {
+                const selectedText = jenisSelect.find("option:selected").text().trim();
+                if (selectedText === "Biaya Perlengkapan") {
+                    assetContainer.classList.remove("d-none");
+                } else {
+                    assetContainer.classList.add("d-none");
+                }
+            }
+
+            jenisSelect.on("change", function() {
+                toggleAssetField();
+            });
+
             isHutangCheckbox.addEventListener("change", toggleHutangFields);
 
             $(document).ready(function() {
@@ -524,6 +529,8 @@
                 let actionUrl = $("#formTambahData").data("action-url");
 
                 let isHutang = $("#is_hutang").is(':checked') ? 1 : '';
+                let selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
+
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pengeluaran: $('#nama_pengeluaran').val(),
@@ -537,6 +544,10 @@
                 } else {
                     formData.id_jenis_pengeluaran = $('#id_jenis_pengeluaran').val();
                     formData.nama_jenis = $('#nama_jenis').val();
+
+                    if (selectedJenisText.trim() === "Biaya Perlengkapan") {
+                        formData.is_asset = $('#is_asset').val();
+                    }
                 }
 
                 try {
@@ -828,11 +839,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                                <div class="d-flex justify-content-between">
-                                                                                    <strong>Keterangan:</strong>
-                                                                                    <span>${data.ket_hutang}</span>
-                                                                                </div>
-                                                                                ` : ''}
+                                                                                        <div class="d-flex justify-content-between">
+                                                                                            <strong>Keterangan:</strong>
+                                                                                            <span>${data.ket_hutang}</span>
+                                                                                        </div>
+                                                                                        ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>
