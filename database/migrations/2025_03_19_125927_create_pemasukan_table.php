@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('id_jenis_pemasukan')->nullable();
             $table->double('nilai')->nullable();
             $table->enum('is_pinjam', (['0', '1', '2']));
+            $table->enum('jangka_pinjam', (['1', '2']))->nullable();
             $table->string('ket_pinjam')->nullable();
             $table->date('tanggal');
             $table->timestamps();

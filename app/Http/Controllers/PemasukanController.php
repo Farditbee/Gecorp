@@ -139,7 +139,8 @@ class PemasukanController extends Controller
             'nama_pemasukan' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_pinjam' => 'nullable|in:0,1,2'
+            'is_pinjam' => 'nullable|in:0,1,2',
+            'jangka_pinjam' => 'required_if:is_pinjam,1|nullable|in:1,2'
         ];
 
         if ($is_pinjam) {
