@@ -176,14 +176,6 @@
                                 <input type="text" class="form-control" id="ket_hutang" name="ket_hutang"
                                     placeholder="Masukkan keterangan hutang">
                             </div>
-                            <div class="form-group">
-                                <label for="jangka_hutang">Jangka Hutang <sup class="text-danger">*</sup></label>
-                                <select class="form-control" id="jangka_hutang" name="jangka_hutang" required>
-                                    <option value="" disabled selected>Pilih Jangka Hutang</option>
-                                    <option value="1">Hutang Jangka Panjang</option>
-                                    <option value="2">Hutang Jangka Pendek</option>
-                                </select>
-                            </div>
                         </div>
                         <div id="jenisPengeluaranContainer">
                             <div class="form-group">
@@ -519,7 +511,19 @@
                     minimumResultsForSearch: -1
                 });
             });
+
         }
+
+        $('#modal-form').on('hidden.bs.modal', function() {
+            document.getElementById("is_hutang").checked = false;
+
+            $('#id_jenis_pengeluaran').prop("disabled", false).val(null).trigger("change");
+
+            document.getElementById("keteranganHutangContainer").classList.add("d-none");
+            document.getElementById("jenisPengeluaranContainer").classList.remove("d-none");
+            document.getElementById("assetContainer").classList.add("d-none");
+        });
+
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
@@ -527,6 +531,9 @@
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
+
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('tanggal').value = today;
             });
         }
 
@@ -551,7 +558,6 @@
                 if (isHutang) {
                     formData.is_hutang = 1;
                     formData.ket_hutang = $('#ket_hutang').val();
-                    formData.jangka_hutang = $('#jangka_hutang').val();
                 }
 
                 if (selectedJenisText.trim() === "Biaya Perlengkapan") {
@@ -847,11 +853,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_hutang ? `
-                                                                                                        <div class="d-flex justify-content-between">
-                                                                                                            <strong>Keterangan:</strong>
-                                                                                                            <span>${data.ket_hutang}</span>
-                                                                                                        </div>
-                                                                                                        ` : ''}
+                                                                                                                    <div class="d-flex justify-content-between">
+                                                                                                                        <strong>Keterangan:</strong>
+                                                                                                                        <span>${data.ket_hutang}</span>
+                                                                                                                    </div>
+                                                                                                                    ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pengeluaran:</strong>
                             <span>${data.tanggal}</span>

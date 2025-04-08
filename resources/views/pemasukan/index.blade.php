@@ -169,6 +169,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="d-none" id="keteranganPinjamanContainer">
+                            <div class="form-group">
+                                <label for="ket_pinjam">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
+                                <input type="text" class="form-control" id="ket_pinjam" name="ket_pinjam"
+                                    placeholder="Masukkan keterangan pinjaman">
+                            </div>
+                            <div class="form-group">
+                                <label for="jangka_pinjam">Jangka Hutang <sup class="text-danger">*</sup></label>
+                                <select class="form-control" id="jangka_pinjam" name="jangka_pinjam" required>
+                                    <option value="" disabled selected>Pilih Jangka Hutang</option>
+                                    <option value="1">Hutang Jangka Panjang</option>
+                                    <option value="2">Hutang Jangka Pendek</option>
+                                </select>
+                            </div>
+                        </div>
                         <div id="jenisPemasukanContainer">
                             <div class="form-group">
                                 <label for="id_jenis_pemasukan">Jenis Pemasukan <sup class="text-danger">**</sup></label>
@@ -181,11 +196,6 @@
                                 <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
                                     placeholder="Masukkan jenis baru">
                             </div>
-                        </div>
-                        <div class="form-group d-none" id="keteranganPinjamanContainer">
-                            <label for="ket_pinjam">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
-                            <input type="text" class="form-control" id="ket_pinjam" name="ket_pinjam"
-                                placeholder="Masukkan keterangan pinjaman">
                         </div>
                     </form>
                 </div>
@@ -504,12 +514,27 @@
             });
         }
 
+        $('#modal-form').on('hidden.bs.modal', function() {
+            document.getElementById("is_pinjam").checked = false;
+
+            document.getElementById("nama_jenis").value = "";
+            document.getElementById("nama_jenis").disabled = false;
+
+            $('#id_jenis_pemasukan').prop("disabled", false).val(null).trigger("change");
+
+            document.getElementById("keteranganPinjamanContainer").classList.add("d-none");
+            document.getElementById("jenisPemasukanContainer").classList.remove("d-none");
+        });
+
         async function addData() {
             $(document).on("click", ".add-data", function() {
                 $("#modal-title").html(`Form Tambah Pemasukan`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pemasukan.store') }}');
+
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('tanggal').value = today;
             });
         }
 
@@ -531,6 +556,7 @@
                 if (isPinjaman) {
                     formData.is_pinjam = 1;
                     formData.ket_pinjam = $('#ket_pinjam').val();
+                    formData.jangka_pinjam = $('#jangka_pinjam').val();
                 } else {
                     formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
                     formData.nama_jenis = $('#nama_jenis').val();
@@ -825,11 +851,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_pinjam ? `
-                                                                            <div class="d-flex justify-content-between">
-                                                                                <strong>Keterangan:</strong>
-                                                                                <span>${data.ket_pinjam}</span>
-                                                                            </div>
-                                                                            ` : ''}
+                                                                                        <div class="d-flex justify-content-between">
+                                                                                            <strong>Keterangan:</strong>
+                                                                                            <span>${data.ket_pinjam}</span>
+                                                                                        </div>
+                                                                                        ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pemasukan:</strong>
                             <span>${data.tanggal}</span>
