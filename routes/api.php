@@ -9,6 +9,7 @@ use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasirController;
 use App\Http\Controllers\LaporanKeuangan\ArusKasController;
 use App\Http\Controllers\LaporanKeuangan\LabaRugiController;
+use App\Http\Controllers\LaporanKeuangan\NeracaController;
 use App\Http\Controllers\LevelHargaController;
 use App\Http\Controllers\LevelUserController;
 use App\Http\Controllers\MemberController;
@@ -75,6 +76,8 @@ Route::get('/getRetureSupplier', [RetureSuplierController::class, 'get'])->name(
 Route::get('/detailRetureSupplier', [RetureSuplierController::class, 'detailReture'])->name('master.detailReture');
 
 Route::get('/getBarang', [PengirimanBarangController::class, 'getHargaBarang'])->name('master.getBarangKirim');
+
+Route::get('/neraca', [NeracaController::class, 'getNeraca'])->name('master.getNeraca');
 
 Route::prefix('master')->as('master.')->group(function () {
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
