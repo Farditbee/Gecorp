@@ -146,25 +146,31 @@ class PengeluaranController extends Controller
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
             'is_hutang' => 'nullable|in:0,1,2',
-            'is_asset' => 'nullable|in:Asset Peralatan Kecil,Asset Peralatan Besar'
+            'is_asset' => 'nullable',
+            'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id'
         ];
 
-        if ($is_asset) {
-            $is_hutang = '0';
-            $validation['id_jenis_pengeluaran'] = 'prohibited';
-            $validation['nama_jenis'] = 'prohibited';
-            $validation['ket_hutang'] = 'nullable|string';
-        } else if ($is_hutang === '1') {
+        $messages = [
+            'id_jenis_pengeluaran.required' => 'Jenis pengeluaran tidak dapat dipilih ketika memilih Asset',
+            'is_asset.required' => 'Asset harus dipilih untuk jenis pengeluaran ini',
+            'is_asset.in' => 'Nilai Asset tidak valid'
+        ];
+
+        if ($is_hutang === '1') {
             $validation['ket_hutang'] = 'required|string';
-            $validation['is_asset'] = 'prohibited';
+            $validation['is_asset'] = 'nullable';
+            $validation['id_jenis_pengeluaran'] = 'required';
         } else {
-            $validation['id_jenis_pengeluaran'] = 'nullable|exists:jenis_pengeluaran,id';
-            $validation['nama_jenis'] = 'required_without:id_jenis_pengeluaran|string';
             $validation['ket_hutang'] = 'nullable|string';
-            $validation['is_asset'] = 'prohibited';
+            if ($request->has('id_jenis_pengeluaran') && $request->id_jenis_pengeluaran == 1) {
+                $validation['is_asset'] = 'required|in:Asset Peralatan Kecil,Asset Peralatan Besar';
+            } else {
+                $validation['is_asset'] = 'nullable';
+                $validatedData['is_asset'] = null;
+            }
         }
 
-        $validatedData = $request->validate($validation);
+        $validatedData = $request->validate($validation, $messages);
 
         try {
             DB::beginTransaction();
@@ -182,7 +188,7 @@ class PengeluaranController extends Controller
 
             Pengeluaran::create([
                 'id_toko' => $validatedData['id_toko'],
-                'id_jenis_pengeluaran' => $is_asset ? null : $id_jenis_pengeluaran,
+                'id_jenis_pengeluaran' => $validatedData['id_jenis_pengeluaran'],
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
