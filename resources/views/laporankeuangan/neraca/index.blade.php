@@ -193,7 +193,7 @@
 
             let getDataRest = await renderAPI(
                     'GET',
-                    '{{ asset('dummy/neraca.json') }}', {
+                    '{{ route('master.getNeraca') }}', {
                         page: page,
                         limit: limit,
                         ascending: ascending,
