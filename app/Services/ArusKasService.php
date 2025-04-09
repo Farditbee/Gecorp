@@ -18,39 +18,64 @@ class ArusKasService
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        // Get current month and year if not provided in request
+        // Get month and year from request if provided, otherwise use current month and year
         $month = $request->has('month') ? $request->month : Carbon::now()->month;
         $year = $request->has('year') ? $request->year : Carbon::now()->year;
 
         // Get data from Pengeluaran model with its details
         $pengeluaranQuery = Pengeluaran::with(['toko', 'jenis_pengeluaran', 'detail_pengeluaran'])
             ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->orderBy('id', $meta['orderBy']);
+            ->whereYear('tanggal', $year);
+
+        // Filter by id_toko if provided
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $pengeluaranQuery->whereIn('id_toko', $request->id_toko);
+        }
+
+        $pengeluaranQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from Kasir model
         $kasirQuery = Kasir::with('toko', 'users')
             ->whereMonth('tgl_transaksi', $month)
-            ->whereYear('tgl_transaksi', $year)
-            ->orderBy('id', $meta['orderBy']);
+            ->whereYear('tgl_transaksi', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $kasirQuery->whereIn('id_toko', $request->id_toko);
+        }
+
+        $kasirQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from PembelianBarang model
         $pembelianQuery = PembelianBarang::with('supplier')
             ->whereMonth('tgl_nota', $month)
-            ->whereYear('tgl_nota', $year)
-            ->orderBy('id', $meta['orderBy']);
+            ->whereYear('tgl_nota', $year);
+
+        $pembelianQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from Pemasukan model
         $pemasukanQuery = Pemasukan::with('jenis_pemasukan')
             ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->orderBy('id', $meta['orderBy']);
+            ->whereYear('tanggal', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $pemasukanQuery->whereIn('id_toko', $request->id_toko);
+        }
+
+        $pemasukanQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from Mutasi model
         $mutasiQuery = Mutasi::with(['toko', 'tokoPengirim'])
             ->whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->orderBy('id', $meta['orderBy']);
+            ->whereYear('created_at', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $mutasiQuery->where(function($query) use ($request) {
+                $query->whereIn('id_toko_penerima', $request->id_toko)
+                      ->orWhereIn('id_toko_pengirim', $request->id_toko);
+            });
+        }
+
+        $mutasiQuery->orderBy('id', $meta['orderBy']);
 
         // Get filtered data
         $pengeluaranList = $pengeluaranQuery->get();
@@ -73,8 +98,8 @@ class ArusKasService
         $pengeluaranData = $pengeluaranList->map(function ($pengeluaran) {
             $rows = [];
 
-            // Add main transaction row
-            $rows[] = [
+            // Baris utama (piutang_in jika ada)
+            $mainRow = [
                 'id' => $pengeluaran->id,
                 'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
                 'subjek' => "Toko {$pengeluaran->toko->singkatan}",
@@ -88,44 +113,45 @@ class ArusKasService
                 'kas_kecil_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id != 1 ? (int)$pengeluaran->nilai : 0),
                 'kas_besar_in' => 0,
                 'kas_besar_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id == 1 ? (int)$pengeluaran->nilai : 0),
-                'piutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
                 'piutang_out' => 0,
+                'piutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
                 'hutang_in' => 0,
                 'hutang_out' => 0,
+                'urutan' => 1, // Changed from 0 to 1 to appear after piutang_out
             ];
+            $rows[] = $mainRow;
 
-            // Add separate row for piutang_out if it exists
+            // Detail pembayaran (piutang_out), urutan dimulai dari 1 ke atas
             if ($pengeluaran->detail_pengeluaran->isNotEmpty()) {
                 $detailPengeluaran = $pengeluaran->detail_pengeluaran
-                    ->groupBy(function($detail) {
-                        return Carbon::parse($detail->created_at)->format('Y-m-d');
-                    });
+                    ->sortBy('created_at'); // pastikan terurut tanggalnya
 
-                foreach ($detailPengeluaran as $date => $details) {
-                    $totalNilai = $details->sum('nilai');
+                foreach ($detailPengeluaran as $detail) {
                     $rows[] = [
                         'id' => $pengeluaran->id,
-                        'tgl' => Carbon::parse($date)->format('d-m-Y'),
+                        'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y'),
                         'subjek' => "Toko {$pengeluaran->toko->singkatan}",
                         'kategori' => 'Pembayaran Piutang',
                         'item' => 'Pembayaran ' . $pengeluaran->nama_pengeluaran,
                         'jml' => 1,
                         'sat' => "Ls",
-                        'hst' => (int)$totalNilai,
-                        'nilai_transaksi' => (int)$totalNilai,
+                        'hst' => (int)$detail->nilai,
+                        'nilai_transaksi' => (int)$detail->nilai,
                         'kas_kecil_in' => 0,
                         'kas_kecil_out' => 0,
                         'kas_besar_in' => 0,
                         'kas_besar_out' => 0,
+                        'piutang_out' => (int)$detail->nilai,
                         'piutang_in' => 0,
-                        'piutang_out' => (int)$totalNilai,
                         'hutang_in' => 0,
                         'hutang_out' => 0,
+                        'urutan' => 0, // Changed to 0 to appear before piutang_in
                     ];
                 }
             }
 
-            return $rows;
+            // Urutkan berdasarkan kolom 'urutan' agar piutang_in duluan
+            return collect($rows)->sortBy('urutan')->values();
         })->flatten(1)->values();
 
         // Format pembelian data
@@ -133,9 +159,9 @@ class ArusKasService
             return [
                 'id' => $pembelian->id,
                 'tgl' => Carbon::parse($pembelian->tgl_nota)->format('d-m-Y'),
-                'subjek' => $pembelian->supplier ? $pembelian->supplier->nama_supplier : 'Supplier Tidak Diketahui',
+                'subjek' => "Toko " . ($pembelian->id_toko == 1 ? "GSS" : "Tidak Diketahui"),
                 'kategori' => 'Transaksi',
-                'item' => 'Pembelian Barang',
+                'item' => 'Pembelian Barang di ' . ($pembelian->supplier ? $pembelian->supplier->nama_supplier : 'Supplier Tidak Diketahui'),
                 'jml' => 1,
                 'sat' => 'Ls',
                 'hst' => (int)$pembelian->total_nilai,
@@ -223,9 +249,9 @@ class ArusKasService
                         'kas_kecil_out' => 0,
                         'kas_besar_in' => 0,
                         'kas_besar_out' => 0,
-                        'piutang_in' => 0,
                         'piutang_out' => 0,
-                        'hutang_in' => 0,
+                        'piutang_in' => 0,
+                        'hutang_in' => (int)$totalNilai,
                         'hutang_out' => (int)$totalNilai,
                     ];
                 }
@@ -258,8 +284,8 @@ class ArusKasService
                 'kas_kecil_out' => $mutasi->id_toko_pengirim != 1 ? (int)$mutasi->nilai : 0,
                 'kas_besar_in' => 0,
                 'kas_besar_out' => $mutasi->id_toko_pengirim == 1 ? (int)$mutasi->nilai : 0,
-                'piutang_in' => 0,
                 'piutang_out' => 0,
+                'piutang_in' => 0,
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];

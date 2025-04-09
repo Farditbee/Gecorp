@@ -27,7 +27,6 @@
             overflow-x: auto;
         }
 
-
         #bulan_tahun[readonly] {
             background-color: white !important;
             cursor: pointer !important;
@@ -66,20 +65,16 @@
                         <div class="content">
                             <div class="card-body p-0">
                                 <div class="collapse mt-2" id="filter-collapse">
-                                    <form id="custom-filter" class="row g-2 align-items-center mx-2">
-                                        <div class="col-12 col-md-6 col-lg-4 mb-2">
-                                            <input type="text" id="bulan_tahun" class="form-control"
-                                                placeholder="Pilih Bulan & Tahun" readonly>
+                                    <form id="custom-filter" class="d-flex flex-wrap justify-content-between align-items-center mx-2">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mx-3">
+                                            <input type="text" id="bulan_tahun" class="form-control mr-1 mb-3" style="width: 300px;" placeholder="Pilih Bulan & Tahun" readonly>
+                                            <select name="f_toko" id="f_toko" class="form-control select2 ml-1 mt-1" style="width: 300px;"></select>
                                         </div>
-                                        <div class="col-12 col-md-6 col-lg-6 mb-2">
-                                        </div>
-                                        <div
-                                            class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
-                                            <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
-                                                type="submit">
+                                        <div class="d-flex gap-2 mt-2 mt-md-0 mx-3">
+                                            <button form="custom-filter" class="btn btn-info mr-1" id="tb-filter" type="submit">
                                                 <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                             </button>
-                                            <button type="button" class="btn btn-secondary" id="tb-reset">
+                                            <button type="button" class="btn btn-secondary ml-1" id="tb-reset">
                                                 <i class="fa fa-rotate mr-2"></i>Reset
                                             </button>
                                         </div>
@@ -215,6 +210,11 @@
         let defaultAscending = 0;
         let defaultSearch = '';
         let customFilter = {};
+        let selectOptions = [{
+            id: '#f_toko',
+            isUrl: '{{ route('master.toko') }}',
+            placeholder: 'Pilih Toko'
+        }];
 
         function setInputFilter() {
             const now = new Date();
@@ -289,6 +289,10 @@
             if (customFilter['month'] && customFilter['year']) {
                 filterParams.month = customFilter['month'];
                 filterParams.year = customFilter['year'];
+            }
+
+            if (customFilter['id_toko']) {
+                filterParams.id_toko = customFilter['id_toko'];
             }
 
             let getDataRest = await renderAPI(
@@ -445,6 +449,12 @@
                     month: month || '',
                 };
 
+                let selectedTokoIds = $('#f_toko').val();
+
+                if (selectedTokoIds && selectedTokoIds.length > 0) {
+                    customFilter['id_toko'] = selectedTokoIds;
+                }
+
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
@@ -487,9 +497,9 @@
             return monthNames[monthName] || '';
         }
 
-
         async function initPageLoad() {
             await setDynamicButton();
+            await selectMulti(selectOptions);
             await setInputFilter();
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();

@@ -8,6 +8,7 @@ use App\Models\Pemasukan;
 use App\Models\Pengeluaran;
 use App\Models\JenisPengeluaran;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class LabaRugiController extends Controller
 {
@@ -28,12 +29,27 @@ class LabaRugiController extends Controller
         return view('laporankeuangan.labarugi.index', compact('menu'));
     }
 
-    public function getlabarugi()
+    public function getlabarugi(Request $request)
     {
         try {
-            $penjualanUmum = (int)Kasir::sum('total_nilai');
-            $pendapatanLainnya = Pemasukan::where('is_pinjam', "0")->sum('nilai');
-            $pinjamanModal = Pemasukan::where('is_pinjam', "1")->sum('nilai');
+            // Get month and year from request if provided, otherwise use current month and year
+            $month = $request->has('month') ? $request->month : Carbon::now()->month;
+            $year = $request->has('year') ? $request->year : Carbon::now()->year;
+
+            $penjualanUmum = (int)Kasir::whereMonth('tgl_transaksi', $month)
+                ->whereYear('tgl_transaksi', $year)
+                ->sum('total_nilai');
+
+            $pendapatanLainnya = Pemasukan::where('is_pinjam', "0")
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->sum('nilai');
+
+            $pinjamanModal = Pemasukan::where('is_pinjam', "1")
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->sum('nilai');
+
             $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $pinjamanModal;
 
             // Get all expense types
@@ -43,13 +59,19 @@ class LabaRugiController extends Controller
 
             // Calculate expenses for each type
             foreach ($jenisPengeluaran as $index => $jenis) {
-                $nilai = Pengeluaran::where('id_jenis_pengeluaran', $jenis->id)->sum('nilai');
+                $nilai = Pengeluaran::where('id_jenis_pengeluaran', $jenis->id)
+                    ->whereMonth('tanggal', $month)
+                    ->whereYear('tanggal', $year)
+                    ->sum('nilai');
                 $totalBeban += $nilai;
                 $bebanOperasional[] = ['3.' . ($index + 1) . ' ' . $jenis->nama_jenis, number_format($nilai, 0, ',', '.')];
             }
 
             // Add biaya lain-lain (non-debt expenses)
-            $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')->sum('nilai');
+            $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')
+                ->whereMonth('tanggal', $month)
+                ->whereYear('tanggal', $year)
+                ->sum('nilai');
             $totalBeban += $biayaLainLain;
             $bebanOperasional[] = ['3.11 Biaya Lain-lain', number_format($biayaLainLain, 0, ',', '.')];
 
