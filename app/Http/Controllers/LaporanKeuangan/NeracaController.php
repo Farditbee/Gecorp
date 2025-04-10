@@ -3,15 +3,19 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Pemasukan;
 use App\Services\ArusKasService;
+use App\Services\LabaRugiService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class NeracaController extends Controller
 {
     private array $menu = [];
     protected $arusKasService;
+    protected $labaRugiService;
 
-    public function __construct(ArusKasService $arusKasService)
+    public function __construct(ArusKasService $arusKasService, LabaRugiService $labaRugiService)
     {
         $this->menu;
         $this->title = [
@@ -19,6 +23,7 @@ class NeracaController extends Controller
         ];
 
         $this->arusKasService = $arusKasService;
+        $this->labaRugiService = $labaRugiService;
     }
 
     public function index()
@@ -31,16 +36,70 @@ class NeracaController extends Controller
     public function getNeraca(Request $request)
     {
         try {
+            $month = $request->has('month') ? $request->month : Carbon::now()->month;
+            $year = $request->has('year') ? $request->year : Carbon::now()->year;
+    
             $result = $this->arusKasService->getArusKasData($request);
+    
+            $hutang = Pemasukan::whereIn('is_pinjam', [1, 2])->get();
+
+            $hutangItems = $hutang->values()->map(function ($item, $index) {
+                $jenis = $item->is_pinjam == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
+                return [
+                    "kode" => "III." . ($index + 1),
+                    "nama" => $jenis . ' - ' . $item->nama_pemasukan,
+                    "nilai" => $item->nilai,
+                ];
+            })->toArray();
+    
+            $ekuitasItems = [];
+    
+            for ($i = 1; $i <= $month; $i++) {
+                $periode = Carbon::create($year, $i);
+                $namaPeriode = $periode->translatedFormat('F Y');
+    
+                $nilaiLabaRugi = $this->labaRugiService->hitungLabaRugi($i, $year);
+    
+                $kode = "IV." . ($i + 1); // IV.2 untuk Januari, IV.3 Februari, dst
+    
+                $ekuitasItems[] = [
+                    "kode" => $kode,
+                    "nama" => $i == $month
+                        ? "Laba (Rugi) Berjalan Periode $namaPeriode"
+                        : "Laba (Rugi) Ditahan Periode $namaPeriode",
+                    "nilai" => $nilaiLabaRugi,
+                ];
+            }
+    
+            array_unshift($ekuitasItems, [
+                "kode" => "IV.1",
+                "nama" => "Modal",
+                "nilai" => $result['data_total']['modal']['total_modal'],
+            ]);
+
+            $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
+                 + $result['data_total']['kas_kecil']['saldo_akhir']
+                 + $result['data_total']['piutang']['saldo_akhir'];
+
+            $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
+                + $result['data_total']['aset_kecil']['aset_peralatan_kecil'];
+
+            $totalAktiva = $asetLancarTotal + $asetTetapTotal;
+
+            $totalHutang = collect(array_merge($hutangItems))->sum('nilai');
+            
+            $totalEkuitas = collect($ekuitasItems)->sum('nilai');
+
+            $totalPasiva = $totalHutang + $totalEkuitas;
 
             $data = [
                 [
                     'kategori' => 'AKTIVA',
-                    'total' => 0,
+                    'total' => $totalAktiva,
                     'subkategori' => [
                         [
                             'judul' => 'I. ASET LANCAR',
-                            'total' => 0,
+                            'total' => $asetLancarTotal,
                             'item' => [
                                 [
                                     "kode" => "I.1",
@@ -61,70 +120,47 @@ class NeracaController extends Controller
                         ],
                         [
                             'judul' => 'II. ASET TETAP',
-                            'total' => 0,
+                            'total' => $asetTetapTotal,
                             'item' => [
                                 [
                                     "kode" => "II.1",
                                     "nama" => "Peralatan Besar",
-                                    "nilai" => $result['data_total']['kas_besar']['saldo_akhir'],
+                                    "nilai" => $result['data_total']['aset_besar']['aset_peralatan_besar'],
                                 ],
                                 [
                                     "kode" => "II.2",
-                                    "nama" => "Peralatan Besar",
-                                    "nilai" => $result['data_total']['kas_kecil']['saldo_akhir'],
+                                    "nama" => "Peralatan Kecil",
+                                    "nilai" => $result['data_total']['aset_kecil']['aset_peralatan_kecil'],
                                 ],
                             ],
                         ],
                     ],
                 ],
-
                 [
                     'kategori' => 'PASIVA',
-                    'total' => 0,
+                    'total' => $totalPasiva,
                     'subkategori' => [
                         [
                             'judul' => 'III. HUTANG',
-                            'total' => 0,
-                            'item' => [
-                                [
-                                    "kode" => "III.1",
-                                    "nama" => "Hutang Jangka Pendek (Pak Wandi & Gata)",
-                                    "nilai" => $result['data_total']['kas_besar']['saldo_akhir'],
-                                ],
-                                [
-                                    "kode" => "III.2",
-                                    "nama" => "Hutang Jangka Panjang (Bpk. Gata)",
-                                    "nilai" => $result['data_total']['kas_kecil']['saldo_akhir'],
-                                ],
-                            ],
+                            'total' => $totalHutang,
+                            'item' => $hutangItems,
                         ],
                         [
                             'judul' => 'IV. EKUITAS',
-                            'total' => 0,
-                            'item' => [
-                                [
-                                    "kode" => "IV.1",
-                                    "nama" => "Peralatan Besar",
-                                    "nilai" => $result['data_total']['kas_besar']['saldo_akhir'],
-                                ],
-                                [
-                                    "kode" => "IV.2",
-                                    "nama" => "Peralatan Besar",
-                                    "nilai" => $result['data_total']['kas_kecil']['saldo_akhir'],
-                                ],
-                            ],
+                            'total' => $totalEkuitas,
+                            'item' => $ekuitasItems,
                         ],
                     ],
                 ],
             ];
-
+    
             return response()->json([
                 'data' => $data,
                 'status_code' => 200,
                 'errors' => false,
                 'message' => 'Berhasil'
             ], 200);
-
+    
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
@@ -134,4 +170,5 @@ class NeracaController extends Controller
             ]);
         }
     }
+    
 }

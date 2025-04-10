@@ -342,6 +342,31 @@ class ArusKasService
         $hutang_saldo_awal = 0;
         $hutang_saldo_akhir = $hutang_saldo_berjalan - $hutang_saldo_awal;
 
+        $asetPeralatanBesar = $pengeluaranList->where('is_asset', 'Asset Peralatan Besar')->sum('nilai');
+        $asetPeralatanKecil = $pengeluaranList->where('is_asset', 'Asset Peralatan Kecil')->sum('nilai');
+
+        $modal = $pemasukanList->where('id_jenis_pemasukan', 1)->sum('nilai');
+
+        $hutangPendek = $pemasukanList->where('is_pinjam', 1);
+        $hutangPanjang = $pemasukanList->where('is_pinjam', 2);
+
+        // Mapping data hutang menjadi format item
+        $hutangPendekItems = $hutangPendek->map(function ($item, $index) {
+            return [
+                "kode" => "III.1." . ($index + 1),
+                "nama" => $item->nama_pemasukan,
+                "nilai" => $item->nilai,
+            ];
+        })->toArray();
+
+        $hutangPanjangItems = $hutangPanjang->map(function ($item, $index) {
+            return [
+                "kode" => "III.2." . ($index + 1),
+                "nama" => $item->nama_pemasukan,
+                "nilai" => $item->nilai,
+            ];
+        })->toArray();
+
         $data_total = [
             'kas_kecil' => [
                 'saldo_awal' => $saldo_awal,
@@ -371,11 +396,24 @@ class ArusKasService
                 'hutang_in' => $hutang_in,
                 'hutang_out' => $hutang_out,
             ],
+            'aset_besar' => [
+                'aset_peralatan_besar' => $asetPeralatanBesar,
+            ],
+            'aset_kecil' => [
+                'aset_peralatan_kecil' => $asetPeralatanKecil,
+            ],
+            'modal' => [
+                'total_modal' => $modal,
+            ]
         ];
 
-            return [
-                    'data' => $data,
-                    'data_total' => $data_total,
-                ];
+        return [
+                'data' => $data,
+                'data_total' => $data_total,
+                'hutang' => [
+                    'pendek' => $hutangPendekItems,
+                    'panjang' => $hutangPanjangItems,
+                ],
+            ];
     }
 }

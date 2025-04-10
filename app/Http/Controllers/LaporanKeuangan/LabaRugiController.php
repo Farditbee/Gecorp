@@ -72,11 +72,14 @@ class LabaRugiController extends Controller
                 ->whereMonth('tanggal', $month)
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
+                 
             $totalBeban += $biayaLainLain;
             $bebanOperasional[] = ['3.11 Biaya Lain-lain', number_format($biayaLainLain, 0, ',', '.')];
 
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
+
+            $total_labarugi = $totalPendapatan - $totalBeban;
 
             $data = [
                 [
