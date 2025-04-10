@@ -65,13 +65,17 @@
                         <div class="content">
                             <div class="card-body p-0">
                                 <div class="collapse mt-2" id="filter-collapse">
-                                    <form id="custom-filter" class="d-flex flex-wrap justify-content-between align-items-center mx-2">
+                                    <form id="custom-filter"
+                                        class="d-flex flex-wrap justify-content-between align-items-center mx-2">
                                         <div class="d-flex flex-wrap align-items-center gap-2 mx-3">
-                                            <input type="text" id="bulan_tahun" class="form-control mr-1 mb-3" style="width: 300px;" placeholder="Pilih Bulan & Tahun" readonly>
-                                            <select name="f_toko" id="f_toko" class="form-control select2 ml-1 mt-1" style="width: 300px;"></select>
+                                            <input type="text" id="bulan_tahun" class="form-control mr-1 mb-3"
+                                                style="width: 300px;" placeholder="Pilih Bulan & Tahun" readonly>
+                                            <select name="f_toko" id="f_toko" class="form-control select2 ml-1 mt-1"
+                                                style="width: 300px;"></select>
                                         </div>
                                         <div class="d-flex gap-2 mt-2 mt-md-0 mx-3">
-                                            <button form="custom-filter" class="btn btn-info mr-1" id="tb-filter" type="submit">
+                                            <button form="custom-filter" class="btn btn-info mr-1" id="tb-filter"
+                                                type="submit">
                                                 <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                             </button>
                                             <button type="button" class="btn btn-secondary ml-1" id="tb-reset">
@@ -428,6 +432,11 @@
         async function filterList() {
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
+                const now = new Date();
+                const yearDefault = now.getFullYear();
+                const monthTextDefault = now.toLocaleString('id-ID', {
+                    month: 'long'
+                });
 
                 let bulanTahun = document.getElementById("bulan_tahun").value.trim();
 
@@ -460,7 +469,7 @@
                 currentPage = 1;
 
                 $('#time-report').html(
-                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText}</b> Tahun <b class="text-primary">${year}</b>)`
+                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText || monthTextDefault}</b> Tahun <b class="text-primary">${year || yearDefault}</b>)`
                 );
 
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
