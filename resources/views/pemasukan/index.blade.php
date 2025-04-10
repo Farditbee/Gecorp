@@ -177,7 +177,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="jangka_pinjam">Jangka Hutang <sup class="text-danger">*</sup></label>
-                                <select class="form-control" id="jangka_pinjam" name="jangka_pinjam" required>
+                                <select class="form-control" id="jangka_pinjam" name="jangka_pinjam">
                                     <option value="" disabled selected>Pilih Jangka Hutang</option>
                                     <option value="1">Hutang Jangka Panjang</option>
                                     <option value="2">Hutang Jangka Pendek</option>
