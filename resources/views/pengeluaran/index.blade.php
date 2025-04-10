@@ -489,7 +489,7 @@
                 const assetContainer = $('#assetContainer');
                 const isAssetSelect = $('#is_asset');
 
-                if (selectedJenisText.trim() === "Biaya Perlengkapan") {
+                if (selectedJenisText.trim() === "Pembelian Asset") {
                     assetContainer.removeClass('d-none');
                     isAssetSelect.prop('required', true);
                 } else {
@@ -560,7 +560,7 @@
                     formData.ket_hutang = $('#ket_hutang').val();
                 }
 
-                if (selectedJenisText.trim() === "Biaya Perlengkapan") {
+                if (selectedJenisText.trim() === "Pembelian Asset") {
                     formData.is_asset = $('#is_asset').val();
                 }
 
