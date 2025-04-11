@@ -430,6 +430,17 @@
         }
 
         async function filterList() {
+            function defaultTime(monthText, year) {
+                const now = new Date();
+                const yearDefault = now.getFullYear();
+                const monthTextDefault = now.toLocaleString('id-ID', {
+                    month: 'long'
+                });
+                $('#time-report').html(
+                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText || monthTextDefault}</b> Tahun <b class="text-primary">${year || yearDefault}</b>)`
+                );
+            }
+
             document.getElementById('custom-filter').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 const now = new Date();
@@ -468,10 +479,7 @@
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
-                $('#time-report').html(
-                    `<i class="fa fa-calendar mr-1"></i><b>${title}</b> (Bulan <b class="text-primary">${monthText || monthTextDefault}</b> Tahun <b class="text-primary">${year || yearDefault}</b>)`
-                );
-
+                await defaultTime(monthText, year);
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
@@ -483,6 +491,8 @@
                 defaultSearch = $('.tb-search').val();
                 defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
+
+                await defaultTime(null, null);
                 await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch,
                     customFilter);
             });
