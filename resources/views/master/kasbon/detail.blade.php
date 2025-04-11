@@ -77,7 +77,7 @@
                                     </ul>
                                 </div>
                             </div>
-                            @if ($kasbon == 'BL')
+                            @if ($kasbon->status == 'BL')
                                 <div id="item-container">
                                     <div class="item-group">
                                         <div class="row">
