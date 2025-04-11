@@ -857,7 +857,7 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data.data > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleTopPenjualan(item))
                 );
@@ -953,7 +953,7 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data.data > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleTopMember(item))
                 );
