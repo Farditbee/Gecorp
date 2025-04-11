@@ -53,6 +53,12 @@ class LabaRugiController extends Controller
 
             $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $pinjamanModal;
 
+            // Calculate HPP from pembelian_barang
+            $hpp = DB::table('pembelian_barang')
+                ->whereMonth('tgl_nota', $month)
+                ->whereYear('tgl_nota', $year)
+                ->sum('total_nilai');
+
             // Get all expense types except id 11
             $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
             $bebanOperasional = [];
@@ -103,10 +109,12 @@ class LabaRugiController extends Controller
                 ],
                 [
                     'II. HPP',
-                    []
+                    [
+                        ['Total HPP', number_format($hpp, 0, ',', '.')]
+                    ]
                 ],
                 [
-                    'III. Beban Operasional',
+                    'III. Biaya Pengeluaran',
                     $bebanOperasional
                 ]
             ];

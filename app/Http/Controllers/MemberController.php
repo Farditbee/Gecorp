@@ -29,21 +29,21 @@ class MemberController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
-    
+
         $query = Member::query();
-    
+
         $query->with(['toko', 'levelHarga', 'jenis_barang'])->orderBy('id', $meta['orderBy']);
-    
+
         if ($request->has('id_toko')) {
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
                 $query->where('id_toko', $idToko);
             }
         }
-    
+
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
-    
+
             $query->where(function ($query) use ($searchTerm) {
                 if ($searchTerm === 'guest') {
                     $query->where('id_member', 0);
@@ -51,28 +51,28 @@ class MemberController extends Controller
                     $query->orWhereRaw("LOWER(nama_member) LIKE ?", ["%$searchTerm%"]);
                     $query->orWhereRaw("LOWER(no_hp) LIKE ?", ["%$searchTerm%"]);
                     $query->orWhereRaw("LOWER(alamat) LIKE ?", ["%$searchTerm%"]);
-    
+
                     $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
                         $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                     });
                 }
             });
         }
-    
+
         $data = $query->paginate($meta['limit']);
-    
+
         $paginationMeta = [
             'total'        => $data->total(),
             'per_page'     => $data->perPage(),
             'current_page' => $data->currentPage(),
             'total_pages'  => $data->lastPage()
         ];
-    
+
         $data = [
             'data' => $data->items(),
             'meta' => $paginationMeta
         ];
-    
+
         if (empty($data['data'])) {
             return response()->json([
                 'status_code' => 400,
@@ -80,21 +80,21 @@ class MemberController extends Controller
                 'message' => 'Tidak ada data'
             ], 400);
         }
-    
+
         $mappedData = collect($data['data'])->map(function ($item) {
             $idLevelHarga = is_array($item->id_level_harga) ? $item->id_level_harga : json_decode($item->id_level_harga, true);
-    
+
             if (!is_array($idLevelHarga) || empty($idLevelHarga)) {
                 $idLevelHarga = [];
             }
-    
+
             $levelData = [];
             if (!empty($idLevelHarga)) {
                 $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
                     ->get(['jenis_barang', 'nama_level_harga as level_harga'])
                     ->toArray();
             }
-    
+
             $selectedLevels = [];
             if (!empty($item->level_info)) {
                 foreach (json_decode($item->level_info, true) as $info) {
@@ -102,7 +102,7 @@ class MemberController extends Controller
                     if (!empty($matches)) {
                         $jenisBarang = \App\Models\JenisBarang::find($matches[1]);
                         $levelHarga = \App\Models\LevelHarga::find($matches[2]);
-    
+
                         if ($jenisBarang && $levelHarga) {
                             $selectedLevels[] = [
                                 'nama_jenis_barang' => $jenisBarang->nama_jenis_barang,
@@ -112,7 +112,7 @@ class MemberController extends Controller
                     }
                 }
             }
-    
+
             return [
                 'id' => $item['id'],
                 'nama_member' => $item['nama_member'],
@@ -122,7 +122,7 @@ class MemberController extends Controller
                 'alamat' => $item->alamat,
             ];
         });
-    
+
         return response()->json([
             'data' => $mappedData,
             'status_code' => 200,
@@ -131,7 +131,7 @@ class MemberController extends Controller
             'pagination' => $data['meta']
         ], 200);
     }
-    
+
     public function index()
     {
         if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
@@ -188,7 +188,7 @@ class MemberController extends Controller
 
         return response()->json(['error' => 'Toko tidak ditemukan'], 404);
     }
-    
+
     public function create()
     {
         $toko = Toko::all();
@@ -255,49 +255,54 @@ class MemberController extends Controller
 
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate(
-            [
-                'id_toko' => 'required',
-                'nama_member' => 'required',
-                'no_hp' => 'required',
-                'alamat' => 'required'
-            ],
-            [
-                'id_toko.required' => 'Toko Wajib diisi.',
-                'nama_member.required' => 'Nama Member tidak boleh kosong',
-                'no_hp.required' => 'No Hp Wajib diisi',
-                'alamat.required' => 'Alamat Wajib diisi',
-            ]
-        );
-
-        ActivityLogger::log('Update Member', ['id' => $id, 'data' => $request->all()]);
-
-        $level_harga = $request->input('level_harga');
-
-        $levelInfo = [];
-        foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
-            if (!empty($level_harga_id)) {
-                $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
-            }
-        }
-
         try {
+            DB::beginTransaction();
+
+            $validatedData = $request->validate(
+                [
+                ],
+                [
+                ]
+            );
 
             $member = Member::findOrFail($id);
 
-            $member->update([
+            $level_harga = $request->input('level_harga', []);
+
+            $levelInfo = [];
+            if (!empty($level_harga)) {
+                foreach ($level_harga as $jenis_barang_id => $level_harga_id) {
+                    if (!empty($level_harga_id)) {
+                        $levelInfo[] = "{$jenis_barang_id} : {$level_harga_id}";
+                    }
+                }
+            }
+
+            $updateData = [
                 'id_toko' => $request->id_toko,
                 'nama_member' => $request->nama_member,
                 'no_hp' => $request->no_hp,
                 'alamat' => $request->alamat,
                 'level_info' => json_encode($levelInfo),
-            ]);
+            ];
 
-        } catch (\Throwable $th) {
-            return redirect()->route('master.member.index')->with('error', $th->getMessage())->withInput();
+            $updated = $member->update($updateData);
+
+            if (!$updated) {
+                throw new \Exception('Gagal memperbarui data member');
+            }
+
+            ActivityLogger::log('Update Member', ['id' => $id, 'data' => $updateData]);
+
+            DB::commit();
+            return redirect()->route('master.member.index')->with('success', 'Sukses memperbarui Member');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('master.member.index')
+                ->with('error', 'Gagal memperbarui Member: ' . $e->getMessage())
+                ->withInput();
         }
-
-        return redirect()->route('master.member.index')->with('success', 'Sukses memperbarui Member');
     }
 
     public function delete(string $id)
