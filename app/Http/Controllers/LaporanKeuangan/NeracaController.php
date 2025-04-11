@@ -60,7 +60,7 @@ class NeracaController extends Controller
     
                 $nilaiLabaRugi = $this->labaRugiService->hitungLabaRugi($i, $year);
     
-                $kode = "IV." . ($i + 1); // IV.2 untuk Januari, IV.3 Februari, dst
+                $kode = "IV." . ($i + 1);
     
                 $ekuitasItems[] = [
                     "kode" => $kode,
