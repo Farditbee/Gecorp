@@ -10,6 +10,7 @@ use App\Models\PembelianBarang;
 use App\Models\Pemasukan;
 use App\Models\DetailPemasukan;
 use App\Models\Mutasi;
+use App\Models\Toko;
 
 class ArusKasService
 {
@@ -48,9 +49,8 @@ class ArusKasService
         // Get data from PembelianBarang model
         $pembelianQuery = PembelianBarang::with('supplier')
             ->whereMonth('tgl_nota', $month)
-            ->whereYear('tgl_nota', $year);
-
-        $pembelianQuery->orderBy('id', $meta['orderBy']);
+            ->whereYear('tgl_nota', $year)
+            ->orderBy('id', $meta['orderBy']);
 
         // Get data from Pemasukan model
         $pemasukanQuery = Pemasukan::with('jenis_pemasukan')
@@ -69,9 +69,9 @@ class ArusKasService
             ->whereYear('created_at', $year);
 
         if ($request->has('id_toko') && is_array($request->id_toko)) {
-            $mutasiQuery->where(function($query) use ($request) {
+            $mutasiQuery->where(function ($query) use ($request) {
                 $query->whereIn('id_toko_penerima', $request->id_toko)
-                      ->orWhereIn('id_toko_pengirim', $request->id_toko);
+                    ->orWhereIn('id_toko_pengirim', $request->id_toko);
             });
         }
 
@@ -103,7 +103,7 @@ class ArusKasService
                 'id' => $pengeluaran->id,
                 'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
                 'subjek' => "Toko {$pengeluaran->toko->singkatan}",
-                'kategori' => $pengeluaran->jenis_pengeluaran ? $pengeluaran->jenis_pengeluaran->nama_jenis : ($pengeluaran->ket_hutang ?? 'Tidak Terkategori'),
+                'kategori' => 'Pengeluaran ' . ($pengeluaran->jenis_pengeluaran ? $pengeluaran->jenis_pengeluaran->nama_jenis : ($pengeluaran->ket_hutang ?? 'Tidak Terkategori')),
                 'item' => $pengeluaran->nama_pengeluaran,
                 'jml' => 1,
                 'sat' => "Ls",
@@ -155,12 +155,19 @@ class ArusKasService
         })->flatten(1)->values();
 
         // Format pembelian data
-        $pembelianData = $pembelianList->map(function ($pembelian) {
+        $pembeliansup = Toko::where('id', 1)->first();
+        $idTokoRequest = request()->input('id_toko');
+
+        $pembelianData = $pembelianList->map(function ($pembelian) use ($pembeliansup, $idTokoRequest) {
+            if (is_array($idTokoRequest) && !in_array(1, $idTokoRequest)) {
+                return null;
+            }
+
             return [
                 'id' => $pembelian->id,
                 'tgl' => Carbon::parse($pembelian->tgl_nota)->format('d-m-Y'),
-                'subjek' => "Toko " . ($pembelian->id_toko == 1 ? "GSS" : "Tidak Diketahui"),
-                'kategori' => 'Transaksi',
+                'subjek' => 'Toko ' . ($pembeliansup ? $pembeliansup->nama_toko : 'Tidak Diketahui'),
+                'kategori' => 'Transaksi Supplier',
                 'item' => 'Pembelian Barang di ' . ($pembelian->supplier ? $pembelian->supplier->nama_supplier : 'Supplier Tidak Diketahui'),
                 'jml' => 1,
                 'sat' => 'Ls',
@@ -175,7 +182,7 @@ class ArusKasService
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];
-        });
+        })->filter();
 
         // Format kasir data
         $kasirData = $kasirList->map(function ($kasir) {
@@ -229,7 +236,7 @@ class ArusKasService
             if ($pemasukan->is_pinjam) {
                 $detailPemasukan = DetailPemasukan::where('id_pemasukan', $pemasukan->id)
                     ->get()
-                    ->groupBy(function($detail) {
+                    ->groupBy(function ($detail) {
                         return Carbon::parse($detail->created_at)->format('Y-m-d');
                     });
 
@@ -408,12 +415,12 @@ class ArusKasService
         ];
 
         return [
-                'data' => $data,
-                'data_total' => $data_total,
-                'hutang' => [
-                    'pendek' => $hutangPendekItems,
-                    'panjang' => $hutangPanjangItems,
-                ],
-            ];
+            'data' => $data,
+            'data_total' => $data_total,
+            'hutang' => [
+                'pendek' => $hutangPendekItems,
+                'panjang' => $hutangPanjangItems,
+            ],
+        ];
     }
 }

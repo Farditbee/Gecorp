@@ -24,6 +24,7 @@ class JenisPengeluaranSeeder extends Seeder
             ["id" => 8, "nama_jenis" => "Biaya K3"],
             ["id" => 9, "nama_jenis" => "Biaya Perbaikan Bangunan"],
             ["id" => 10, "nama_jenis" => "Biaya Tak Terduga"],
+            ["id" => 11, "nama_jenis" => "Pembelian Asset"],
         ]);
 
     }

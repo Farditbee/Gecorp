@@ -177,6 +177,7 @@ class PemasukanController extends Controller
                 'tanggal' => $validatedData['tanggal'],
                 'is_pinjam' => $is_pinjam,
                 'ket_pinjam' => $validatedData['ket_pinjam'] ?? null,
+                'jangka_pinjam' => $is_pinjam == '1' ? $validatedData['jangka_pinjam'] : null,
             ]);
 
             DB::commit();

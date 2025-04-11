@@ -9,6 +9,7 @@ use App\Models\Pengeluaran;
 use App\Models\JenisPengeluaran;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class LabaRugiController extends Controller
 {
@@ -45,15 +46,15 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            $pinjamanModal = Pemasukan::where('is_pinjam', "1")
+            $pinjamanModal = Pemasukan::whereIn('is_pinjam', ["1", "2"])
                 ->whereMonth('tanggal', $month)
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
             $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $pinjamanModal;
 
-            // Get all expense types
-            $jenisPengeluaran = JenisPengeluaran::all();
+            // Get all expense types except id 11
+            $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
             $bebanOperasional = [];
             $totalBeban = 0;
 
@@ -67,14 +68,23 @@ class LabaRugiController extends Controller
                 $bebanOperasional[] = ['3.' . ($index + 1) . ' ' . $jenis->nama_jenis, number_format($nilai, 0, ',', '.')];
             }
 
-            // Add biaya lain-lain (non-debt expenses)
+            // Add biaya lain-lain (debt expenses) - removed from total as it's already counted in jenisPengeluaran
             $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')
                 ->whereMonth('tanggal', $month)
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
-                 
-            $totalBeban += $biayaLainLain;
-            $bebanOperasional[] = ['3.11 Biaya Lain-lain', number_format($biayaLainLain, 0, ',', '.')];
+
+            // Calculate Biaya Pembayaran Pinjaman from detail_pemasukan
+            $biayaPembayaranPinjaman = DB::table('detail_pemasukan')
+                ->join('pemasukan', 'detail_pemasukan.id_pemasukan', '=', 'pemasukan.id')
+                ->whereMonth('detail_pemasukan.created_at', $month)
+                ->whereYear('detail_pemasukan.created_at', $year)
+                ->sum('detail_pemasukan.nilai');
+
+            $totalBeban += $biayaPembayaranPinjaman;
+
+            // Add Biaya Pembayaran Pinjaman with the calculated value
+            $bebanOperasional[] = ['3.11 Biaya Pembayaran Pinjaman', number_format($biayaPembayaranPinjaman, 0, ',', '.')];
 
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
