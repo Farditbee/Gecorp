@@ -38,6 +38,30 @@ class UserSeeder extends Seeder
             "no_hp" => 836268927,
         ]);
 
+        User::create([
+            "id" => 3,
+            "id_toko" => 3,
+            "id_level" => 3,
+            "nama" => "gec_admingec",
+            "username" => "admingec",
+            "password" =>bcrypt("admin123"),
+            "email" => "gec@gmail.com",
+            "alamat" => "Cirebon",
+            "no_hp" => 836268927,
+        ]);
+
+        User::create([
+            "id" => 4,
+            "id_toko" => 4,
+            "id_level" => 3,
+            "nama" => "gps_admingps",
+            "username" => "admingps",
+            "password" =>bcrypt("admin123"),
+            "email" => "gps@gmail.com",
+            "alamat" => "Cirebon",
+            "no_hp" => 836268927,
+        ]);
+
         // Level User Seeder
         LevelUser::create([
             "id" => 1,
@@ -87,6 +111,24 @@ class UserSeeder extends Seeder
             "id_level_harga" => json_encode(["5","4","3","2"]),
             "wilayah" => "Semarang",
             "alamat" => "IDHsheu",
+        ]);
+
+        Toko::create([
+            "id" => 3,
+            "nama_toko" => "GEC Phone",
+            "singkatan" => "GEC",
+            "id_level_harga" => json_encode(["5","4","3","2"]),
+            "wilayah" => "Cirebon",
+            "alamat" => "Plumbon",
+        ]);
+
+        Toko::create([
+            "id" => 4,
+            "nama_toko" => "GPS Laptop",
+            "singkatan" => "GPS",
+            "id_level_harga" => json_encode(["5","4","3","2"]),
+            "wilayah" => "Cirebon",
+            "alamat" => "Plered",
         ]);
     }
 }

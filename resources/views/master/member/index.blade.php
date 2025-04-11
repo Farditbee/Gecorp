@@ -168,10 +168,10 @@
         <div class="modal fade bd-example-modal-lg" id="editMemberModal{{ $mbr->id }}" tabindex="-1"
             role="dialog" aria-labelledby="editMemberModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
-                <form action="{{ route('master.member.update', $mbr->id) }}" method="post">
-                    @csrf
-                    @method('put')
-                    <div class="modal-content">
+                <div class="modal-content">
+                    <form action="{{ route('master.member.update', $mbr->id) }}" method="post">
+                        @csrf
+                        @method('put')
                         <div class="modal-header">
                             <h5 class="modal-title" id="editMemberModalLabel">Edit Data Member</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -190,10 +190,11 @@
                             <div class="form-group">
                                 <label for="id_toko_{{ $mbr->id }}" class=" form-control-label">Nama Toko<span
                                         style="color: red">*</span></label>
-                                <select name="id_toko" id="selectors" class="form-control">
-                                    <option value="" required>~Silahkan Pilih Toko~</option>
+                                <select name="id_toko" id="selectors" class="form-control" required>
+                                    <option value="">~Silahkan Pilih Toko~</option>
                                     @foreach ($toko as $tk)
-                                        <option value="{{ $tk->id }}" {{ count($toko) === 1 ? 'selected' : '' }}>
+                                        <option value="{{ $tk->id }}"
+                                            {{ old('id_toko', $mbr->id_toko) == $tk->id ? 'selected' : '' }}>
                                             {{ $tk->nama_toko }}
                                         </option>
                                     @endforeach
@@ -239,8 +240,8 @@
                             <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                             <button type="submit" class="btn btn-primary">Update</button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     @endforeach
@@ -441,7 +442,7 @@
                 @foreach ($jenis_barang as $jb)
                     (function(jbId) {
                         var levelHargaDropdown = document.getElementById('level_harga_' +
-                        jbId); // Get the level_harga dropdown for this type of good
+                            jbId); // Get the level_harga dropdown for this type of good
 
                         // Reset the dropdown
                         levelHargaDropdown.innerHTML = '<option value="">~Silahkan Pilih~</option>';
@@ -464,7 +465,7 @@
                                             var option = document.createElement('option');
                                             option.value = level.id; // Level price ID
                                             option.text = level
-                                            .nama_level_harga; // Level price name
+                                                .nama_level_harga; // Level price name
                                             levelHargaDropdown.appendChild(option);
                                         });
                                     } else {
@@ -487,8 +488,8 @@
 
             const element = document.getElementById('selectors');
             const choices = new Choices(element, {
-                removeItemButton: true, // Allow removing items
-                searchEnabled: true, // Enable search
+                removeItemButton: true,
+                searchEnabled: true,
             });
 
             // document.addEventListener('DOMContentLoaded', function() {
