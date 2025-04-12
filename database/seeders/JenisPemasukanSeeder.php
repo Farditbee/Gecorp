@@ -15,7 +15,7 @@ class JenisPemasukanSeeder extends Seeder
     {
         JenisPemasukan::create([
             "id" => 1,
-            "nama_jenis" => "Tambahan Biaya",
+            "nama_jenis" => "Modal Awal",
         ]);
     }
 }

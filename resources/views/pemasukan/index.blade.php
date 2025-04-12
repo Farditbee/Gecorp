@@ -149,8 +149,8 @@
                             <div class="col-md-2">
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal <sup class="text-danger">*</sup></label>
-                                    <input type="date" class="form-control" id="tanggal" name="tanggal"
-                                        placeholder="Masukkan tanggal" required>
+                                    <input type="datetime-local" class="form-control" id="tanggal" name="tanggal"
+                                        placeholder="Masukkan tanggal" required value="{{ now()->format('Y-m-d\TH:i') }}">
                                 </div>
                             </div>
                         </div>

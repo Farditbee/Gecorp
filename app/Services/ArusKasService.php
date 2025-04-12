@@ -114,8 +114,8 @@ class ArusKasService
                 'kas_besar_in' => 0,
                 'kas_besar_out' => $pengeluaran->is_hutang ? 0 : ($pengeluaran->toko->id == 1 ? (int)$pengeluaran->nilai : 0),
                 'piutang_out' => 0,
-                'piutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
-                'hutang_in' => 0,
+                'piutang_in' => 0,
+                'hutang_in' => $pengeluaran->is_hutang ? (int)$pengeluaran->nilai : 0,
                 'hutang_out' => 0,
                 'urutan' => 1, // Changed from 0 to 1 to appear after piutang_out
             ];
@@ -141,10 +141,10 @@ class ArusKasService
                         'kas_kecil_out' => 0,
                         'kas_besar_in' => 0,
                         'kas_besar_out' => 0,
-                        'piutang_out' => (int)$detail->nilai,
+                        'piutang_out' => 0,
                         'piutang_in' => 0,
                         'hutang_in' => 0,
-                        'hutang_out' => 0,
+                        'hutang_out' => (int)$detail->nilai,
                         'urutan' => 0, // Changed to 0 to appear before piutang_in
                     ];
                 }
@@ -185,27 +185,34 @@ class ArusKasService
         })->filter();
 
         // Format kasir data
-        $kasirData = $kasirList->map(function ($kasir) {
-            return [
-                'id' => $kasir->id,
-                'tgl' => Carbon::parse($kasir->created_at)->format('d-m-Y'),
-                'subjek' => "Toko {$kasir->toko->singkatan}",
-                'kategori' => "Pendapatan Umum",
-                'item' => "Pendapatan Harian",
-                'jml' => 1,
-                'sat' => "Ls",
-                'hst' => (int)$kasir->total_nilai,
-                'nilai_transaksi' => (int)$kasir->total_nilai,
-                'kas_kecil_in' => (int)$kasir->total_nilai,
-                'kas_kecil_out' => 0,
-                'kas_besar_in' => 0,
-                'kas_besar_out' => 0,
-                'piutang_in' => 0,
-                'piutang_out' => $kasir->detail_pengeluaran ? (int)$kasir->detail_pengeluaran->sum('nilai') : 0,
-                'hutang_in' => 0,
-                'hutang_out' => 0,
-            ];
-        });
+        $kasirData = $kasirList
+            ->groupBy(function ($kasir) {
+                return $kasir->toko->singkatan . '_' . Carbon::parse($kasir->created_at)->format('d-m-Y');
+            })
+            ->map(function ($groupedKasir) {
+                $firstKasir = $groupedKasir->first();
+                return [
+                    'id' => $firstKasir->id,
+                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y'),
+                    'subjek' => "Toko {$firstKasir->toko->singkatan}",
+                    'kategori' => "Pendapatan Umum",
+                    'item' => "Pendapatan Harian",
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => (int)$groupedKasir->sum('total_nilai'),
+                    'nilai_transaksi' => (int)$groupedKasir->sum('total_nilai'),
+                    'kas_kecil_in' => (int)$groupedKasir->sum('total_nilai'),
+                    'kas_kecil_out' => 0,
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => $groupedKasir->sum(function ($kasir) {
+                        return $kasir->detail_pengeluaran ? (int)$kasir->detail_pengeluaran->sum('nilai') : 0;
+                    }),
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ];
+            })->values();
 
         // Format pemasukan data
         $pemasukanData = $pemasukanList->map(function ($pemasukan) {
@@ -222,9 +229,9 @@ class ArusKasService
                 'sat' => 'Ls',
                 'hst' => (int)$pemasukan->nilai,
                 'nilai_transaksi' => (int)$pemasukan->nilai,
-                'kas_kecil_in' => 0,
+                'kas_kecil_in' => $pemasukan->id_toko == 1 ? 0 : (int)$pemasukan->nilai,
                 'kas_kecil_out' => 0,
-                'kas_besar_in' => $pemasukan->is_pinjam ? 0 : (int)$pemasukan->nilai,
+                'kas_besar_in' => $pemasukan->id_toko == 1 ? (int)$pemasukan->nilai : 0,
                 'kas_besar_out' => 0,
                 'piutang_in' => 0,
                 'piutang_out' => 0,
@@ -253,12 +260,12 @@ class ArusKasService
                         'hst' => (int)$totalNilai,
                         'nilai_transaksi' => (int)$totalNilai,
                         'kas_kecil_in' => 0,
-                        'kas_kecil_out' => 0,
+                        'kas_kecil_out' => $pemasukan->id_toko == 1 ? 0 : (int)$totalNilai,
                         'kas_besar_in' => 0,
-                        'kas_besar_out' => 0,
+                        'kas_besar_out' => $pemasukan->id_toko == 1 ? (int)$totalNilai : 0,
                         'piutang_out' => 0,
                         'piutang_in' => 0,
-                        'hutang_in' => (int)$totalNilai,
+                        'hutang_in' => 0,
                         'hutang_out' => (int)$totalNilai,
                     ];
                 }
