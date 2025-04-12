@@ -52,12 +52,6 @@
                                 <span id="time-report" class="font-weight-bold ml-2"></span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
                                 <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
                                     name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
                             </div>
@@ -476,7 +470,6 @@
                 }
 
                 defaultSearch = $('.tb-search').val();
-                defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
                 await defaultTime(monthText, year);
@@ -489,7 +482,6 @@
                 $('#custom-filter select').val(null).trigger('change');
                 customFilter = {};
                 defaultSearch = $('.tb-search').val();
-                defaultLimitPage = $("#limitPage").val();
                 currentPage = 1;
 
                 await defaultTime(null, null);
