@@ -121,7 +121,7 @@ class ArusKasService
             ];
             $rows[] = $mainRow;
 
-            // Detail pembayaran (piutang_out), urutan dimulai dari 1 ke atas
+            // Detail pembayaran (hutang_out), urutan dimulai dari 1 ke atas
             if ($pengeluaran->detail_pengeluaran->isNotEmpty()) {
                 $detailPengeluaran = $pengeluaran->detail_pengeluaran
                     ->sortBy('created_at'); // pastikan terurut tanggalnya
@@ -131,16 +131,16 @@ class ArusKasService
                         'id' => $pengeluaran->id,
                         'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
                         'subjek' => "Toko {$pengeluaran->toko->singkatan}",
-                        'kategori' => 'Pembayaran Piutang',
+                        'kategori' => 'Pembayaran Hutang',
                         'item' => 'Pembayaran ' . $pengeluaran->nama_pengeluaran,
                         'jml' => 1,
                         'sat' => "Ls",
                         'hst' => (int)$detail->nilai,
                         'nilai_transaksi' => (int)$detail->nilai,
                         'kas_kecil_in' => 0,
-                        'kas_kecil_out' => 0,
+                        'kas_kecil_out' => $pengeluaran->toko->id != 1 ? (int)$detail->nilai : 0,
                         'kas_besar_in' => 0,
-                        'kas_besar_out' => 0,
+                        'kas_besar_out' => $pengeluaran->toko->id == 1 ? (int)$detail->nilai : 0,
                         'piutang_out' => 0,
                         'piutang_in' => 0,
                         'hutang_in' => 0,
