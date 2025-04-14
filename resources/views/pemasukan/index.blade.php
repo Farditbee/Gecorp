@@ -139,14 +139,14 @@
                 <div class="modal-body">
                     <form id="formTambahData">
                         <div class="row d-flex align-items-center">
-                            <div class="col-md-10">
+                            <div class="col-md-9">
                                 <div class="form-group">
                                     <label for="nama_pemasukan">Nama Pemasukan <sup class="text-danger">*</sup></label>
                                     <input type="text" class="form-control" id="nama_pemasukan" name="nama_pemasukan"
                                         placeholder="Masukkan nama pemasukan" required>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="form-group">
                                     <label for="tanggal">Tanggal <sup class="text-danger">*</sup></label>
                                     <input type="datetime-local" class="form-control" id="tanggal" name="tanggal"
@@ -155,14 +155,14 @@
                             </div>
                         </div>
                         <div class="row d-flex align-items-center">
-                            <div class="col-md-10">
+                            <div class="col-md-9">
                                 <div class="form-group">
                                     <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
                                     <input type="number" class="form-control" id="nilai" name="nilai"
                                         placeholder="Masukkan nilai" required>
                                 </div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-3">
                                 <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
                                     <input class="form-check-input" type="checkbox" id="is_pinjam" name="is_pinjam">
                                     <label class="form-check-label ms-2" for="is_pinjam">Pinjaman?</label>
@@ -376,7 +376,7 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.is_pinjam == 1 || data.is_pinjam == 2) ? `
+            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data.is_pinjam == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -386,7 +386,7 @@
                     </div>
                 </a>` : '';
 
-            let edit_button = (data.is_pinjam == 1) ? `
+            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
@@ -395,7 +395,7 @@
                     </div>
                 </a>` : '';
 
-            if (delete_button || edit_button || detail_button) {
+            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
                     ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
@@ -404,7 +404,9 @@
                 </div>`;
             } else {
                 action_buttons = `
-                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
+                <div class="d-flex justify-content-end">
+                    <span class="badge badge-secondary mr-1">Tidak Ada Aksi</span>
+                </div>`;
             }
 
             let pinjaman_badge = (data.is_pinjam == 1) ?
@@ -533,8 +535,14 @@
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pemasukan.store') }}');
 
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('tanggal').value = today;
+                const now = new Date();
+                const year = now.getFullYear();
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const day = String(now.getDate()).padStart(2, '0');
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const formattedDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                document.getElementById('tanggal').value = formattedDateTime;
             });
         }
 
@@ -851,11 +859,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_pinjam ? `
-                                                                                        <div class="d-flex justify-content-between">
-                                                                                            <strong>Keterangan:</strong>
-                                                                                            <span>${data.ket_pinjam}</span>
-                                                                                        </div>
-                                                                                        ` : ''}
+                                                                                            <div class="d-flex justify-content-between">
+                                                                                                <strong>Keterangan:</strong>
+                                                                                                <span>${data.ket_pinjam}</span>
+                                                                                            </div>
+                                                                                            ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pemasukan:</strong>
                             <span>${data.tanggal}</span>

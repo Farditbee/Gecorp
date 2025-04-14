@@ -257,7 +257,7 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.is_pinjam == 1 || data.is_pinjam == 2) ? `
+            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data.is_pinjam == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -267,7 +267,7 @@
                     </div>
                 </a>` : '';
 
-            let edit_button = (data.is_pinjam == 1) ? `
+            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
@@ -276,14 +276,16 @@
                     </div>
                 </a>` : '';
 
-            if (delete_button || edit_button || detail_button) {
+            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
-                <span class="badge badge-secondary">Tidak Ada Aksi</span>`;
+                <div class="d-flex justify-content-end">
+                    <span class="badge badge-secondary">Tidak Ada Aksi</span>
+                </div>`;
             }
 
             return {

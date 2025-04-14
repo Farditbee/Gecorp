@@ -327,9 +327,17 @@
         }
 
         async function handleData(data) {
+            const formatDate = (input) => {
+                if (!input) return '-';
+                const dateOnly = input.split(' ')[0] || input;
+                const [day, month, year] = dateOnly.split('-');
+                if (!day || !month || !year) return '-';
+                return `${day}-${month}-${year}`;
+            };
+
             return {
                 id: data?.id ?? '-',
-                tgl: data?.tgl ?? '-',
+                tgl: formatDate(data?.tgl),
                 subjek: data?.subjek ?? '-',
                 kategori: data?.kategori ?? '-',
                 item: data?.item ?? '-',
