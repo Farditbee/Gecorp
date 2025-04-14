@@ -70,6 +70,6 @@ class LabaRugiService
 
         $totalLRJukey = $totalPendapatan - $hpp - $totalBeban;
         
-        return $total_labarugi;
+        return $totalLRJukey;
     }
 }
