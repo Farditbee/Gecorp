@@ -13,21 +13,28 @@ class LabaRugiService
 {
     public function hitungLabaRugi($month, $year)
     {
-        $penjualanUmum = (int) Kasir::whereMonth('tgl_transaksi', $month)
+        $penjualanUmum = (int)Kasir::whereMonth('tgl_transaksi', $month)
             ->whereYear('tgl_transaksi', $year)
             ->sum('total_nilai');
 
         $pendapatanLainnya = Pemasukan::where('is_pinjam', "0")
+            ->where('id_jenis_pemasukan', '!=', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $pinjamanModal = Pemasukan::where('is_pinjam', "1")
+        $pinjamanModal = Pemasukan::whereIn('is_pinjam', ["1", "2"])
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $pinjamanModal;
+        $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
+
+        // Calculate HPP from pembelian_barang
+        $hpp = DB::table('pembelian_barang')
+            ->whereMonth('tgl_nota', $month)
+            ->whereYear('tgl_nota', $year)
+            ->sum('total_nilai');
 
         // Get all expense types except id 11
         $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
@@ -59,8 +66,10 @@ class LabaRugiService
 
         $totalBeban += $biayaPembayaranPinjaman;
 
-        $totalLabaRugi = $totalPendapatan - $totalBeban;
+        $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
 
-        return $totalLabaRugi;
+        $totalLRJukey = $totalPendapatan - $hpp - $totalBeban;
+        
+        return $total_labarugi;
     }
 }

@@ -95,6 +95,8 @@ class LabaRugiController extends Controller
 
             $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
 
+            $totalLRJukey = $totalPendapatan - $hpp - $totalBeban;
+
             $data = [
                 [
                     'I. Pendapatan',
