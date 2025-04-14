@@ -244,7 +244,7 @@ class ArusKasService
                 $detailPemasukan = DetailPemasukan::where('id_pemasukan', $pemasukan->id)
                     ->get()
                     ->groupBy(function ($detail) {
-                        return Carbon::parse($detail->created_at)->format('Y-m-d');
+                        return Carbon::parse($detail->created_at)->format('Y-m-d H:i:s');
                     });
 
                 foreach ($detailPemasukan as $date => $details) {
