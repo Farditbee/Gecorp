@@ -42,6 +42,7 @@ class LabaRugiController extends Controller
                 ->sum('total_nilai');
 
             $pendapatanLainnya = Pemasukan::where('is_pinjam', "0")
+                ->where('id_jenis_pemasukan', '!=', 1)
                 ->whereMonth('tanggal', $month)
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
@@ -51,7 +52,7 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $pinjamanModal;
+            $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
 
             // Calculate HPP from pembelian_barang
             $hpp = DB::table('pembelian_barang')
@@ -89,8 +90,6 @@ class LabaRugiController extends Controller
 
             $totalBeban += $biayaPembayaranPinjaman;
 
-            // Add Biaya Pembayaran Pinjaman with the calculated value
-            $bebanOperasional[] = ['3.11 Biaya Pembayaran Pinjaman', number_format($biayaPembayaranPinjaman, 0, ',', '.')];
 
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
@@ -103,7 +102,6 @@ class LabaRugiController extends Controller
                     [
                         ['1.1 Penjualan Umum', number_format($penjualanUmum, 0, ',', '.')],
                         ['1.2 Pendapatan Lainnya', number_format($pendapatanLainnya, 0, ',', '.')],
-                        ['1.3 Pinjaman Modal', number_format($pinjamanModal, 0, ',', '.')],
                         ['Total Pendapatan', number_format($totalPendapatan, 0, ',', '.')]
                     ]
                 ],
