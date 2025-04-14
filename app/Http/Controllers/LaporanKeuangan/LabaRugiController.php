@@ -93,7 +93,7 @@ class LabaRugiController extends Controller
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 
-            $total_labarugi = $totalPendapatan - $totalBeban;
+            $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
 
             $data = [
                 [
@@ -113,7 +113,13 @@ class LabaRugiController extends Controller
                 [
                     'III. Biaya Pengeluaran',
                     $bebanOperasional
-                ]
+                ],
+                [
+                    'IV. Laba Rugi',
+                    [
+                        ['Laba Rugi Ditahan', number_format($total_labarugi, 0, ',', '.')]
+                    ]
+                ],
             ];
 
             return response()->json([
