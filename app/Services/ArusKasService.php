@@ -9,6 +9,7 @@ use App\Models\Kasir;
 use App\Models\PembelianBarang;
 use App\Models\Pemasukan;
 use App\Models\DetailPemasukan;
+use App\Models\Kasbon;
 use App\Models\Mutasi;
 use App\Models\Toko;
 
@@ -16,6 +17,7 @@ class ArusKasService
 {
     public function getArusKasData(Request $request)
     {
+        // dd($request->all());
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
@@ -77,12 +79,26 @@ class ArusKasService
 
         $mutasiQuery->orderBy('id', $meta['orderBy']);
 
+        // Get data from Kasbon model
+        $kasbonQuery = Kasbon::with('detailKasbon', 'kasir.toko')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $kasbonQuery->whereHas('kasir', function ($query) use ($request) {
+                $query->whereIn('id_toko', $request->id_toko);
+            });
+        }
+
+        $kasbonQuery->orderBy('id', $meta['orderBy']);
+
         // Get filtered data
         $pengeluaranList = $pengeluaranQuery->get();
         $kasirList = $kasirQuery->get();
         $pembelianList = $pembelianQuery->get();
         $pemasukanList = $pemasukanQuery->get();
         $mutasiList = $mutasiQuery->get();
+        $kasbonList = $kasbonQuery->get();
 
         if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
             return response()->json([
@@ -214,6 +230,55 @@ class ArusKasService
                 ];
             })->values();
 
+        $kasbonData = $kasbonList->flatMap(function ($kasbon) {
+            // Entry utama dari kasbon
+            $kasbonEntry = [
+                'id' => $kasbon->id,
+                'tgl' => Carbon::parse($kasbon->created_at)->format('d-m-Y H:i:s'),
+                'subjek' => "Toko {$kasbon->kasir->toko->nama_toko}",
+                'kategori' => "Piutang Member",
+                'item' => "Kasbon {$kasbon->member->nama_member}",
+                'jml' => 1,
+                'sat' => "Ls",
+                'hst' => (int)$kasbon->utang,
+                'nilai_transaksi' => (int)$kasbon->utang,
+                'kas_kecil_in' => 0,
+                'kas_kecil_out' => 0,
+                'kas_besar_in' => 0,
+                'kas_besar_out' => 0,
+                'piutang_in' => (int)$kasbon->utang,
+                'piutang_out' => 0,
+                'hutang_in' => 0,
+                'hutang_out' => 0,
+            ];
+        
+            // Detail kasbon sebagai array tambahan
+            $detailEntries = $kasbon->detailKasbon->map(function ($detail) use ($kasbon) {
+                return [
+                    'id' => $detail->id,
+                    'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
+                    'subjek' => "Toko {$kasbon->kasir->toko->nama_toko}",
+                    'kategori' => "Piutang Member",
+                    'item' => "Kasbon {$kasbon->member->nama_member}",
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => (int)$detail->bayar,
+                    'nilai_transaksi' => (int)$detail->bayar,
+                    'kas_kecil_in' => (int)$detail->bayar,
+                    'kas_kecil_out' => 0,
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => (int)$detail->bayar,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ];
+            });            
+        
+            // Gabungkan kasbon + detail menjadi satu array
+            return collect([$kasbonEntry])->merge($detailEntries);
+        })->values();
+            
         // Format pemasukan data
         $pemasukanData = $pemasukanList->map(function ($pemasukan) {
             $rows = [];
@@ -329,7 +394,13 @@ class ArusKasService
         });
 
         // Merge and sort data
-        $data = $pengeluaranData->concat($kasirData)->concat($pembelianData)->concat($pemasukanData)->concat($mutasiData)->sortByDesc('tgl')->values();
+        $data = $pengeluaranData
+        ->concat($kasirData)
+        ->concat($pembelianData)
+        ->concat($pemasukanData)
+        ->concat($mutasiData)
+        ->concat($kasbonData)
+        ->sortByDesc('tgl')->values();
 
         // Calculate totals
         $kas_kecil_in = $data->sum('kas_kecil_in');
