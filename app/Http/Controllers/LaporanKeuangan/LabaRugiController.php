@@ -90,7 +90,6 @@ class LabaRugiController extends Controller
 
             $totalBeban += $biayaPembayaranPinjaman;
 
-
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 

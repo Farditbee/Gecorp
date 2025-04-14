@@ -101,7 +101,7 @@ class ArusKasService
             // Baris utama (piutang_in jika ada)
             $mainRow = [
                 'id' => $pengeluaran->id,
-                'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
+                'tgl' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y H:i:s'),
                 'subjek' => "Toko {$pengeluaran->toko->singkatan}",
                 'kategori' => 'Pengeluaran ' . ($pengeluaran->jenis_pengeluaran ? $pengeluaran->jenis_pengeluaran->nama_jenis : ($pengeluaran->ket_hutang ?? 'Tidak Terkategori')),
                 'item' => $pengeluaran->nama_pengeluaran,
@@ -129,7 +129,7 @@ class ArusKasService
                 foreach ($detailPengeluaran as $detail) {
                     $rows[] = [
                         'id' => $pengeluaran->id,
-                        'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y'),
+                        'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
                         'subjek' => "Toko {$pengeluaran->toko->singkatan}",
                         'kategori' => 'Pembayaran Piutang',
                         'item' => 'Pembayaran ' . $pengeluaran->nama_pengeluaran,
@@ -165,7 +165,7 @@ class ArusKasService
 
             return [
                 'id' => $pembelian->id,
-                'tgl' => Carbon::parse($pembelian->tgl_nota)->format('d-m-Y'),
+                'tgl' => Carbon::parse($pembelian->tgl_nota)->format('d-m-Y H:i:s'),
                 'subjek' => 'Toko ' . ($pembeliansup ? $pembeliansup->nama_toko : 'Tidak Diketahui'),
                 'kategori' => 'Transaksi Supplier',
                 'item' => 'Pembelian Barang di ' . ($pembelian->supplier ? $pembelian->supplier->nama_supplier : 'Supplier Tidak Diketahui'),
@@ -187,13 +187,13 @@ class ArusKasService
         // Format kasir data
         $kasirData = $kasirList
             ->groupBy(function ($kasir) {
-                return $kasir->toko->singkatan . '_' . Carbon::parse($kasir->created_at)->format('d-m-Y');
+                return $kasir->toko->singkatan . '_' . Carbon::parse($kasir->created_at)->format('d-m-Y H:i:s');
             })
             ->map(function ($groupedKasir) {
                 $firstKasir = $groupedKasir->first();
                 return [
                     'id' => $firstKasir->id,
-                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y'),
+                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y H:i:s'),
                     'subjek' => "Toko {$firstKasir->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
                     'item' => "Pendapatan Harian",
@@ -221,7 +221,7 @@ class ArusKasService
             // Main row for pemasukan (hutang_in)
             $rows[] = [
                 'id' => $pemasukan->id,
-                'tgl' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y'),
+                'tgl' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y H:i:s'),
                 'subjek' => "Toko {$pemasukan->toko->singkatan}",
                 'kategori' => 'Pemasukan',
                 'item' => $pemasukan->nama_pemasukan,
@@ -251,7 +251,7 @@ class ArusKasService
                     $totalNilai = $details->sum('nilai');
                     $rows[] = [
                         'id' => $pemasukan->id,
-                        'tgl' => Carbon::parse($date)->format('d-m-Y'),
+                        'tgl' => Carbon::parse($date)->format('d-m-Y H:i:s'),
                         'subjek' => "Toko {$pemasukan->toko->singkatan}",
                         'kategori' => 'Pembayaran Hutang',
                         'item' => 'Pembayaran ' . $pemasukan->nama_pemasukan,
@@ -276,7 +276,7 @@ class ArusKasService
 
         // Format mutasi data
         $mutasiData = $mutasiList->flatMap(function ($mutasi) {
-            $date = Carbon::parse($mutasi->created_at)->format('d-m-Y');
+            $date = Carbon::parse($mutasi->created_at)->format('d-m-Y H:i:s');
             $rows = [];
 
             // Get toko names with null checks
