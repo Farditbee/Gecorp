@@ -257,7 +257,8 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data.is_pinjam == 2) ? `
+            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data
+                .is_pinjam == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -337,7 +338,7 @@
         }
 
         async function addData() {
-            $(document).on("click", ".add-data", function() {
+            $(document).on("click", ".add-data", async function() {
                 $("#modal-title").html(`Form Tambah ${title}`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
