@@ -10,6 +10,7 @@ use App\Models\JenisPemasukan;
 use App\Models\JenisPengeluaran;
 use App\Models\Kasbon;
 use App\Models\Member;
+use App\Models\Pemasukan;
 use App\Models\StockBarang;
 use App\Models\Supplier;
 use App\Models\Toko;
@@ -162,6 +163,11 @@ class MasterController extends Controller
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
         $query = JenisPemasukan::query();
+
+        $cek_id_jenis = Pemasukan::where('id_jenis_pemasukan', 1)->exists();
+        if ($cek_id_jenis) {
+            $query->where('id', '!=', 1);
+        }
 
         if (!empty($request['is_admin'])) {
             $query->where('id', '!=', 1);
@@ -551,7 +557,7 @@ class MasterController extends Controller
     }
 
     public function getKasbon(Request $request)
-    {   
+    {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
@@ -563,10 +569,10 @@ class MasterController extends Controller
         } else {
             // Ambil id_toko dari user yang sedang login
             $userTokoId = User::where('id', $userId)->value('id_toko');
-            
+
             // Ambil semua member yang memiliki id_toko yang sama
             $memberIds = Member::where('id_toko', $userTokoId)->pluck('id');
-            
+
             // Tampilkan kasbon yang sesuai dengan member dari toko tersebut
             $query = Kasbon::with('member')->whereIn('id_member', $memberIds);
         }
