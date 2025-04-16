@@ -402,6 +402,11 @@ class ArusKasService
         ->concat($kasbonData)
         ->sortByDesc('tgl')->values();
 
+        $totalBulanLalu = $this->calculateBulanLalu($year, $month);
+        $KB_saldoAwal = $totalBulanLalu['kas_besar']['saldo_awal'];
+
+        // dd($KB_saldoAwal);
+        
         // Calculate totals
         $kas_kecil_in = $data->sum('kas_kecil_in');
         $kas_kecil_out = $data->sum('kas_kecil_out');
@@ -412,8 +417,8 @@ class ArusKasService
         $kas_besar_in = $data->sum('kas_besar_in');
         $kas_besar_out = $data->sum('kas_besar_out');
         $kas_besar_saldo_berjalan = $kas_besar_in - $kas_besar_out;
-        $kas_besar_saldo_awal = 0;
-        $kas_besar_saldo_akhir = $kas_besar_saldo_berjalan - $kas_besar_saldo_awal;
+        $kas_besar_saldo_awal = $KB_saldoAwal;
+        $kas_besar_saldo_akhir = abs($kas_besar_saldo_berjalan - $kas_besar_saldo_awal);
 
         $piutang_out = $data->sum('piutang_out');
         $piutang_in = $data->sum('piutang_in');
@@ -431,6 +436,9 @@ class ArusKasService
         $asetPeralatanKecil = $pengeluaranList->where('is_asset', 'Asset Peralatan Kecil')->sum('nilai');
 
         $modal = $pemasukanList->where('id_jenis_pemasukan', 1)->sum('nilai');
+        $modalLainnya = $pemasukanList->where('id_jenis_pemasukan', 2)->sum('nilai');
+
+        $total_modal = $modal + $modalLainnya;
 
         $hutangPendek = $pemasukanList->where('is_pinjam', 1);
         $hutangPanjang = $pemasukanList->where('is_pinjam', 2);
@@ -500,5 +508,48 @@ class ArusKasService
                 'panjang' => $hutangPanjangItems,
             ],
         ];
+    }
+
+    protected function calculateBulanLalu($year, $month)
+    {
+        // Hitung bulan dan tahun sebelumnya
+        $prevMonth = $month - 1;
+        $prevYear = $year;
+    
+        if ($month == 1) {
+            $prevMonth = 12;
+            $prevYear = $year;
+        }
+    
+        // Buat request baru untuk data bulan sebelumnya
+        $newRequest = new Request([
+            'year' => $prevYear,
+            'month' => $prevMonth,
+            'page' => 1,
+            'limit' => 10,
+            'ascending' => 0,
+            'search' => "",
+        ]);
+    
+        // Ambil data bulan sebelumnya
+        $dataBulanSebelumnyaResponse = $this->getArusKasData($newRequest);
+    
+        // Pastikan respons adalah JSON dan ubah menjadi array
+        if ($dataBulanSebelumnyaResponse instanceof \Illuminate\Http\JsonResponse) {
+            $dataBulanSebelumnya = $dataBulanSebelumnyaResponse->getData(true); // Konversi ke array
+        } else {
+            $dataBulanSebelumnya = $dataBulanSebelumnyaResponse; // Jika sudah array
+        }
+        
+        // Hitung saldo awal
+        $KB_saldoAwal = $dataBulanSebelumnya['data_total']['kas_besar']['saldo_akhir'] ?? 0;
+
+        $data = [
+            'kas_besar' => [
+                'saldo_awal' => $KB_saldoAwal,
+            ],
+        ];
+    
+        return $data;
     }
 }

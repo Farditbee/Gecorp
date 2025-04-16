@@ -18,15 +18,15 @@ class LabaRugiService
             ->sum('total_nilai');
 
         $pendapatanLainnya = Pemasukan::where('is_pinjam', "0")
-            ->where('id_jenis_pemasukan', '!=', 1)
+            ->whereNotIn('id_jenis_pemasukan', ["1", "2"])
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $pinjamanModal = Pemasukan::whereIn('is_pinjam', ["1", "2"])
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->sum('nilai');
+        // $pinjamanModal = Pemasukan::whereIn('is_pinjam', ["1", "2"])
+        //     ->whereMonth('tanggal', $month)
+        //     ->whereYear('tanggal', $year)
+        //     ->sum('nilai');
 
         $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
 
@@ -51,11 +51,11 @@ class LabaRugiService
             $bebanOperasional[] = ['3.' . ($index + 1) . ' ' . $jenis->nama_jenis, number_format($nilai, 0, ',', '.')];
         }
 
-        // Add biaya lain-lain (debt expenses) - removed from total as it's already counted in jenisPengeluaran
-        $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')
-            ->whereMonth('tanggal', $month)
-            ->whereYear('tanggal', $year)
-            ->sum('nilai');
+        // // Add biaya lain-lain (debt expenses) - removed from total as it's already counted in jenisPengeluaran
+        // $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')
+        //     ->whereMonth('tanggal', $month)
+        //     ->whereYear('tanggal', $year)
+        //     ->sum('nilai');
 
         // Calculate Biaya Pembayaran Pinjaman from detail_pemasukan
         $biayaPembayaranPinjaman = DB::table('detail_pemasukan')
@@ -66,7 +66,7 @@ class LabaRugiService
 
         $totalBeban += $biayaPembayaranPinjaman;
 
-        $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
+        // $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
 
         $totalLRJukey = $totalPendapatan - $hpp - $totalBeban;
         

@@ -41,10 +41,10 @@ class NeracaController extends Controller
     
             $result = $this->arusKasService->getArusKasData($request);
     
-            $hutang = Pemasukan::whereIn('is_pinjam', [1, 2])->get();
+            $hutang = Pemasukan::where('is_pinjam', '1')->get();
 
             $hutangItems = $hutang->values()->map(function ($item, $index) {
-                $jenis = $item->is_pinjam == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
+                $jenis = $item->jangka_pinjam == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
                 return [
                     "kode" => "III." . ($index + 1),
                     "nama" => $jenis . ' - ' . $item->nama_pemasukan,

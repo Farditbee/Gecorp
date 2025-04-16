@@ -17,5 +17,15 @@ class JenisPemasukanSeeder extends Seeder
             "id" => 1,
             "nama_jenis" => "Modal Awal",
         ]);
+
+        JenisPemasukan::create([
+            "id" => 2,
+            "nama_jenis" => "Tambahan Modal",
+        ]);
+
+        JenisPemasukan::create([
+            "id" => 3,
+            "nama_jenis" => "Penjualan Lainnya",
+        ]);
     }
 }
