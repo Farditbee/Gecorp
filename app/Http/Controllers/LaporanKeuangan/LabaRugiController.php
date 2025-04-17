@@ -83,8 +83,7 @@ class LabaRugiController extends Controller
                     } elseif ($pengeluaran->is_hutang == 1) {
                         // Jika is_hutang = 1 → hanya hitung jika punya detail
                         if ($totalDetail > 0) {
-                            $sisa = max(0, $pengeluaran->nilai - $totalDetail);
-                            $totalNilai += $sisa;
+                            $totalNilai += $totalDetail;
                         }
                     } else {
                         // Jika bukan hutang (0/null), hitung nilai - detail
