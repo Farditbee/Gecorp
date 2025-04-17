@@ -43,14 +43,26 @@ class NeracaController extends Controller
     
             $hutang = Pemasukan::where('is_pinjam', '1')->get();
 
-            $hutangItems = $hutang->values()->map(function ($item, $index) {
+            $hutangItems = $hutang->map(function ($item, $index) {
+                // Hitung total nilai dari detail pemasukan yang terkait
+                $totalDetail = $item->detailPemasukan()->sum('nilai');
+            
+                // Kurangi nilai pemasukan dengan total dari detail
+                $sisaNilai = $item->nilai - $totalDetail;
+            
+                // Jika nilai tersisa 0 atau kurang, anggap sudah lunas
+                if ($sisaNilai <= 0) {
+                    return null;
+                }
+            
                 $jenis = $item->jangka_pinjam == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
+            
                 return [
                     "kode" => "III." . ($index + 1),
                     "nama" => $jenis . ' - ' . $item->nama_pemasukan,
-                    "nilai" => $item->nilai,
+                    "nilai" => $sisaNilai,
                 ];
-            })->toArray();
+            })->filter()->values()->toArray();
     
             $ekuitasItems = [];
     

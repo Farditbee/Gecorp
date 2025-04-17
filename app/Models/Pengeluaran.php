@@ -35,6 +35,12 @@ class Pengeluaran extends Model
 
     public function detail_pengeluaran()
     {
-        return $this->hasMany(DetailPengeluaran::class, 'id_pengeluaran', 'id')->withTrashed();
+        return $this->hasMany(DetailPengeluaran::class, 'id_pengeluaran', 'id');
     }
+
+    public function detailPengeluaran()
+    {
+        return $this->hasMany(DetailPengeluaran::class, 'id_pengeluaran');
+    }
+    
 }

@@ -37,4 +37,9 @@ class Pemasukan extends Model
     {
         return $this->hasMany(DetailPemasukan::class, 'id_pemasukan', 'id')->withTrashed();
     }
+
+    public function detailPemasukan()
+    {
+        return $this->hasMany(DetailPemasukan::class, 'id_pemasukan');
+    }
 }

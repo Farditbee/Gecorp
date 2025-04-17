@@ -65,30 +65,55 @@ class LabaRugiController extends Controller
             $bebanOperasional = [];
             $totalBeban = 0;
 
-            // Calculate expenses for each type
             foreach ($jenisPengeluaran as $index => $jenis) {
-                $nilai = Pengeluaran::where('id_jenis_pengeluaran', $jenis->id)
+                $pengeluaranList = Pengeluaran::where('id_jenis_pengeluaran', $jenis->id)
                     ->whereMonth('tanggal', $month)
                     ->whereYear('tanggal', $year)
-                    ->sum('nilai');
-                $totalBeban += $nilai;
-                $bebanOperasional[] = ['3.' . ($index + 1) . ' ' . $jenis->nama_jenis, number_format($nilai, 0, ',', '.')];
-            }
-
+                    ->with('detailPengeluaran') // supaya tidak N+1
+                    ->get();
+            
+                $totalNilai = 0;
+            
+                foreach ($pengeluaranList as $pengeluaran) {
+                    $totalDetail = $pengeluaran->detailPengeluaran->sum('nilai');
+            
+                    if ($pengeluaran->is_hutang == 2) {
+                        // Jika is_hutang = 2 → ambil total dari detail_pengeluaran
+                        $totalNilai += $totalDetail;
+                    } elseif ($pengeluaran->is_hutang == 1) {
+                        // Jika is_hutang = 1 → hanya hitung jika punya detail
+                        if ($totalDetail > 0) {
+                            $sisa = max(0, $pengeluaran->nilai - $totalDetail);
+                            $totalNilai += $sisa;
+                        }
+                    } else {
+                        // Jika bukan hutang (0/null), hitung nilai - detail
+                        $sisa = max(0, $pengeluaran->nilai - $totalDetail);
+                        $totalNilai += $sisa;
+                    }
+                }
+            
+                $totalBeban += $totalNilai;
+                $bebanOperasional[] = [
+                    '3.' . ($index + 1) . ' ' . $jenis->nama_jenis,
+                    number_format($totalNilai, 0, ',', '.')
+                ];
+            }            
+                
             // Add biaya lain-lain (debt expenses) - removed from total as it's already counted in jenisPengeluaran
-            $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '0')
+            $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '1')
                 ->whereMonth('tanggal', $month)
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            // Calculate Biaya Pembayaran Pinjaman from detail_pemasukan
-            $biayaPembayaranPinjaman = DB::table('detail_pemasukan')
-                ->join('pemasukan', 'detail_pemasukan.id_pemasukan', '=', 'pemasukan.id')
-                ->whereMonth('detail_pemasukan.created_at', $month)
-                ->whereYear('detail_pemasukan.created_at', $year)
-                ->sum('detail_pemasukan.nilai');
+            // // Calculate Biaya Pembayaran Pinjaman from detail_pemasukan
+            // $biayaPembayaranPinjaman = DB::table('detail_pemasukan')
+            //     ->join('pemasukan', 'detail_pemasukan.id_pemasukan', '=', 'pemasukan.id')
+            //     ->whereMonth('detail_pemasukan.created_at', $month)
+            //     ->whereYear('detail_pemasukan.created_at', $year)
+            //     ->sum('detail_pemasukan.nilai');
 
-            $totalBeban += $biayaPembayaranPinjaman;
+            // $totalBeban = $biayaLainLain;
 
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
