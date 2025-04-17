@@ -41,6 +41,7 @@ class LabaRugiService
             $bebanOperasional = [];
             $totalBeban = 0;
 
+            // Iterate through each expense type and calculate the total expenses
             foreach ($jenisPengeluaran as $index => $jenis) {
                 $pengeluaranList = Pengeluaran::where('id_jenis_pengeluaran', $jenis->id)
                     ->whereMonth('tanggal', $month)
