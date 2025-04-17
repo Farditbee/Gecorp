@@ -48,20 +48,19 @@ class LabaRugiService
                     ->whereYear('tanggal', $year)
                     ->with('detailPengeluaran') // supaya tidak N+1
                     ->get();
-            
+
                 $totalNilai = 0;
-            
+
                 foreach ($pengeluaranList as $pengeluaran) {
                     $totalDetail = $pengeluaran->detailPengeluaran->sum('nilai');
-            
+
                     if ($pengeluaran->is_hutang == 2) {
                         // Jika is_hutang = 2 → ambil total dari detail_pengeluaran
                         $totalNilai += $totalDetail;
                     } elseif ($pengeluaran->is_hutang == 1) {
                         // Jika is_hutang = 1 → hanya hitung jika punya detail
                         if ($totalDetail > 0) {
-                            $sisa = max(0, $pengeluaran->nilai - $totalDetail);
-                            $totalNilai += $sisa;
+                            $totalNilai += $totalDetail;
                         }
                     } else {
                         // Jika bukan hutang (0/null), hitung nilai - detail
@@ -69,14 +68,14 @@ class LabaRugiService
                         $totalNilai += $sisa;
                     }
                 }
-            
+
                 $totalBeban += $totalNilai;
                 $bebanOperasional[] = [
                     '3.' . ($index + 1) . ' ' . $jenis->nama_jenis,
                     number_format($totalNilai, 0, ',', '.')
                 ];
-            }            
-                
+            }
+
             // Add biaya lain-lain (debt expenses) - removed from total as it's already counted in jenisPengeluaran
             $biayaLainLain = Pengeluaran::where('is_hutang', '!=', '1')
                 ->whereMonth('tanggal', $month)
@@ -98,7 +97,7 @@ class LabaRugiService
             $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
 
             $totalLRJukey = $totalPendapatan - $hpp - $totalBeban;
-        
+
         return $totalLRJukey;
     }
 }
