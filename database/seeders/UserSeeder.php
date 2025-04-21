@@ -42,8 +42,8 @@ class UserSeeder extends Seeder
             "id" => 3,
             "id_toko" => 3,
             "id_level" => 3,
-            "nama" => "gec_admingec",
-            "username" => "admingec",
+            "nama" => "dls_admin",
+            "username" => "admindls",
             "password" =>bcrypt("admin123"),
             "email" => "gec@gmail.com",
             "alamat" => "Cirebon",
@@ -115,8 +115,8 @@ class UserSeeder extends Seeder
 
         Toko::create([
             "id" => 3,
-            "nama_toko" => "GEC Phone",
-            "singkatan" => "GEC",
+            "nama_toko" => "Dell Seri",
+            "singkatan" => "DLS",
             "id_level_harga" => json_encode(["5","4","3","2"]),
             "wilayah" => "Cirebon",
             "alamat" => "Plumbon",
