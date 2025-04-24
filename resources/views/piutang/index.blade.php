@@ -284,12 +284,12 @@
                 placeholder: 'Pilih Nama Toko',
             }, {
                 id: '#jenis',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenishpiutang') }}',
                 placeholder: 'Pilih Jenis Piutang',
             },
             {
                 id: '#id_jenis',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenishpiutang') }}',
                 placeholder: 'Pilih Jenis Piutang',
                 isModal: '#modal-form'
             }
@@ -812,12 +812,12 @@
             const html = `
                 <div class="card shadow-sm mb-3 border-0">
                     <div class="card-body p-3">
-                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pengeluaran</h5>
+                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail ${title}</h5>
                         <div class="d-flex justify-content-between">
-                            <strong>Jenis Piutang:</strong>
+                            <strong>Jenis ${title}:</strong>
                             <span>${data.nama_jenis}</span>
                         </div>
-                        </div>                                                                                                                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between">
                             <strong>Keterangan:</strong>
                             <span>${data.keterangan}</span>
                         </div>
@@ -829,7 +829,7 @@
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal Piutang:</strong>
+                            <strong>Tanggal ${title}:</strong>
                             <span>${data.tanggal}</span>
                         </div>
                     </div>

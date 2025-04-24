@@ -284,12 +284,12 @@
                 placeholder: 'Pilih Nama Toko',
             }, {
                 id: '#jenis',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenishutang') }}',
                 placeholder: 'Pilih Jenis Hutang',
             },
             {
                 id: '#id_jenis',
-                isUrl: '{{ route('master.jenis') }}',
+                isUrl: '{{ route('master.jenishutang') }}',
                 placeholder: 'Pilih Jenis Hutang',
                 isModal: '#modal-form'
             }
@@ -488,6 +488,12 @@
                 dropdownParent: $('#modal-form'),
                 width: '100%'
             });
+
+            $('#f_status').select2({
+                placeholder: 'Pilih status hutang',
+                allowClear: true,
+                width: '100%'
+            });
         }
 
         $('#modal-form').on('hidden.bs.modal', function() {
@@ -501,7 +507,7 @@
                 $("#modal-title").html(`Form Tambah ${title}`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
-                $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
+                $("#formTambahData").data("action-url", '{{ route('master.hutang.store') }}');
 
                 const now = new Date();
                 const year = now.getFullYear();
@@ -812,12 +818,12 @@
             const html = `
                 <div class="card shadow-sm mb-3 border-0">
                     <div class="card-body p-3">
-                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pengeluaran</h5>
+                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail ${title}</h5>
                         <div class="d-flex justify-content-between">
-                            <strong>Jenis Hutang:</strong>
+                            <strong>Jenis ${title}:</strong>
                             <span>${data.nama_jenis}</span>
                         </div>
-                        </div>                                                                                                                        <div class="d-flex justify-content-between">
+                        <div class="d-flex justify-content-between">
                             <strong>Keterangan:</strong>
                             <span>${data.keterangan}</span>
                         </div>
@@ -829,7 +835,7 @@
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal Hutang:</strong>
+                            <strong>Tanggal ${title}:</strong>
                             <span>${data.tanggal}</span>
                         </div>
                     </div>
@@ -838,7 +844,6 @@
 
             $("#detailDataContainer").html(html);
         }
-
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
