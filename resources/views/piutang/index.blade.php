@@ -284,12 +284,12 @@
                 placeholder: 'Pilih Nama Toko',
             }, {
                 id: '#jenis',
-                isUrl: '{{ route('master.jenishpiutang') }}',
+                isUrl: '{{ route('master.jenispiutang') }}',
                 placeholder: 'Pilih Jenis Piutang',
             },
             {
                 id: '#id_jenis',
-                isUrl: '{{ route('master.jenishpiutang') }}',
+                isUrl: '{{ route('master.jenispiutang') }}',
                 placeholder: 'Pilih Jenis Piutang',
                 isModal: '#modal-form'
             }
@@ -409,6 +409,7 @@
                 tanggal: data?.tanggal ?? '-',
                 nama_jenis: data?.nama_jenis ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
+                jangka: data?.jangka ?? '-',
                 keterangan: data?.keterangan ?? '-',
                 nilai: data?.nilai ?? '-',
                 status,
@@ -442,7 +443,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" colspan="6"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
@@ -486,6 +487,12 @@
                 placeholder: 'Pilih jangka piutang',
                 allowClear: true,
                 dropdownParent: $('#modal-form'),
+                width: '100%'
+            });
+
+            $('#f_status').select2({
+                placeholder: 'Pilih status hutang',
+                allowClear: true,
                 width: '100%'
             });
         }

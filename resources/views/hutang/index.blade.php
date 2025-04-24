@@ -409,6 +409,7 @@
                 tanggal: data?.tanggal ?? '-',
                 nama_jenis: data?.nama_jenis ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
+                jangka: data?.jangka ?? '-',
                 keterangan: data?.keterangan ?? '-',
                 nilai: data?.nilai ?? '-',
                 status,
@@ -442,7 +443,7 @@
 
             let totalRow = `
             <tr class="bg-primary">
-                <td class="${classCol}" colspan="5"></td>
+                <td class="${classCol}" colspan="6"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
                 <td class="${classCol}"></td>
