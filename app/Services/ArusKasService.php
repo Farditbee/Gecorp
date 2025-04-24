@@ -12,6 +12,7 @@ use App\Models\DetailPemasukan;
 use App\Models\Kasbon;
 use App\Models\Mutasi;
 use App\Models\Toko;
+use App\Models\Hutang;
 
 class ArusKasService
 {
@@ -47,6 +48,17 @@ class ArusKasService
         }
 
         $kasirQuery->orderBy('id', $meta['orderBy']);
+
+        // Get data from Hutang model
+        $hutangQuery = Hutang::with(['toko', 'jenis_hutang', 'detailhutang'])
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $hutangQuery->whereIn('id_toko', $request->id_toko);
+        }
+
+        $hutangQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from PembelianBarang model
         $pembelianQuery = PembelianBarang::with('supplier')
@@ -99,6 +111,7 @@ class ArusKasService
         $pemasukanList = $pemasukanQuery->get();
         $mutasiList = $mutasiQuery->get();
         $kasbonList = $kasbonQuery->get();
+        $hutangList = $hutangQuery->get();
 
         if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
             return response()->json([
@@ -251,7 +264,7 @@ class ArusKasService
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];
-        
+
             // Detail kasbon sebagai array tambahan
             $detailEntries = $kasbon->detailKasbon->map(function ($detail) use ($kasbon) {
                 return [
@@ -273,18 +286,15 @@ class ArusKasService
                     'hutang_in' => 0,
                     'hutang_out' => 0,
                 ];
-            });            
-        
+            });
+
             // Gabungkan kasbon + detail menjadi satu array
             return collect([$kasbonEntry])->merge($detailEntries);
         })->values();
-            
+
         // Format pemasukan data
         $pemasukanData = $pemasukanList->map(function ($pemasukan) {
-            $rows = [];
-
-            // Main row for pemasukan (hutang_in)
-            $rows[] = [
+            return [
                 'id' => $pemasukan->id,
                 'tgl' => Carbon::parse($pemasukan->tanggal)->format('d-m-Y H:i:s'),
                 'subjek' => "Toko {$pemasukan->toko->singkatan}",
@@ -294,50 +304,16 @@ class ArusKasService
                 'sat' => 'Ls',
                 'hst' => (int)$pemasukan->nilai,
                 'nilai_transaksi' => (int)$pemasukan->nilai,
-                'kas_kecil_in' => $pemasukan->id_toko == 1 ? 0 : (int)$pemasukan->nilai,
+                'kas_kecil_in' => $pemasukan->id_toko != 1 ? (int)$pemasukan->nilai : 0,
                 'kas_kecil_out' => 0,
                 'kas_besar_in' => $pemasukan->id_toko == 1 ? (int)$pemasukan->nilai : 0,
                 'kas_besar_out' => 0,
                 'piutang_in' => 0,
                 'piutang_out' => 0,
-                'hutang_in' => $pemasukan->is_pinjam ? (int)$pemasukan->nilai : 0,
+                'hutang_in' => 0,
                 'hutang_out' => 0,
             ];
-
-            // Add separate row for hutang_out if it exists
-            if ($pemasukan->is_pinjam) {
-                $detailPemasukan = DetailPemasukan::where('id_pemasukan', $pemasukan->id)
-                    ->get()
-                    ->groupBy(function ($detail) {
-                        return Carbon::parse($detail->created_at)->format('Y-m-d H:i:s');
-                    });
-
-                foreach ($detailPemasukan as $date => $details) {
-                    $totalNilai = $details->sum('nilai');
-                    $rows[] = [
-                        'id' => $pemasukan->id,
-                        'tgl' => Carbon::parse($date)->format('d-m-Y H:i:s'),
-                        'subjek' => "Toko {$pemasukan->toko->singkatan}",
-                        'kategori' => 'Pembayaran Hutang',
-                        'item' => 'Pembayaran ' . $pemasukan->nama_pemasukan,
-                        'jml' => 1,
-                        'sat' => 'Ls',
-                        'hst' => (int)$totalNilai,
-                        'nilai_transaksi' => (int)$totalNilai,
-                        'kas_kecil_in' => 0,
-                        'kas_kecil_out' => $pemasukan->id_toko == 1 ? 0 : (int)$totalNilai,
-                        'kas_besar_in' => 0,
-                        'kas_besar_out' => $pemasukan->id_toko == 1 ? (int)$totalNilai : 0,
-                        'piutang_out' => 0,
-                        'piutang_in' => 0,
-                        'hutang_in' => 0,
-                        'hutang_out' => (int)$totalNilai,
-                    ];
-                }
-            }
-
-            return $rows;
-        })->flatten(1);
+        });
 
         // Format mutasi data
         $mutasiData = $mutasiList->flatMap(function ($mutasi) {
@@ -393,20 +369,73 @@ class ArusKasService
             return $rows;
         });
 
-        // Merge and sort data
+        // Format hutang data
+        $hutangData = $hutangList->flatMap(function ($hutang) {
+            $rows = [];
+
+            // Main hutang entry
+            $rows[] = [
+                'id' => $hutang->id,
+                'tgl' => Carbon::parse($hutang->tanggal)->format('d-m-Y H:i:s'),
+                'subjek' => "Toko {$hutang->toko->singkatan}",
+                'kategori' => 'Hutang ' . ($hutang->jenis_hutang ? $hutang->jenis_hutang->nama_jenis : 'Tidak Terkategori'),
+                'item' => $hutang->keterangan,
+                'jml' => 1,
+                'sat' => "Ls",
+                'hst' => (int)$hutang->nilai,
+                'nilai_transaksi' => (int)$hutang->nilai,
+                'kas_kecil_in' => $hutang->id_toko != 1 ? (int)$hutang->nilai : 0,
+                'kas_kecil_out' => 0,
+                'kas_besar_in' => $hutang->id_toko == 1 ? (int)$hutang->nilai : 0,
+                'kas_besar_out' => 0,
+                'piutang_in' => 0,
+                'piutang_out' => 0,
+                'hutang_in' => (int)$hutang->nilai,
+                'hutang_out' => 0,
+                'urutan' => 1
+            ];
+
+            // Add detail hutang payments
+            foreach ($hutang->detailhutang as $detail) {
+                $rows[] = [
+                    'id' => $detail->id,
+                    'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
+                    'subjek' => "Toko {$hutang->toko->singkatan}",
+                    'kategori' => 'Bayar Hutang',
+                    'item' => "Pembayaran {$hutang->keterangan}",
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => (int)$detail->nilai,
+                    'nilai_transaksi' => (int)$detail->nilai,
+                    'kas_kecil_in' => 0,
+                    'kas_kecil_out' => $hutang->id_toko != 1 ? (int)$detail->nilai : 0,
+                    'kas_besar_in' => 0,
+                    'kas_besar_out' => $hutang->id_toko == 1 ? (int)$detail->nilai : 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => (int)$detail->nilai,
+                    'urutan' => 2
+                ];
+            }
+
+            return $rows;
+        });
+
         $data = $pengeluaranData
         ->concat($kasirData)
         ->concat($pembelianData)
         ->concat($pemasukanData)
         ->concat($mutasiData)
         ->concat($kasbonData)
+        ->concat($hutangData)
         ->sortByDesc('tgl')->values();
 
         $totalBulanLalu = $this->calculateBulanLalu($year, $month);
         $KB_saldoAwal = $totalBulanLalu['kas_besar']['saldo_awal'];
 
         // dd($KB_saldoAwal);
-        
+
         // Calculate totals
         $kas_kecil_in = $data->sum('kas_kecil_in');
         $kas_kecil_out = $data->sum('kas_kecil_out');
@@ -515,12 +544,12 @@ class ArusKasService
         // Hitung bulan dan tahun sebelumnya
         $prevMonth = $month - 1;
         $prevYear = $year;
-    
+
         if ($month == 1) {
             $prevMonth = 12;
             $prevYear = $year;
         }
-    
+
         // Buat request baru untuk data bulan sebelumnya
         $newRequest = new Request([
             'year' => $prevYear,
@@ -530,17 +559,17 @@ class ArusKasService
             'ascending' => 0,
             'search' => "",
         ]);
-    
+
         // Ambil data bulan sebelumnya
         $dataBulanSebelumnyaResponse = $this->getArusKasData($newRequest);
-    
+
         // Pastikan respons adalah JSON dan ubah menjadi array
         if ($dataBulanSebelumnyaResponse instanceof \Illuminate\Http\JsonResponse) {
             $dataBulanSebelumnya = $dataBulanSebelumnyaResponse->getData(true); // Konversi ke array
         } else {
             $dataBulanSebelumnya = $dataBulanSebelumnyaResponse; // Jika sudah array
         }
-        
+
         // Hitung saldo awal
         $KB_saldoAwal = $dataBulanSebelumnya['data_total']['kas_besar']['saldo_akhir'] ?? 0;
 
@@ -549,7 +578,7 @@ class ArusKasService
                 'saldo_awal' => $KB_saldoAwal,
             ],
         ];
-    
+
         return $data;
     }
 }
