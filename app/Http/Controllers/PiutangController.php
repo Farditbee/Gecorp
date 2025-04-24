@@ -126,6 +126,7 @@ class PiutangController extends Controller
                 'nama_toko' => $item['toko'] ? $item['toko']->singkatan : null,
                 'nama_jenis' => $item['jenis_piutang']->nama_jenis ?? '-',
                 'keterangan' => $item->keterangan,
+                'status' => $item->status,
                 'jangka' => $jangka,
                 'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),

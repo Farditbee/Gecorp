@@ -179,6 +179,8 @@ Route::middleware(['auth'])->group(function () {
         // Hutang Controller
         Route::get('/hutang', [HutangController::class, 'index'])->name('keuangan.hutang.index');
         Route::post('hutang/store', [HutangController::class, 'store'])->name('master.hutang.store');
+        Route::get('/hutang/detail/{id}', [HutangController::class, 'detail'])->name('master.hutang.detail');
+        Route::put('/hutang/update/{id}', [HutangController::class, 'updatehutang'])->name('master.hutang.update');
         Route::delete('/hutang/delete/{id}', [HutangController::class, 'delete'])->name('master.hutang.delete');
 
         // Piutang Controller

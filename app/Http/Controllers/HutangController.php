@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailHutang;
 use App\Models\Hutang;
 use App\Models\JenisHutang;
 use Carbon\Carbon;
@@ -126,6 +127,7 @@ class HutangController extends Controller
                 'nama_toko' => $item['toko'] ? $item['toko']->singkatan : null,
                 'nama_jenis' => $item['jenis_hutang']->nama_jenis ?? '-',
                 'keterangan' => $item->keterangan,
+                'status' => $item->status,
                 'jangka' => $jangka,
                 'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
@@ -191,6 +193,91 @@ class HutangController extends Controller
         }
     }
 
+    public function detail(string $id)
+    {
+        try {
+            $hutang = Hutang::with(['toko', 'jenis_hutang'])->findOrFail($id);
+            $detailPembayaran = DetailHutang::where('id_hutang', $id)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                        'tanggal' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s')
+                    ];
+                });
+
+            $totalPembayaran = DetailHutang::where('id_hutang', $id)->sum('nilai');
+            $sisaHutang = $hutang->nilai - $totalPembayaran;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'hutang' => [
+                        'id' => $hutang->id,
+                        'nama_toko' => $hutang->toko->nama_toko,
+                        'keterangan' => $hutang->keterangan ?? '-',
+                        'nama_jenis' => $hutang->jenis_hutang->nama_jenis ?? '-',
+                        'nilai' => 'Rp. ' . number_format($hutang->nilai, 0, '.', '.'),
+                        'status' => $hutang->status,
+                        'jangka' => $hutang->jangka,
+                        'tanggal' => Carbon::parse($hutang->tanggal)->format('d-m-Y'),
+                    ],
+                    'detail_pembayaran' => $detailPembayaran,
+                    'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),
+                    'sisa_hutang' => 'Rp. ' . number_format($sisaHutang, 0, '.', '.')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail hutang: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updatehutang(Request $request, string $id)
+    {
+        $validation = [
+            'nilai' => 'required|numeric',
+        ];
+
+        $validatedData = $request->validate($validation);
+
+        try {
+            DB::beginTransaction();
+
+            $hutang = Hutang::findOrFail($id);
+            if ($validatedData['nilai'] > $hutang->nilai) {
+                throw new \Exception('Nilai bayar melebihi nilai hutang!');
+            }
+
+            DetailHutang::create([
+                'id_hutang' => $hutang->id,
+                'nilai' => $validatedData['nilai'],
+            ]);
+
+            $totalBayar = DetailHutang::where('id_hutang', $hutang->id)->sum('nilai');
+
+            if ($totalBayar >= $hutang->nilai) {
+                $hutang->update(['status' => '2']);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil melakukan pembayaran hutang'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan pembayaran: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function delete(String $id)
     {
         DB::beginTransaction();
@@ -211,4 +298,5 @@ class HutangController extends Controller
             ], 500);
         }
     }
+
 }

@@ -23,4 +23,9 @@ class Hutang extends Model
     {
         return $this->belongsTo(JenisHutang::class,'id_jenis', 'id');
     }
+
+    public function detailhutang()
+    {
+        return $this->hasMany(DetailHutang::class, 'id_hutang');
+    }
 }
