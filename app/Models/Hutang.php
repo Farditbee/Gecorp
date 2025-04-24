@@ -19,7 +19,7 @@ class Hutang extends Model
         return $this->belongsTo(Toko::class, 'id_toko', 'id');
     }
 
-    public function jenisHutang()
+    public function jenis_hutang()
     {
         return $this->belongsTo(JenisHutang::class,'id_jenis', 'id');
     }
