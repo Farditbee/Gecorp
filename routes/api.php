@@ -89,6 +89,8 @@ Route::prefix('master')->as('master.')->group(function () {
     Route::get('barang', [MasterController::class, 'getBarang'])->name('barang');
     Route::get('jenis', [MasterController::class, 'getJenis'])->name('jenis');
     Route::get('jenismasuk', [MasterController::class, 'getJenismasuk'])->name('jenismasuk');
+    Route::get('jenishutang', [MasterController::class, 'getJenishutang'])->name('jenishutang');
+    Route::get('jenispiutang', [MasterController::class, 'getJenispiutang'])->name('jenispiutang');
     Route::get('suplier', [MasterController::class, 'getSuplier'])->name('suplier');
     Route::get('barang-pengiriman', [MasterController::class, 'getBarangPengiriman'])->name('barangKirim');
     Route::get('barang-kasir', [MasterController::class, 'getBarangKasir'])->name('barangKasir');

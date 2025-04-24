@@ -119,8 +119,6 @@ class PengeluaranController extends Controller
                 'nama_pengeluaran' => $item->nama_pengeluaran,
                 'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
-                'is_hutang' => $item->is_hutang,
-                'ket_hutang' => $item->ket_hutang,
                 'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
             ];
         });
@@ -137,7 +135,6 @@ class PengeluaranController extends Controller
 
     public function store(Request $request)
     {
-        $is_hutang = (string)$request->input('is_hutang', '0');
         $is_asset = $request->input('is_asset');
 
         $validation = [
@@ -145,7 +142,6 @@ class PengeluaranController extends Controller
             'nama_pengeluaran' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_hutang' => 'nullable|in:0,1,2',
             'is_asset' => 'nullable',
             'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id'
         ];
@@ -156,18 +152,11 @@ class PengeluaranController extends Controller
             'is_asset.in' => 'Nilai Asset tidak valid'
         ];
 
-        if ($is_hutang === '1') {
-            $validation['ket_hutang'] = 'required|string';
-            $validation['is_asset'] = 'nullable';
-            $validation['id_jenis_pengeluaran'] = 'required';
+        if ($request->has('id_jenis_pengeluaran') && $request->id_jenis_pengeluaran == 1) {
+            $validation['is_asset'] = 'required|in:Asset Peralatan Kecil,Asset Peralatan Besar';
         } else {
-            $validation['ket_hutang'] = 'nullable|string';
-            if ($request->has('id_jenis_pengeluaran') && $request->id_jenis_pengeluaran == 1) {
-                $validation['is_asset'] = 'required|in:Asset Peralatan Kecil,Asset Peralatan Besar';
-            } else {
-                $validation['is_asset'] = 'nullable';
-                $validatedData['is_asset'] = null;
-            }
+            $validation['is_asset'] = 'nullable';
+            $validatedData['is_asset'] = null;
         }
 
         $validatedData = $request->validate($validation, $messages);
@@ -176,7 +165,6 @@ class PengeluaranController extends Controller
             DB::beginTransaction();
 
             $id_jenis_pengeluaran = null;
-            if (!$is_hutang) {
                 $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'] ?? null;
                 if (empty($id_jenis_pengeluaran) && isset($validatedData['nama_jenis'])) {
                     $jenis_pengeluaran = JenisPengeluaran::create([
@@ -184,7 +172,6 @@ class PengeluaranController extends Controller
                     ]);
                     $id_jenis_pengeluaran = $jenis_pengeluaran->id;
                 }
-            }
 
             Pengeluaran::create([
                 'id_toko' => $validatedData['id_toko'],
@@ -192,8 +179,6 @@ class PengeluaranController extends Controller
                 'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
-                'is_hutang' => $is_hutang,
-                'ket_hutang' => $validatedData['ket_hutang'] ?? null,
                 'is_asset' => $validatedData['is_asset'] ?? null,
             ]);
 
@@ -232,95 +217,5 @@ class PengeluaranController extends Controller
         }
     }
 
-    public function updatehutang(Request $request, string $id)
-    {
-        $validatedData = $request->validate([
-            'nilai' => 'required|numeric|min:0'
-        ]);
 
-        try {
-            DB::beginTransaction();
-
-            $pengeluaran = Pengeluaran::findOrFail($id);
-
-            if (!$pengeluaran->is_hutang) {
-                throw new \Exception('Data pengeluaran ini bukan hutang.');
-            }
-
-            $totalPembayaran = DetailPengeluaran::where('id_pengeluaran', $pengeluaran->id)
-                ->sum('nilai');
-
-            if (($totalPembayaran + $validatedData['nilai']) > $pengeluaran->nilai) {
-                throw new \Exception('Total pembayaran melebihi nilai hutang.');
-            }
-
-            DetailPengeluaran::create([
-                'id_pengeluaran' => $pengeluaran->id,
-                'nilai' => $validatedData['nilai']
-            ]);
-
-            $sisaHutang = $pengeluaran->nilai - ($totalPembayaran + $validatedData['nilai']);
-
-            $pengeluaran->is_hutang = ($sisaHutang == 0) ? '2' : $pengeluaran->is_hutang;
-
-            $pengeluaran->save();
-
-            DB::commit();
-            return response()->json([
-                'success' => true,
-                'message' => 'Pembayaran hutang berhasil dicatat',
-                'sisa_hutang' => $sisaHutang
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mencatat pembayaran hutang: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function detail(string $id)
-    {
-        try {
-            $pengeluaran = Pengeluaran::with(['toko', 'jenis_pengeluaran'])->findOrFail($id);
-            $detailPembayaran = DetailPengeluaran::where('id_pengeluaran', $id)
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
-                        'tanggal' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s')
-                    ];
-                });
-
-            $totalPembayaran = DetailPengeluaran::where('id_pengeluaran', $id)->sum('nilai');
-            $sisaHutang = $pengeluaran->nilai - $totalPembayaran;
-
-            return response()->json([
-                'success' => true,
-                'data' => [
-                    'pengeluaran' => [
-                        'id' => $pengeluaran->id,
-                        'nama_toko' => $pengeluaran->toko->nama_toko,
-                        'nama_pengeluaran' => $pengeluaran->nama_pengeluaran,
-                        'nama_jenis' => $pengeluaran->jenis_pengeluaran->nama_jenis ?? '-',
-                        'nilai' => 'Rp. ' . number_format($pengeluaran->nilai, 0, '.', '.'),
-                        'is_hutang' => $pengeluaran->is_hutang,
-                        'ket_hutang' => $pengeluaran->ket_hutang,
-                        'tanggal' => Carbon::parse($pengeluaran->tanggal)->format('d-m-Y'),
-                    ],
-                    'detail_pembayaran' => $detailPembayaran,
-                    'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),
-                    'sisa_hutang' => 'Rp. ' . number_format($sisaHutang, 0, '.', '.')
-                ]
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal mengambil detail pengeluaran: ' . $e->getMessage()
-            ], 500);
-        }
-    }
 }
