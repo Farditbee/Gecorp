@@ -174,6 +174,7 @@ class PiutangController extends Controller
                 'keterangan' => $validatedData['keterangan'],
                 'nilai' => $validatedData['nilai'],
                 'jangka' => $validatedData['jangka'] ?? null,
+                'status' => '1',
                 'tanggal' => $validatedData['tanggal'],
             ]);
 

@@ -173,6 +173,7 @@ class HutangController extends Controller
                 'id_jenis' => $id_jenis,
                 'keterangan' => $validatedData['keterangan'],
                 'nilai' => $validatedData['nilai'],
+                'status' => '1',
                 'jangka' => $validatedData['jangka'] ?? null,
                 'tanggal' => $validatedData['tanggal'],
             ]);
