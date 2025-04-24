@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengeluaran', function (Blueprint $table) {
+        Schema::create('hutang', function (Blueprint $table) {
             $table->id();
             $table->string('id_toko');
-            $table->string('nama_pengeluaran')->nullable();
-            $table->string('id_jenis_pengeluaran')->nullable();
-            $table->double('nilai')->nullable();
-            $table->date('tanggal');
-            $table->softDeletes();
+            $table->string('id_jenis');
+            $table->string('keterangan');
+            $table->double('nilai');
+            $table->enum('status', (['0', '1', '2']));
+            $table->enum('jangka', (['1', '2']))->nullable();
+            $table->datetime('tanggal');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengeluaran');
+        Schema::dropIfExists('hutang');
     }
 };

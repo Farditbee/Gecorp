@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailPengeluaran;
-use App\Models\JenisPengeluaran;
-use App\Models\Pengeluaran;
+use App\Http\Controllers\Controller;
+use App\Models\JenisPiutang;
+use App\Models\Piutang;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
-class PengeluaranController extends Controller
+class PiutangController extends Controller
 {
     private array $menu = [];
 
@@ -19,7 +18,7 @@ class PengeluaranController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Pengeluaran',
+            'Piutang',
             'Tambah Data',
             'Edit Data'
         ];
@@ -32,53 +31,53 @@ class PengeluaranController extends Controller
         }
         $menu = [$this->title[0], $this->label[5]];
 
-        return view('pengeluaran.index', compact('menu'));
+        return view('piutang.index', compact('menu'));
     }
 
-    public function getpengeluaran(Request $request)
+    public function getPiutang(Request $request)
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
-        $query = Pengeluaran::query();
+        $query = Piutang::query();
 
-        $query->with(['toko', 'jenis_pengeluaran'])->orderBy('id', $meta['orderBy']);
+        $query->with(['toko', 'jenis_piutang'])->orderBy('id', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
-                // Pencarian pada kolom langsung
-                $query->orWhereRaw("LOWER(nama_pengeluaran) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(keterangan) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereHas('toko', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_toko) LIKE ?", ["%$searchTerm%"]);
                 });
-                $query->orWhereHas('jenis_pengeluaran', function ($subquery) use ($searchTerm) {
+                $query->orWhereHas('jenis_piutang', function ($subquery) use ($searchTerm) {
                     $subquery->whereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
                 });
             });
         }
 
-        if ($request->has('id_toko')) {
-            $idToko = $request->input('id_toko');
+        if ($request->has('toko')) {
+            $idToko = $request->input('toko');
             if ($idToko != 1) {
-                $query->where('id_toko', $idToko);
+                $query->where(function ($q) use ($idToko) {
+                    $q->where('toko', $idToko);
+                });
             }
         }
 
-        if ($request->has('toko')) {
-            $idToko = $request->input('toko');
-                $query->where('id_toko', $idToko);
-        }
-
         if ($request->has('jenis')) {
-            $id_jenis = $request->input('jenis');
-            $query->where('id_jenis_pengeluaran', $id_jenis);
+            $idJenis = $request->input('jenis');
+            $query->where(function ($q) use ($idJenis) {
+                $q->where('id_jenis', $idJenis);
+            });
         }
 
-        if ($request->has('is_hutang')) {
-            $isHutang = $request->input('is_hutang');
-                $query->where('is_hutang', $isHutang);
+        if ($request->has('status')) {
+            $status = $request->input('status');
+            $query->where(function ($q) use ($status) {
+                $q->where('status', $status);
+            });
         }
 
         if ($request->has('startDate') && $request->has('endDate')) {
@@ -87,8 +86,8 @@ class PengeluaranController extends Controller
 
             $query->whereBetween('tanggal', [$startDate, $endDate]);
         }
-        $totalNilai = $query->sum('nilai');
 
+        $totalNilai = $query->sum('nilai');
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
@@ -112,14 +111,25 @@ class PengeluaranController extends Controller
         }
 
         $mappedData = collect($data['data'])->map(function ($item) {
+            $jangka = null;
+            if ($item->jangka == '1') {
+                $jangka = 'Jangka Pendek';
+            } elseif ($item->jangka == '2') {
+                $jangka = 'Jangka Panjang';
+            } else {
+                $jangka = 'Tidak ada';
+            }
+
             return [
                 'id' => $item['id'],
-                'id_toko' => $item['toko']->id,
-                'nama_toko' => $item['toko']->nama_toko,
-                'nama_pengeluaran' => $item->nama_pengeluaran,
-                'nama_jenis' => $item['jenis_pengeluaran']->nama_jenis ?? '-',
-                'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                'id_toko' => $item['toko'] ? $item['toko']->id : null,
+                'nama_toko' => $item['toko'] ? $item['toko']->singkatan : null,
+                'nama_jenis' => $item['jenis_piutang']->nama_jenis ?? '-',
+                'keterangan' => $item->keterangan,
+                'status' => $item->status,
+                'jangka' => $jangka,
                 'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
+                'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
             ];
         });
 
@@ -135,58 +145,44 @@ class PengeluaranController extends Controller
 
     public function store(Request $request)
     {
-        $is_asset = $request->input('is_asset');
-
         $validation = [
             'id_toko' => 'required|exists:toko,id',
-            'nama_pengeluaran' => 'nullable|string',
+            'id_jenis' => 'nullable|exists:jenis_piutang,id',
+            'keterangan' => 'required|string',
             'nilai' => 'required|numeric',
+            'jangka' => 'nullable|in:1,2',
             'tanggal' => 'required|date',
-            'is_asset' => 'nullable',
-            'id_jenis_pengeluaran' => 'nullable|exists:jenis_pengeluaran,id'
+            'nama_jenis' => 'required_without:id_jenis|string'
         ];
 
-        $messages = [
-            'id_jenis_pengeluaran.required' => 'Jenis pengeluaran tidak dapat dipilih ketika memilih Asset',
-            'is_asset.required' => 'Asset harus dipilih untuk jenis pengeluaran ini',
-            'is_asset.in' => 'Nilai Asset tidak valid'
-        ];
-
-        if ($request->has('id_jenis_pengeluaran') && $request->id_jenis_pengeluaran == 1) {
-            $validation['is_asset'] = 'required|in:Asset Peralatan Kecil,Asset Peralatan Besar';
-        } else {
-            $validation['is_asset'] = 'nullable';
-            $validatedData['is_asset'] = null;
-        }
-
-        $validatedData = $request->validate($validation, $messages);
+        $validatedData = $request->validate($validation);
 
         try {
             DB::beginTransaction();
 
-            $id_jenis_pengeluaran = null;
-                $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'] ?? null;
-                if (empty($id_jenis_pengeluaran) && isset($validatedData['nama_jenis'])) {
-                    $jenis_pengeluaran = JenisPengeluaran::create([
-                        'nama_jenis' => $validatedData['nama_jenis']
-                    ]);
-                    $id_jenis_pengeluaran = $jenis_pengeluaran->id;
-                }
+            $id_jenis = null;
+            $id_jenis = $validatedData['id_jenis'] ?? null;
+            if (empty($id_jenis) && isset($validatedData['nama_jenis'])) {
+                $jenis_piutang = JenisPiutang::create([
+                    'nama_jenis' => $validatedData['nama_jenis']
+                ]);
+                $id_jenis = $jenis_piutang->id;
+            }
 
-            Pengeluaran::create([
+            Piutang::create([
                 'id_toko' => $validatedData['id_toko'],
-                'id_jenis_pengeluaran' => $validatedData['id_jenis_pengeluaran'],
-                'nama_pengeluaran' => $validatedData['nama_pengeluaran'],
+                'id_jenis' => $id_jenis,
+                'keterangan' => $validatedData['keterangan'],
                 'nilai' => $validatedData['nilai'],
+                'jangka' => $validatedData['jangka'] ?? null,
+                'status' => '1',
                 'tanggal' => $validatedData['tanggal'],
-                'is_asset' => $validatedData['is_asset'] ?? null,
             ]);
 
             DB::commit();
             return response()->json(['message' => 'Data berhasil disimpan!'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error Tambah Data: ' . $e->getMessage());
 
             return response()->json([
                 'error' => true,
@@ -196,26 +192,24 @@ class PengeluaranController extends Controller
         }
     }
 
-    public function delete (string $id)
+    public function delete(String $id)
     {
         DB::beginTransaction();
         try {
-            $pengeluaran = Pengeluaran::findOrFail($id);
-            $pengeluaran->delete();
+            $data = Piutang::findOrFail($id);
+            $data->delete();
 
             DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Sukses menghapus Data pengeluaran'
+                'message' => 'Sukses menghapus Data'
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus Data pengeluaran: ' . $th->getMessage()
+                'message' => 'Gagal menghapus Data: ' . $th->getMessage()
             ], 500);
         }
     }
-
-
 }

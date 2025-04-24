@@ -59,18 +59,18 @@ class MutasiController extends Controller
         if ($request->has('id_toko')) {
             $idToko = $request->input('id_toko');
             if ($idToko != 1) {
-                $query->where(function($q) use ($idToko) {
+                $query->where(function ($q) use ($idToko) {
                     $q->where('id_toko_pengirim', $idToko)
-                      ->orWhere('id_toko_penerima', $idToko);
+                        ->orWhere('id_toko_penerima', $idToko);
                 });
             }
         }
 
         if ($request->has('toko')) {
             $idToko = $request->input('toko');
-            $query->where(function($q) use ($idToko) {
+            $query->where(function ($q) use ($idToko) {
                 $q->where('id_toko_pengirim', $idToko)
-                  ->orWhere('id_toko_penerima', $idToko);
+                    ->orWhere('id_toko_penerima', $idToko);
             });
         }
 
@@ -177,7 +177,7 @@ class MutasiController extends Controller
                 'success' => true,
                 'message' => 'Sukses menghapus Data mutasi'
             ]);
-        } catch (\Throwable $th) { 
+        } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'success' => false,

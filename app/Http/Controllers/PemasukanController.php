@@ -114,8 +114,6 @@ class PemasukanController extends Controller
                 'nama_pemasukan' => $item->nama_pemasukan ?? '-',
                 'nama_jenis' => $item['jenis_pemasukan']->nama_jenis ?? '-',
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
-                'is_pinjam' => $item->is_pinjam,
-                'ket_pinjam' => $item->ket_pinjam,
                 'tanggal' => $item['tanggal'] ? Carbon::parse($item['tanggal'])->format('d-m-Y') : '-',
             ];
         });
@@ -132,52 +130,25 @@ class PemasukanController extends Controller
 
     public function store(Request $request)
     {
-        $is_pinjam = (string)$request->input('is_pinjam', '0');
-
         $validation = [
             'id_toko' => 'required|exists:toko,id',
             'nama_pemasukan' => 'nullable|string',
             'nilai' => 'required|numeric',
             'tanggal' => 'required|date',
-            'is_pinjam' => 'nullable|in:0,1,2',
-            'jangka_pinjam' => 'required_if:is_pinjam,1|nullable|in:1,2'
+            'id_jenis_pemasukan' => 'required|exists:jenis_pemasukan,id'
         ];
-
-        if ($is_pinjam) {
-            $validation['ket_pinjam'] = 'required|string';
-        } else {
-            $validation['id_jenis_pemasukan'] = 'nullable|exists:jenis_pemasukan,id';
-            $validation['nama_jenis'] = 'required_without:id_jenis_pemasukan|string|required_if:is_pinjam,0';
-            $validation['ket_pinjam'] = 'nullable|string';
-        }
 
         $validatedData = $request->validate($validation);
 
         try {
             DB::beginTransaction();
 
-            $id_jenis_pemasukan = null;
-            if (!$is_pinjam) {
-                $id_jenis_pemasukan = $validatedData['id_jenis_pemasukan'] ?? null;
-                if (empty($id_jenis_pemasukan) && isset($validatedData['nama_jenis'])) {
-                    $jenis_pemasukan = JenisPemasukan::create([
-                        'nama_jenis' => $validatedData['nama_jenis']
-                    ]);
-                    $id_jenis_pemasukan = $jenis_pemasukan->id;
-                }
-            } else {
-                $id_jenis_pemasukan = null;
-            }
-
             Pemasukan::create([
                 'id_toko' => $validatedData['id_toko'],
-                'id_jenis_pemasukan' => $id_jenis_pemasukan,
+                'id_jenis_pemasukan' => $validatedData['id_jenis_pemasukan'],
                 'nama_pemasukan' => $validatedData['nama_pemasukan'],
                 'nilai' => $validatedData['nilai'],
                 'tanggal' => $validatedData['tanggal'],
-                'is_pinjam' => $is_pinjam,
-                'ket_pinjam' => $validatedData['ket_pinjam'] ?? null,
-                'jangka_pinjam' => $is_pinjam == '1' ? $validatedData['jangka_pinjam'] : null,
             ]);
 
             DB::commit();

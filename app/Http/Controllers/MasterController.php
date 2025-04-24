@@ -6,11 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Barang;
 use App\Models\DataReture;
 use App\Models\DetailToko;
+use App\Models\Hutang;
+use App\Models\JenisHutang;
 use App\Models\JenisPemasukan;
 use App\Models\JenisPengeluaran;
+use App\Models\JenisPiutang;
 use App\Models\Kasbon;
 use App\Models\Member;
 use App\Models\Pemasukan;
+use App\Models\Piutang;
 use App\Models\StockBarang;
 use App\Models\Supplier;
 use App\Models\Toko;
@@ -165,6 +169,150 @@ class MasterController extends Controller
         $query = JenisPemasukan::query();
 
         $cek_id_jenis = Pemasukan::where('id_jenis_pemasukan', 1)->exists();
+        if ($cek_id_jenis) {
+            $query->where('id', '!=', 1);
+        }
+
+        if (!empty($request['is_admin'])) {
+            $query->where('id', '!=', 1);
+        }
+
+        if (!empty($request['super_admin'])) {
+            $query->where('id', '=', 1);
+        }
+
+        if (!empty($request['is_delete'])) {
+            $query->where('id', '!=', $request['is_delete']);
+        }
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        $query->orderBy('id', $meta['orderBy']);
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = array_map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'text' => $item['nama_jenis'],
+            ];
+        }, $data['data']);
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
+    public function getJenishutang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = JenisHutang::query();
+
+        $cek_id_jenis = Hutang::where('id_jenis', 1)->exists();
+        if ($cek_id_jenis) {
+            $query->where('id', '!=', 1);
+        }
+
+        if (!empty($request['is_admin'])) {
+            $query->where('id', '!=', 1);
+        }
+
+        if (!empty($request['super_admin'])) {
+            $query->where('id', '=', 1);
+        }
+
+        if (!empty($request['is_delete'])) {
+            $query->where('id', '!=', $request['is_delete']);
+        }
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(nama_jenis) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+        $query->orderBy('id', $meta['orderBy']);
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = array_map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'text' => $item['nama_jenis'],
+            ];
+        }, $data['data']);
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
+    public function getJenispiutang(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = JenisPiutang::query();
+
+        $cek_id_jenis = Piutang::where('id_jenis', 1)->exists();
         if ($cek_id_jenis) {
             $query->where('id', '!=', 1);
         }

@@ -167,6 +167,16 @@
                                 </a>
                             </li>
                             <li>
+                                <a href="{{ route('keuangan.piutang.index') }}" class="dropdown-item">
+                                    <i class="icon feather icon-file-plus"></i> Piutang
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('keuangan.hutang.index') }}" class="dropdown-item">
+                                    <i class="icon feather icon-file-minus"></i> Hutang
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ route('keuangan.mutasi.index') }}" class="dropdown-item">
                                     <i class="icon feather icon-file-text"></i> Mutasi
                                 </a>
