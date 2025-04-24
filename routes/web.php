@@ -186,6 +186,8 @@ Route::middleware(['auth'])->group(function () {
         // Piutang Controller
         Route::get('/piutang', [PiutangController::class, 'index'])->name('keuangan.piutang.index');
         Route::post('piutang/store', [PiutangController::class, 'store'])->name('master.piutang.store');
+        Route::get('/piutang/detail/{id}', [PiutangController::class, 'detail'])->name('master.piutang.detail');
+        Route::put('/piutang/update/{id}', [PiutangController::class, 'updatepiutang'])->name('master.piutang.update');
         Route::delete('/piutang/delete/{id}', [PiutangController::class, 'delete'])->name('master.piutang.delete');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');

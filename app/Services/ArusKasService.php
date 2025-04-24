@@ -13,6 +13,7 @@ use App\Models\Kasbon;
 use App\Models\Mutasi;
 use App\Models\Toko;
 use App\Models\Hutang;
+use App\Models\Piutang;
 
 class ArusKasService
 {
@@ -59,6 +60,17 @@ class ArusKasService
         }
 
         $hutangQuery->orderBy('id', $meta['orderBy']);
+
+        // Get data from Piutang model
+        $piutangQuery = Piutang::with(['toko', 'jenis_piutang', 'detailpiutang'])
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $piutangQuery->whereIn('id_toko', $request->id_toko);
+        }
+
+        $piutangQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from PembelianBarang model
         $pembelianQuery = PembelianBarang::with('supplier')
@@ -112,6 +124,7 @@ class ArusKasService
         $mutasiList = $mutasiQuery->get();
         $kasbonList = $kasbonQuery->get();
         $hutangList = $hutangQuery->get();
+        $piutangList = $piutangQuery->get();
 
         if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
             return response()->json([
@@ -422,6 +435,59 @@ class ArusKasService
             return $rows;
         });
 
+        // Format hutang data
+        $piutangData = $piutangList->flatMap(function ($piutang) {
+            $rows = [];
+
+            // Main piutang entry
+            $rows[] = [
+                'id' => $piutang->id,
+                'tgl' => Carbon::parse($piutang->tanggal)->format('d-m-Y H:i:s'),
+                'subjek' => "Toko {$piutang->toko->singkatan}",
+                'kategori' => 'Piutang ' . ($piutang->jenis_piutang ? $piutang->jenis_piutang->nama_jenis : 'Tidak Terkategori'),
+                'item' => $piutang->keterangan,
+                'jml' => 1,
+                'sat' => "Ls",
+                'hst' => (int)$piutang->nilai,
+                'nilai_transaksi' => (int)$piutang->nilai,
+                'kas_kecil_out' => $piutang->id_toko != 1 ? (int)$piutang->nilai : 0,
+                'kas_kecil_in' => 0,
+                'kas_besar_out' => $piutang->id_toko == 1 ? (int)$piutang->nilai : 0,
+                'kas_besar_in' => 0,
+                'hutang_in' => 0,
+                'hutang_out' => 0,
+                'piutang_in' => (int)$piutang->nilai,
+                'piutang_out' => 0,
+                'urutan' => 1
+            ];
+
+            // Add detail piutang payments
+            foreach ($piutang->detailpiutang as $detail) {
+                $rows[] = [
+                    'id' => $detail->id,
+                    'tgl' => Carbon::parse($detail->created_at)->format('d-m-Y H:i:s'),
+                    'subjek' => "Toko {$piutang->toko->singkatan}",
+                    'kategori' => 'Bayar Piutang',
+                    'item' => "Pembayaran {$piutang->keterangan}",
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => (int)$detail->nilai,
+                    'nilai_transaksi' => (int)$detail->nilai,
+                    'kas_kecil_out' => 0,
+                    'kas_kecil_in' => $piutang->id_toko != 1 ? (int)$detail->nilai : 0,
+                    'kas_besar_out' => 0,
+                    'kas_besar_in' => $piutang->id_toko == 1 ? (int)$detail->nilai : 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => (int)$detail->nilai,
+                    'urutan' => 2
+                ];
+            }
+
+            return $rows;
+        });
+
         $data = $pengeluaranData
         ->concat($kasirData)
         ->concat($pembelianData)
@@ -429,6 +495,7 @@ class ArusKasService
         ->concat($mutasiData)
         ->concat($kasbonData)
         ->concat($hutangData)
+        ->concat($piutangData)
         ->sortByDesc('tgl')->values();
 
         $totalBulanLalu = $this->calculateBulanLalu($year, $month);

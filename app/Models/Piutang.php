@@ -23,4 +23,9 @@ class Piutang extends Model
     {
         return $this->belongsTo(JenisPiutang::class,'id_jenis', 'id');
     }
+
+    public function detailpiutang()
+    {
+        return $this->hasMany(DetailPiutang::class, 'id_piutang');
+    }
 }

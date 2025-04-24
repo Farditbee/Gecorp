@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailPiutang;
 use App\Models\JenisPiutang;
 use App\Models\Piutang;
 use Carbon\Carbon;
@@ -209,6 +210,91 @@ class PiutangController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Gagal menghapus Data: ' . $th->getMessage()
+            ], 500);
+        }
+    }
+
+    public function detail(string $id)
+    {
+        try {
+            $piutang = Piutang::with(['toko', 'jenis_piutang'])->findOrFail($id);
+            $detailPembayaran = DetailPiutang::where('id_piutang', $id)
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'nilai' => 'Rp. ' . number_format($item->nilai, 0, '.', '.'),
+                        'tanggal' => Carbon::parse($item->created_at)->format('d-m-Y H:i:s')
+                    ];
+                });
+
+            $totalPembayaran = DetailPiutang::where('id_piutang', $id)->sum('nilai');
+            $sisaPiutang = $piutang->nilai - $totalPembayaran;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'piutang' => [
+                        'id' => $piutang->id,
+                        'nama_toko' => $piutang->toko->nama_toko,
+                        'keterangan' => $piutang->keterangan ?? '-',
+                        'nama_jenis' => $piutang->jenis_piutang->nama_jenis ?? '-',
+                        'nilai' => 'Rp. ' . number_format($piutang->nilai, 0, '.', '.'),
+                        'status' => $piutang->status,
+                        'jangka' => $piutang->jangka,
+                        'tanggal' => Carbon::parse($piutang->tanggal)->format('d-m-Y'),
+                    ],
+                    'detail_pembayaran' => $detailPembayaran,
+                    'total_pembayaran' => 'Rp. ' . number_format($totalPembayaran, 0, '.', '.'),
+                    'sisa_piutang' => 'Rp. ' . number_format($sisaPiutang, 0, '.', '.')
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil detail piutang: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updatepiutang(Request $request, string $id)
+    {
+        $validation = [
+            'nilai' => 'required|numeric',
+        ];
+
+        $validatedData = $request->validate($validation);
+
+        try {
+            DB::beginTransaction();
+
+            $piutang = Piutang::findOrFail($id);
+            if ($validatedData['nilai'] > $piutang->nilai) {
+                throw new \Exception('Nilai bayar melebihi nilai piutang!');
+            }
+
+            DetailPiutang::create([
+                'id_piutang' => $piutang->id,
+                'nilai' => $validatedData['nilai'],
+            ]);
+
+            $totalBayar = DetailPiutang::where('id_piutang', $piutang->id)->sum('nilai');
+
+            if ($totalBayar >= $piutang->nilai) {
+                $piutang->update(['status' => '2']);
+            }
+
+            DB::commit();
+            return response()->json([
+                'success' => true,
+                'message' => 'Berhasil melakukan pembayaran piutang'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan pembayaran: ' . $e->getMessage()
             ], 500);
         }
     }
