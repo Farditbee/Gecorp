@@ -397,9 +397,9 @@
             }
 
             let status = (data.status == 1) ?
-                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
+                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Piutang In</span>` :
                 (data.status == 2) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Piutang Out</span>` :
                 (data.id_toko == 1) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
