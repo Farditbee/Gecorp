@@ -195,19 +195,19 @@ class HutangController extends Controller
     {
         DB::beginTransaction();
         try {
-            $mutasi = Hutang::findOrFail($id);
-            $mutasi->delete();
+            $data = Hutang::findOrFail($id);
+            $data->delete();
 
             DB::commit();
             return response()->json([
                 'success' => true,
-                'message' => 'Sukses menghapus Data mutasi'
+                'message' => 'Sukses menghapus Data'
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal menghapus Data mutasi: ' . $th->getMessage()
+                'message' => 'Gagal menghapus Data: ' . $th->getMessage()
             ], 500);
         }
     }

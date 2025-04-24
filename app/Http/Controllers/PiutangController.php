@@ -195,8 +195,8 @@ class PiutangController extends Controller
     {
         DB::beginTransaction();
         try {
-            $mutasi = Piutang::findOrFail($id);
-            $mutasi->delete();
+            $data = Piutang::findOrFail($id);
+            $data->delete();
 
             DB::commit();
             return response()->json([
