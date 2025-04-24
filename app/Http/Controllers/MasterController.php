@@ -240,9 +240,11 @@ class MasterController extends Controller
 
         $query = JenisHutang::query();
 
-        $cek_id_jenis = Hutang::where('id_jenis', 1)->exists();
-        if ($cek_id_jenis) {
-            $query->where('id', '!=', 1);
+        if (empty($request['is_not'])) {
+            $cek_id_jenis = Hutang::where('id_jenis', 1)->exists();
+            if ($cek_id_jenis) {
+                $query->where('id', '!=', 1);
+            }
         }
 
         if (!empty($request['is_admin'])) {
@@ -311,11 +313,6 @@ class MasterController extends Controller
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
         $query = JenisPiutang::query();
-
-        $cek_id_jenis = Piutang::where('id_jenis', 1)->exists();
-        if ($cek_id_jenis) {
-            $query->where('id', '!=', 1);
-        }
 
         if (!empty($request['is_admin'])) {
             $query->where('id', '!=', 1);
@@ -690,7 +687,7 @@ class MasterController extends Controller
 
         $mappedData = $data->map(function ($item) {
             return [
-                'id' => $item->qrcode . '/'. $item->id_barang,
+                'id' => $item->qrcode . '/' . $item->id_barang,
                 'text' => "{$item->nama_barang} / Sisa Stock: ({$item->qty}) /  QRcode: {$item->qrcode}",
             ];
         });
@@ -778,5 +775,4 @@ class MasterController extends Controller
             'pagination' => $data['meta']
         ], 200);
     }
-
 }

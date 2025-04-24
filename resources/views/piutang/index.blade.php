@@ -317,6 +317,10 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
+            if (customFilter['status']) {
+                filterParams.status = customFilter['status'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getpiutang') }}', {

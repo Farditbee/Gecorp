@@ -290,6 +290,9 @@
                 id: '#jenis',
                 isUrl: '{{ route('master.jenishutang') }}',
                 placeholder: 'Pilih Jenis Hutang',
+                isFilter: {
+                    is_not: 1,
+                },
             },
             {
                 id: '#id_jenis',
@@ -315,6 +318,10 @@
 
             if (customFilter['jenis']) {
                 filterParams.jenis = customFilter['jenis'];
+            }
+
+            if (customFilter['status']) {
+                filterParams.status = customFilter['status'];
             }
 
             let getDataRest = await renderAPI(
