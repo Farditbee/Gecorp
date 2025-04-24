@@ -63,14 +63,7 @@
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <select class="form-select select2" id="f_is_pinjam" name="f_is_pinjam">
-                                            <option value="" selected disabled></option>
-                                            <option value="1">Pinjaman</option>
-                                            <option value="0">Tidak</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                    <div class="col-12 col-md-6 col-lg-4 mb-2">
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
                                         <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
@@ -91,10 +84,10 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Tanggal</th>
+                                                <th class="text-wrap align-top">Status</th>
+                                                <th class="text-wrap align-top">Jenis</th>
                                                 <th class="text-wrap align-top">Nama Toko</th>
                                                 <th class="text-wrap align-top">Nama Pemasukan</th>
-                                                <th class="text-wrap align-top">Status</th>
-                                                <th class="text-wrap align-top">Jenis/Ket</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
                                                         class="mr-2">Action</span></th>
@@ -302,10 +295,6 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
-            if (customFilter['is_pinjam']) {
-                filterParams.is_pinjam = customFilter['is_pinjam'];
-            }
-
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getpemasukan') }}', {
@@ -355,31 +344,9 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data
-                .is_pinjam == 2) ? `
-                <a class="p-1 btn detail-data action_button"
-                    data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Detail ${title}" data="${elementData}">
-                    <span class="text-dark">Detail</span>
-                    <div class="icon text-info">
-                        <i class="fa fa-book"></i>
-                    </div>
-                </a>` : '';
-
-            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1) ? `
-                <a class="p-1 btn edit-data action_button"
-                    title="Edit ${title}" data="${elementData}">
-                    <span class="text-dark">Edit</span>
-                    <div class="icon text-warning">
-                        <i class="fa fa-edit"></i>
-                    </div>
-                </a>` : '';
-
-            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
+            if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -389,11 +356,7 @@
                 </div>`;
             }
 
-            let pinjaman_badge = (data.is_pinjam == 1) ?
-                `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
-                (data.is_pinjam == 2) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang In</span>` :
-                (data.id_toko == 1) ?
+            let status = (data.id_toko == 1) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar In</span>` :
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil In</span>`;
 
@@ -401,10 +364,10 @@
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
-                is_pinjam: pinjaman_badge,
                 nama_pemasukan: data?.nama_pemasukan ?? '-',
                 nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_pinjam ?? '-'),
                 nilai: data?.nilai ?? '-',
+                status,
                 action_buttons,
             };
         }
@@ -423,10 +386,10 @@
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.tanggal}</td>
+                    <td class="${classCol}">${element.status}</td>
+                    <td class="${classCol}">${element.nama_jenis}</td>
                     <td class="${classCol}">${element.nama_toko}</td>
                     <td class="${classCol}">${element.nama_pemasukan}</td>
-                    <td class="${classCol}">${element.is_pinjam}</td>
-                    <td class="${classCol}">${element.nama_jenis}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
                 </tr>`;
@@ -473,19 +436,9 @@
 
             jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
-
-            $(document).ready(function() {
-                $('#f_is_pinjam').select2({
-                    placeholder: "Pilih Status Pinjaman",
-                    allowClear: true,
-                    minimumResultsForSearch: -1
-                });
-            });
         }
 
         $('#modal-form').on('hidden.bs.modal', function() {
-            document.getElementById("is_pinjam").checked = false;
-
             document.getElementById("nama_jenis").value = "";
             document.getElementById("nama_jenis").disabled = false;
 
@@ -526,8 +479,14 @@
                     tanggal: $('#tanggal').val(),
                 };
 
-                formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
-                formData.nama_jenis = $('#nama_jenis').val();
+                let idJenis = $('#id_jenis_pemasukan').val();
+                let namaJenis = $('#nama_jenis').val();
+
+                if (idJenis) {
+                    formData.id_jenis_pemasukan = idJenis;
+                } else if (namaJenis) {
+                    formData.nama_jenis = namaJenis;
+                }
 
                 try {
                     let postData = await renderAPI("POST", actionUrl, formData);
@@ -552,81 +511,6 @@
                     notificationAlert("error", "Kesalahan", resp.message || "Terjadi kesalahan");
                 }
             });
-        }
-
-        async function getDetailData(id, selector) {
-            $(selector).html('');
-
-            let getDataRest = await renderAPI(
-                'GET',
-                `/admin/pemasukan/detail/${id}`, {}
-            ).then(function(response) {
-                return response;
-            }).catch(function(error) {
-                return error.response;
-            });
-
-            if (getDataRest.status === 200) {
-                let data = getDataRest.data.data;
-                let tableList = `
-                    <div class="table-responsive table-scroll-wrapper">
-                        <table class="table table-striped m-0">
-                            <thead>
-                                <tr class="tb-head">
-                                    <th class="text-center text-wrap align-top">No</th>
-                                    <th class="text-wrap align-top">Tanggal Bayar</th>
-                                    <th class="text-right text-wrap align-top">Nilai</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailData-${selector}"></tbody>
-                            <tfoot></tfoot>
-                        </table>
-                    </div>
-                `;
-
-                $(`#${selector}`).html(tableList);
-
-                let getDataTable = '';
-                let classCol = 'align-center text-dark text-wrap';
-
-                if (data.detail_pembayaran.length > 0) {
-                    data.detail_pembayaran.forEach((element, index) => {
-                        getDataTable += `
-                            <tr class="text-dark">
-                                <td class="${classCol} text-center">${index + 1}.</td>
-                                <td class="${classCol}">${element.tanggal}</td>
-                                <td class="${classCol} text-right">${element.nilai}</td>
-                            </tr>`;
-                    });
-                } else {
-                    getDataTable += `
-                        <tr class="text-dark">
-                            <td class="${classCol} text-center" colspan="3"><i class="fa fa-circle-info mr-1"></i>Belum ada pembayaran</td>
-                        </tr>`;
-                }
-
-                let totalRow = `
-                <tr class="bg-success">
-                    <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total Pembayaran</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="totalDetailData">${data.total_pembayaran}</strong></td>
-                </tr>
-                <tr class="bg-danger">
-                    <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Pinjaman</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_pinjaman}</strong></td>
-                </tr>`;
-
-                $(`#${selector}`).find(`#detailData-${selector}`).html('');
-                $(`#${selector}`).find(`#detailData-${selector}`).append(getDataTable);
-
-                $(`#${selector}`).find('tfoot').html('');
-                $(`#${selector}`).find('tfoot').append(totalRow);
-
-                return data;
-            } else {
-                return;
-            }
         }
 
         async function deleteData() {
@@ -690,7 +574,6 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
-                    is_pinjam: $("#f_is_pinjam").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -712,128 +595,6 @@
             });
         }
 
-        async function detailData() {
-            $(document).off("click", ".detail-data").on("click", ".detail-data", async function() {
-                let rawData = $(this).attr("data");
-                let data = JSON.parse(decodeURIComponent(rawData));
-
-                $("#detailModalLabel").html(`<i class="fa fa-book mr-2"></i>Detail Data`);
-                $("#detailModal").modal("show");
-
-                let dataList = await getDetailData(data.id, 'tableDetailData');
-                renderDetailData(dataList.pemasukan);
-            });
-        }
-
-        async function editData() {
-            $(document).off("click", ".edit-data").on("click", ".edit-data", async function() {
-                let rawData = $(this).attr("data");
-                let data = JSON.parse(decodeURIComponent(rawData));
-
-                $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>${data.ket_pinjam ?? '-'}`);
-                $("#save-edit").attr("data-id", data.id);
-                $("#editModal").modal("show");
-
-                let dataList = await getDetailData(data.id, 'tableEditData');
-
-                let sisaPinjaman = dataList.sisa_pinjaman.replace(/[^\d]/g, "");
-                let sisaPinjamanNum = parseInt(sisaPinjaman, 10) || 0;
-
-                $("#edit-nilai").attr({
-                    "min": 0,
-                    "max": sisaPinjamanNum,
-                    "type": "number"
-                }).val(sisaPinjamanNum);
-            });
-
-            $(document).on("input", "#edit-nilai", function() {
-                let maxValue = parseInt($(this).attr("max"), 10);
-                let minValue = parseInt($(this).attr("min"), 10);
-                let currentValue = parseInt($(this).val(), 10) || 0;
-
-                if (currentValue < minValue) {
-                    $(this).val(minValue);
-                }
-
-                if (currentValue > maxValue) {
-                    $(this).val(maxValue);
-                }
-            });
-
-            $(document).on("click", "#save-edit", async function() {
-                let id = $(this).attr("data-id");
-                let newValue = parseInt($("#edit-nilai").val(), 10) || 0;
-                let maxValue = parseInt($("#edit-nilai").attr("max"), 10);
-
-                if (newValue < 1 || newValue > maxValue) {
-                    notificationAlert("info", "Pemberitahuan", `Nilai harus antara 1 dan ${maxValue}`);
-                    return;
-                }
-
-                let formData = {
-                    nilai: newValue
-                };
-
-                try {
-                    let postData = await renderAPI("PUT", `/admin/pemasukan/update/${id}`, formData);
-
-                    loadingPage(false);
-                    if (postData.status >= 200 && postData.status < 300) {
-                        notificationAlert("success", "Pemberitahuan", postData.data.message || "Berhasil");
-                        setTimeout(async function() {
-                            await getListData(defaultLimitPage, currentPage, defaultAscending,
-                                defaultSearch, customFilter);
-                        }, 500);
-                        setTimeout(() => {
-                            $("#editModal").modal("hide");
-                        }, 500);
-                    } else {
-                        notificationAlert("info", "Pemberitahuan", postData.data.message ||
-                            "Terjadi kesalahan");
-                    }
-                } catch (error) {
-                    loadingPage(false);
-                    let resp = error.response || {};
-                    notificationAlert("error", "Kesalahan", resp.data.message || "Terjadi kesalahan");
-                }
-            });
-        }
-
-        function renderDetailData(data) {
-            const html = `
-                <div class="card shadow-sm mb-3 border-0">
-                    <div class="card-body p-3">
-                        <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pinjaman</h5>
-                        <div class="d-flex justify-content-between">
-                            <strong>Nama Toko:</strong>
-                            <span>${data.nama_toko}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Pinjaman:</strong>
-                            <span>${data.nama_pemasukan}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
-                            <strong>Nilai:</strong>
-                            <span>${data.nilai}</span>
-                        </div>
-                        ${data.is_pinjam ? `
-                                                                                                    <div class="d-flex justify-content-between">
-                                                                                                        <strong>Keterangan:</strong>
-                                                                                                        <span>${data.ket_pinjam}</span>
-                                                                                                    </div>
-                                                                                                    ` : ''}
-                        <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal Pemasukan:</strong>
-                            <span>${data.tanggal}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            $("#detailDataContainer").html(html);
-        }
-
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await setDynamicButton();
@@ -844,8 +605,6 @@
             await addData();
             await submitForm();
             await deleteData();
-            await editData();
-            await detailData();
         }
     </script>
 @endsection

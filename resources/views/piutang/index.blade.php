@@ -66,8 +66,8 @@
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-select select2" id="f_status" name="f_status">
                                             <option value="" selected disabled></option>
-                                            <option value="1">Piutang</option>
-                                            <option value="0">Tidak</option>
+                                            <option value="1">Piutang In</option>
+                                            <option value="2">Piutang Out</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
@@ -165,7 +165,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group w-100">
-                                    <label for="jangka" class="d-block">Jangka Piutang <sup class="text-danger">*</sup></label>
+                                    <label for="jangka" class="d-block">Jangka Piutang <sup
+                                            class="text-danger">*</sup></label>
                                     <select class="form-control select2 w-100" name="jangka" id="jangka">
                                         <option value="" disabled selected>Pilih jangka piutang</option>
                                         <option value="1">Jangka Pendek</option>
@@ -403,9 +404,7 @@
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Piutang In</span>` :
                 (data.status == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Piutang Out</span>` :
-                (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
+                `-`;
 
             return {
                 id: data?.id ?? '-',
@@ -494,7 +493,7 @@
             });
 
             $('#f_status').select2({
-                placeholder: 'Pilih status hutang',
+                placeholder: 'Pilih status piutang',
                 allowClear: true,
                 width: '100%'
             });
@@ -634,6 +633,7 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
+                    status: $("#f_status").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
