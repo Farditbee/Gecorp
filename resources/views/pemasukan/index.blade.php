@@ -395,7 +395,7 @@
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang In</span>` :
                 (data.id_toko == 1) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar In</span>` :
-                `<span class="custom-badge badge badge-info"><i c lass="fa fa-info-circle"></i> Kas Kecil In</span>`;
+                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil In</span>`;
 
             return {
                 id: data?.id ?? '-',
