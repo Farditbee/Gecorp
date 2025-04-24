@@ -384,7 +384,7 @@
             let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
-                    <span class="text-dark">Edit</span>
+                    <span class="text-dark">Bayar</span>
                     <div class="icon text-warning">
                         <i class="fa fa-edit"></i>
                     </div>
@@ -393,8 +393,8 @@
             if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -718,8 +718,8 @@
                 </tr>
                 <tr class="bg-danger">
                     <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Hutang</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_hutang}</strong></td>
+                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Piutang</strong></td>
+                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_piutang}</strong></td>
                 </tr>`;
 
                 $(`#${selector}`).find(`#detailData-${selector}`).html('');
@@ -753,21 +753,21 @@
                 let data = JSON.parse(decodeURIComponent(rawData));
 
                 $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>Form Bayar Hutang`);
+                    `<i class="fa fa-edit mr-2"></i>Form Bayar ${title}`);
                 $("#save-edit").attr("data-id", data.id);
                 $("#editModal").modal("show");
                 $("#keterangan-bayar").html(data.keterangan);
 
                 let dataList = await getDetailData(data.id, 'tableEditData');
 
-                let sisaHutang = dataList.sisa_hutang.replace(/[^\d]/g, "");
-                let sisaHutangNum = parseInt(sisaHutang, 10) || 0;
+                let sisa = dataList.sisa_piutang.replace(/[^\d]/g, "");
+                let sisaNum = parseInt(sisa, 10) || 0;
 
                 $("#edit-nilai").attr({
                     "min": 0,
-                    "max": sisaHutangNum,
+                    "max": sisaNum,
                     "type": "number"
-                }).val(sisaHutangNum);
+                }).val(sisaNum);
             });
 
             $(document).on("input", "#edit-nilai", function() {

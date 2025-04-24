@@ -397,8 +397,8 @@
             if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
