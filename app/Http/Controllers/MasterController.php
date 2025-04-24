@@ -240,7 +240,7 @@ class MasterController extends Controller
 
         $query = JenisHutang::query();
 
-        $cek_id_jenis = Hutang::where('id_jenis_hutang', 1)->exists();
+        $cek_id_jenis = Hutang::where('id_jenis', 1)->exists();
         if ($cek_id_jenis) {
             $query->where('id', '!=', 1);
         }
@@ -312,7 +312,7 @@ class MasterController extends Controller
 
         $query = JenisPiutang::query();
 
-        $cek_id_jenis = Piutang::where('id_jenis_piutang', 1)->exists();
+        $cek_id_jenis = Piutang::where('id_jenis', 1)->exists();
         if ($cek_id_jenis) {
             $query->where('id', '!=', 1);
         }
