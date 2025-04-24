@@ -16,7 +16,7 @@ class JenisPengeluaranSeeder extends Seeder
         JenisPengeluaran::insert([
             ["id" => 1, "nama_jenis" => "Biaya Perlengkapan"],
             ["id" => 2, "nama_jenis" => "Biaya Operasional"],
-            ["id" => 3, "nama_jenis" => "Gaji Staff"],
+            ["id" => 3, "nama_jenis" => "Biaya Gaji Staff"],
             ["id" => 4, "nama_jenis" => "Biaya Transport"],
             ["id" => 5, "nama_jenis" => "Biaya Listrik"],
             ["id" => 6, "nama_jenis" => "Biaya Iklan"],

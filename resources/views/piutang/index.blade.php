@@ -66,8 +66,8 @@
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-select select2" id="f_status" name="f_status">
                                             <option value="" selected disabled></option>
-                                            <option value="1">Piutang</option>
-                                            <option value="0">Tidak</option>
+                                            <option value="1">Piutang In</option>
+                                            <option value="2">Piutang Out</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
@@ -165,7 +165,8 @@
                             </div>
                             <div class="col-md-3">
                                 <div class="form-group w-100">
-                                    <label for="jangka" class="d-block">Jangka Piutang <sup class="text-danger">*</sup></label>
+                                    <label for="jangka" class="d-block">Jangka Piutang <sup
+                                            class="text-danger">*</sup></label>
                                     <select class="form-control select2 w-100" name="jangka" id="jangka">
                                         <option value="" disabled selected>Pilih jangka piutang</option>
                                         <option value="1">Jangka Pendek</option>
@@ -316,6 +317,10 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
+            if (customFilter['status']) {
+                filterParams.status = customFilter['status'];
+            }
+
             let getDataRest = await renderAPI(
                 'GET',
                 '{{ route('master.getpiutang') }}', {
@@ -379,7 +384,7 @@
             let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
-                    <span class="text-dark">Edit</span>
+                    <span class="text-dark">Bayar</span>
                     <div class="icon text-warning">
                         <i class="fa fa-edit"></i>
                     </div>
@@ -388,8 +393,8 @@
             if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -403,9 +408,7 @@
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Piutang In</span>` :
                 (data.status == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Piutang Out</span>` :
-                (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
+                `-`;
 
             return {
                 id: data?.id ?? '-',
@@ -494,7 +497,7 @@
             });
 
             $('#f_status').select2({
-                placeholder: 'Pilih status hutang',
+                placeholder: 'Pilih status piutang',
                 allowClear: true,
                 width: '100%'
             });
@@ -634,6 +637,7 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
+                    status: $("#f_status").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -714,8 +718,8 @@
                 </tr>
                 <tr class="bg-danger">
                     <td class="${classCol}" colspan="1"></td>
-                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Hutang</strong></td>
-                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_hutang}</strong></td>
+                    <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Sisa Piutang</strong></td>
+                    <td class="${classCol} text-right"><strong class="text-white" id="sisaDetailData">${data.sisa_piutang}</strong></td>
                 </tr>`;
 
                 $(`#${selector}`).find(`#detailData-${selector}`).html('');
@@ -749,21 +753,21 @@
                 let data = JSON.parse(decodeURIComponent(rawData));
 
                 $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>Form Bayar Hutang`);
+                    `<i class="fa fa-edit mr-2"></i>Form Bayar ${title}`);
                 $("#save-edit").attr("data-id", data.id);
                 $("#editModal").modal("show");
                 $("#keterangan-bayar").html(data.keterangan);
 
                 let dataList = await getDetailData(data.id, 'tableEditData');
 
-                let sisaHutang = dataList.sisa_hutang.replace(/[^\d]/g, "");
-                let sisaHutangNum = parseInt(sisaHutang, 10) || 0;
+                let sisa = dataList.sisa_piutang.replace(/[^\d]/g, "");
+                let sisaNum = parseInt(sisa, 10) || 0;
 
                 $("#edit-nilai").attr({
                     "min": 0,
-                    "max": sisaHutangNum,
+                    "max": sisaNum,
                     "type": "number"
-                }).val(sisaHutangNum);
+                }).val(sisaNum);
             });
 
             $(document).on("input", "#edit-nilai", function() {

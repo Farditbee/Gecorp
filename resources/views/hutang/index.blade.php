@@ -66,8 +66,8 @@
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
                                         <select class="form-select select2" id="f_status" name="f_status">
                                             <option value="" selected disabled></option>
-                                            <option value="1">Hutang</option>
-                                            <option value="0">Tidak</option>
+                                            <option value="1">Hutang In</option>
+                                            <option value="2">Hutang Out</option>
                                         </select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
@@ -290,6 +290,9 @@
                 id: '#jenis',
                 isUrl: '{{ route('master.jenishutang') }}',
                 placeholder: 'Pilih Jenis Hutang',
+                isFilter: {
+                    is_not: 1,
+                },
             },
             {
                 id: '#id_jenis',
@@ -315,6 +318,10 @@
 
             if (customFilter['jenis']) {
                 filterParams.jenis = customFilter['jenis'];
+            }
+
+            if (customFilter['status']) {
+                filterParams.status = customFilter['status'];
             }
 
             let getDataRest = await renderAPI(
@@ -390,8 +397,8 @@
             if (data.id_toko == {{ auth()->user()->id_toko }} && delete_button || edit_button || detail_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-end">
-                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${detail_button ? `<div class="hovering p-1">${detail_button}</div>` : ''}
                     ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
@@ -405,9 +412,7 @@
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
                 (data.status == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
-                (data.id_toko == 1) ?
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
-                `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Kecil Out</span>`;
+                `-`;
 
             return {
                 id: data?.id ?? '-',
@@ -711,6 +716,7 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
+                    status: $("#f_status").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
