@@ -145,8 +145,14 @@
                     </div>
                 </a>` :
                 ``;
+            // Lokal
+            // let gambar_barcode = data?.barcode && data.barcode !== "" ?
+            //     `<img src="{{ asset('storage') }}/barcodes/${data.barcode}.png" width="200" class="barcode-img" alt="Barcode">` :
+            //     `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
+
+            // Server
             let gambar_barcode = data?.barcode && data.barcode !== "" ?
-                `<img src="{{ asset('storage') }}/barcodes/${data.barcode}.png" width="200" class="barcode-img" alt="Barcode">` :
+                `<img src="/${data.barcode_path}" width="100" class="barcode-img" alt="Barcode">` :
                 `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
 
             let edit_button = `
