@@ -25,6 +25,11 @@
                                         title="Tambah Data Barang">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
+                                    <form action="{{ route('master.barang.import') }}" method="POST" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="file" name="file" required>
+                                        <button type="submit" class="mr-2 btn btn-primary">Import</button>
+                                    </form>
                                 @endif
                             </div>
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -146,14 +151,14 @@
                 </a>` :
                 ``;
             // Lokal
-            // let gambar_barcode = data?.barcode && data.barcode !== "" ?
-            //     `<img src="{{ asset('storage') }}/barcodes/${data.barcode}.png" width="200" class="barcode-img" alt="Barcode">` :
-            //     `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
-
-            // Server
-            let gambar_barcode = data?.barcode && data.barcode !== "" ?
-                `<img src="/${data.barcode_path}" width="100" class="barcode-img" alt="Barcode">` :
+            let gambar_barcode = data?.barcode_path && data.barcode_path !== "" ?
+                `<img src="{{ asset('storage') }}/barcodes/${data.barcode}.png" width="200" class="barcode-img" alt="Barcode">` :
                 `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
+
+            // // Server
+            // let gambar_barcode = data?.barcode && data.barcode !== "" ?
+            //     `<img src="/${data.barcode_path}" width="100" class="barcode-img" alt="Barcode">` :
+            //     `<span class="badge badge-danger">Tidak Ada Gambar</span>`;
 
             let edit_button = `
                 <a href='barang/edit/${data.id}' class="p-1 btn edit-data action_button"

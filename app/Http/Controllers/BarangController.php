@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ActivityLogger;
+use App\Imports\BarangImport;
 use App\Models\Barang;
 use App\Models\Brand;
 use App\Models\JenisBarang;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\Facades\DNS1DFacade;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Imagick\Driver;
+use Maatwebsite\Excel\Facades\Excel;
 
 class BarangController extends Controller
 {
@@ -147,84 +149,6 @@ class BarangController extends Controller
     }
 
     // Lokal
-    // public function store(Request $request)
-    // {
-    //     $validated = $request->validate([
-    //         'nama_barang' => 'required|string|max:255',
-    //         'id_jenis_barang' => 'required|exists:jenis_barang,id',
-    //         'id_brand_barang' => 'required|exists:brand,id',
-    //         'barcode' => 'nullable|string|max:255',
-    //         'garansi' => 'nullable|string|max:255',
-    //         'gambar_barang' => 'nullable|image|max:2048',
-    //     ]);
-
-    //     ActivityLogger::log('Tambah Barang', $request->all());
-        
-    //     try {
-    //         // Ambil nama jenis dan brand barang
-    //         $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
-    //         $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
-        
-    //         // Buat kombinasi kode nama
-    //         $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
-        
-    //         // Generate barcode value
-    //         $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
-
-    //         // Path folder barcode
-    //         $barcodeFolder = storage_path('app/public/barcodes');
-
-    //         // Buat folder barcode jika belum ada
-    //         if (!file_exists($barcodeFolder)) {
-    //             mkdir($barcodeFolder, 0755, true);
-    //         }
-
-    //         // Generate barcode as PNG file
-    //         $barcodeFilename = "barcodes/{$barcodeValue}.png";
-    //         if (!Storage::exists($barcodeFilename)) {
-    //             $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
-
-    //             if (!$barcodeImage) {
-    //                 throw new \Exception('Failed to generate barcode PNG as Base64');
-    //             }
-
-    //             // Save to Storage
-    //             if (!Storage::put($barcodeFilename, base64_decode($barcodeImage))) {
-    //                 throw new \Exception('Failed to save barcode image to storage');
-    //             }
-    //         }
-
-    //         // Path folder gambar_barang
-    //         $gambarFolder = storage_path('app/public/gambar_barang');
-
-    //         // Buat folder gambar_barang jika belum ada
-    //         if (!file_exists($gambarFolder)) {
-    //             mkdir($gambarFolder, 0755, true);
-    //         }
-
-    //         $gambarPath = null; // Default null jika gambar tidak diunggah
-    //         if ($request->hasFile('gambar_barang')) {
-    //             $gambarFile = $request->file('gambar_barang');
-    //             $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Simpan ke storage/public/gambar_barang
-    //         }
-
-    //         $barang = new Barang();
-    //         $barang->nama_barang = $request->nama_barang;
-    //         $barang->id_jenis_barang = $request->id_jenis_barang;
-    //         $barang->id_brand_barang = $request->id_brand_barang;
-    //         $barang->barcode = $barcodeValue;
-    //         $barang->barcode_path = $barcodeFilename;
-    //         $barang->gambar_path = $gambarPath;
-    //         $barang->garansi = $request->garansi ?: 'No';
-    //         $barang->save();
-
-    //         return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-    //     }  
-    // }
-
-    // Server
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -235,68 +159,146 @@ class BarangController extends Controller
             'garansi' => 'nullable|string|max:255',
             'gambar_barang' => 'nullable|image|max:2048',
         ]);
-    
+
         ActivityLogger::log('Tambah Barang', $request->all());
-    
+        
         try {
             // Ambil nama jenis dan brand barang
             $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
             $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
-    
+        
             // Buat kombinasi kode nama
             $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
-    
+        
             // Generate barcode value
             $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
-    
-            // Path ke public/barcodes
-            $barcodeFolder = public_path('barcodes');
-    
-            // Buat folder barcodes jika belum ada
+
+            // Path folder barcode
+            $barcodeFolder = storage_path('app/public/barcodes');
+
+            // Buat folder barcode jika belum ada
             if (!file_exists($barcodeFolder)) {
                 mkdir($barcodeFolder, 0755, true);
             }
-    
-            // Buat nama file barcode
-            $barcodeFilename = "{$barcodeValue}.png";
-            $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
-    
-            // Cek apakah barcode sudah ada, jika belum buat
-            if (!file_exists($barcodeFullPath)) {
+
+            // Generate barcode as PNG file
+            $barcodeFilename = "barcodes/{$barcodeValue}.png";
+            if (!Storage::exists($barcodeFilename)) {
                 $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
-    
+
                 if (!$barcodeImage) {
-                    throw new \Exception('Gagal membuat barcode PNG dari base64');
+                    throw new \Exception('Failed to generate barcode PNG as Base64');
                 }
-    
-                if (!file_put_contents($barcodeFullPath, base64_decode($barcodeImage))) {
-                    throw new \Exception('Gagal menyimpan gambar barcode ke folder public/barcodes');
+
+                // Save to Storage
+                if (!Storage::put($barcodeFilename, base64_decode($barcodeImage))) {
+                    throw new \Exception('Failed to save barcode image to storage');
                 }
             }
-    
-            // Handle gambar_barang jika diupload
-            $gambarPath = null;
+
+            // Path folder gambar_barang
+            $gambarFolder = storage_path('app/public/gambar_barang');
+
+            // Buat folder gambar_barang jika belum ada
+            if (!file_exists($gambarFolder)) {
+                mkdir($gambarFolder, 0755, true);
+            }
+
+            $gambarPath = null; // Default null jika gambar tidak diunggah
             if ($request->hasFile('gambar_barang')) {
                 $gambarFile = $request->file('gambar_barang');
-                $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Tetap simpan di storage/public/gambar_barang
+                $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Simpan ke storage/public/gambar_barang
             }
-    
-            // Simpan ke database
+
             $barang = new Barang();
             $barang->nama_barang = $request->nama_barang;
             $barang->id_jenis_barang = $request->id_jenis_barang;
             $barang->id_brand_barang = $request->id_brand_barang;
             $barang->barcode = $barcodeValue;
-            $barang->barcode_path = "barcodes/{$barcodeFilename}"; // Path relatif di public
+            $barang->barcode_path = $barcodeFilename;
             $barang->gambar_path = $gambarPath;
             $barang->garansi = $request->garansi ?: 'No';
             $barang->save();
-    
+
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
         } catch (\Exception $e) {
             return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-        }
+        }  
     }
+
+    // Server
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'nama_barang' => 'required|string|max:255',
+    //         'id_jenis_barang' => 'required|exists:jenis_barang,id',
+    //         'id_brand_barang' => 'required|exists:brand,id',
+    //         'barcode' => 'nullable|string|max:255',
+    //         'garansi' => 'nullable|string|max:255',
+    //         'gambar_barang' => 'nullable|image|max:2048',
+    //     ]);
+    
+    //     ActivityLogger::log('Tambah Barang', $request->all());
+    
+    //     try {
+    //         // Ambil nama jenis dan brand barang
+    //         $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
+    //         $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
+    
+    //         // Buat kombinasi kode nama
+    //         $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
+    
+    //         // Generate barcode value
+    //         $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
+    
+    //         // Path ke public/barcodes
+    //         $barcodeFolder = public_path('barcodes');
+    
+    //         // Buat folder barcodes jika belum ada
+    //         if (!file_exists($barcodeFolder)) {
+    //             mkdir($barcodeFolder, 0755, true);
+    //         }
+    
+    //         // Buat nama file barcode
+    //         $barcodeFilename = "{$barcodeValue}.png";
+    //         $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
+    
+    //         // Cek apakah barcode sudah ada, jika belum buat
+    //         if (!file_exists($barcodeFullPath)) {
+    //             $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
+    
+    //             if (!$barcodeImage) {
+    //                 throw new \Exception('Gagal membuat barcode PNG dari base64');
+    //             }
+    
+    //             if (!file_put_contents($barcodeFullPath, base64_decode($barcodeImage))) {
+    //                 throw new \Exception('Gagal menyimpan gambar barcode ke folder public/barcodes');
+    //             }
+    //         }
+    
+    //         // Handle gambar_barang jika diupload
+    //         $gambarPath = null;
+    //         if ($request->hasFile('gambar_barang')) {
+    //             $gambarFile = $request->file('gambar_barang');
+    //             $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Tetap simpan di storage/public/gambar_barang
+    //         }
+    
+    //         // Simpan ke database
+    //         $barang = new Barang();
+    //         $barang->nama_barang = $request->nama_barang;
+    //         $barang->id_jenis_barang = $request->id_jenis_barang;
+    //         $barang->id_brand_barang = $request->id_brand_barang;
+    //         $barang->barcode = $barcodeValue;
+    //         $barang->barcode_path = "barcodes/{$barcodeFilename}"; // Path relatif di public
+    //         $barang->gambar_path = $gambarPath;
+    //         $barang->garansi = $request->garansi ?: 'No';
+    //         $barang->save();
+    
+    //         return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
+    //     } catch (\Exception $e) {
+    //         return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+    //     }
+    // }
 
     public function downloadQrCode(Barang $barang)
     {
@@ -373,5 +375,16 @@ class BarangController extends Controller
 
             return redirect()->back()->with('error', 'Gagal menghapus Data Barang: ' . $th->getMessage());
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+    
+        Excel::import(new BarangImport, $request->file('file'));
+    
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }
