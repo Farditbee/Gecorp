@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Pengeluaran
+    Hutang
 @endsection
 
 @section('css')
@@ -64,7 +64,7 @@
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
                                     <div class="col-12 col-md-6 col-lg-2 mb-2">
-                                        <select class="form-select select2" id="f_is_hutang" name="f_is_hutang">
+                                        <select class="form-select select2" id="f_status" name="f_status">
                                             <option value="" selected disabled></option>
                                             <option value="1">Hutang</option>
                                             <option value="0">Tidak</option>
@@ -91,10 +91,11 @@
                                             <tr class="tb-head">
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">Tanggal</th>
-                                                <th class="text-wrap align-top">Nama Toko</th>
-                                                <th class="text-wrap align-top">Nama Pengeluaran</th>
                                                 <th class="text-wrap align-top">Status</th>
-                                                <th class="text-wrap align-top">Jenis/Ket</th>
+                                                <th class="text-wrap align-top">Jenis</th>
+                                                <th class="text-wrap align-top">Nama Toko</th>
+                                                <th class="text-wrap align-top">Keterangan</th>
+                                                <th class="text-wrap align-top">Jangka Hutang</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
                                                 <th class="text-right text-wrap align-top"><span
                                                         class="mr-2">Action</span></th>
@@ -132,7 +133,7 @@
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modal-title">Tambah Data Pengeluaran</h5>
+                    <h5 class="modal-title" id="modal-title">Tambah Data Hutang</h5>
                     <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
                         aria-label="Close"><i class="fa fa-xmark"></i></button>
                 </div>
@@ -141,10 +142,9 @@
                         <div class="row d-flex align-items-center">
                             <div class="col-md-9">
                                 <div class="form-group">
-                                    <label for="nama_pengeluaran">Nama Pengeluaran <sup
-                                            class="text-danger">*</sup></label>
-                                    <input type="text" class="form-control" id="nama_pengeluaran"
-                                        name="nama_pengeluaran" placeholder="Masukkan nama pengeluaran" required>
+                                    <label for="keterangan">Keterangan <sup class="text-danger">*</sup></label>
+                                    <input type="text" class="form-control" id="keterangan" name="keterangan"
+                                        placeholder="Masukkan keterangan" required>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -156,31 +156,36 @@
                             </div>
                         </div>
                         <div class="row d-flex align-items-center">
-                            <div class="col-md-12">
+                            <div class="col-md-9">
                                 <div class="form-group">
                                     <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
                                     <input type="number" class="form-control" id="nilai" name="nilai"
                                         placeholder="Masukkan nilai" required>
                                 </div>
                             </div>
-                        </div>
-
-                        <div id="jenisPengeluaranContainer">
-                            <div class="form-group">
-                                <label for="id_jenis_pengeluaran">Jenis Pengeluaran <sup
-                                        class="text-danger">**</sup></label>
-                                <select class="form-control select2" id="id_jenis_pengeluaran"
-                                    name="id_jenis_pengeluaran">
-                                </select>
+                            <div class="col-md-3">
+                                <div class="form-group w-100">
+                                    <label for="jangka" class="d-block">Jangka Hutang <sup class="text-danger">*</sup></label>
+                                    <select class="form-control select2 w-100" name="jangka" id="jangka">
+                                        <option value="" disabled selected>Pilih jangka Hutang</option>
+                                        <option value="1">Jangka Pendek</option>
+                                        <option value="2">Jangka Panjang</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group d-none" id="assetContainer">
-                            <label for="is_asset">Asset <sup class="text-danger">*</sup></label>
-                            <select class="form-control" id="is_asset" name="is_asset" required>
-                                <option value="" disabled selected>Pilih Jenis Asset</option>
-                                <option value="Asset Peralatan Kecil">Asset Peralatan Kecil</option>
-                                <option value="Asset Peralatan Besar">Asset Peralatan Besar</option>
-                            </select>
+                        <div id="jenisContainer">
+                            <div class="form-group">
+                                <label for="id_jenis">Jenis Hutang <sup class="text-danger">**</sup></label>
+                                <select class="form-control select2" id="id_jenis" name="id_jenis">
+                                </select>
+                            </div>
+                            <div class="text-center font-weight-bold">Atau</div>
+                            <div class="form-group">
+                                <label for="nama_jenis">Jenis Hutang Baru <sup class="text-danger">**</sup></label>
+                                <input type="text" class="form-control" id="nama_jenis" name="nama_jenis"
+                                    placeholder="Masukkan jenis Hutang baru">
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -266,7 +271,7 @@
 
 @section('js')
     <script>
-        let title = 'Pengeluaran';
+        let title = 'Hutang';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -280,12 +285,12 @@
             }, {
                 id: '#jenis',
                 isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
+                placeholder: 'Pilih Jenis Hutang',
             },
             {
-                id: '#id_jenis_pengeluaran',
+                id: '#id_jenis',
                 isUrl: '{{ route('master.jenis') }}',
-                placeholder: 'Pilih Jenis Pengeluaran',
+                placeholder: 'Pilih Jenis Hutang',
                 isModal: '#modal-form'
             }
         ];
@@ -308,13 +313,9 @@
                 filterParams.jenis = customFilter['jenis'];
             }
 
-            if (customFilter['is_hutang']) {
-                filterParams.is_hutang = customFilter['is_hutang'];
-            }
-
             let getDataRest = await renderAPI(
                 'GET',
-                '{{ route('master.getpengeluaran') }}', {
+                '{{ route('master.gethutang') }}', {
                     page: page,
                     limit: limit,
                     ascending: ascending,
@@ -361,7 +362,8 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_hutang == 1 || data.is_hutang == 2) ? `
+            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1 || data
+                .status == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -371,7 +373,7 @@
                     </div>
                 </a>` : '';
 
-            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_hutang == 1) ? `
+            let edit_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.status == 1) ? `
                 <a class="p-1 btn edit-data action_button"
                     title="Edit ${title}" data="${elementData}">
                     <span class="text-dark">Edit</span>
@@ -394,9 +396,9 @@
                 </div>`;
             }
 
-            let hutang_badge = (data.is_hutang == 1) ?
+            let status = (data.status == 1) ?
                 `<span class="custom-badge badge badge-danger"><i class="fa fa-exclamation-triangle"></i> Hutang In</span>` :
-                (data.is_hutang == 2) ?
+                (data.status == 2) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Hutang Out</span>` :
                 (data.id_toko == 1) ?
                 `<span class="custom-badge badge badge-info"><i class="fa fa-info-circle"></i> Kas Besar Out</span>` :
@@ -405,11 +407,11 @@
             return {
                 id: data?.id ?? '-',
                 tanggal: data?.tanggal ?? '-',
+                nama_jenis: data?.nama_jenis ?? '-',
                 nama_toko: data?.nama_toko ?? '-',
-                is_hutang: hutang_badge,
-                nama_pengeluaran: data?.nama_pengeluaran ?? '-',
-                nama_jenis: (data?.nama_jenis && data.nama_jenis !== '-') ? data.nama_jenis : (data?.ket_hutang ?? '-'),
+                keterangan: data?.keterangan ?? '-',
                 nilai: data?.nilai ?? '-',
+                status,
                 action_buttons,
             };
         }
@@ -428,10 +430,11 @@
                 <tr class="text-dark">
                     <td class="${classCol} text-center">${display_from + index}.</td>
                     <td class="${classCol}">${element.tanggal}</td>
-                    <td class="${classCol}">${element.nama_toko}</td>
-                    <td class="${classCol}">${element.nama_pengeluaran}</td>
-                    <td class="${classCol}">${element.is_hutang}</td>
+                    <td class="${classCol}">${element.status}</td>
                     <td class="${classCol}">${element.nama_jenis}</td>
+                    <td class="${classCol}">${element.nama_toko}</td>
+                    <td class="${classCol}">${element.keterangan}</td>
+                    <td class="${classCol}">${element.jangka}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
                 </tr>`;
@@ -455,52 +458,47 @@
         }
 
         function handleInput() {
-            const jenisSelect = $("#id_jenis_pengeluaran");
+            const jenisSelect = $("#id_jenis");
             const jenisBaruInput = document.getElementById("nama_jenis");
-            const jenisPengeluaranContainer = document.getElementById("jenisPengeluaranContainer");
-            const assetContainer = document.getElementById("assetContainer");
+            const jenisContainer = document.getElementById("jenisContainer");
 
-            function toggleAssetField() {
-                const selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
-                const assetContainer = $('#assetContainer');
-                const isAssetSelect = $('#is_asset');
-
-                if (selectedJenisText.trim() === "Pembelian Asset") {
-                    assetContainer.removeClass('d-none');
-                    isAssetSelect.prop('required', true);
+            function toggleInputs() {
+                if (jenisSelect.val()) {
+                    jenisBaruInput.disabled = true;
+                    jenisBaruInput.value = "";
                 } else {
-                    assetContainer.addClass('d-none');
-                    isAssetSelect.prop('required', false).val('');
+                    jenisBaruInput.disabled = false;
                 }
             }
 
-            jenisSelect.on("change", function() {
-                toggleAssetField();
-            });
+            function toggleSelect() {
+                if (jenisBaruInput.value.trim() !== "") {
+                    jenisSelect.prop("disabled", true).val(null).trigger("change");
+                } else {
+                    jenisSelect.prop("disabled", false);
+                }
+            }
 
-            $(document).ready(function() {
-                $('#f_is_hutang').select2({
-                    placeholder: "Pilih Status Hutang",
-                    allowClear: true,
-                    minimumResultsForSearch: -1
-                });
+            jenisSelect.on("change", toggleInputs);
+            jenisBaruInput.addEventListener("input", toggleSelect);
+
+            $('#jangka').select2({
+                placeholder: 'Pilih jangka hutang',
+                allowClear: true,
+                dropdownParent: $('#modal-form'),
+                width: '100%'
             });
         }
 
         $('#modal-form').on('hidden.bs.modal', function() {
-            document.getElementById("is_hutang").checked = false;
+            $('#id_jenis').prop("disabled", false).val(null).trigger("change");
 
-            $('#id_jenis_pengeluaran').prop("disabled", false).val(null).trigger("change");
-
-            document.getElementById("keteranganHutangContainer").classList.add("d-none");
-            document.getElementById("jenisPengeluaranContainer").classList.remove("d-none");
-            document.getElementById("assetContainer").classList.add("d-none");
+            document.getElementById("jenisContainer").classList.remove("d-none");
         });
-
 
         async function addData() {
             $(document).on("click", ".add-data", function() {
-                $("#modal-title").html(`Form Tambah Pengeluaran`);
+                $("#modal-title").html(`Form Tambah ${title}`);
                 $("#modal-form").modal("show");
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
                 $("#formTambahData").data("action-url", '{{ route('master.pengeluaran.store') }}');
@@ -523,18 +521,21 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
-                let selectedJenisText = $('#id_jenis_pengeluaran option:selected').text();
-
                 let formData = {
-                    id_toko: '{{ auth()->user()->id_toko }}',
-                    nama_pengeluaran: $('#nama_pengeluaran').val(),
-                    nilai: $('#nilai').val(),
                     tanggal: $('#tanggal').val(),
-                    id_jenis_pengeluaran: $('#id_jenis_pengeluaran').val(),
+                    id_toko: '{{ auth()->user()->id_toko }}',
+                    keterangan: $('#keterangan').val(),
+                    jangka: $('#jangka').val(),
+                    nilai: $('#nilai').val()
                 };
 
-                if (selectedJenisText.trim() === "Pembelian Asset") {
-                    formData.is_asset = $('#is_asset').val();
+                let idJenis = $('#id_jenis').val();
+                let namaJenis = $('#nama_jenis').val();
+
+                if (idJenis) {
+                    formData.id_jenis = idJenis;
+                } else if (namaJenis) {
+                    formData.nama_jenis = namaJenis;
                 }
 
                 try {
@@ -567,7 +568,7 @@
 
             let getDataRest = await renderAPI(
                 'GET',
-                `/admin/pengeluaran/detail/${id}`, {}
+                `/admin/hutang/detail/${id}`, {}
             ).then(function(response) {
                 return response;
             }).catch(function(error) {
@@ -657,7 +658,7 @@
                 }).then(async (result) => {
                     let postDataRest = await renderAPI(
                         'DELETE',
-                        `/admin/pengeluaran/delete/${data.id}`, {}
+                        `/admin/hutang/delete/${data.id}`, {}
                     ).then(function(response) {
                         return response;
                     }).catch(function(error) {
@@ -698,7 +699,6 @@
                     endDate: $("#daterange").val() != '' ? endDate : '',
                     toko: $("#toko").val() || '',
                     jenis: $("#jenis").val() || '',
-                    is_hutang: $("#f_is_hutang").val() || '',
                 };
 
                 defaultSearch = $('.tb-search').val();
@@ -784,7 +784,7 @@
                 };
 
                 try {
-                    let postData = await renderAPI("PUT", `/admin/pengeluaran/update/${id}`, formData);
+                    let postData = await renderAPI("PUT", `/admin/hutang/update/${id}`, formData);
 
                     loadingPage(false);
                     if (postData.status >= 200 && postData.status < 300) {
@@ -814,25 +814,22 @@
                     <div class="card-body p-3">
                         <h5 class="card-title text-primary border-bottom pb-2 mb-3">Detail Pengeluaran</h5>
                         <div class="d-flex justify-content-between">
+                            <strong>Jenis Hutang:</strong>
+                            <span>${data.nama_jenis}</span>
+                        </div>
+                        </div>                                                                                                                        <div class="d-flex justify-content-between">
+                            <strong>Keterangan:</strong>
+                            <span>${data.keterangan}</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
                             <strong>Nama Toko:</strong>
                             <span>${data.nama_toko}</span>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <strong>Pengeluaran:</strong>
-                            <span>${data.nama_pengeluaran}</span>
-                        </div>
-                        <div class="d-flex justify-content-between">
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
-                        </div>
-                        ${data.is_hutang ? `
-                                                                                                                    <div class="d-flex justify-content-between">
-                                                                                                                        <strong>Keterangan:</strong>
-                                                                                                                        <span>${data.ket_hutang}</span>
-                                                                                                                    </div>
-                                                                                                                    ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
-                            <strong>Tanggal Pengeluaran:</strong>
+                            <strong>Tanggal Hutang:</strong>
                             <span>${data.tanggal}</span>
                         </div>
                     </div>
@@ -841,6 +838,7 @@
 
             $("#detailDataContainer").html(html);
         }
+
 
         async function initPageLoad() {
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);

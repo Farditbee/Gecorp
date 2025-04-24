@@ -155,33 +155,12 @@
                             </div>
                         </div>
                         <div class="row d-flex align-items-center">
-                            <div class="col-md-9">
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label for="nilai">Nilai (Rp) <sup class="text-danger">*</sup></label>
                                     <input type="number" class="form-control" id="nilai" name="nilai"
                                         placeholder="Masukkan nilai" required>
                                 </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group form-switch mx-4 h-100 d-flex align-items-center">
-                                    <input class="form-check-input" type="checkbox" id="is_pinjam" name="is_pinjam">
-                                    <label class="form-check-label ms-2" for="is_pinjam">Pinjaman?</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="d-none" id="keteranganPinjamanContainer">
-                            <div class="form-group">
-                                <label for="ket_pinjam">Keterangan Pinjaman <sup class="text-danger">*</sup></label>
-                                <input type="text" class="form-control" id="ket_pinjam" name="ket_pinjam"
-                                    placeholder="Masukkan keterangan pinjaman">
-                            </div>
-                            <div class="form-group">
-                                <label for="jangka_pinjam">Jangka Hutang <sup class="text-danger">*</sup></label>
-                                <select class="form-control" id="jangka_pinjam" name="jangka_pinjam">
-                                    <option value="" disabled selected>Pilih Jangka Hutang</option>
-                                    <option value="1">Hutang Jangka Panjang</option>
-                                    <option value="2">Hutang Jangka Pendek</option>
-                                </select>
                             </div>
                         </div>
                         <div id="jenisPemasukanContainer">
@@ -376,7 +355,8 @@
                     </div>
                 </a>`;
 
-            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data.is_pinjam == 2) ? `
+            let detail_button = (data.id_toko == {{ auth()->user()->id_toko }} && data.is_pinjam == 1 || data
+                .is_pinjam == 2) ? `
                 <a class="p-1 btn detail-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Detail ${title}" data="${elementData}">
@@ -472,8 +452,6 @@
         function handleInput() {
             const jenisSelect = $("#id_jenis_pemasukan");
             const jenisBaruInput = document.getElementById("nama_jenis");
-            const isPinjamanCheckbox = document.getElementById("is_pinjam");
-            const keteranganPinjamanContainer = document.getElementById("keteranganPinjamanContainer");
             const jenisPemasukanContainer = document.getElementById("jenisPemasukanContainer");
 
             function toggleInputs() {
@@ -493,19 +471,8 @@
                 }
             }
 
-            function togglePinjamanFields() {
-                if (isPinjamanCheckbox.checked) {
-                    keteranganPinjamanContainer.classList.remove("d-none");
-                    jenisPemasukanContainer.classList.add("d-none");
-                } else {
-                    keteranganPinjamanContainer.classList.add("d-none");
-                    jenisPemasukanContainer.classList.remove("d-none");
-                }
-            }
-
             jenisSelect.on("change", toggleInputs);
             jenisBaruInput.addEventListener("input", toggleSelect);
-            isPinjamanCheckbox.addEventListener("change", togglePinjamanFields);
 
             $(document).ready(function() {
                 $('#f_is_pinjam').select2({
@@ -524,7 +491,6 @@
 
             $('#id_jenis_pemasukan').prop("disabled", false).val(null).trigger("change");
 
-            document.getElementById("keteranganPinjamanContainer").classList.add("d-none");
             document.getElementById("jenisPemasukanContainer").classList.remove("d-none");
         });
 
@@ -553,7 +519,6 @@
 
                 let actionUrl = $("#formTambahData").data("action-url");
 
-                let isPinjaman = $("#is_pinjam").is(':checked') ? 1 : '';
                 let formData = {
                     id_toko: '{{ auth()->user()->id_toko }}',
                     nama_pemasukan: $('#nama_pemasukan').val(),
@@ -561,14 +526,8 @@
                     tanggal: $('#tanggal').val(),
                 };
 
-                if (isPinjaman) {
-                    formData.is_pinjam = 1;
-                    formData.ket_pinjam = $('#ket_pinjam').val();
-                    formData.jangka_pinjam = $('#jangka_pinjam').val();
-                } else {
-                    formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
-                    formData.nama_jenis = $('#nama_jenis').val();
-                }
+                formData.id_jenis_pemasukan = $('#id_jenis_pemasukan').val();
+                formData.nama_jenis = $('#nama_jenis').val();
 
                 try {
                     let postData = await renderAPI("POST", actionUrl, formData);
@@ -859,11 +818,11 @@
                             <span>${data.nilai}</span>
                         </div>
                         ${data.is_pinjam ? `
-                                                                                            <div class="d-flex justify-content-between">
-                                                                                                <strong>Keterangan:</strong>
-                                                                                                <span>${data.ket_pinjam}</span>
-                                                                                            </div>
-                                                                                            ` : ''}
+                                                                                                    <div class="d-flex justify-content-between">
+                                                                                                        <strong>Keterangan:</strong>
+                                                                                                        <span>${data.ket_pinjam}</span>
+                                                                                                    </div>
+                                                                                                    ` : ''}
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal Pemasukan:</strong>
                             <span>${data.tanggal}</span>

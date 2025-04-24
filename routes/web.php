@@ -4,6 +4,7 @@ use App\Http\Controllers\AssetBarangController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BrandController;
+use App\Http\Controllers\HutangController;
 use App\Http\Controllers\JenisBarangController;
 use App\Http\Controllers\KasbonController;
 use App\Http\Controllers\KasirController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengirimanBarangController;
+use App\Http\Controllers\PiutangController;
 use App\Http\Controllers\PlanOrderController;
 use App\Http\Controllers\PromoController;
 use App\Http\Controllers\RatingController;
@@ -164,7 +166,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Pemasukan Controller
         Route::get('/pemasukan', [PemasukanController::class, 'index'])->name('keuangan.pemasukan.index');
-        Route::post('/pemasukan/store', [PemasukanController::class,'store'])->name('master.pemasukan.store');
+        Route::post('/pemasukan/store', [PemasukanController::class, 'store'])->name('master.pemasukan.store');
         Route::delete('/pemasukan/delete/{id}', [PemasukanController::class, 'delete'])->name('master.pemasukan.delete');
         Route::put('/pemasukan/update/{id}', [PemasukanController::class, 'updatepinjam'])->name('master.pemasukan.update');
         Route::get('/pemasukan/detail/{id}', [PemasukanController::class, 'detail'])->name('master.pemasukan.detail');
@@ -173,6 +175,16 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/mutasi', [MutasiController::class, 'index'])->name('keuangan.mutasi.index');
         Route::post('mutasi/store', [MutasiController::class, 'store'])->name('master.mutasi.store');
         Route::delete('/mutasi/delete/{id}', [MutasiController::class, 'delete'])->name('master.mutasi.delete');
+
+        // Hutang Controller
+        Route::get('/hutang', [HutangController::class, 'index'])->name('keuangan.hutang.index');
+        Route::post('hutang/store', [HutangController::class, 'store'])->name('master.hutang.store');
+        Route::delete('/hutang/delete/{id}', [HutangController::class, 'delete'])->name('master.hutang.delete');
+
+        // Piutang Controller
+        Route::get('/piutang', [PiutangController::class, 'index'])->name('keuangan.piutang.index');
+        Route::post('piutang/store', [PiutangController::class, 'store'])->name('master.piutang.store');
+        Route::delete('/piutang/delete/{id}', [PiutangController::class, 'delete'])->name('master.piutang.delete');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
         Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
