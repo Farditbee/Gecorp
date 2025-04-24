@@ -216,7 +216,10 @@
                     </div>
                     <div class="card shadow-sm mb-3 border-0">
                         <div class="card-body p-3">
-                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">Riwayat Pembayaran</h5>
+                            <h5 class="card-title text-primary border-bottom pb-2 mb-3">
+                                <span class="d-block">Riwayat Pembayaran</span>
+                                <small id="keterangan-bayar" class="d-block text-muted"></small>
+                            </h5>
                             <div class="mt-3">
                                 <div id="tableEditData"></div>
                             </div>
@@ -746,9 +749,10 @@
                 let data = JSON.parse(decodeURIComponent(rawData));
 
                 $("#editModalLabel").html(
-                    `<i class="fa fa-edit mr-2"></i>${data.ket_hutang ?? '-'}`);
+                    `<i class="fa fa-edit mr-2"></i>Form Bayar Hutang`);
                 $("#save-edit").attr("data-id", data.id);
                 $("#editModal").modal("show");
+                $("#keterangan-bayar").html(data.keterangan);
 
                 let dataList = await getDetailData(data.id, 'tableEditData');
 
@@ -835,6 +839,7 @@
                         <div class="d-flex justify-content-between">
                             <strong>Nilai:</strong>
                             <span>${data.nilai}</span>
+                        </div>
                         <div class="d-flex justify-content-between border-top pt-2 mt-3">
                             <strong>Tanggal ${title}:</strong>
                             <span>${data.tanggal}</span>
