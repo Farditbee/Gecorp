@@ -27,8 +27,8 @@ class BarangImport implements ToCollection
 
                 // Buat folder barcodes jika belum ada
                 $barcodeFolder = 'barcodes';
-                if (!Storage::exists($barcodeFolder)) {
-                    Storage::makeDirectory($barcodeFolder);
+                if (!Storage::disk('public')->exists($barcodeFolder)) {
+                    Storage::disk('public')->makeDirectory($barcodeFolder);
                 }
 
                 // Buat nama file barcode
@@ -36,14 +36,14 @@ class BarangImport implements ToCollection
                 $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
 
                 // Cek apakah barcode sudah ada, jika belum buat
-                if (!Storage::exists($barcodeFullPath)) {
+                if (!Storage::disk('public')->exists($barcodeFullPath)) {
                     $barcodeImage = DNS1DFacade::getBarcodePNG($row[0], 'C128', 3, 100);
 
                     if (!$barcodeImage) {
                         throw new \Exception('Gagal membuat barcode PNG dari base64');
                     }
 
-                    Storage::put($barcodeFullPath, base64_decode($barcodeImage));
+                    Storage::disk('public')->put($barcodeFullPath, base64_decode($barcodeImage));
                 }
 
                 // Simpan data ke database
