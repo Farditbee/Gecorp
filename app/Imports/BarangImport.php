@@ -25,10 +25,12 @@ class BarangImport implements ToCollection
                     continue; // Lewati jika barcode sudah ada
                 }
 
+                // Path ke public/barcodes
+                $barcodeFolder = public_path('barcodes');
+
                 // Buat folder barcodes jika belum ada
-                $barcodeFolder = 'barcodes';
-                if (!Storage::disk('public')->exists($barcodeFolder)) {
-                    Storage::disk('public')->makeDirectory($barcodeFolder);
+                if (!file_exists($barcodeFolder)) {
+                    mkdir($barcodeFolder, 0755, true);
                 }
 
                 // Buat nama file barcode
@@ -36,14 +38,16 @@ class BarangImport implements ToCollection
                 $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
 
                 // Cek apakah barcode sudah ada, jika belum buat
-                if (!Storage::disk('public')->exists($barcodeFullPath)) {
+                if (!file_exists($barcodeFullPath)) {
                     $barcodeImage = DNS1DFacade::getBarcodePNG($row[0], 'C128', 3, 100);
 
                     if (!$barcodeImage) {
                         throw new \Exception('Gagal membuat barcode PNG dari base64');
                     }
 
-                    Storage::disk('public')->put($barcodeFullPath, base64_decode($barcodeImage));
+                    if (!file_put_contents($barcodeFullPath, base64_decode($barcodeImage))) {
+                        throw new \Exception('Gagal menyimpan gambar barcode ke folder public/barcodes');
+                    }
                 }
 
                 // Simpan data ke database
@@ -53,7 +57,7 @@ class BarangImport implements ToCollection
                     'id_jenis_barang' => $row[2],
                     'id_brand_barang' => $row[3],
                     'garansi' => $row[4],
-                    'barcode_path' => $barcodeFullPath,
+                    'barcode_path' => "barcodes/{$barcodeFilename}", // Path relatif di public
                     'gambar_path' => null,
                     'level_harga' => null,
                 ]);
