@@ -34,7 +34,7 @@ class BarangImport implements ToCollection
                 }
 
                 // Buat nama file barcode
-                $barcodeFilename = "{$row[0]}.png";
+                $barcodeFilename = "{$row[0]}.jpg";
                 $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
 
                 // Cek apakah barcode sudah ada, jika belum buat
@@ -42,7 +42,7 @@ class BarangImport implements ToCollection
                     $barcodeImage = DNS1DFacade::getBarcodePNG($row[0], 'C128', 3, 100);
 
                     if (!$barcodeImage) {
-                        throw new \Exception('Gagal membuat barcode PNG dari base64');
+                        throw new \Exception('Gagal membuat barcode JPG dari base64');
                     }
 
                     if (!file_put_contents($barcodeFullPath, base64_decode($barcodeImage))) {
