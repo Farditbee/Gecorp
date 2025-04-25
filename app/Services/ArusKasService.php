@@ -132,7 +132,8 @@ class ArusKasService
             && $pemasukanList->isEmpty()
             && $mutasiList->isEmpty()
             && $kasbonList->isEmpty()
-            && $hutangList->isEmpty()) {
+            && $hutangList->isEmpty()
+            && $piutangList->isEmpty()) {
             return response()->json([
                 'status_code' => 404,
                 'errors' => true,
