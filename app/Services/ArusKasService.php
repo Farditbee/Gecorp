@@ -126,7 +126,13 @@ class ArusKasService
         $hutangList = $hutangQuery->get();
         $piutangList = $piutangQuery->get();
 
-        if ($pengeluaranList->isEmpty() && $kasirList->isEmpty() && $pembelianList->isEmpty() && $pemasukanList->isEmpty()) {
+        if ($pengeluaranList->isEmpty() 
+            && $kasirList->isEmpty() 
+            && $pembelianList->isEmpty() 
+            && $pemasukanList->isEmpty()
+            && $mutasiList->isEmpty()
+            && $kasbonList->isEmpty()
+            && $hutangList->isEmpty()) {
             return response()->json([
                 'status_code' => 404,
                 'errors' => true,
