@@ -342,13 +342,28 @@ class PembelianBarangController extends Controller
                     // Update stockBarang
                     $stockBarang = StockBarang::firstOrNew(['id_barang' => $id_barang]);
 
-                    $hpp_awal = $stockBarang->hpp_awal ?: $harga_barang;
+                    $hpp_awal = $stockBarang->hpp_baru ?: $stockBarang->hpp_awal ?: $harga_barang;
                     $stock_awal = $stockBarang->stock ?: 0;
 
-                    $total_harga_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('total_harga');
-                    $total_qty_barang = DetailPembelianBarang::where('id_barang', $id_barang)->sum('qty');
+                    // Cari qty dari tabel detail_toko
+                    $qty_detail_toko = DB::table('detail_toko')
+                        ->where('id_barang', $id_barang)
+                        ->sum('qty');
 
-                    $hpp_baru = $total_qty_barang > 0 ? $total_harga_barang / $total_qty_barang : $hpp_awal;
+                    // Hitung total stok lama
+                    $total_stock_lama = $stock_awal + $qty_detail_toko;
+
+                    // Hitung nilai total lama
+                    $nilai_total_lama = $total_stock_lama * $hpp_awal;
+
+                    // Hitung nilai pembelian baru
+                    $nilai_pembelian_baru = $qty * $harga_barang;
+
+                    // Hitung total qty setelah pembelian
+                    $total_qty_baru = $total_stock_lama + $qty;
+
+                    // Hitung HPP baru
+                    $hpp_baru = $total_qty_baru > 0 ? ($nilai_total_lama + $nilai_pembelian_baru) / $total_qty_baru : $hpp_awal;
 
                     $stockBarang->stock = $stock_awal + $detail->qty;
                     $stockBarang->hpp_awal = $hpp_awal;
