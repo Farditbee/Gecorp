@@ -258,7 +258,7 @@
 
         async function handleData(data) {
             let view_button = data?.barcode_path && data.barcode_path !== "" ?
-                `<a href="{{ asset('storage') }}/${data.barcode_path}" target="_blank" class="p-1 btn view-barcode action_button"
+                `<a href="{{ asset('') }}${data.barcode_path}" target="_blank" class="p-1 btn view-barcode action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Lihat Barcode ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
@@ -290,9 +290,9 @@
                 </a>`;
 
             let download_button = data?.barcode_path && data.barcode_path !== "" ?
-                `<a href="{{ asset('storage') }}/${data.barcode_path}" download class="p-1 btn download-data action_button"
+                `<a href="{{ asset('') }}${data.barcode_path}" download class="p-1 btn download-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Unduh ${title}: ${data.nama_barang}"
+                    title="Unduh Barcode ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
                     <span class="text-dark">Unduh</span>
                     <div class="icon text-success">
@@ -317,10 +317,10 @@
             if (edit_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
-                    ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
-                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                     ${view_button ? `<div class="hovering p-1">${view_button}</div>` : ''}
+                    ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
