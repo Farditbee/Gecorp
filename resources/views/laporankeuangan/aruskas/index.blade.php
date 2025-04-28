@@ -103,10 +103,10 @@
                                                     Akhir</th>
                                                 <th class="text-nowrap th-data align-middle text-white bg-warning text-right"
                                                     id="akhir_piutang">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-secondary">Saldo
+                                                <th class="text-nowrap th-data align-middle text-white bg-danger">Saldo
                                                     Akhir
                                                 </th>
-                                                <th class="text-nowrap th-data align-middle text-white bg-secondary text-right"
+                                                <th class="text-nowrap th-data align-middle text-white bg-danger text-right"
                                                     id="akhir_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
@@ -121,9 +121,9 @@
                                                 </th>
                                                 <th class="text-nowrap align-middle text-white bg-warning text-right"
                                                     id="berjalan_piutang">-</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Berjalan
+                                                <th class="text-nowrap align-middle text-white bg-danger">Saldo Berjalan
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary text-right"
+                                                <th class="text-nowrap align-middle text-white bg-danger text-right"
                                                     id="berjalan_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
@@ -137,9 +137,9 @@
                                                 <th class="text-nowrap align-middle text-white bg-warning">Saldo Awal</th>
                                                 <th class="text-nowrap align-middle text-white bg-warning text-right"
                                                     id="awal_piutang">-</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary">Saldo Awal
+                                                <th class="text-nowrap align-middle text-white bg-danger">Saldo Awal
                                                 </th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary text-right"
+                                                <th class="text-nowrap align-middle text-white bg-danger text-right"
                                                     id="awal_hutang">-</th>
                                             </tr>
                                             <tr class="tb-head">
@@ -154,8 +154,8 @@
                                                 <th class="text-nowrap align-middle text-white bg-warning">Piutang In</th>
                                                 <th class="text-nowrap align-middle text-white bg-warning data-total">
                                                     Piutang Out</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary">Hutang In</th>
-                                                <th class="text-nowrap align-middle text-white bg-secondary data-total">
+                                                <th class="text-nowrap align-middle text-white bg-danger">Hutang In</th>
+                                                <th class="text-nowrap align-middle text-white bg-danger data-total">
                                                     Hutang Out
                                                 </th>
                                             </tr>
@@ -173,9 +173,9 @@
                                                     id="total_piutang_in">-</th>
                                                 <th class="text-nowrap th-data align-middle text-white text-right bg-warning"
                                                     id="total_piutang_out">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary"
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-danger"
                                                     id="total_hutang_in">-</th>
-                                                <th class="text-nowrap th-data align-middle text-white text-right bg-secondary"
+                                                <th class="text-nowrap th-data align-middle text-white text-right bg-danger"
                                                     id="total_hutang_out">-
                                                 </th>
                                             </tr>
