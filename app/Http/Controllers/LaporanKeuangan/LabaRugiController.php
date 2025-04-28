@@ -49,10 +49,12 @@ class LabaRugiController extends Controller
             $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
 
             // Calculate HPP from pembelian_barang
-            $hpp = DB::table('pembelian_barang')
-                ->whereMonth('tgl_nota', $month)
-                ->whereYear('tgl_nota', $year)
-                ->sum('total_nilai');
+            $hpp = DB::table('detail_kasir')
+                ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->value('total_hpp');
+
 
             // Get all expense types except id 11
             $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
