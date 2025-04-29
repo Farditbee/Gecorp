@@ -8,6 +8,112 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        .custom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-left {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-btn-tambah-wrap {
+            flex: 1 1 auto;
+        }
+
+        .custom-form-import {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-input-file {
+            padding: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 4px;
+            flex: 1 1 auto;
+        }
+        .custom-btn-import {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .custom-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
+
+        .custom-limit-page {
+            flex: 0 0 auto;
+        }
+
+        .custom-search {
+            flex: 0 0 auto;
+            width: 200px;
+        }
+
+        @media (max-width: 767.98px) {
+            .custom-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-btn-tambah-wrap {
+                width: 100%;
+            }
+
+            .custom-form-import {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .custom-input-file {
+                flex: 1 1 65%;
+            }
+
+            .custom-btn-import {
+                flex: 1 1 30%;
+            }
+
+            .custom-right {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .custom-limit-page {
+                flex: 1 1 25%;
+            }
+
+            .custom-search {
+                flex: 1 1 70%;
+            }
+
+            .custom-btn-tambah {
+                width: 100%;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -17,32 +123,43 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-                                    <a href="{{ route('master.barang.create') }}" class="mr-2 btn btn-primary"
-                                        data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data Barang">
-                                        <i class="fa fa-circle-plus"></i> Tambah
-                                    </a>
-                                    <form action="{{ route('master.barang.import') }}" method="POST" enctype="multipart/form-data">
+                        <div class="card-header custom-header">
+                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                                <div class="custom-left">
+                                    <div class="custom-btn-tambah-wrap">
+                                        <a href="{{ route('master.barang.create') }}"
+                                            class="btn btn-primary custom-btn-tambah" data-toggle="tooltip"
+                                            title="Tambah Data Barang">
+                                            <i class="fa fa-circle-plus"></i> Tambah
+                                        </a>
+                                    </div>
+                                    <form action="{{ route('master.barang.import') }}" method="POST"
+                                        enctype="multipart/form-data" class="custom-form-import">
                                         @csrf
-                                        <input type="file" name="file" required>
-                                        <button type="submit" class="mr-2 btn btn-primary">Import</button>
+                                        <input type="file" name="file" class="custom-input-file" accept=".xlsx"
+                                            required>
+                                        <button type="submit" class="btn btn-success custom-btn-import">
+                                            <i class="fa fa-file-import"></i> Import
+                                        </button>
                                     </form>
-                                @endif
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                                </div>
+                            @endif
+
+                            <div class="custom-right">
+                                <div class="custom-limit-page">
+                                    <select name="limitPage" id="limitPage" class="form-control">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div class="custom-search">
+                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                        placeholder="Cari Data" aria-label="search">
+                                </div>
                             </div>
                         </div>
+
                         <div class="content">
                             <x-adminlte-alerts />
                             <div class="card-body p-0">
@@ -57,7 +174,8 @@
                                                 <th class="text-wrap align-top">Jenis Barang</th>
                                                 <th class="text-wrap align-top">Brand Barang</th>
                                                 <th class="text-wrap align-top">Garansi</th>
-                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span class="mr-4">Action</span></th>
+                                                <th class="text-center text-wrap align-top" style="width: 15%;"><span
+                                                        class="mr-4">Action</span></th>
                                             </tr>
                                         </thead>
                                         <tbody id="listData">
@@ -140,7 +258,7 @@
 
         async function handleData(data) {
             let view_button = data?.barcode_path && data.barcode_path !== "" ?
-                `<a href="{{ asset('storage') }}/${data.barcode_path}" target="_blank" class="p-1 btn view-barcode action_button"
+                `<a href="{{ asset('') }}${data.barcode_path}" target="_blank" class="p-1 btn view-barcode action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
                     title="Lihat Barcode ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
@@ -172,9 +290,9 @@
                 </a>`;
 
             let download_button = data?.barcode_path && data.barcode_path !== "" ?
-                `<a href="{{ asset('storage') }}/${data.barcode_path}" download class="p-1 btn download-data action_button"
+                `<a href="{{ asset('') }}${data.barcode_path}" download class="p-1 btn download-data action_button"
                     data-container="body" data-toggle="tooltip" data-placement="top"
-                    title="Unduh ${title}: ${data.nama_barang}"
+                    title="Unduh Barcode ${title}: ${data.nama_barang}"
                     data-id='${data.id}'>
                     <span class="text-dark">Unduh</span>
                     <div class="icon text-success">
@@ -199,10 +317,10 @@
             if (edit_button || delete_button) {
                 action_buttons = `
                 <div class="d-flex justify-content-start">
-                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
-                    ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
-                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                     ${view_button ? `<div class="hovering p-1">${view_button}</div>` : ''}
+                    ${download_button ? `<div class="hovering p-1">${download_button}</div>` : ''}
+                    ${edit_button ? `<div class="hovering p-1">${edit_button}</div>` : ''}
+                    ${delete_button ? `<div class="hovering p-1">${delete_button}</div>` : ''}
                 </div>`;
             } else {
                 action_buttons = `
