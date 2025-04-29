@@ -162,7 +162,7 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="flex justify-between mb-7">
+                    {{-- <div class="flex justify-between mb-7">
                         <div class="flex items-center space-x-3">
                             <input type="checkbox"
                                 class="w-5 h-5 dark:bg-darkblack-500 focus:ring-transparent rounded-full border border-bgray-300 focus:accent-success-300 text-success-300"
@@ -175,7 +175,7 @@
                                 class="modal-open text-success-300 font-semibold text-base underline">Lupa kata
                                 sandi?</a>
                         </div>
-                    </div>
+                    </div> --}}
                     <button type="button" onclick="submitLogin()" style="background-color: rgb(33 70 156);"
                         class="py-3.5 flex items-center justify-center text-white font-bold bg-success-300 hover:bg-success-400 transition-all rounded-lg w-full">
                         Masuk
