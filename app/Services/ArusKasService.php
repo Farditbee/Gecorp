@@ -126,9 +126,9 @@ class ArusKasService
         $hutangList = $hutangQuery->get();
         $piutangList = $piutangQuery->get();
 
-        if ($pengeluaranList->isEmpty() 
-            && $kasirList->isEmpty() 
-            && $pembelianList->isEmpty() 
+        if ($pengeluaranList->isEmpty()
+            && $kasirList->isEmpty()
+            && $pembelianList->isEmpty()
             && $pemasukanList->isEmpty()
             && $mutasiList->isEmpty()
             && $kasbonList->isEmpty()
@@ -341,31 +341,10 @@ class ArusKasService
             $rows = [];
 
             // Get toko names with null checks
-            $pengirimName = $mutasi->tokoPengirim ? "Toko {$mutasi->tokoPengirim->singkatan}" : 'Toko Tidak Diketahui';
             $penerimaName = $mutasi->tokoPenerima ? "Toko {$mutasi->tokoPenerima->singkatan}" : 'Toko Tidak Diketahui';
+            $pengirimName = $mutasi->tokoPengirim ? "Toko {$mutasi->tokoPengirim->singkatan}" : 'Toko Tidak Diketahui';
 
             // Sender's row (outgoing transaction)
-            $rows[] = [
-                'id' => $mutasi->id,
-                'tgl' => $date,
-                'subjek' => $pengirimName,
-                'kategori' => 'Mutasi Keluar',
-                'item' => 'Mutasi Kas Keluar',
-                'jml' => 1,
-                'sat' => 'Ls',
-                'hst' => (int)$mutasi->nilai,
-                'nilai_transaksi' => (int)$mutasi->nilai,
-                'kas_kecil_in' => 0,
-                'kas_kecil_out' => $mutasi->id_toko_pengirim != 1 ? (int)$mutasi->nilai : 0,
-                'kas_besar_in' => 0,
-                'kas_besar_out' => $mutasi->id_toko_pengirim == 1 ? (int)$mutasi->nilai : 0,
-                'piutang_out' => 0,
-                'piutang_in' => 0,
-                'hutang_in' => 0,
-                'hutang_out' => 0,
-            ];
-
-            // Receiver's row (incoming transaction)
             $rows[] = [
                 'id' => $mutasi->id,
                 'tgl' => $date,
@@ -382,6 +361,27 @@ class ArusKasService
                 'kas_besar_out' => 0,
                 'piutang_in' => 0,
                 'piutang_out' => 0,
+                'hutang_in' => 0,
+                'hutang_out' => 0,
+            ];
+
+            // Receiver's row (incoming transaction)
+            $rows[] = [
+                'id' => $mutasi->id,
+                'tgl' => $date,
+                'subjek' => $pengirimName,
+                'kategori' => 'Mutasi Keluar',
+                'item' => 'Mutasi Kas Keluar',
+                'jml' => 1,
+                'sat' => 'Ls',
+                'hst' => (int)$mutasi->nilai,
+                'nilai_transaksi' => (int)$mutasi->nilai,
+                'kas_kecil_in' => 0,
+                'kas_kecil_out' => $mutasi->id_toko_pengirim != 1 ? (int)$mutasi->nilai : 0,
+                'kas_besar_in' => 0,
+                'kas_besar_out' => $mutasi->id_toko_pengirim == 1 ? (int)$mutasi->nilai : 0,
+                'piutang_out' => 0,
+                'piutang_in' => 0,
                 'hutang_in' => 0,
                 'hutang_out' => 0,
             ];

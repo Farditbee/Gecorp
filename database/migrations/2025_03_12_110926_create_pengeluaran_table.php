@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('nama_pengeluaran')->nullable();
             $table->string('id_jenis_pengeluaran')->nullable();
             $table->double('nilai')->nullable();
-            $table->date('tanggal');
+            $table->datetime('tanggal');
             $table->softDeletes();
             $table->timestamps();
         });
