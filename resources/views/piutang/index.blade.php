@@ -28,7 +28,7 @@
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex mb-2 mb-lg-0">
                                 <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran">
+                                    data-toggle="tooltip" data-placement="top" title="Tambah Piutang">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </button>
                                 <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
@@ -97,6 +97,7 @@
                                                 <th class="text-wrap align-top">Keterangan</th>
                                                 <th class="text-wrap align-top">Jangka Piutang</th>
                                                 <th class="text-right text-wrap align-top">Nilai</th>
+                                                <th class="text-right text-wrap align-top">Sisa</th>
                                                 <th class="text-right text-wrap align-top"><span
                                                         class="mr-2">Action</span></th>
                                             </tr>
@@ -342,7 +343,7 @@
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total_nilai);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total_nilai || 0, getDataRest.data.total_sisa || 0);
             } else {
                 let errorMessage = getDataRest?.data?.message || 'Data gagal dimuat';
                 let errorRow = `
@@ -417,13 +418,14 @@
                 nama_toko: data?.nama_toko ?? '-',
                 jangka: data?.jangka ?? '-',
                 keterangan: data?.keterangan ?? '-',
-                nilai: data?.nilai ?? '-',
+                nilai: data?.nilai ?? 0,
+                sisa_piutang: data?.sisa_piutang ?? 0,
                 status,
                 action_buttons,
             };
         }
 
-        async function setListData(dataList, pagination, total) {
+        async function setListData(dataList, pagination, total, sisa) {
             totalPage = pagination.total_pages;
             currentPage = pagination.current_page;
             let display_from = ((defaultLimitPage * (currentPage - 1)) + 1);
@@ -443,6 +445,7 @@
                     <td class="${classCol}">${element.keterangan}</td>
                     <td class="${classCol}">${element.jangka}</td>
                     <td class="${classCol} text-right">${element.nilai}</td>
+                    <td class="${classCol} text-right">${element.sisa_piutang}</td>
                     <td class="${classCol}">${element.action_buttons}</td>
                 </tr>`;
             });
@@ -452,6 +455,7 @@
                 <td class="${classCol}" colspan="6"></td>
                 <td class="${classCol}" style="font-size: 1rem;"><strong class="text-white fw-bold">Total</strong></td>
                 <td class="${classCol} text-right"><strong class="text-white" id="totalData">${total}</strong></td>
+                <td class="${classCol} text-right"><strong class="text-white" id="totalSisaData">${sisa}</strong></td>
                 <td class="${classCol}"></td>
             </tr>`;
 
@@ -743,7 +747,7 @@
                 $("#detailModal").modal("show");
 
                 let dataList = await getDetailData(data.id, 'tableDetailData');
-                renderDetailData(dataList.pengeluaran);
+                renderDetailData(dataList.piutang);
             });
         }
 
