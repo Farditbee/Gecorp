@@ -87,7 +87,7 @@
                                                 <div class="col-md-11">
                                                     <div class="form-group">
                                                         <label for="id_barang" class="form-control-label">
-                                                            <i class="mr-2 fa fa-hand-pointer"></i>QRCode Barang <sup
+                                                            <i class="mr-2 fa fa-hand-pointer"></i>QRCode / Nama Barang <sup
                                                                 class="text-success">*</sup>
                                                         </label>
                                                         <select class="form-control select2" name="id_barang"
