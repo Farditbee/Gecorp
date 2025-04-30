@@ -1214,17 +1214,21 @@
                 let currentHppBaru = parseFloat(document.querySelector('.card-text strong.hpp-baru').textContent
                     .replace(/\D/g, ''));
                 let hppUntukPerhitungan = initialHppAwal;
+                let awal = 0;
 
                 if (currentHppBaru && currentHppBaru > 0) {
                     hppUntukPerhitungan = currentHppBaru;
                 }
+
+                document.querySelector('.jumlah-item').value = '';
+                document.querySelector('.harga-barang').value = '';
 
                 document.querySelector('.card-text strong.stock').textContent = initialStock.toLocaleString(
                     'id-ID');
                 document.querySelector('.card-text strong.hpp-awal').textContent =
                     `Rp ${initialHppAwal.toLocaleString('id-ID')}`;
                 document.querySelector('.card-text strong.hpp-baru').textContent =
-                    `Rp ${hppUntukPerhitungan.toLocaleString('id-ID')}`;
+                    `Rp ${awal.toLocaleString('id-ID')}`;
 
                 document.querySelectorAll('input[name="level_nama[]"]').forEach(function(namaLevelInput, index) {
                     const namaLevel = namaLevelInput.value;
