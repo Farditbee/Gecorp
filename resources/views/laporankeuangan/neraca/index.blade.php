@@ -258,14 +258,16 @@
                 }));
 
                 const maxRow = Math.max(aRows.length, pRows.length);
+                const subABadge = parseFloat(subA.total) < 0 ? 'text-danger' : '';
+                const subPBadge = parseFloat(subP.total) < 0 ? 'text-danger' : '';
 
                 getDataTable += `
-                    <tr class="font-weight-bold bg-secondary text-white">
+                    <tr class="font-weight-bold bg-dark text-white">
                         <td colspan="2">${subA ? subA.judul : ''}</td>
-                        <td colspan="1" class="text-right">${subA ? subA.total.toLocaleString() : ''}</td>
+                        <td colspan="1" class="text-right ${subABadge}">${subA ? subA.total.toLocaleString() : ''}</td>
                         <td colspan="1"></td>
                         <td colspan="2">${subP ? subP.judul : ''}</td>
-                        <td colspan="1" class="text-right">${subP ? subP.total.toLocaleString() : ''}</td>
+                        <td colspan="1" class="text-right ${subPBadge}">${subP ? subP.total.toLocaleString() : ''}</td>
                     </tr>
                 `;
 
