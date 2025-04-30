@@ -208,6 +208,7 @@
                                                                             class="form-control-label">Nama Barang<span
                                                                                 style="color: red">*</span></label>
                                                                         <select name="id_barangs[]" id="id_barang"
+                                                                            class="id-barang"
                                                                             data-placeholder="Pilih Barang...">
                                                                             <option value="" disabled selected
                                                                                 required>Pilih Barang</option>
@@ -391,13 +392,15 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data
+                .data.length > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
-                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total, getDataRest.data.totals);
+                await setListData(handleDataArray, getDataRest.data.pagination, getDataRest.data.total, getDataRest.data
+                    .totals);
             } else {
-                errorMessage = getDataRest?.data?.message;
+                errorMessage = 'Tidak ada data';
                 let errorRow = `
                             <tr class="text-dark">
                                 <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
@@ -733,7 +736,6 @@
                 id_barang
             } = rowData;
 
-            // Menghapus baris di tabel setelah penghapusan data melalui API
             deleteRowTable({
                 id_pembelian,
                 id_barang
@@ -795,6 +797,9 @@
             let initialHppBaru = 0;
             let initialStock = 0;
             let initialHppAwal = 0;
+
+            let debounceTimer;
+            const debounceDelay = 500;
 
             function toggleInputFields(disabled) {
                 document.getElementById('jml_item').disabled = disabled;
@@ -1121,37 +1126,51 @@
                 });
             });
 
-            function calculateHPP(totalHarga, totalQty) {
-                let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
-                let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
+            async function calculateHPP(totalHarga, totalQty) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(async () => {
+                    let id_barang = parseFloat(document.querySelector('.id-barang').value) || 0;
+                    let jumlah = parseFloat(document.querySelector('.jumlah-item').value) || 0;
+                    let harga = parseFloat(document.querySelector('.harga-barang').value) || 0;
 
-                let hppAwal = initialHppAwal || 0;
+                    let hppAwal = initialHppAwal || 0;
 
-                if (jumlah > 0 && harga > 0) {
-                    let totalHargaBaru = jumlah * harga;
-                    let totalKeseluruhanHarga = totalHargaBaru + totalHarga;
-                    let totalKeseluruhanQty = jumlah + totalQty;
-                    let finalHpp = totalKeseluruhanHarga / totalKeseluruhanQty;
+                    if (jumlah > 0 && harga > 0) {
+                        try {
+                            let getDataRest = await renderAPI('GET',
+                                '{{ route('master.stock.hpp_barang') }}', {
+                                    id_barang: id_barang,
+                                    qty: jumlah,
+                                    harga: harga,
+                                });
 
-                    document.querySelector('.card-text strong.hpp-baru').textContent =
-                        `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
+                            if (getDataRest && getDataRest.status === 200) {
+                                let finalHpp = getDataRest.data.hpp_baru;
 
-                    document.querySelectorAll('.level-harga').forEach(function(input) {
-                        input.setAttribute('data-hpp-baru', finalHpp);
-                    });
+                                document.querySelector('.card-text strong.hpp-baru').textContent =
+                                    `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
 
-                    updatePercentages(finalHpp);
+                                document.querySelectorAll('.level-harga').forEach(function(input) {
+                                    input.setAttribute('data-hpp-baru', finalHpp);
+                                });
 
-                } else {
+                                updatePercentages(finalHpp);
+                                return;
+                            }
+                        } catch (error) {
+                            console.error('Error fetching HPP:', error);
+                        }
+                    }
+
                     document.querySelector('.card-text strong.hpp-baru').textContent =
                         `Rp ${initialHppBaru.toLocaleString('id-ID')}`;
 
                     document.querySelectorAll('.level-harga').forEach(function(input) {
-                        input.setAttribute('data-hpp-baru', initialHppAwal);
+                        input.setAttribute('data-hpp-baru', hppAwal);
                     });
 
-                    updatePercentages(initialHppAwal);
-                }
+                    updatePercentages(hppAwal);
+                }, debounceDelay);
             }
 
             function updatePercentages(hpp) {
