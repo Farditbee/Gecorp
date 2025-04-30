@@ -575,13 +575,14 @@ class MasterController extends Controller
             $searchTerm = trim(strtolower($request['search']));
 
             $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
                 $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
             });
         } else {
             return response()->json([
                 'status_code' => 400,
                 'errors' => true,
-                'message' => 'Silahkan masukkan qrcode',
+                'message' => 'Silahkan masukkan nama barang / qrcode',
             ], 400);
         }
 
