@@ -89,6 +89,7 @@ class PiutangController extends Controller
         }
 
         $totalNilai = $query->sum('nilai');
+        $totalSisa = $totalNilai - DetailPiutang::whereIn('id_piutang', $query->pluck('id'))->sum('nilai');
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
@@ -131,6 +132,7 @@ class PiutangController extends Controller
                 'jangka' => $jangka,
                 'tanggal' => Carbon::parse($item['tanggal'])->format('d-m-Y'),
                 'nilai' => 'Rp. ' . number_format($item->nilai ?? 0, 0, '.', '.'),
+                'sisa_piutang' => 'Rp. ' . number_format($item->nilai - DetailPiutang::where('id_piutang', $item->id)->sum('nilai'), 0, '.', '.')
             ];
         });
 
@@ -140,7 +142,8 @@ class PiutangController extends Controller
             'errors' => true,
             'message' => 'Sukses',
             'pagination' => $data['meta'],
-            'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, '.', '.')
+            'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, '.', '.'),
+            'total_sisa' => 'Rp. ' . number_format($totalSisa, 0, '.', '.'),
         ], 200);
     }
 
