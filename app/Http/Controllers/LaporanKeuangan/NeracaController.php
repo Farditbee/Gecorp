@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\Hutang;
 use App\Models\Pemasukan;
 use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
@@ -38,42 +39,42 @@ class NeracaController extends Controller
         try {
             $month = $request->has('month') ? $request->month : Carbon::now()->month;
             $year = $request->has('year') ? $request->year : Carbon::now()->year;
-    
+
             $result = $this->arusKasService->getArusKasData($request);
-    
-            $hutang = Pemasukan::where('is_pinjam', '1')->get();
+
+            $hutang = Hutang::where('status', '1')->get();
 
             $hutangItems = $hutang->map(function ($item, $index) {
                 // Hitung total nilai dari detail pemasukan yang terkait
-                $totalDetail = $item->detailPemasukan()->sum('nilai');
-            
+                $totalDetail = $item->detailhutang()->sum('nilai');
+
                 // Kurangi nilai pemasukan dengan total dari detail
                 $sisaNilai = $item->nilai - $totalDetail;
-            
+
                 // Jika nilai tersisa 0 atau kurang, anggap sudah lunas
                 if ($sisaNilai <= 0) {
                     return null;
                 }
-            
-                $jenis = $item->jangka_pinjam == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
-            
+
+                $jenis = $item->jangka == 1 ? 'Hutang Jangka Pendek' : 'Hutang Jangka Panjang';
+
                 return [
                     "kode" => "III." . ($index + 1),
-                    "nama" => $jenis . ' - ' . $item->nama_pemasukan,
+                    "nama" => $jenis . ' - ' . $item->keterangan,
                     "nilai" => $sisaNilai,
                 ];
             })->filter()->values()->toArray();
-    
+
             $ekuitasItems = [];
-    
+
             for ($i = 1; $i <= $month; $i++) {
                 $periode = Carbon::create($year, $i);
                 $namaPeriode = $periode->translatedFormat('F Y');
-    
+
                 $nilaiLabaRugi = $this->labaRugiService->hitungLabaRugi($i, $year);
-    
+
                 $kode = "IV." . ($i + 1);
-    
+
                 $ekuitasItems[] = [
                     "kode" => $kode,
                     "nama" => $i == $month
@@ -82,7 +83,7 @@ class NeracaController extends Controller
                     "nilai" => $nilaiLabaRugi,
                 ];
             }
-    
+
             array_unshift($ekuitasItems, [
                 "kode" => "IV.1",
                 "nama" => "Modal",
@@ -99,7 +100,7 @@ class NeracaController extends Controller
             $totalAktiva = $asetLancarTotal + $asetTetapTotal;
 
             $totalHutang = collect(array_merge($hutangItems))->sum('nilai');
-            
+
             $totalEkuitas = collect($ekuitasItems)->sum('nilai');
 
             $totalPasiva = $totalHutang + $totalEkuitas;
@@ -165,14 +166,14 @@ class NeracaController extends Controller
                     ],
                 ],
             ];
-    
+
             return response()->json([
                 'data' => $data,
                 'status_code' => 200,
                 'errors' => false,
                 'message' => 'Berhasil'
             ], 200);
-    
+
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'error',
@@ -182,5 +183,5 @@ class NeracaController extends Controller
             ]);
         }
     }
-    
+
 }
