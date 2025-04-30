@@ -213,6 +213,38 @@ class StockBarangController extends Controller
         }
     }
 
+    public function getHppBarang(Request $request)
+    {
+        $id_barang = $request->input('id_barang');
+        $qty_request = $request->input('qty');
+        $harga_request = $request->input('harga');
+
+        // Ambil data dari tabel stock_barang
+        $stockBarang = StockBarang::where('id_barang', $id_barang)->first();
+
+        // Ambil total qty dari detail_toko
+        $qtyDetailToko = DetailToko::where('id_barang', $id_barang)->sum('qty');
+
+        if (!$stockBarang) {
+            return response()->json(['error' => 'Barang tidak ditemukan di tabel stock_barang'], 404);
+        }
+
+        $stock = $stockBarang->stock;
+        $hpp_lama = $stockBarang->hpp_baru;
+
+        // Hitung HPP baru
+        $totalQtyLama = $stock + $qtyDetailToko;
+        $totalQtyBaru = $totalQtyLama + $qty_request;
+
+        $totalHpp = ($totalQtyLama * $hpp_lama) + ($qty_request * $harga_request);
+        $hpp_baru = $totalQtyBaru > 0 ? $totalHpp / $totalQtyBaru : 0;
+
+        return response()->json([
+            'hpp_baru' => $hpp_baru
+        ]);
+    }
+
+
     public function updateLevelHarga(Request $request)
     {
         $id_barang = $request->input('id_barang'); // Mengambil ID barang dari request
