@@ -195,7 +195,7 @@ class StockBarangController extends Controller
         if ($stockBarang) {
             return response()->json([
                 'stock' => $stockBarang->stock,
-                'hpp_awal' => $hppBaru,
+                'hpp_awal' => $stockBarang->hpp_baru ?? 0,
                 'hpp_baru' => 0,
                 'total_harga_success' => $totalHargaSuccess,
                 'total_qty_success' => $totalQtySuccess,
