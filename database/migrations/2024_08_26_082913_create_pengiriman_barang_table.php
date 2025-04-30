@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('toko_penerima');
             $table->dateTime('tgl_kirim');
             $table->integer('total_item')->nullable();
-            $table->decimal('total_nilai', 15, 2)->nullable();
+            $table->double('total_nilai')->nullable();
             $table->dateTime('tgl_terima')->nullable();
             $table->enum('status', ['pending', 'progress', 'success', 'canceled'])->default('pending');
             $table->enum('tipe_pengiriman', ['mutasi', 'reture'])->default('mutasi');

@@ -19,10 +19,10 @@ return new class extends Migration
             $table->string('id_toko');
             $table->string('no_nota');
             $table->integer('total_item');
-            $table->decimal('total_nilai', 15, 2);
+            $table->double('total_nilai');
             $table->integer('total_diskon')->nullable();
-            $table->decimal('jml_bayar', 15, 2);
-            $table->decimal('kembalian', 15, 2);
+            $table->double('jml_bayar');
+            $table->double('kembalian');
             $table->enum('metode', ['Tunai', 'Non-Tunai']);
             $table->timestamps();
             $table->softDeletes();

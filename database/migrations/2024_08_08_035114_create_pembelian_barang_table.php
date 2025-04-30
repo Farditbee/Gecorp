@@ -15,7 +15,7 @@ return new class extends Migration
             $table->string('no_nota')->nullable();
             $table->dateTime('tgl_nota')->nullable();
             $table->integer('total_item')->nullable();
-            $table->decimal('total_nilai', 15, 2)->nullable();
+            $table->double('total_nilai')->nullable();
             $table->enum('status', ['progress', 'success', 'failed','mixed'])->default('progress');
             $table->softDeletes();
         });

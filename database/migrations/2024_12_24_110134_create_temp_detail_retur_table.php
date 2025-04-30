@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('id_barang');
             $table->string('no_nota');
             $table->integer('qty');
-            $table->decimal('harga', 15, 2);
+            $table->double('harga');
             $table->timestamps();
         });
     }
