@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('id_toko')->nullable();
             $table->string('id_barang')->nullable();
             $table->string('qty')->nullable();
-            $table->string('harga')->nullable();
+            $table->double('harga')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

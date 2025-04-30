@@ -112,6 +112,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-brands-by-jenis', [BrandController::class, 'getBrandsByJenis'])->name('getBrandsByJenis');
         Route::post('/import-barang', [BarangController::class, 'import'])->name('master.barang.import');
 
+
         // Supplier Controller
         Route::get('/supplier', [SupplierController::class, 'index'])->name('master.supplier.index');
         Route::get('/supplier/create', [SupplierController::class, 'create'])->name('master.supplier.create');
@@ -156,6 +157,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-stock-details/{id_barang}', [StockBarangController::class, 'getStockDetails'])->name('get-stock-details');
         Route::get('/get-item/{id}', [StockBarangController::class, 'getItem'])->name('get.item');
         Route::post('/update-level-harga', [StockBarangController::class, 'updateLevelHarga'])->name('updateLevelHarga');
+        Route::get('/hpp_barang', [StockBarangController::class, 'getHppBarang'])->name('master.stock.hpp_barang');
         // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
 
         // Pengeluaran Controller

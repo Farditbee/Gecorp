@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('id_kasbon');
             $table->dateTime('tgl_bayar');
-            $table->decimal('bayar', 15, 2);
+            $table->double('bayar');
             $table->enum('tipe_bayar', ['Tunai', 'Non-Tunai']);
             $table->softDeletes();
             $table->timestamps();
