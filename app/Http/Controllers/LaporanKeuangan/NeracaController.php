@@ -3,12 +3,16 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\DetailKasir;
+use App\Models\DetailPembelianBarang;
 use App\Models\Hutang;
 use App\Models\Pemasukan;
+use App\Models\StockBarang;
 use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
 {
@@ -90,9 +94,33 @@ class NeracaController extends Controller
                 "nilai" => $result['data_total']['modal']['total_modal'],
             ]);
 
+            // Sisa Stock Keseluruhan Gudang
+            $totalStock = StockBarang::with('detailToko')->get()->sum(function ($item) {
+                $stockUtama = $item->stock ?? 0;
+                $stockDetail = $item->detailToko->sum('qty') ?? 0;
+                return $stockUtama + $stockDetail;
+            });
+
+            $detailBeli = DetailPembelianBarang::select('id_barang', DB::raw('SUM(qty * harga_barang) as total_beli'))
+                ->groupBy('id_barang')
+                ->pluck('total_beli', 'id_barang');
+
+            $detailKasir = DetailKasir::select('id_barang', DB::raw('SUM(qty * hpp_jual) as total_jual'))
+                ->groupBy('id_barang')
+                ->pluck('total_jual', 'id_barang');
+
+            // Gabungkan kedua hasil per id_barang
+            $totalKasir = 0;
+            foreach ($detailBeli as $id => $totalBeli) {
+                $totalJual = $detailKasir[$id] ?? 0;
+                $selisih = $totalBeli - $totalJual;
+                $totalKasir += $selisih;
+            }
+
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
                  + $result['data_total']['kas_kecil']['saldo_akhir']
-                 + $result['data_total']['piutang']['saldo_akhir'];
+                 + $result['data_total']['piutang']['saldo_akhir']
+                 + $totalKasir;
 
             $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
                 + $result['data_total']['aset_kecil']['aset_peralatan_kecil'];
@@ -128,6 +156,11 @@ class NeracaController extends Controller
                                     "kode" => "I.3",
                                     "nama" => "Piutang (Kasbon)",
                                     "nilai" => $result['data_total']['piutang']['saldo_akhir'],
+                                ],
+                                [
+                                    "kode" => "I.4",
+                                    "nama" => "Stock Gudang ({$totalStock})",
+                                    "nilai" => $totalKasir,
                                 ],
                             ],
                         ],
