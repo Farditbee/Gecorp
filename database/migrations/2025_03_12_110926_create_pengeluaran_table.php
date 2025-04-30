@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('id_toko');
             $table->string('nama_pengeluaran')->nullable();
             $table->string('id_jenis_pengeluaran')->nullable();
+            $table->enum('is_asset', ['Asset Peralatan Kecil', 'Asset Peralatan Besar'])->nullable();
             $table->double('nilai')->nullable();
             $table->datetime('tanggal');
             $table->softDeletes();
