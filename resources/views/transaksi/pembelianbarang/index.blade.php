@@ -1064,7 +1064,7 @@
                                     `#persen_${index}`);
 
                                 if (data.level_harga.hasOwnProperty(namaLevel)) {
-                                    inputField.value = data.level_harga[namaLevel];
+                                    inputField.value = data.level_harga[namaLevel] || 0;
                                     let levelHarga = parseFloat(inputField.value) || 0;
                                     let persen = 0;
                                     if (initialHppAwal > 0) {
@@ -1073,7 +1073,7 @@
                                     }
                                     persenElement.textContent = `${persen.toFixed(2)}%`;
                                 } else {
-                                    inputField.value = '';
+                                    inputField.value = 0;
                                     persenElement.textContent = '0%';
                                 }
                             });
@@ -1158,7 +1158,17 @@
                                 return;
                             }
                         } catch (error) {
-                            console.error('Error fetching HPP:', error);
+                            let finalHpp = harga;
+
+                            document.querySelector('.card-text strong.hpp-baru').textContent =
+                                `Rp ${Math.round(finalHpp).toLocaleString('id-ID')}`;
+
+                            document.querySelectorAll('.level-harga').forEach(function(input) {
+                                input.setAttribute('data-hpp-baru', finalHpp);
+                            });
+
+                            updatePercentages(finalHpp);
+                            return;
                         }
                     }
 
@@ -1237,7 +1247,7 @@
 
                     if (originalLevelHarga.hasOwnProperty(namaLevel)) {
                         inputField.value = originalLevelHarga[namaLevel] ||
-                            '';
+                            0;
                         let levelHarga = parseFloat(inputField.value) || 0;
                         let persen = 0;
                         if (hppUntukPerhitungan > 0) {
@@ -1245,7 +1255,7 @@
                         }
                         persenElement.textContent = `${persen.toFixed(2)}%`;
                     } else {
-                        inputField.value = '';
+                        inputField.value = 0;
                         persenElement.textContent = '0%';
                     }
                 });
