@@ -371,6 +371,7 @@
                                                         <th class="text-wrap align-top">Item</th>
                                                         <th class="text-wrap align-top">Harga</th>
                                                         <th class="text-wrap align-top">N.retur</th>
+                                                        <th class="text-wrap align-top">Qrcode</th>
                                                         <th class="text-wrap align-top">Action</th>
                                                     </tr>
                                                 </thead>
@@ -385,6 +386,7 @@
                                                             <td class="text-wrap align-top">
                                                                 {{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td class="text-wrap align-top">0</td>
+                                                            <td class="text-wrap align-top">{{ $dtks->qrcode }}</td>
                                                             <td class="text-wrap align-top">
                                                                 <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
                                                                     download class="btn btn-success">
