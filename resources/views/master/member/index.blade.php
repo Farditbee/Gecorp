@@ -110,6 +110,12 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
+                                                <label for="nama_member" class=" form-control-label">Nama Member<span
+                                                        style="color: red">*</span></label>
+                                                <input type="text" id="nama_member" name="nama_member"
+                                                    placeholder="Contoh : Member 1" class="form-control">
+                                            </div>
+                                            <div class="form-group">
                                                 <label for="jenis_barang" class="form-control-label">Jenis Barang</label>
                                                 <ul class="list-group list-group-flush">
                                                     @foreach ($jenis_barang as $jb)
@@ -129,12 +135,6 @@
                                                 </ul>
                                             </div>
 
-                                            <div class="form-group">
-                                                <label for="nama_member" class=" form-control-label">Nama Member<span
-                                                        style="color: red">*</span></label>
-                                                <input type="text" id="nama_member" name="nama_member"
-                                                    placeholder="Contoh : Member 1" class="form-control">
-                                            </div>
                                             <div class="form-group">
                                                 <label for="no_hp" class=" form-control-label">No HP<span
                                                         style="color: red">*</span></label>

@@ -84,6 +84,7 @@ Route::get('/getBarang', [PengirimanBarangController::class, 'getHargaBarang'])-
 Route::get('/neraca', [NeracaController::class, 'getNeraca'])->name('master.getNeraca');
 
 Route::prefix('master')->as('master.')->group(function () {
+    Route::get('levelUser', [MasterController::class, 'getLevelUser'])->name('levelUser');
     Route::get('toko', [MasterController::class, 'getToko'])->name('toko');
     Route::get('member', [MasterController::class, 'getMember'])->name('member');
     Route::get('barang', [MasterController::class, 'getBarang'])->name('barang');

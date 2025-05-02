@@ -12,6 +12,7 @@ use App\Models\JenisPemasukan;
 use App\Models\JenisPengeluaran;
 use App\Models\JenisPiutang;
 use App\Models\Kasbon;
+use App\Models\LevelUser;
 use App\Models\Member;
 use App\Models\Pemasukan;
 use App\Models\Piutang;
@@ -765,6 +766,66 @@ class MasterController extends Controller
                 'utang' => intval($item['utang']),
                 'tgl_kasbon' => $item['created_at'],
                 'status' => $item['status'] === 'BL' ? 'Belum Lunas' : 'Lunas',
+            ];
+        }, $data['data']);
+
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Berhasil',
+            'pagination' => $data['meta']
+        ], 200);
+    }
+
+    public function getLevelUser(Request $request)
+    {
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
+
+        $query = LevelUser::query();
+
+        if ($request['id_level'] == 3) {
+            $query->where('id', 4);
+        }
+
+        if (!empty($request['search'])) {
+            $searchTerm = trim(strtolower($request['search']));
+
+            $query->where(function ($query) use ($searchTerm) {
+                $query->orWhereRaw("LOWER(nama_level) LIKE ?", ["%$searchTerm%"]);
+            });
+        }
+
+
+        $query->orderBy('id', $meta['orderBy']);
+
+        $data = $query->paginate($meta['limit']);
+
+        $paginationMeta = [
+            'total'        => $data->total(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
+        $data = [
+            'data' => $data->items(),
+            'meta' => $paginationMeta
+        ];
+
+        if (empty($data['data'])) {
+            return response()->json([
+                'status_code' => 400,
+                'errors' => true,
+                'message' => 'Tidak ada data'
+            ], 400);
+        }
+
+        $mappedData = array_map(function ($item) {
+            return [
+                'id' => $item['id'],
+                'text' => $item['nama_level'],
             ];
         }, $data['data']);
 

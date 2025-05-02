@@ -28,28 +28,13 @@
                                     <div class="form-group">
                                         <label for="id_toko" class=" form-control-label">Nama Toko<span
                                                 style="color: red">*</span></label>
-                                        <select name="id_toko" id="selector" class="form-control" tabindex="1">
-                                            <option value="" required>~Silahkan Pilih Toko~</option>
-                                            @foreach ($toko as $tk)
-                                                <option value="{{ $tk->id }}">{{ $tk->nama_toko }}</option>
-                                            @endforeach
+                                        <select name="id_toko" id="selector" class="form-control select2" tabindex="1">
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="id_level" class="form-control-label">Level<span style="color: red">*</span></label>
+                                        <label for="id_level" class="form-control-label">Level<span
+                                                style="color: red">*</span></label>
                                         <select name="id_level" id="selectors" class="form-control" tabindex="2">
-                                            <option value="" required>~Pilih~</option>
-
-                                            @if (Auth::user()->id_level == 3)
-                                                @foreach ($leveluser->where('id', 4) as $lu)
-                                                    <option value="{{ $lu->id }}">{{ $lu->nama_level }}</option>
-                                                @endforeach
-                                            @else
-                                                @foreach ($leveluser as $lu)
-                                                    <option value="{{ $lu->id }}">{{ $lu->nama_level }}</option>
-                                                @endforeach
-                                            @endif
-
                                         </select>
                                     </div>
 
@@ -110,22 +95,22 @@
             </div>
         </div>
     </div>
+@endsection
 
+@section('js')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const element = document.getElementById('selector');
-            const choices = new Choices(element, {
-                removeItemButton: true,
-                searchEnabled: true,
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            const element = document.getElementById('selectors');
-            const choices = new Choices(element, {
-                removeItemButton: true,
-                searchEnabled: true,
-            });
-        });
+        let selectOptions = [{
+            id: '#selector',
+            isUrl: '{{ route('master.toko') }}',
+            placeholder: 'Pilih Nama Toko',
+        }, {
+            id: '#selectors',
+            isUrl: '{{ route('master.levelUser') }}',
+            placeholder: 'Pilih Level User',
+            isFilter: {
+                id_level: '{{ auth()->user()->id_level }}',
+            },
+        }];
 
         document.getElementById('toggle-password').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
@@ -134,7 +119,8 @@
             this.textContent = type === 'password' ? '👁️' : '🙈';
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        async function addData() {
+
             const passwordInput = document.getElementById('password');
             const passwordWarning = document.createElement('small');
             passwordWarning.style.marginTop = '5px';
@@ -179,6 +165,10 @@
                     notificationAlert('error', 'Pemberitahuan', errorMessage);
                 }
             });
-        });
+        }
+
+        async function initPageLoad() {
+            await selectData(selectOptions);
+        }
     </script>
 @endsection

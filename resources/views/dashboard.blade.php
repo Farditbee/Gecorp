@@ -104,9 +104,11 @@
                                                     ini</b></small>
                                         </div>
                                     </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span><i class="fa fa-money-bill mr-1"></i>Laba Kotor:<b class="ml-1"
-                                                id="laba-kotor">Rp0</b></span>
+                                    <div class="d-flex {{ Auth::user()->id_level == 1 || Auth::user()->id_level == 5 ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
+                                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
+                                            <span><i class="fa fa-money-bill mr-1"></i>Laba Kotor:<b class="ml-1"
+                                                    id="laba-kotor">Rp0</b></span>
+                                        @endif
                                         <button class="btn-dynamic btn btn-outline-primary" type="button"
                                             data-toggle="collapse" data-target="#filter-collapse3" aria-expanded="false"
                                             aria-controls="filter-collapse3">
@@ -857,7 +859,8 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data.data > 0) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data
+                .data.length > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleTopPenjualan(item))
                 );
@@ -953,7 +956,8 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data.data > 0) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data
+                .data.length > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleTopMember(item))
                 );
