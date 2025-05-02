@@ -112,14 +112,14 @@
             },
         }];
 
-        document.getElementById('toggle-password').addEventListener('click', function() {
-            const passwordInput = document.getElementById('password');
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            this.textContent = type === 'password' ? '👁️' : '🙈';
-        });
 
         async function addData() {
+            document.getElementById('toggle-password').addEventListener('click', function() {
+                const passwordInput = document.getElementById('password');
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                this.textContent = type === 'password' ? '👁️' : '🙈';
+            });
 
             const passwordInput = document.getElementById('password');
             const passwordWarning = document.createElement('small');
@@ -168,6 +168,7 @@
         }
 
         async function initPageLoad() {
+            await addData();
             await selectData(selectOptions);
         }
     </script>
