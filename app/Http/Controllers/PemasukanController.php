@@ -20,7 +20,7 @@ class PemasukanController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Pemasukan',
+            'Pemasukan Lainnya',
             'Tambah Data',
             'Edit Data'
         ];

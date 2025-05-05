@@ -21,7 +21,7 @@ class StockBarangController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Stock Barang',
+            'Stok Barang',
         ];
     }
 

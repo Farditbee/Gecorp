@@ -45,7 +45,7 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <a href="{{ route('kasbon.index') }}" class="btn btn-danger">
+                            <a href="{{ route('transaksi.index') }}" class="btn btn-danger">
                                 <i class="ti-plus menu-icon"></i> Kembali
                             </a>
                         </div>

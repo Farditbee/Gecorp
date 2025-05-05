@@ -17,7 +17,7 @@ class MutasiController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Mutasi',
+            'Mutasi Kas',
         ];
     }
 

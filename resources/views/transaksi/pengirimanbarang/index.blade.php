@@ -20,12 +20,12 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a href="{{ route('transaksi.pengirimanbarang.create') }}"
+                                <a href="{{ route('distribusi.pengirimanbarang.create') }}"
                                     class="btn btn-primary mb-2 mb-lg-0 text-white" data-container="body"
                                     data-toggle="tooltip" data-placement="top" title="Tambah Pengiriman Barang">
                                     <i class="fa fa-plus-circle"></i> Tambah
                                 </a>
-                                <a href="{{ route('transaksi.pengirimanbarang.reture') }}"
+                                <a href="{{ route('distribusi.pengirimanbarang.reture') }}"
                                     class="btn btn-warning mb-2 mb-lg-0 text-dark mx-1" data-container="body"
                                     data-toggle="tooltip" data-placement="top" title="Reture Pengiriman Barang">
                                     <i class="fa fa-rotate-left"></i> Reture

@@ -17,7 +17,7 @@ class LapPengirimanController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Laporan Pengiriman Barang',
+            'Rekap Pengiriman Barang',
         ];
     }
 

@@ -22,7 +22,7 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">
+                            <a href="{{ route('distribusi.pengirimanbarang.index') }}" class="btn btn-danger">
                                 <i class="ti-plus menu-icon"></i> Kembali
                             </a>
                         </div>
@@ -372,7 +372,7 @@
 
                             setTimeout(() => {
                                 window.location.href =
-                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                                    '{{ route('distribusi.pengirimanbarang.index') }}';
                             }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message || "Terjadi kesalahan",
