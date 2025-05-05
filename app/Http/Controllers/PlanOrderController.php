@@ -20,7 +20,7 @@ class PlanOrderController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Plan Order',
+            'Lokasi dan Riwayat Barang',
             'Tambah Data',
             'Edit Data'
         ];
@@ -121,7 +121,7 @@ class PlanOrderController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
-        $menu = [$this->title[0], $this->label[0]];
+        $menu = [$this->title[0], $this->label[6]];
         $user = Auth::user(); // Mendapatkan user yang sedang login
 
         // Mengambil stock barang beserta relasi ke barang dan toko

@@ -23,7 +23,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
+                            <a href="{{ route('distribusi.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
                         </div>
                         <div class="card-body">
                             <x-adminlte-alerts />
@@ -191,7 +191,7 @@
                                                                         {{ number_format($dt->harga_barang, 2) }}</td>
                                                                     <td class="data-hpp-jual text-right">
                                                                         {{ number_format($dt->hpp_jual, 2) }}</td>
-                                                                    
+
                                                                     <!-- Hidden input for data-detail -->
                                                                     <input type="hidden" class="data-detail" value="{{ $dt->detail_retur_id }}">
                                                                     <input type="hidden" class="data-idRetur" value="{{ $dt->retur_id }}">
@@ -361,7 +361,7 @@
                             swal("Berhasil!", "Data berhasil disimpan.", "success");
                             setTimeout(() => {
                                 window.location.href =
-                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                                    '{{ route('distribusi.pengirimanbarang.index') }}';
                             }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message || "Terjadi kesalahan",

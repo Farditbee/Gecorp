@@ -27,7 +27,7 @@ class RetureController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Reture Member',
+            'Retur dari Member',
         ];
     }
 

@@ -23,7 +23,7 @@
                 <div class="col-md-12">
                     <div class="card">
                         <div class="card-header">
-                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
+                            <a href="{{ route('distribusi.pengirimanbarang.index') }}" class="btn btn-danger">Kembali</a>
                         </div>
                         <div class="card-body">
                             <x-adminlte-alerts />
@@ -695,7 +695,7 @@
 
                             setTimeout(() => {
                                 window.location.href =
-                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                                    '{{ route('distribusi.pengirimanbarang.index') }}';
                             }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message || "Terjadi kesalahan",

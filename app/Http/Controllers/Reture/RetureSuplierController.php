@@ -24,7 +24,7 @@ class RetureSuplierController extends Controller
     {
         $this->menu;
         $this->title = [
-            'Reture Supplier',
+            'Retur ke Supplier',
         ];
     }
 
@@ -279,9 +279,9 @@ class RetureSuplierController extends Controller
                     'message' => 'Data tidak ditemukan',
                 ], 404);
             }
-            
+
         } catch (\Exception $e) {
-            
+
             Log::error('Error deleting data: ' . $e->getMessage());
 
             return response()->json([

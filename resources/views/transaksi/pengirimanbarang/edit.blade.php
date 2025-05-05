@@ -45,7 +45,7 @@
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <a href="{{ route('transaksi.pengirimanbarang.index') }}" class="btn btn-danger">
+                            <a href="{{ route('distribusi.pengirimanbarang.index') }}" class="btn btn-danger">
                                 <i class="ti-plus menu-icon"></i> Kembali
                             </a>
                         </div>
@@ -238,21 +238,21 @@
                     reverseButtons: true,
                 }).then(async (willSave) => {
                     if (!willSave) return;
-                    
+
                     saveButton.disabled = true;
                     const originalContent = saveButton.innerHTML;
                     saveButton.innerHTML =
                     `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan`;
                     loadingPage(true);
-                    
+
                     let detailIds = [];
                     let statusArray = [];
-                    
+
                     $(".status-check").each(function() {
                         detailIds.push($(this).data("id"));
                         statusArray.push($(this).val());
                     });
-                    
+
                     const formData = {
                         id_pengiriman_barang: '{{ $pengiriman_barang->id }}',
                         detail_ids: detailIds,
@@ -271,7 +271,7 @@
                             swal("Berhasil!", "Data berhasil disimpan.", "success");
                             setTimeout(() => {
                                 window.location.href =
-                                    '{{ route('transaksi.pengirimanbarang.index') }}';
+                                    '{{ route('distribusi.pengirimanbarang.index') }}';
                             }, 1000);
                         } else {
                             swal("Pemberitahuan", postData.message ||

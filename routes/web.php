@@ -194,12 +194,12 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/piutang/delete/{id}', [PiutangController::class, 'delete'])->name('master.piutang.delete');
 
         Route::get('/stockopname', [StockOpnameController::class, 'index'])->name('master.stockopname.index');
-        Route::get('/planorder', [PlanOrderController::class, 'index'])->name('master.planorder.index');
+        Route::get('/planorder', [PlanOrderController::class, 'index'])->name('distribusi.planorder.index');
 
         // Pengiriman Barang
-        Route::get('/pengirimanbarang', [PengirimanBarangController::class, 'index'])->name('transaksi.pengirimanbarang.index');
-        Route::get('/pengirimanbarang/create', [PengirimanBarangController::class, 'create'])->name('transaksi.pengirimanbarang.create');
-        Route::get('/pengirimanbarang/detail/{id}', [PengirimanBarangController::class, 'detail'])->name('transaksi.pengirimanbarang.detail');
+        Route::get('/pengirimanbarang', [PengirimanBarangController::class, 'index'])->name('distribusi.pengirimanbarang.index');
+        Route::get('/pengirimanbarang/create', [PengirimanBarangController::class, 'create'])->name('distribusi.pengirimanbarang.create');
+        Route::get('/pengirimanbarang/detail/{id}', [PengirimanBarangController::class, 'detail'])->name('distribusi.pengirimanbarang.detail');
         Route::get('/get-users-by-toko/{id_toko}', [PengirimanBarangController::class, 'getUsersByToko']);
         Route::get('/get-barang-stock/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getBarangStock']);
         Route::get('/get-harga-barang/{id_barang}/{id_toko}', [PengirimanBarangController::class, 'getHargaBarang']);
@@ -217,7 +217,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengirimanbarang/get-temporary-items', [PengirimanBarangController::class, 'getTempPengiriman'])->name('get.temp.pengiriman');
         Route::post('/pengirimanbarang/save', [PengirimanBarangController::class, 'save'])->name('save.pengiriman');
         Route::delete('/pengirimanbarang/{id}/delete', [PengirimanBarangController::class, 'delete'])->name('transaksi.pengiriman.delete');
-        Route::get('/pengirimanbarang/reture', [PengirimanBarangController::class, 'returePengiriman'])->name('transaksi.pengirimanbarang.reture');
+        Route::get('/pengirimanbarang/reture', [PengirimanBarangController::class, 'returePengiriman'])->name('distribusi.pengirimanbarang.reture');
 
         // Kasir Controller
         Route::get('/kasir', [KasirController::class, 'index'])->name('transaksi.kasir.index');
@@ -259,7 +259,7 @@ Route::middleware(['auth'])->group(function () {
             });
         });
 
-        Route::prefix('kasbon')->as('kasbon.')->group(function () {
+        Route::prefix('kasbon')->as('transaksi.')->group(function () {
             Route::get('/', [KasbonController::class, 'index'])->name('index');
             Route::get('/detail/{id}', [KasbonController::class, 'detail'])->name('detail');
             Route::post('/bayar', [KasbonController::class, 'bayar'])->name('bayar');
