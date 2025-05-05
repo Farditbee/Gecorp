@@ -134,7 +134,7 @@ class MemberController extends Controller
 
     public function index()
     {
-        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3, 4])) {
             abort(403, 'Unauthorized');
         }
 
