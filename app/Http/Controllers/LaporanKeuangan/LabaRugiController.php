@@ -46,9 +46,15 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
+            $assetRetur = -1 * (DB::table('detail_retur')
+                ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+                ->whereMonth('detail_retur.created_at', $month)
+                ->whereYear('detail_retur.created_at', $year)
+                ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
+                ->value('total_retur') ?? 0);
 
-            // Calculate HPP from pembelian_barang
+            $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
+
             $hpp = DB::table('detail_kasir')
                 ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
                 ->whereMonth('created_at', $month)
@@ -85,6 +91,7 @@ class LabaRugiController extends Controller
                     [
                         ['1.1 Penjualan Umum', number_format($penjualanUmum, 0, ',', '.')],
                         ['1.2 Pendapatan Lainnya', number_format($pendapatanLainnya, 0, ',', '.')],
+                        ['1.3 Asset Retur', number_format($assetRetur, 0, ',', '.')],
                         ['Total Pendapatan', number_format($totalPendapatan, 0, ',', '.')]
                     ]
                 ],

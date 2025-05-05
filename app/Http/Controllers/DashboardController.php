@@ -262,7 +262,8 @@ class DashboardController extends Controller
             "data" => [
                 'total' => $totalOmset,
                 'laba_kotor' => $laba_kotor,
-                'total_trx' => $totalTransaksiHariIni,
+                'jumlah_trx' => $totalTransaksiHariIni,
+                'total_trx' => $totalOmset,
             ],
         ]);
     } catch (\Throwable $th) {
