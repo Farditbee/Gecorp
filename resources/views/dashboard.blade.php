@@ -107,8 +107,16 @@
                                     <div
                                         class="d-flex {{ Auth::user()->id_level == 1 || Auth::user()->id_level == 5 ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
                                         @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
-                                            <span><i class="fa fa-money-bill mr-1"></i>Laba Kotor:<b class="ml-1"
-                                                    id="laba-kotor">Rp0</b></span>
+                                            <div class="d-flex flex-column align-items-start">
+                                                <small>
+                                                    <i class="fa fa-money-bill mr-1"></i>Laba Kotor:
+                                                    <b class="ml-1" id="laba-kotor">Rp0</b>
+                                                </small>
+                                                <small>
+                                                    <i class="fa fa-money-bill mr-1"></i>Total Transaksi:
+                                                    <b class="ml-1" id="total-transaksi">Rp0</b>
+                                                </small>
+                                            </div>
                                         @endif
                                         <button class="btn-dynamic btn btn-outline-primary" type="button"
                                             data-toggle="collapse" data-target="#filter-collapse3" aria-expanded="false"
@@ -405,11 +413,11 @@
 
         async function setOmsetChart(data) {
             const total = data?.total ? data?.total : 0;
-            const laba_bersih = data?.laba_bersih ? data?.laba_bersih : 0;
+            const total_transaksi = data?.total_trx ? data?.total_trx : 0;
             const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 0;
 
             await $('#total-pendapatan').html(formatRupiah(total));
-            await $('#laba-bersih').html(formatRupiah(laba_bersih));
+            await $('#total-transaksi').html(formatRupiah(total_transaksi));
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
         }
 
