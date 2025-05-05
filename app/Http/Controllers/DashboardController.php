@@ -239,15 +239,15 @@ class DashboardController extends Controller
 
             // Hitung total laba kotor (total hpp_jual) dari tabel detail_kasir
             $labakotorquery = DetailKasir::join('kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
-                ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]) // Filter berdasarkan rentang tanggal
+                ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate])
                 ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
-                    // Jika id_toko yang diterima bukan 1, filter hanya untuk toko tersebut
                     return $query->where('kasir.id_toko', $idTokoLogin);
                 })
-                ->where('kasir.id_toko', '!=', 1) // Abaikan toko dengan id_toko=1
-                ->sum('detail_kasir.hpp_jual');
+                ->where('kasir.id_toko', '!=', 1)
+                ->selectRaw('SUM(detail_kasir.total_harga) as total_penjualan, SUM(detail_kasir.hpp_jual * detail_kasir.qty) as total_hpp')
+                ->first();
 
-            $laba_kotor = $labakotorquery ?? 0;
+            $laba_kotor = $labakotorquery->total_penjualan - $labakotorquery->total_hpp;
 
             // Return response JSON
             return response()->json([
