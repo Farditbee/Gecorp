@@ -26,7 +26,6 @@
                                     @csrf
                                     @method('put')
                                     @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-
                                         <div class="form-group">
                                             <label for="id_toko" class="form-control-label">Nama Toko <span
                                                     style="color: red">*</span></label>
@@ -180,18 +179,21 @@
             });
 
             form.addEventListener('submit', function(event) {
-                const passwordValue = passwordInput.value;
+                const passwordValue = passwordInput.value.trim();
                 const hasNumber = /\d/.test(passwordValue);
 
-                if (passwordValue.length < 8 || !hasNumber) {
-                    event.preventDefault();
-                    const errorMessage = passwordValue.length < 8 ?
-                        '❌ Password harus memiliki minimal 8 karakter.' :
-                        '❌ Password harus memiliki minimal 1 angka.';
-                    passwordWarning.innerHTML = errorMessage;
-                    passwordWarning.style.color = 'red';
-                    passwordWarning.style.display = 'block';
-                    notificationAlert('error', 'Pemberitahuan', errorMessage);
+                if (passwordValue !== '') {
+                    if (passwordValue.length < 8 || !hasNumber) {
+                        event.preventDefault();
+                        const errorMessage = passwordValue.length < 8 ?
+                            '❌ Password harus memiliki minimal 8 karakter.' :
+                            '❌ Password harus memiliki minimal 1 angka.';
+                        passwordWarning.innerHTML = errorMessage;
+                        passwordWarning.style.color = 'red';
+                        passwordWarning.style.display = 'block';
+                    }
+                } else {
+                    passwordWarning.style.display = 'none';
                 }
             });
         }

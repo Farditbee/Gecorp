@@ -104,7 +104,8 @@
                                                     ini</b></small>
                                         </div>
                                     </div>
-                                    <div class="d-flex {{ Auth::user()->id_level == 1 || Auth::user()->id_level == 5 ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
+                                    <div
+                                        class="d-flex {{ Auth::user()->id_level == 1 || Auth::user()->id_level == 5 ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
                                         @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
                                             <span><i class="fa fa-money-bill mr-1"></i>Laba Kotor:<b class="ml-1"
                                                     id="laba-kotor">Rp0</b></span>
@@ -204,60 +205,63 @@
                 </div>
                 <div class="col-12 col-lg-8">
                     <div class="row">
-                        <div class="col-12">
-                            <div class="card">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <h5 class="mb-2">Komparasi Penjualan Antar Toko</h5>
-                                        <div class="row align-items-center">
-                                            <div class="col-auto ms-auto">
-                                                <small class="me-1">
-                                                    <i class="fa fa-circle-info mr-1"></i> <b id="info-komparasi">Data per
-                                                        hari ini</b>
-                                                </small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button class="btn-dynamic btn btn-outline-primary" type="button"
-                                        data-toggle="collapse" data-target="#filter-collapse2" aria-expanded="false"
-                                        aria-controls="filter-collapse2">
-                                        <i class="fa fa-filter"></i> Filter
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row pb-2 align-items-center justify-content-between">
-                                        <div class="mb-2 col-12 col-md-auto">
-                                            <h4 class="mb-1" id="total-penjualan2">Rp. 0</h4>
-                                            <span>Data Penjualan</span>
-                                        </div>
-                                        <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
-                                            <div class="collapse" id="filter-collapse2">
-                                                <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
-                                                    <form id="custom-filter"
-                                                        class="d-flex justify-content-between align-items-center w-100">
-                                                        <i class="fa fa-filter"></i>
-                                                        <input class="form-control w-75 mx-2 mb-lg-0" type="text"
-                                                            id="daterange" name="daterange"
-                                                            placeholder="Pilih rentang tanggal">
-                                                        <button
-                                                            class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
-                                                            id="tb-filter" type="submit">
-                                                            <i class="fa fa-magnifying-glass mr-2"></i>Submit
-                                                        </button>
-                                                        <button type="button"
-                                                            class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
-                                                            id="reset-komparasi">
-                                                            <i class="fa fa-rotate mr-2"></i>Reset
-                                                        </button>
-                                                    </form>
+                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-2">Komparasi Penjualan Antar Toko</h5>
+                                            <div class="row align-items-center">
+                                                <div class="col-auto ms-auto">
+                                                    <small class="me-1">
+                                                        <i class="fa fa-circle-info mr-1"></i> <b id="info-komparasi">Data
+                                                            per
+                                                            hari ini</b>
+                                                    </small>
                                                 </div>
                                             </div>
                                         </div>
+                                        <button class="btn-dynamic btn btn-outline-primary" type="button"
+                                            data-toggle="collapse" data-target="#filter-collapse2" aria-expanded="false"
+                                            aria-controls="filter-collapse2">
+                                            <i class="fa fa-filter"></i> Filter
+                                        </button>
                                     </div>
-                                    <div id="komparasi-chart"></div>
+                                    <div class="card-body">
+                                        <div class="row pb-2 align-items-center justify-content-between">
+                                            <div class="mb-2 col-12 col-md-auto">
+                                                <h4 class="mb-1" id="total-penjualan2">Rp. 0</h4>
+                                                <span>Data Penjualan</span>
+                                            </div>
+                                            <div class="mb-2 col-12 col-md-auto ms-auto justify-content-end text-end">
+                                                <div class="collapse" id="filter-collapse2">
+                                                    <div class="d-flex flex-column flex-md-row align-items-md-start gap-2">
+                                                        <form id="custom-filter"
+                                                            class="d-flex justify-content-between align-items-center w-100">
+                                                            <i class="fa fa-filter"></i>
+                                                            <input class="form-control w-75 mx-2 mb-lg-0" type="text"
+                                                                id="daterange" name="daterange"
+                                                                placeholder="Pilih rentang tanggal">
+                                                            <button
+                                                                class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mr-2"
+                                                                id="tb-filter" type="submit">
+                                                                <i class="fa fa-magnifying-glass mr-2"></i>Submit
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
+                                                                id="reset-komparasi">
+                                                                <i class="fa fa-rotate mr-2"></i>Reset
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="komparasi-chart"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -1087,8 +1091,10 @@
             await getOmset(customFilter4);
             await filterOmset();
             await setDynamicButton();
-            await getKomparasiToko(customFilter);
-            await filterKomparasiToko();
+            if ('{{ auth()->user()->id_level == 1 || auth()->user()->id_level == 2 }}') {
+                await getKomparasiToko(customFilter);
+                await filterKomparasiToko();
+            }
             await getLaporanPenjualan();
             await filterLaporanPenjualan();
             await getTopPenjualan();
