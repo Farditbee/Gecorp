@@ -25,12 +25,12 @@ class LevelUserController extends Controller
 
     public function getleveluser(Request $request)
     {
-        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['orderBy'] = $request->ascending ? 'desc' : 'asc';
         $meta['limit'] = $request->has('limit') && $request->limit <= 30 ? $request->limit : 30;
 
         $query = LevelUser::query();
 
-        $query->with([])->orderBy('id', $meta['orderBy']);
+        $query->with([])->orderBy('no_urut', $meta['orderBy']);
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));

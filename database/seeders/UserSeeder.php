@@ -65,33 +65,39 @@ class UserSeeder extends Seeder
         // Level User Seeder
         LevelUser::create([
             "id" => 1,
+            "no_urut" => 1,
             "nama_level" => "Super Admin",
-            "informasi" => "Mengontrol dan Akses semua Sistem",
+            "informasi" => "Akses penuh ke seluruh sistem, Dapat mengatur semua data, pengguna, dan pengaturan sistem",
         ]);
         LevelUser::create([
             "id" => 2,
+            "no_urut" => 3,
             "nama_level" => "Admin GSS",
-            "informasi" => "Mengontrol Toko GSS",
+            "informasi" => "Mengelola operasional gudang seperti stok, pengadaan, dan distribusi barang, Tidak memiliki akses ke laporan keuangan",
         ]);
         LevelUser::create([
             "id" => 3,
-            "nama_level" => "Admin",
-            "informasi" => "Mengontrol Toko",
+            "id" => 4,
+            "nama_level" => "Admin Toko",
+            "informasi" => "Mengelola operasional toko termasuk transaksi penjualan, Tidak memiliki akses ke laporan keuangan",
         ]);
         LevelUser::create([
             "id" => 4,
+            "id" => 5,
             "nama_level" => "Karyawan",
-            "informasi" => "Melakukan Transaksi Kasir",
+            "informasi" => "Melakukan transaksi penjualan di kasir, Akses terbatas hanya untuk kasir dan kasbon",
         ]);
         LevelUser::create([
             "id" => 5,
-            "nama_level" => "Mitra",
-            "informasi" => "Contoh Mitra",
+            "id" => 6,
+            "nama_level" => "Franchise",
+            "informasi" => "Pihak eksternal yang bermitra dan menjalankan toko cabang, Dapat melihat performa dan laporan keuangan tokonya sendiri",
         ]);
         LevelUser::create([
             "id" => 6,
+            "id" => 2,
             "nama_level" => "Akunting",
-            "informasi" => "Contoh Akunting",
+            "informasi" => "Mengelola keuangan dan laporan keuangan toko, Fokus pada pelaporan keuangan dan kasbon",
         ]);
 
         // Toko Seeder
