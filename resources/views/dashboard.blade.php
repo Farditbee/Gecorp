@@ -33,6 +33,15 @@
             margin-top: 2px;
         }
 
+        .glass {
+            background: rgba(228, 228, 228, 0.146);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            backdrop-filter: blur(8px);
+            flex: 1 1 auto;
+            word-wrap: break-word;
+        }
+
         @media (max-width: 576px) {
             .avatar {
                 width: 50px;
@@ -92,60 +101,79 @@
                                 <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
                                     style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;">
                                 <div class="card-body position-relative">
-                                    <h5 class="mb-2">Total Omset</h5>
-                                    <div class="d-flex align-items-center mb-2">
-                                        <div class="avatar bg-primary text-white mx-2">
-                                            <i class="fa fa-dollar-sign fa-2x"></i>
-                                        </div>
-                                        <div>
-                                            <h2 class="text-primary mb-0" id="total-pendapatan">Rp0</h2>
-                                            <hr class="p-0 m-1">
-                                            <small><i class="fa fa-circle-info mr-1"></i><b id="info-omset">Omset per hari
-                                                    ini</b></small>
-                                        </div>
-                                    </div>
-                                    <div
-                                        class="d-flex {{ Auth::user()->id_level == 1 || Auth::user()->id_level == 5 ? 'justify-content-between' : 'justify-content-end' }} align-items-center">
-                                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
-                                            <div class="d-flex flex-column align-items-start">
-                                                <small>
-                                                    <i class="fa fa-money-bill mr-1"></i>Laba Kotor:
-                                                    <b class="ml-1" id="laba-kotor">Rp0</b>
-                                                </small>
-                                                <small>
-                                                    <i class="fa fa-money-bill mr-1"></i>Total Transaksi:
-                                                    <b class="ml-1" id="total-transaksi">Rp0</b>
-                                                </small>
+                                    @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
+                                        <div class="row p-3">
+                                            <div class="col-12 glass bg-primary text-white">
+                                                <div class="d-flex justify-content-between">
+                                                    <div>
+                                                        <h5 class="mb-2 text-light">Total Omset</h5>
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <div class="avatar bg-primary text-white mx-2">
+                                                                <i class="fa fa-dollar-sign fa-2x"></i>
+                                                            </div>
+                                                            <div>
+                                                                <h2 class="text-light mb-0" id="total-pendapatan">Rp 0
+                                                                </h2>
+                                                                <hr class="p-0 m-1">
+                                                                <small><i class="fa fa-circle-info mr-1"></i><b
+                                                                        id="info-omset">Omset per hari
+                                                                        ini</b></small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn-dynamic btn btn-outline-light" type="button"
+                                                        data-toggle="collapse" data-target="#filter-collapse3"
+                                                        aria-expanded="false" aria-controls="filter-collapse3">
+                                                        <i class="fa fa-filter"></i> Filter
+                                                    </button>
+                                                </div>
+                                                <div class="collapse" id="filter-collapse3">
+                                                    <hr>
+                                                    <div
+                                                        class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
+                                                        <form id="custom-filter-omset"
+                                                            class="d-flex justify-content-between align-items-center w-100">
+                                                            <input class="form-control w-75 mb-lg-0" type="text"
+                                                                id="daterange-omset" name="daterange"
+                                                                placeholder="Pilih rentang tanggal">
+                                                            <button
+                                                                class="btn btn-light w-25 h-100 d-flex align-items-center justify-content-center mx-2"
+                                                                id="tb-filter" type="submit">
+                                                                <i class="fa fa-magnifying-glass mr-2"></i>Submit
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
+                                                                id="reset-omset">
+                                                                <i class="fa fa-rotate mr-2"></i>Reset
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex justify-content-end mt-3">
+                                                    <div class="fw-bold"><i
+                                                        class="fa fa-shopping-cart fa-lg text-light mr-2"></i>Jumlah
+                                                    Transaksi: <span id="jumlah-transaksi" class="fs-4">0</span></div>
+                                                </div>
+                                                <hr>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="glass flex-fill">
+                                                            <i class="fa fa-wallet fa-lg text-light mb-2"></i>
+                                                            <div class="fw-bold">Total Transaksi</div>
+                                                            <div id="total-transaksi" class="fs-4">Rp 0</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="glass flex-fill">
+                                                            <i class="fa fa-chart-line fa-lg text-light mb-2"></i>
+                                                            <div class="fw-bold">Laba Kotor</div>
+                                                            <div id="laba-kotor" class="fs-4">Rp 0</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        @endif
-                                        <button class="btn-dynamic btn btn-outline-primary" type="button"
-                                            data-toggle="collapse" data-target="#filter-collapse3" aria-expanded="false"
-                                            aria-controls="filter-collapse3">
-                                            <i class="fa fa-filter"></i> Filter
-                                        </button>
-                                    </div>
-                                    <div class="collapse" id="filter-collapse3">
-                                        <hr>
-                                        <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
-                                            <form id="custom-filter-omset"
-                                                class="d-flex justify-content-between align-items-center w-100">
-                                                <input class="form-control w-75 mb-lg-0" type="text" id="daterange-omset"
-                                                    name="daterange" placeholder="Pilih rentang tanggal">
-
-                                                <button
-                                                    class="btn btn-success w-25 h-100 d-flex align-items-center justify-content-center mx-2"
-                                                    id="tb-filter" type="submit">
-                                                    <i class="fa fa-magnifying-glass mr-2"></i>Submit
-                                                </button>
-
-                                                <button type="button"
-                                                    class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
-                                                    id="reset-omset">
-                                                    <i class="fa fa-rotate mr-2"></i>Reset
-                                                </button>
-                                            </form>
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -414,10 +442,12 @@
         async function setOmsetChart(data) {
             const total = data?.total ? data?.total : 0;
             const total_transaksi = data?.total_trx ? data?.total_trx : 0;
+            const jumlah_transaksi = data?.jumlah_trx ? data?.jumlah_trx : 0;
             const laba_kotor = data?.laba_kotor ? data?.laba_kotor : 0;
 
             await $('#total-pendapatan').html(formatRupiah(total));
             await $('#total-transaksi').html(formatRupiah(total_transaksi));
+            await $('#jumlah-transaksi').html(jumlah_transaksi);
             await $('#laba-kotor').html(formatRupiah(laba_kotor));
         }
 
