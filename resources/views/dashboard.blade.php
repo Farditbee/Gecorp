@@ -34,7 +34,7 @@
         }
 
         .glass {
-            background: rgba(228, 228, 228, 0.146);
+            background: rgb(255, 251, 251);
             border-radius: 1rem;
             padding: 1.5rem;
             backdrop-filter: blur(8px);
@@ -111,8 +111,8 @@
                                                             <i class="fa fa-dollar-sign fa-2x"></i>
                                                         </div>
                                                         <div>
-                                                            <h2 class="text-light mb-0" id="total-pendapatan">Rp 0
-                                                            </h2>
+                                                            <h3 class="text-light mb-0" id="total-pendapatan">Rp 0
+                                                            </h3>
                                                             <hr class="p-0 m-1">
                                                             <small><i class="fa fa-circle-info mr-1"></i><b
                                                                     id="info-omset">Omset per hari
@@ -150,18 +150,18 @@
                                             <hr>
                                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
                                                 <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="glass flex-fill">
-                                                            <i class="fa fa-shopping-cart fa-lg text-light mb-2"></i>
+                                                    <div class="col-md-6 px-3 pb-2">
+                                                        <div class="glass flex-fill text-dark">
+                                                            <i class="fa fa-shopping-cart fa-lg mb-2 text-primary"></i>
                                                             <div class="fw-bold">Jumlah Transaksi</div>
-                                                            <div id="total-transaksi" class="fs-4">0</div>
+                                                            <div id="total-transaksi" class="fs-4 font-weight-bold">0</div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
-                                                        <div class="glass flex-fill">
-                                                            <i class="fa fa-wallet fa-lg text-light mb-2"></i>
+                                                    <div class="col-md-6 px-3">
+                                                        <div class="glass flex-fill text-dark">
+                                                            <i class="fa fa-wallet fa-lg mb-2 text-primary"></i>
                                                             <div class="fw-bold">Laba Kotor</div>
-                                                            <div id="laba-kotor" class="fs-4">Rp 0</div>
+                                                            <div id="laba-kotor" class="fs-4 font-weight-bold">Rp 0</div>
                                                         </div>
                                                     </div>
                                                 </div>
