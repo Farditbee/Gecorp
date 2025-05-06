@@ -105,7 +105,7 @@
                                         <div class="col-12 glass bg-primary text-white">
                                             <div class="d-flex justify-content-between align-items-center">
                                                 <div>
-                                                    <h5 class="mb-2 text-light">Total Omset</h5>
+                                                    <h5 class="mb-2 text-light font-weight-bold">Total Omset</h5>
                                                     <div class="d-flex align-items-center mb-2">
                                                         <div class="avatar bg-primary text-white mx-2">
                                                             <i class="fa fa-dollar-sign fa-2x"></i>
@@ -153,14 +153,14 @@
                                                     <div class="col-md-6 px-3 pb-2">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-shopping-cart fa-lg mb-2 text-primary"></i>
-                                                            <div class="fw-bold">Jumlah Transaksi</div>
+                                                            <div class="font-weight-bold">Jumlah Transaksi</div>
                                                             <div id="total-transaksi" class="fs-4 font-weight-bold">0</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6 px-3">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-wallet fa-lg mb-2 text-primary"></i>
-                                                            <div class="fw-bold">Laba Kotor</div>
+                                                            <div class="font-weight-bold">Laba Kotor</div>
                                                             <div id="laba-kotor" class="fs-4 font-weight-bold">Rp 0</div>
                                                         </div>
                                                     </div>
