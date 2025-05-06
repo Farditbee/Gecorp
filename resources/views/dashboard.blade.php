@@ -147,8 +147,8 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                            <hr>
                                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
+                                            <hr>
                                                 <div class="row">
                                                     <div class="col-md-6 px-3 pb-2">
                                                         <div class="glass flex-fill text-dark">
