@@ -120,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/supplier/edit/{id}', [SupplierController::class, 'edit'])->name('master.supplier.edit');
         Route::put('/supplier/update/{id}', [SupplierController::class, 'update'])->name('master.supplier.update');
         Route::delete('/supplier/delete/{id}', [SupplierController::class, 'delete'])->name('master.supplier.delete');
+        Route::post('/import-supplier', [SupplierController::class, 'import'])->name('master.supplier.import');
 
         // Member Controller
         Route::get('/member', [MemberController::class, 'index'])->name('master.member.index');
@@ -158,6 +159,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-item/{id}', [StockBarangController::class, 'getItem'])->name('get.item');
         Route::post('/update-level-harga', [StockBarangController::class, 'updateLevelHarga'])->name('updateLevelHarga');
         Route::get('/hpp_barang', [StockBarangController::class, 'getHppBarang'])->name('master.stock.hpp_barang');
+        Route::get('/get-detail-barang/{id_barang}', [StockBarangController::class, 'getdetailbarang'])->name('get.detail.barang');
         // Route::get('/stock/detail/{id}', [StockBarangController::class, 'detail'])->name('master.stock.detail');
 
         // Pengeluaran Controller
