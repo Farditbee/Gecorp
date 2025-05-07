@@ -111,163 +111,159 @@
                             <li class="nav-item">
                                 <a class="nav-link active text-uppercase" id="home-tab-{{ $stk->id }}"
                                     data-toggle="tab" href="#home-{{ $stk->id }}" role="tab"
-                                    aria-controls="home-{{ $stk->id }}" aria-selected="true">Barang Di Toko</a>
+                                    aria-controls="home-{{ $stk->id }}" aria-selected="true">
+                                    Barang Di Toko
+                                </a>
                             </li>
 
                             @if (Auth::user()->id_level == 1)
                                 <li class="nav-item">
                                     <a class="nav-link text-uppercase" id="atur-harga-tab-{{ $stk->id }}"
                                         data-toggle="tab" href="#atur-harga-{{ $stk->id }}" role="tab"
-                                        aria-controls="atur-harga-{{ $stk->id }}" aria-selected="false">Atur
-                                        Harga</a>
+                                        aria-controls="atur-harga-{{ $stk->id }}" aria-selected="false">
+                                        Atur Harga
+                                    </a>
                                 </li>
                             @endif
+
+                            <li class="nav-item">
+                                <a class="nav-link text-uppercase" id="detail--barang-tab-{{ $stk->id }}"
+                                    data-toggle="tab" href="#detail--barang-{{ $stk->id }}" role="tab"
+                                    aria-controls="detail--barang-{{ $stk->id }}" aria-selected="false">
+                                    Detail Barang
+                                </a>
+                            </li>
                         </ul>
+
                         <div class="tab-content" id="myTabContent-{{ $stk->id }}">
+                            <!-- Tab 1: Barang Di Toko -->
                             <div class="tab-pane fade show active" id="home-{{ $stk->id }}" role="tabpanel"
                                 aria-labelledby="home-tab-{{ $stk->id }}">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped" id="jsTable-{{ $stk->id }}">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nama Toko</th>
-                                                        <th>Stock</th>
-                                                        @if (Auth::user()->id_level == 1)
-                                                            <th>Level Harga</th>
-                                                        @endif
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @php
-                                                        $idTokoLogin = auth()->user()->id_toko;
-                                                        $toko = $toko->sortByDesc(function ($tk) use ($idTokoLogin) {
-                                                            return $tk->id == $idTokoLogin ? 1 : 0;
-                                                        });
-                                                    @endphp
-                                                    @foreach ($toko as $index => $tk)
-                                                        <tr class="{{ $tk->id == $idTokoLogin ? 'highlight-row' : '' }}">
-                                                            <td>{{ $tk->nama_toko }}</td>
-                                                            @if ($tk->id == 1)
-                                                                {{-- Tampilkan stok dari tabel stock_barang untuk toko dengan id = 1 --}}
-                                                                @php
-                                                                    // Ambil stok dari tabel stock_barang hanya untuk barang yang sedang diklik
-                                                                    $stokBarangTokoUtama = $stock
-                                                                        ->where('id_barang', $stk->id_barang)
-                                                                        ->first();
-                                                                @endphp
+                                <div class="table-responsive">
+                                    <table class="table table-striped" id="jsTable-{{ $stk->id }}">
+                                        <thead>
+                                            <tr>
+                                                <th>Nama Toko</th>
+                                                <th>Stock</th>
+                                                @if (Auth::user()->id_level == 1)
+                                                    <th>Level Harga</th>
+                                                @endif
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @php
+                                                $idTokoLogin = auth()->user()->id_toko;
+                                                $toko = $toko->sortByDesc(fn($tk) => $tk->id == $idTokoLogin ? 1 : 0);
+                                            @endphp
+                                            @foreach ($toko as $tk)
+                                                <tr class="{{ $tk->id == $idTokoLogin ? 'highlight-row' : '' }}">
+                                                    <td>{{ $tk->nama_toko }}</td>
+                                                    @if ($tk->id == 1)
+                                                        @php
+                                                            $stokBarangTokoUtama = $stock
+                                                                ->where('id_barang', $stk->id_barang)
+                                                                ->first();
+                                                        @endphp
+                                                        <td>{{ $stokBarangTokoUtama ? $stokBarangTokoUtama->stock : 0 }}
+                                                        </td>
+                                                    @else
+                                                        @php
+                                                            $stokBarangLain = $stokTokoLain
+                                                                ->where('id_barang', $stk->id_barang)
+                                                                ->where('id_toko', $tk->id)
+                                                                ->sum('qty');
+                                                        @endphp
+                                                        <td>{{ $stokBarangLain > 0 ? $stokBarangLain : 0 }}</td>
+                                                    @endif
 
-                                                                @if ($stokBarangTokoUtama)
-                                                                    <td>{{ $stokBarangTokoUtama->stock }}
-                                                                    </td>
-                                                                @else
-                                                                    <td>0</td>
-                                                                @endif
-                                                            @else
-                                                                {{-- Tampilkan stok dari tabel detail_toko untuk toko selain id = 1 --}}
-                                                                @php
-                                                                    // Ambil stok dari tabel detail_toko hanya untuk barang yang sedang diklik
-                                                                    $stokBarangLain = $stokTokoLain
-                                                                        ->where('id_barang', $stk->id_barang)
-                                                                        ->where('id_toko', $tk->id)
-                                                                        ->sum('qty');
-                                                                @endphp
-                                                                @if ($stokBarangLain)
-                                                                    <td>{{ $stokBarangLain > 0 ? $stokBarangLain : 0 }}
-                                                                    </td>
-                                                                @else
-                                                                    <td>0</td>
-                                                                @endif
-                                                            @endif
-                                                            @if (Auth::user()->id_level == 1)
-                                                                <td>
-                                                                    @php
-                                                                        $levelHargaArray =
-                                                                            json_decode($tk->id_level_harga, true) ??
-                                                                            [];
-                                                                        if (is_int($levelHargaArray)) {
-                                                                            $levelHargaArray = [$levelHargaArray];
-                                                                        }
-                                                                    @endphp
-                                                                    @if (!empty($levelHargaArray) && is_array($levelHargaArray))
-                                                                        @foreach ($levelHargaArray as $levelHargaId)
-                                                                            @php
-                                                                                $levelHarga = \App\Models\LevelHarga::find(
-                                                                                    $levelHargaId,
-                                                                                );
-                                                                            @endphp
-                                                                            {{ $levelHarga ? $levelHarga->nama_level_harga : 'N/A' }}
-                                                                            @if (!$loop->last)
-                                                                                ,
-                                                                            @endif
-                                                                        @endforeach
-                                                                    @else
-                                                                        Tidak Ada Level
-                                                                        Harga
+                                                    @if (Auth::user()->id_level == 1)
+                                                        <td>
+                                                            @php
+                                                                $levelHargaArray =
+                                                                    json_decode($tk->id_level_harga, true) ?? [];
+                                                                if (is_int($levelHargaArray)) {
+                                                                    $levelHargaArray = [$levelHargaArray];
+                                                                }
+                                                            @endphp
+                                                            @if (!empty($levelHargaArray) && is_array($levelHargaArray))
+                                                                @foreach ($levelHargaArray as $i => $levelHargaId)
+                                                                    @php $levelHarga = \App\Models\LevelHarga::find($levelHargaId); @endphp
+                                                                    {{ $levelHarga ? $levelHarga->nama_level_harga : 'N/A' }}
+                                                                    @if (!$loop->last)
+                                                                        ,
                                                                     @endif
-                                                                </td>
+                                                                @endforeach
+                                                            @else
+                                                                Tidak Ada Level Harga
                                                             @endif
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
+                                                        </td>
+                                                    @endif
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
-                            <div class="tab-pane fade" id="atur-harga-{{ $stk->id }}" role="tabpanel"
-                                aria-labelledby="atur-harga-tab-{{ $stk->id }}">
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="harga-form" id="harga-form-{{ $stk->id_barang }}">
-                                            <form method="POST" action="{{ route('updateLevelHarga') }}"
-                                                class="level-harga-form">
-                                                @csrf
-                                                <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
 
-                                                @foreach ($levelharga as $index => $lh)
-                                                    <div class="input-group mb-3">
-                                                        <div class="input-group-prepend">
-                                                            <span
-                                                                class="input-group-text">{{ $lh->nama_level_harga }}</span>
-                                                        </div>
-                                                        <!-- Input visible untuk harga level -->
-                                                        <input type="text" name="level_harga[]"
-                                                            id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
-                                                            class="form-control level-harga" placeholder="Atur harga baru"
-                                                            value="{{ isset($lh->harga) }}"
-                                                            oninput="formatCurrency(this)"
-                                                            onblur="updateRawValue(this, {{ $index }})">
-
-                                                        <!-- Hidden input untuk menyimpan raw value -->
-                                                        <input type="hidden" id="level_harga_raw_{{ $index }}"
-                                                            name="harga_level_{{ str_replace(' ', '_', $lh->nama_level_harga) }}_barang_{{ $stk->id_barang }}"
-                                                            value="{{ isset($lh->harga) ? $lh->harga : '' }}">
-                                                        <!-- Pastikan hidden input menyimpan nilai awal -->
-                                                        <input type="hidden" name="level_nama[]"
-                                                            value="{{ $lh->nama_level_harga }}">
-
-                                                        <div class="input-group-append">
-                                                            <span class="input-group-text"
-                                                                id="persen-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}">0%</span>
-                                                        </div>
+                            <!-- Tab 2: Atur Harga -->
+                            @if (Auth::user()->id_level == 1)
+                                <div class="tab-pane fade" id="atur-harga-{{ $stk->id }}" role="tabpanel"
+                                    aria-labelledby="atur-harga-tab-{{ $stk->id }}">
+                                    <div class="harga-form mt-3" id="harga-form-{{ $stk->id_barang }}">
+                                        <form method="POST" action="{{ route('updateLevelHarga') }}"
+                                            class="level-harga-form">
+                                            @csrf
+                                            <input type="hidden" name="id_barang" value="{{ $stk->id_barang }}">
+                                            @foreach ($levelharga as $index => $lh)
+                                                <div class="input-group mb-3">
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">{{ $lh->nama_level_harga }}</span>
                                                     </div>
-                                                @endforeach
-                                                <button type="submit" class="btn btn-primary">Update</button>
-                                                <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}"
-                                                    value="{{ $stokBarang->hpp_baru }}">
-                                            </form>
-                                        </div>
+                                                    <input type="text" name="level_harga[]"
+                                                        id="harga-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}"
+                                                        class="form-control level-harga" placeholder="Atur harga baru"
+                                                        value="{{ isset($lh->harga) }}" oninput="formatCurrency(this)"
+                                                        onblur="updateRawValue(this, {{ $index }})">
+                                                    <input type="hidden" id="level_harga_raw_{{ $index }}"
+                                                        name="harga_level_{{ str_replace(' ', '_', $lh->nama_level_harga) }}_barang_{{ $stk->id_barang }}"
+                                                        value="{{ isset($lh->harga) ? $lh->harga : '' }}">
+                                                    <input type="hidden" name="level_nama[]"
+                                                        value="{{ $lh->nama_level_harga }}">
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text"
+                                                            id="persen-{{ $stk->id_barang }}-{{ str_replace(' ', '-', $lh->nama_level_harga) }}">0%</span>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                            <button type="submit" class="btn btn-primary">Update</button>
+                                            <input type="hidden" id="hpp-baru-{{ $stk->id_barang }}"
+                                                value="{{ $stokBarang->hpp_baru }}">
+                                        </form>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="tab-pane fade" id="contact-{{ $stk->id }}" role="tabpanel"
-                                aria-labelledby="contact-tab-{{ $stk->id }}">
-                                Another Tab
+                            @endif
+
+                            <div class="tab-pane fade" id="detail--barang-{{ $stk->id }}" role="tabpanel"
+                                aria-labelledby="detail--barang-tab-{{ $stk->id }}">
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-striped m-0">
+                                        <thead>
+                                            <tr class="tb-head">
+                                                <th>#</th>
+                                                <th>Nama Barang</th>
+                                                <th>QR Code Pembelian</th>
+                                                <th>Stock</th>
+                                                <th>Harga Satuan (Hpp Baru)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="detailData-{{ $stk->id }}">
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                     </div>
@@ -334,7 +330,7 @@
             let detail_button = `
                 <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
                     data-toggle="modal" data-target="#mediumModal-${data.id}"
-                    data-id='${data.id}' data-id-barang='${data.id_barang}'>
+                    data-id='${data.id}' data-id-barang='${data.id_barang}' onclick="detailBarang(${data.id})">
                     <span class="text-white" data-container="body" data-toggle="tooltip" data-placement="top" title="Detail ${title}: ${data.nama_barang}"><i class="fa fa-eye mr-1"></i>Detail</span>
                 </button>`;
 
@@ -396,6 +392,44 @@
             detailPage();
         }
 
+        async function detailBarang(stk_id) {
+            let getDataRest = await renderAPI(
+                'GET',
+                `/admin/get-detail-barang/${stk_id}`, {}
+            ).then(function(response) {
+                return response;
+            }).catch(function(error) {
+                let resp = error.response;
+                return resp;
+            });
+
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+                let dataList = getDataRest.data.data;
+                let getDataTable = '';
+                let classCol = 'align-center text-dark text-wrap';
+                dataList.forEach((element, index) => {
+                    getDataTable += `
+                    <tr class="text-dark">
+                        <td class="${classCol} text-center">${index + 1}.</td>
+                        <td class="${classCol}">${element.nama_barang}</td>
+                        <td class="${classCol}">${element.qrcode}</td>
+                        <td class="${classCol}">${element.qty}</td>
+                        <td class="${classCol}">${element.harga}</td>
+                    </tr>`;
+                });
+                $(`#detailData-${stk_id}`).html(getDataTable);
+
+            } else {
+                errorMessage = getDataRest?.data?.message;
+                let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                $(`#detailData-${stk_id}`).html(errorRow);
+
+            }
+        }
+
         async function deleteData() {
             $(document).on("click", ".hapus-data", async function() {
                 isActionForm = "destroy";
@@ -452,7 +486,6 @@
                             if (modal) {
                                 let hppBaru = parseFloat(document.querySelector(
                                     `#hpp-baru-${id_barang}`).value) || 0;
-                                console.log(`HPP Baru: ${hppBaru}`); // Log nilai HPP baru
 
                                 modal.querySelectorAll('.level-harga').forEach(function(input) {
                                     input.setAttribute('data-hpp-baru', hppBaru);
@@ -513,7 +546,6 @@
                     `#persen-${inputField.id.split('-')[1]}-${levelName}`);
                 if (persenElement) {
                     persenElement.textContent = `${persen.toFixed(2)}%`;
-                    console.log(`Level Harga: ${levelHarga}, Persentase: ${persen.toFixed(2)}%`);
                 }
             }
 
