@@ -116,25 +116,19 @@
                                                 <br>
                                                 <form id="form">
                                                     <div class="row">
-                                                        <div class="col-4">
+                                                        <div class="col-6">
                                                             <label for="f_member" class=" form-control-label">Nama
                                                                 Member <span class="text-danger">*</span></label>
                                                             <select class="form-select select2" name="member"
                                                                 id="f_member">
                                                             </select>
                                                         </div>
-                                                        <div class="col-4">
+                                                        <div class="col-6">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
                                                                 Reture <span class="text-danger">*</span></label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
-                                                        </div>
-                                                        <div class="col-4">
-                                                            <label for="no_nota" class=" form-control-label">Nomor
-                                                                Nota <span class="text-danger">*</span></label>
-                                                            <input type="number" id="no_nota" name="no_nota"
-                                                                placeholder="Contoh : 001" class="form-control">
                                                         </div>
                                                     </div>
 
@@ -1219,7 +1213,6 @@
                     id_member: $('#f_member').select2('data').length > 0 ? $('#f_member').select2(
                         'data')[0].id : null,
                     tgl_retur: $('#tgl_retur').val(),
-                    no_nota: $('#no_nota').val(),
                 };
 
                 const method = 'POST';

@@ -213,6 +213,46 @@ class StockBarangController extends Controller
         }
     }
 
+    public function getdetailbarang($id_barang)
+    {
+        // Ambil semua detail toko yang memiliki barang dengan id_barang yang sama
+        $detail_toko = DetailToko::where('id_barang', $id_barang)
+            ->with(['barang', 'toko'])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        // Jika tidak ada data detail toko
+        if ($detail_toko->isEmpty()) {
+            return response()->json([
+                'status_code' => 404,
+                'errors' => true,
+                'message' => 'Data tidak ditemukan'
+            ], 404);
+        }
+
+        // Format data untuk response
+        $mappedData = $detail_toko->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'id_toko' => $item->id_toko,
+                'nama_toko' => $item->toko->nama_toko ?? null,
+                'id_barang' => $item->id_barang,
+                'nama_barang' => $item->barang->nama_barang ?? null,
+                'qty' => $item->qty,
+                'harga' => $item->harga,
+                'qrcode' => $item->qrcode
+            ];
+        });
+
+        // Return response
+        return response()->json([
+            'data' => $mappedData,
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses'
+        ], 200);
+    }
+
     public function getHppBarang(Request $request)
     {
         $id_barang = $request->input('id_barang');

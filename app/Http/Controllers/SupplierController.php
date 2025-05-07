@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ActivityLogger;
+use App\Imports\SupplierImport;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
 {
@@ -140,7 +142,7 @@ class SupplierController extends Controller
             ]);
 
             ActivityLogger::log('Tambah Supplier', $data);
-            
+
         } catch (\Throwable $th) {
             return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
@@ -204,5 +206,16 @@ class SupplierController extends Controller
                 'message' => 'Gagal menghapus Data Supplier: ' . $th->getMessage()
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new SupplierImport, $request->file('file'));
+
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }
