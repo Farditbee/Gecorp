@@ -72,6 +72,7 @@
                                                 <th class="text-wrap align-top">Tgl Kirim</th>
                                                 <th class="text-wrap align-top">Tgl Terima</th>
                                                 <th class="text-wrap align-top">No. Resi</th>
+                                                <th class="text-wrap align-top">Tipe Pengiriman</th>
                                                 <th class="text-wrap align-top">Toko Pengirim</th>
                                                 <th class="text-wrap align-top">Nama Pengirim</th>
                                                 <th class="text-wrap align-top">Ekspedisi</th>
@@ -267,6 +268,7 @@
                 status,
                 no_resi: data?.no_resi ?? '-',
                 ekspedisi: data?.ekspedisi ?? '-',
+                tipe_pengiriman: data?.tipe_pengiriman ?? '-',
                 toko_pengirim: data?.toko_pengirim ?? '-',
                 nama_pengirim: data?.nama_pengirim ?? '-',
                 tgl_kirim: data?.tgl_kirim ?? '-',
@@ -294,6 +296,7 @@
                     <td class="${classCol}">${element.tgl_kirim}</td>
                     <td class="${classCol}">${element.tgl_terima}</td>
                     <td class="${classCol}">${element.no_resi}</td>
+                    <td class="${classCol}">${element.tipe_pengiriman}</td>
                     <td class="${classCol}">${element.toko_pengirim}</td>
                     <td class="${classCol}">${element.nama_pengirim}</td>
                     <td class="${classCol}">${element.ekspedisi}</td>
