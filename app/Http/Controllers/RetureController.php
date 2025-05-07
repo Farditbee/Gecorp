@@ -140,33 +140,39 @@ class RetureController extends Controller
     public function store_nota(Request $request)
     {
         $request->validate([
-            'no_nota' => 'required|string',
             'tgl_retur' => 'required|date',
             'id_member' => 'required|string',
         ]);
 
         $user = Auth::user();
 
-        // Periksa apakah tgl_nota hanya berisi tanggal tanpa waktu
         $tglRetur = Carbon::parse($request->tgl_retur);
         if ($tglRetur->format('H:i:s') === '00:00:00') {
-            // Tambahkan waktu default (waktu saat ini)
             $tglRetur->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
         }
+
+        $tglFormatted = $tglRetur->format('ymd'); // yyMMdd
+        $idMember = $request->id_member;
+
+        // Buat no_nota yang unik dengan 3 digit random
+        do {
+            $randomNumber = str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+            $noNota = "R{$tglFormatted}{$idMember}-{$randomNumber}";
+            $existing = DataReture::where('no_nota', $noNota)->exists();
+        } while ($existing);
 
         try {
             $retur = DataReture::create([
                 'id_users' => $user->id,
                 'id_toko' => $user->id_toko,
-                'no_nota' => $request->no_nota,
+                'no_nota' => $noNota,
                 'tgl_retur' => $tglRetur,
-                'id_member' => $request->id_member,
+                'id_member' => $idMember,
                 'tipe_transaksi' => 'kasir',
             ]);
 
-            $member = Member::find($request->id_member);
+            $member = Member::find($idMember);
 
-            // Return JSON response
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
@@ -189,6 +195,7 @@ class RetureController extends Controller
             ], 500);
         }
     }
+
 
     public function store_temp_item(Request $request)
     {
