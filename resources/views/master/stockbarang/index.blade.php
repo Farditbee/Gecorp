@@ -126,13 +126,15 @@
                                 </li>
                             @endif
 
-                            <li class="nav-item">
-                                <a class="nav-link text-uppercase" id="detail--barang-tab-{{ $stk->id }}"
-                                    data-toggle="tab" href="#detail--barang-{{ $stk->id }}" role="tab"
-                                    aria-controls="detail--barang-{{ $stk->id }}" aria-selected="false">
-                                    Detail Barang
-                                </a>
-                            </li>
+                            @if (Auth::user()->id_level != 1)
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase" id="detail--barang-tab-{{ $stk->id }}"
+                                        data-toggle="tab" href="#detail--barang-{{ $stk->id }}" role="tab"
+                                        aria-controls="detail--barang-{{ $stk->id }}" aria-selected="false">
+                                        Detail Barang
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
 
                         <div class="tab-content" id="myTabContent-{{ $stk->id }}">
@@ -243,24 +245,26 @@
                                 </div>
                             @endif
 
-                            <div class="tab-pane fade" id="detail--barang-{{ $stk->id }}" role="tabpanel"
-                                aria-labelledby="detail--barang-tab-{{ $stk->id }}">
-                                <div class="table-responsive mt-3">
-                                    <table class="table table-striped m-0">
-                                        <thead>
-                                            <tr class="tb-head">
-                                                <th>#</th>
-                                                <th>Nama Barang</th>
-                                                <th>QR Code Pembelian</th>
-                                                <th>Stock</th>
-                                                <th>Harga Satuan (Hpp Baru)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="detailData-{{ $stk->id }}">
-                                        </tbody>
-                                    </table>
+                            @if (Auth::user()->id_level != 1)
+                                <div class="tab-pane fade" id="detail--barang-{{ $stk->id }}" role="tabpanel"
+                                    aria-labelledby="detail--barang-tab-{{ $stk->id }}">
+                                    <div class="table-responsive mt-3">
+                                        <table class="table table-striped m-0">
+                                            <thead>
+                                                <tr class="tb-head">
+                                                    <th>#</th>
+                                                    <th>Nama Barang</th>
+                                                    <th>QR Code Pembelian</th>
+                                                    <th>Stock</th>
+                                                    <th>Harga Satuan (Hpp Baru)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="detailData-{{ $stk->id }}">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </div>
+                            @endif
                         </div>
                     </div>
 
