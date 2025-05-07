@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
+use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailPembelianBarang;
 use App\Models\Hutang;
@@ -88,11 +89,17 @@ class NeracaController extends Controller
                 ];
             }
 
+            $modal = Pemasukan::whereIn('id_jenis_pemasukan', [1, 2])->sum('nilai');
+
             array_unshift($ekuitasItems, [
                 "kode" => "IV.1",
                 "nama" => "Modal",
-                "nilai" => $result['data_total']['modal']['total_modal'],
+                "nilai" => $modal,
             ]);
+
+            $penjualanReture = DataReture::where('tipe_transaksi', 'kasir')
+                                    ->where('status', 'done')
+                                    ->sum('total_harga');
 
             // Sisa Stock Keseluruhan Gudang
             $totalStock = StockBarang::with('detailToko')->get()->sum(function ($item) {
@@ -118,9 +125,10 @@ class NeracaController extends Controller
             }
 
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
-                 + $result['data_total']['kas_kecil']['saldo_akhir']
-                 + $result['data_total']['piutang']['saldo_akhir']
-                 + $totalKasir;
+                + $result['data_total']['kas_kecil']['saldo_akhir']
+                + $result['data_total']['piutang']['saldo_akhir']
+                + $totalKasir
+                + $penjualanReture;
 
             $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
                 + $result['data_total']['aset_kecil']['aset_peralatan_kecil'];
@@ -161,6 +169,11 @@ class NeracaController extends Controller
                                     "kode" => "I.4",
                                     "nama" => "Stock Gudang ({$totalStock})",
                                     "nilai" => $totalKasir,
+                                ],
+                                [
+                                    "kode" => "I.5",
+                                    "nama" => "Penjualan Reture",
+                                    "nilai" => $penjualanReture,
                                 ],
                             ],
                         ],

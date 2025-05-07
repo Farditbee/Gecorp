@@ -14,22 +14,29 @@ class LabaRugiService
     public function hitungLabaRugi($month, $year)
     {
         $penjualanUmum = (int)Kasir::whereMonth('tgl_transaksi', $month)
-                ->whereYear('tgl_transaksi', $year)
-                ->sum('total_nilai');
+            ->whereYear('tgl_transaksi', $year)
+            ->sum('total_nilai');
 
         $pendapatanLainnya = Pemasukan::where('id_jenis_pemasukan', '!=', 1)
             ->whereMonth('tanggal', $month)
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
+        $assetRetur = -1 * (DB::table('detail_retur')
+            ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+            ->whereMonth('detail_retur.created_at', $month)
+            ->whereYear('detail_retur.created_at', $year)
+            ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
+            ->value('total_retur') ?? 0);
+
+        $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
 
         // Calculate HPP from pembelian_barang
         $hpp = DB::table('detail_kasir')
-        ->whereMonth('created_at', $month)
-        ->whereYear('created_at', $year)
-        ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
-        ->value('total_hpp');
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
+            ->value('total_hpp');
 
         // Get all expense types except id 11
         $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
