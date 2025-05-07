@@ -223,7 +223,7 @@ class PengirimanBarangController extends Controller
 
         DB::beginTransaction();
 
-        
+
         $tglKirim = Carbon::parse($request->tgl_kirim);
         if ($tglKirim->format('H:i:s') === '00:00:00') {
             // Tambahkan waktu default (waktu saat ini)
@@ -292,16 +292,16 @@ class PengirimanBarangController extends Controller
                     'detail_pembelian_barang.*'
                 )
                 ->get();
-        
+
             $detail_reture = $detail_reture->merge($detail); // Gabungkan hasil query
         }
-        
+
         // dd($detail_reture);
-        
+
 
         DB::commit();
-        
-        return redirect()->route('transaksi.pengirimanbarang.reture')
+
+        return redirect()->route('distribusi.pengirimanbarang.reture')
             ->with('tab', 'detail')
             ->with('pengiriman_barang', $pengiriman_barang)
             ->with('detail_reture', $detail_reture);
@@ -541,9 +541,9 @@ class PengirimanBarangController extends Controller
         // if (count(array_unique($idRetur)) === 1) {
         //     $id_retur = $idRetur[0];
         // }
-        
+
         try {
-            
+
             DB::beginTransaction();
 
             $pengiriman_barang = PengirimanBarang::findOrFail($id_pengiriman);
@@ -587,7 +587,7 @@ class PengirimanBarangController extends Controller
             $pengiriman_barang->id_retur = $idRetur;
             $pengiriman_barang->status = 'progress';
             $pengiriman_barang->save();
-            
+
             DB::commit();
 
             return redirect()->route('transaksi.pengirimanbarang.reture')->with('success', 'Data Reture Barang berhasil ditambahkan');
@@ -596,7 +596,7 @@ class PengirimanBarangController extends Controller
 
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $th->getMessage());
         }
-        
+
     }
 
     public function edit($id)
@@ -634,14 +634,14 @@ class PengirimanBarangController extends Controller
         $pengiriman_barang = PengirimanBarang::findOrFail($id);
         $toko_pengirim = $pengiriman_barang->toko_pengirim;
         $toko_penerima = $pengiriman_barang->toko_penerima;
-    
+
         $detail_ids = $request->input('detail_ids', []);
         $statuses = $request->input('status_detail', []);
         $tipe_kirim = $request->tipe_kirim;
         $id_retur = $request->input('id_retur', []);
 
         // dd($request->all());
-    
+
         try {
             DB::beginTransaction();
 
@@ -659,7 +659,7 @@ class PengirimanBarangController extends Controller
                 $detail_retur = DetailRetur::whereIn('id_retur', $id_retur)->get();
 
                 // dd($detail_retur);
-                
+
                 foreach ($detail_retur as $key => $detail) {
                     $detail->status_kirim = 'success';
                     $detail->save();
@@ -669,20 +669,20 @@ class PengirimanBarangController extends Controller
 
                 return redirect()->route('transaksi.pengirimanbarang.reture')->with('success', 'Status Berhasil Diubah');
             }
-    
+
             foreach ($detail_ids as $key => $detail_id) {
                 $detail = DetailPengirimanBarang::findOrFail($detail_id);
-    
+
                 if (isset($statuses[$key]) && $statuses[$key] == 'success' && $detail->status != 'success') {
-    
+
                     // Update status menjadi success
                     $detail->status = 'success';
                     $detail->save();
-    
+
                     // Ambil QR Code berdasarkan id_detail_pembelian
                     $barang = DetailPembelianBarang::where('id', $detail->id_detail_pembelian)->first();
                     $qrcode = $barang ? $barang->qrcode : null;
-    
+
                     // **Kurangi stok jika dari pusat**
                     if ($toko_pengirim == 1) {
                         $stockBarang = StockBarang::where('id_barang', $detail->id_barang)->first();
@@ -696,14 +696,14 @@ class PengirimanBarangController extends Controller
                             }
                         }
                     }
-    
+
                     // **Tambahkan stok ke toko penerima**
                     $existingDetailToko = DetailToko::where('id_toko', $toko_penerima)
                         ->where('id_supplier', $detail->id_supplier)
                         ->where('id_barang', $detail->id_barang)
                         ->where('qrcode', $qrcode)
                         ->first();
-    
+
                     if ($existingDetailToko) {
                         // Jika sudah ada, tambahkan qty
                         $existingDetailToko->qty += $detail->qty;
@@ -721,17 +721,17 @@ class PengirimanBarangController extends Controller
                     }
                 }
             }
-    
+
             // Cek apakah semua barang dalam detail pembelian memiliki status 'success'
             $allSuccess = $pengiriman_barang->detail()->where('status', '!=', 'success')->count() === 0;
-    
+
             if ($allSuccess) {
                 // Jika semua barang sudah success, ubah status pembelian jadi success
                 $pengiriman_barang->status = 'success';
                 $pengiriman_barang->tgl_terima = now();
                 $pengiriman_barang->save();
             }
-    
+
             DB::commit();
 
             return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
@@ -745,7 +745,7 @@ class PengirimanBarangController extends Controller
             // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
-    
+
     public function storetempPengiriman(Request $request)
     {
         $request->validate([
