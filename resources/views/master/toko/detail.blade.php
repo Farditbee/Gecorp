@@ -81,6 +81,7 @@
                                         <th>#</th>
                                         <th class="barcode-column">Barcode</th>
                                         <th>Nama Barang</th>
+                                        <th>QR Code Pembelian</th>
                                         <th>Stock</th>
                                         <th>Harga Satuan (Hpp Baru)</th>
                                         <th>Action</th>
@@ -94,6 +95,7 @@
                                         <td>{{ $no++ }}</td>
                                         <td class="barcode-column">{{ $stk->barang->barcode }}</td>
                                         <td>{{ $stk->nama_barang }}</td>
+                                        <td>{{ $stk->qrcode }}</td>
                                         <td>{{ $stk->stock }}</td>
                                         <td>Rp. {{ number_format($stk->hpp_baru, 0, '.', '.') }}</td>
                                         <td>
@@ -118,6 +120,7 @@
                                         <td>{{ $no++ }}</td>
                                         <td class="barcode-column">{{ $dt->barang->barcode }}</td>
                                         <td>{{ $dt->barang->nama_barang }}</td>
+                                        <td>{{ $dt->qrcode }}</td>
                                         <td>{{ $dt->qty }}</td>
                                         <td>Rp. {{ number_format($dt->harga, 0, ',', '.') }}</td>
                                         <form onsubmit="return confirm('Ingin menghapus Data ini ?');" action="{{ route('master.toko.delete_detail', ['id_toko' => $dt->id_toko, 'id_barang' => $dt->id_barang, 'id' => $dt->id]) }}" method="post">
