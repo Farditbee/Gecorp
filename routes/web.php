@@ -101,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/user/edit/{id}', [UserController::class, 'edit'])->name('master.user.edit');
         Route::put('/user/update/{id}', [UserController::class, 'update'])->name('master.user.update');
         Route::delete('/user/delete/{id}', [UserController::class, 'delete'])->name('master.user.delete');
+        Route::post('/import-user', [UserController::class, 'import'])->name('master.user.import');
 
         // Barang Controller
         Route::get('/barang', [BarangController::class, 'index'])->name('master.barang.index');
@@ -129,6 +130,7 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/member/update/{id}', [MemberController::class, 'update'])->name('master.member.update');
         Route::delete('/member/delete/{id}', [MemberController::class, 'delete'])->name('master.member.delete');
         Route::get('/get-level-harga/{id_toko}', [MemberController::class, 'getLevelHarga']);
+        Route::post('/import-member', [MemberController::class, 'import'])->name('master.member.import');
 
         // Promo Controller
         Route::get('/promo', [PromoController::class, 'index'])->name('master.promo.index');
