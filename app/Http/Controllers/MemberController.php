@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ActivityLogger;
+use App\Imports\MemberImport;
 use App\Models\JenisBarang;
 use App\Models\LevelHarga;
 use App\Models\LevelUser;
@@ -11,6 +12,7 @@ use App\Models\Toko;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 use Throwable;
 
 class MemberController extends Controller
@@ -329,5 +331,16 @@ class MemberController extends Controller
                 'message' => 'Gagal menghapus Data Member: ' . $th->getMessage()
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new MemberImport, $request->file('file'));
+
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }
