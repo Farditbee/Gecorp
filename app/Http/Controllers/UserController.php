@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\UserImport;
 use App\Models\LevelUser;
 use App\Models\Toko;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -256,5 +258,16 @@ class UserController extends Controller
                 'message' => 'Gagal menghapus Data User: ' . $th->getMessage()
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new UserImport, $request->file('file'));
+
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }
