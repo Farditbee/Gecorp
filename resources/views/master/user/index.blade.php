@@ -135,14 +135,14 @@
                                         </a>
                                     @endif
                                 </div>
-                                <form action="{{ route('master.user.import') }}" method="POST"
+                                {{-- <form action="{{ route('master.user.import') }}" method="POST"
                                     enctype="multipart/form-data" class="custom-form-import">
                                     @csrf
                                     <input type="file" name="file" class="custom-input-file" accept=".xlsx" required>
                                     <button type="submit" class="btn btn-success custom-btn-import">
                                         <i class="fa fa-file-import"></i> Import
                                     </button>
-                                </form>
+                                </form> --}}
                             </div>
                             <div class="custom-right">
                                 <div class="custom-limit-page">
