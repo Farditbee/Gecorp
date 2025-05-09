@@ -8,6 +8,113 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        .custom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-left {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-btn-tambah-wrap {
+            flex: 1 1 auto;
+        }
+
+        .custom-form-import {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-input-file {
+            padding: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 4px;
+            flex: 1 1 auto;
+        }
+
+        .custom-btn-import {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .custom-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
+
+        .custom-limit-page {
+            flex: 0 0 auto;
+        }
+
+        .custom-search {
+            flex: 0 0 auto;
+            width: 200px;
+        }
+
+        @media (max-width: 767.98px) {
+            .custom-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-btn-tambah-wrap {
+                width: 100%;
+            }
+
+            .custom-form-import {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .custom-input-file {
+                flex: 1 1 65%;
+            }
+
+            .custom-btn-import {
+                flex: 1 1 30%;
+            }
+
+            .custom-right {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .custom-limit-page {
+                flex: 1 1 25%;
+            }
+
+            .custom-search {
+                flex: 1 1 70%;
+            }
+
+            .custom-btn-tambah {
+                width: 100%;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -19,11 +126,25 @@
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
                             <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
-                                <a class="btn btn-primary mb-2 mb-lg-0 text-white" data-toggle="modal"
-                                    data-target=".bd-example-modal-lg">
-                                    <span data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Tambah Data Member"><i class="fa fa-plus-circle mr-1"></i>Tambah</span>
-                                </a>
+                                <div class="custom-left">
+                                    <div class="custom-btn-tambah-wrap">
+                                        <a class="btn btn-primary custom-btn-tambah text-white" data-toggle="modal"
+                                            data-target=".bd-example-modal-lg">
+                                            <span data-container="body" data-toggle="tooltip" data-placement="top"
+                                                title="Tambah Data Member"><i
+                                                    class="fa fa-plus-circle mr-1"></i>Tambah</span>
+                                        </a>
+                                    </div>
+                                    <form action="{{ route('master.member.import') }}" method="POST"
+                                        enctype="multipart/form-data" class="custom-form-import">
+                                        @csrf
+                                        <input type="file" name="file" class="custom-input-file" accept=".xlsx"
+                                            required>
+                                        <button type="submit" class="btn btn-success custom-btn-import">
+                                            <i class="fa fa-file-import"></i> Import
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -98,7 +219,8 @@
                                             <div class="form-group">
                                                 <label for="id_toko" class="form-control-label">Nama Toko<span
                                                         style="color: red">*</span></label>
-                                                <select id="id_toko" name="id_toko" class="form-control id-toko select2">
+                                                <select id="id_toko" name="id_toko"
+                                                    class="form-control id-toko select2">
                                                     <option value="" selected>~Silahkan Pilih Toko~</option>
                                                     @foreach ($toko as $tk)
                                                         <option value="{{ $tk->id }}"
