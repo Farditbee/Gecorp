@@ -56,14 +56,14 @@
                                             </div>
                                             <div class="col">
                                                 <span
-                                                    class="badge badge-pill badge-secondary">{{ $pembelian->no_nota }}</span>
+                                                    class="badge badge-pill badge-primary">{{ $pembelian->no_nota }}</span>
                                             </div>
                                         </div>
                                     </li>
                                     <li class="list-group-item">
                                         <div class="row">
                                             <div class="col-2">
-                                                <h5 class="mb-0"><i class="fa fa-home"></i> Nama Supplier
+                                                <h5 class="mb-0"><i class="fa fa-user"></i> Nama Supplier
                                                 </h5>
                                             </div>
                                             <div class="col">
@@ -75,7 +75,7 @@
                                     <li class="list-group-item">
                                         <div class="row">
                                             <div class="col-2">
-                                                <h5 class="mb-0"><i class="fa fa-calendar"></i> Tanggal Nota
+                                                <h5 class="mb-0"><i class="fa fa-calendar-day"></i> Tanggal Nota
                                                 </h5>
                                             </div>
                                             <div class="col">
@@ -91,13 +91,13 @@
                                         <table class="table table-bordered">
                                             <thead>
                                                 <tr>
+                                                    <th scope="col" class="text-center">No</th>
                                                     <th scope="col">Status</th>
-                                                    <th scope="col">No</th>
                                                     <th scope="col">QR Code</th>
                                                     <th scope="col">Nama Barang</th>
-                                                    <th scope="col">Qty</th>
-                                                    <th scope="col">Harga</th>
-                                                    <th scope="col">Total Harga</th>
+                                                    <th scope="col" class="text-right">Qty</th>
+                                                    <th scope="col" class="text-right">Harga</th>
+                                                    <th scope="col" class="text-right">Total Harga</th>
                                                     <th scope="col">Download QR Code</th>
                                                 </tr>
                                             </thead>
@@ -109,9 +109,10 @@
                                                     <input type="hidden" name="detail_ids[{{ $detail->id }}]"
                                                         value="{{ $detail->id }}">
                                                     <tr>
+                                                        <td class="text-center">{{ $loop->iteration }}</td>
                                                         <td>
                                                             @if ($detail->status == 'success')
-                                                                <span class="badge badge-success">Success</span>
+                                                                <span class="badge badge-success w-100"><i class="fas fa-circle-check mr-1"></i>Success</span>
                                                             @else
                                                                 <select name="status_detail[{{ $detail->id }}]"
                                                                     id="status_detail_{{ $detail->id }}"
@@ -126,17 +127,16 @@
                                                                 </select>
                                                             @endif
                                                         </td>
-                                                        <td>{{ $loop->iteration }}</td>
                                                         <td>{{ $detail->qrcode }}</td>
                                                         <td>{{ $detail->barang->nama_barang }}</td>
-                                                        <td>{{ $detail->qty }}</td>
-                                                        <td>Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
-                                                        <td>Rp
+                                                        <td class="text-right">{{ $detail->qty }}</td>
+                                                        <td class="text-right">Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
+                                                        <td class="text-right">Rp
                                                             {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}
                                                         </td>
                                                         <td>
                                                             <a href="{{ asset('storage/' . $detail->qrcode_path) }}"
-                                                                download class="btn btn-success btn-small">
+                                                                download class="btn btn-outline-success btn-small w-100">
                                                                 <i class="fa fa-download"></i> Unduh
                                                             </a>
                                                         </td>
@@ -146,8 +146,8 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr>
-                                                    <th scope="col" colspan="5" style="text-align:right">SubTotal</th>
-                                                    <th scope="col">Rp
+                                                    <th scope="col" colspan="6" class="text-right">SubTotal</th>
+                                                    <th scope="col" class="text-right">Rp
                                                         {{ number_format(
                                                             $pembelian->detail->sum(function ($detail) {
                                                                 return $detail->harga_barang * $detail->qty;
