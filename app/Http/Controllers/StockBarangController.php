@@ -239,7 +239,7 @@ class StockBarangController extends Controller
                 'id_barang' => $item->id_barang,
                 'nama_barang' => $item->barang->nama_barang ?? null,
                 'qty' => $item->qty,
-                'harga' => $item->harga,
+                'harga' => 'Rp. ' . number_format($item->harga, 0, ',', '.'),
                 'qrcode' => $item->qrcode
             ];
         });
