@@ -135,7 +135,7 @@
                                                             {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}
                                                         </td>
                                                         <td>
-                                                            <a href="{{ asset('storage/' . $detail->qrcode_path) }}"
+                                                            <a href="{{ asset($detail->qrcode_path) }}"
                                                                 download class="btn btn-outline-success btn-small w-100">
                                                                 <i class="fa fa-download"></i> Unduh
                                                             </a>

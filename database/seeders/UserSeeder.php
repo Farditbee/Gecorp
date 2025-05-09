@@ -77,25 +77,25 @@ class UserSeeder extends Seeder
         ]);
         LevelUser::create([
             "id" => 3,
-            "id" => 4,
+            "no_urut" => 4,
             "nama_level" => "Admin Toko",
             "informasi" => "Mengelola operasional toko termasuk transaksi penjualan, Tidak memiliki akses ke laporan keuangan",
         ]);
         LevelUser::create([
             "id" => 4,
-            "id" => 5,
+            "no_urut" => 5,
             "nama_level" => "Karyawan",
             "informasi" => "Melakukan transaksi penjualan di kasir, Akses terbatas hanya untuk kasir dan kasbon",
         ]);
         LevelUser::create([
             "id" => 5,
-            "id" => 6,
+            "no_urut" => 6,
             "nama_level" => "Franchise",
             "informasi" => "Pihak eksternal yang bermitra dan menjalankan toko cabang, Dapat melihat performa dan laporan keuangan tokonya sendiri",
         ]);
         LevelUser::create([
             "id" => 6,
-            "id" => 2,
+            "no_urut" => 2,
             "nama_level" => "Akunting",
             "informasi" => "Mengelola keuangan dan laporan keuangan toko, Fokus pada pelaporan keuangan dan kasbon",
         ]);
