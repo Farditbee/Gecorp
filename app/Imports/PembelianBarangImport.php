@@ -21,9 +21,11 @@ class PembelianBarangImport implements ToCollection, WithHeadingRow, WithValidat
             DB::beginTransaction();
             try {
                 // Validate row data
-                if (empty($row['no_nota']) || empty($row['id_supplier']) ||
+                if (
+                    empty($row['no_nota']) || empty($row['id_supplier']) ||
                     empty($row['id_barang']) || empty($row['qty']) ||
-                    empty($row['harga_barang']) || empty($row['qrcode'])) {
+                    empty($row['harga_barang']) || empty($row['qrcode'])
+                ) {
                     throw new \Exception('Data tidak valid pada baris: ' . json_encode($row));
                 }
 
@@ -38,14 +40,26 @@ class PembelianBarangImport implements ToCollection, WithHeadingRow, WithValidat
                     ]
                 );
 
-                // Buat path QR code berdasarkan qrcode dari Excel
                 $qrCodeFolder = public_path('qrcodes/pembelian');
                 if (!file_exists($qrCodeFolder)) {
                     mkdir($qrCodeFolder, 0755, true);
                 }
 
+                // Siapkan nama file QR code
                 $qrCodeFilename = "{$row['qrcode']}.png";
+                $qrCodeFullPath = "{$qrCodeFolder}/{$qrCodeFilename}";
                 $qrCodePath = "qrcodes/pembelian/{$qrCodeFilename}";
+
+                // Generate QR code jika belum ada
+                if (!file_exists($qrCodeFullPath)) {
+                    $qrCode = new QrCode($row['qrcode']);
+                    $writer = new PngWriter();
+                    $result = $writer->write($qrCode);
+
+                    if (!file_put_contents($qrCodeFullPath, $result->getString())) {
+                        throw new \Exception("Gagal menyimpan QR code ke: {$qrCodeFullPath}");
+                    }
+                }
 
                 // Simpan DetailPembelianBarang
                 $detail = DetailPembelianBarang::create([
@@ -57,7 +71,7 @@ class PembelianBarangImport implements ToCollection, WithHeadingRow, WithValidat
                     'total_harga' => $row['qty'] * $row['harga_barang'],
                     'qrcode' => $row['qrcode'],
                     'qrcode_path' => $qrCodePath,
-                    'status' => "success",
+                    'status' => 'success',
                 ]);
 
                 // Update total pembelian
