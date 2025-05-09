@@ -661,6 +661,8 @@ class MasterController extends Controller
 
             $query->where(function ($query) use ($searchTerm) {
                 $query->orWhereRaw("LOWER(dt_barang.qrcode) LIKE ?", ["%$searchTerm%"]);
+                $query->orWhereRaw("LOWER(barang.nama_barang) LIKE ?", ["%$searchTerm%"]);
+
             });
         } else {
             return response()->json([

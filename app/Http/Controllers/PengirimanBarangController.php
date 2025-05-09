@@ -240,7 +240,7 @@ class PengirimanBarangController extends Controller
         ]);
 
         DB::commit();
-        return redirect()->route('transaksi.pengirimanbarang.create')
+        return redirect()->route('distribusi.pengirimanbarang.create')
             ->with('tab', 'detail')
             ->with('pengiriman_barang', $pengiriman_barang);
     }
