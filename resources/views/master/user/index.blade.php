@@ -124,39 +124,38 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
-                                <div class="custom-left">
-                                    <div class="custom-btn-tambah-wrap">
-                                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
-                                            <a href="{{ route('master.user.create') }}" class="mr-2 btn btn-primary custom-btn-tambah text-white"
-                                                data-container="body" data-toggle="tooltip" data-placement="top"
-                                                title="Tambah Data User">
-                                                <i class="fa fa-circle-plus"></i> Tambah
-                                            </a>
-                                        @endif
-                                    </div>
-                                    <form action="{{ route('master.user.import') }}" method="POST"
-                                        enctype="multipart/form-data" class="custom-form-import">
-                                        @csrf
-                                        <input type="file" name="file" class="custom-input-file" accept=".xlsx"
-                                            required>
-                                        <button type="submit" class="btn btn-success custom-btn-import">
-                                            <i class="fa fa-file-import"></i> Import
-                                        </button>
-                                    </form>
+                        <div class="card-header custom-header">
+                            <div class="custom-left">
+                                <div class="custom-btn-tambah-wrap">
+                                    @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
+                                        <a href="{{ route('master.user.create') }}"
+                                            class="mr-2 btn btn-primary custom-btn-tambah text-white" data-container="body"
+                                            data-toggle="tooltip" data-placement="top" title="Tambah Data User">
+                                            <i class="fa fa-circle-plus"></i> Tambah
+                                        </a>
+                                    @endif
                                 </div>
+                                <form action="{{ route('master.user.import') }}" method="POST"
+                                    enctype="multipart/form-data" class="custom-form-import">
+                                    @csrf
+                                    <input type="file" name="file" class="custom-input-file" accept=".xlsx" required>
+                                    <button type="submit" class="btn btn-success custom-btn-import">
+                                        <i class="fa fa-file-import"></i> Import
+                                    </button>
+                                </form>
                             </div>
-
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            <div class="custom-right">
+                                <div class="custom-limit-page">
+                                    <select name="limitPage" id="limitPage" class="form-control">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div class="custom-search">
+                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                        placeholder="Cari Data" aria-label="search">
+                                </div>
                             </div>
                         </div>
                         <div class="content">
