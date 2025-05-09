@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Imports\PembelianBarangImport;
 use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
 use App\Models\DetailStockBarang;
@@ -19,6 +20,7 @@ use Endroid\QrCode\Encoding\Encoding;
 use Endroid\QrCode\Label\Label;
 use Endroid\QrCode\Label\Font\NotoSans;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PembelianBarangController extends Controller
 {
@@ -539,5 +541,16 @@ class PembelianBarangController extends Controller
                 'message' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new PembelianBarangImport, $request->file('file'));
+
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }

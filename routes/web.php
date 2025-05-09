@@ -77,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pembelianbarang/update_status/{id}', [PembelianBarangController::class, 'updateStatus'])->name('transaksi.pembelianbarang.update_status');
         Route::get('/pembelian-barang/level-harga/{barangId}', [PembelianBarangController::class, 'getLevelHarga']);
         Route::post('/pembelian-barang/store-temp', [PembelianBarangController::class, 'storeTemp'])->name('transaksi.temp.pembelianbarang');
+        Route::post('/import-pembelianbarang', [PembelianBarangController::class, 'import'])->name('master.pembelianbarang.import');
 
         // Toko Controller
         Route::get('/toko', [TokoController::class, 'index'])->name('master.toko.index');

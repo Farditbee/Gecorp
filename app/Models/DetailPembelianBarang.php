@@ -21,6 +21,7 @@ class DetailPembelianBarang extends Model
         'total_harga',
         'qrcode',
         'qrcode_path',
+        'status',
     ];
 
     public function pembelian()

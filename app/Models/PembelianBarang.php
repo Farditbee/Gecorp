@@ -20,7 +20,8 @@ class PembelianBarang extends Model
         'no_nota',
         'tgl_nota',
         'total_item',
-        'total_nilai'
+        'total_nilai',
+        'status'
     ];
 
     public function detail()
