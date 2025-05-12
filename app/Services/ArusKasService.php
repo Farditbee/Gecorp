@@ -97,12 +97,26 @@ class ArusKasService
 
         if ($request->has('id_toko') && is_array($request->id_toko)) {
             $mutasiQuery->where(function ($query) use ($request) {
-                $query->whereIn('id_toko_penerima', $request->id_toko)
-                    ->orWhereIn('id_toko_pengirim', $request->id_toko);
+                $query->whereIn('id_toko_penerima', $request->id_toko);
             });
         }
 
-        $mutasiQuery->orderBy('id', $meta['orderBy']);
+        // Get data from DetailRetur model for cash returns
+        $retursQuery = DetailRetur::with(['retur.toko', 'barang'])
+            ->whereHas('retur', function ($query) {
+                $query->where('metode_reture', 'Cash')
+                        ->where('status_reture', 'success');
+            })
+            ->whereMonth('updated_at', $month)
+            ->whereYear('updated_at', $year);
+
+        if ($request->has('id_toko') && is_array($request->id_toko)) {
+            $retursQuery->whereHas('retur.toko', function ($query) use ($request) {
+                $query->whereIn('id', $request->id_toko);
+            });
+        }
+
+        $retursQuery->orderBy('id', $meta['orderBy']);
 
         // Get data from Kasbon model
         $kasbonQuery = Kasbon::with('detailKasbon', 'kasir.toko')
@@ -120,6 +134,7 @@ class ArusKasService
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year);
 
+
         $kasbonQuery->orderBy('id', $meta['orderBy']);
 
         // Get filtered data
@@ -132,6 +147,7 @@ class ArusKasService
         $hutangList = $hutangQuery->get();
         $piutangList = $piutangQuery->get();
         $returList = $returQuery->get();
+        $retursList = $retursQuery->get();
 
         if ($pengeluaranList->isEmpty()
             && $kasirList->isEmpty()
@@ -141,7 +157,8 @@ class ArusKasService
             && $kasbonList->isEmpty()
             && $hutangList->isEmpty()
             && $piutangList->isEmpty()
-            && $returList->isEmpty()){
+            && $returList->isEmpty()
+            && $retursList->isEmpty()){
             return response()->json([
                 'status_code' => 404,
                 'errors' => true,
@@ -531,6 +548,33 @@ class ArusKasService
                 ];
             })->values();
 
+            $retursData = $retursList
+            ->groupBy(function ($retur) {
+                return $retur->retur->toko->singkatan . '_' . Carbon::parse($retur->updated_at)->format('d-m-Y');
+            })
+            ->map(function ($groupedRetur) {
+                $firstRetur = $groupedRetur->first();
+                return [
+                    'id' => $firstRetur->id,
+                    'tgl' => Carbon::parse($firstRetur->updated_at)->format('d-m-Y H:i:s'),
+                    'subjek' => "Toko {$firstRetur->retur->toko->singkatan}",
+                    'kategori' => "Data retur",
+                    'item' => "Retur Supplier",
+                    'jml' => 1,
+                    'sat' => "Ls",
+                    'hst' => (int)$firstRetur->harga,
+                    'nilai_transaksi' => (int)$firstRetur->harga,
+                    'kas_kecil_in' => 0,
+                    'kas_kecil_out' => 0,
+                    'kas_besar_in' => (int)$firstRetur->harga,
+                    'kas_besar_out' => 0,
+                    'piutang_in' => 0,
+                    'piutang_out' => 0,
+                    'hutang_in' => 0,
+                    'hutang_out' => 0,
+                ];
+            })->values();
+
         $data = $pengeluaranData
         ->concat($kasirData)
         ->concat($pembelianData)
@@ -540,6 +584,7 @@ class ArusKasService
         ->concat($hutangData)
         ->concat($piutangData)
         ->concat($returData)
+        ->concat($retursData)
         ->sortByDesc('tgl')->values();
 
         $totalBulanLalu = $this->calculateBulanLalu($year, $month);
