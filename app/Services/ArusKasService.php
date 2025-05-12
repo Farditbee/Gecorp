@@ -554,6 +554,10 @@ class ArusKasService
             })
             ->map(function ($groupedRetur) {
                 $firstRetur = $groupedRetur->first();
+
+                // Ambil harga dari tabel detail_pembelian_barang via relasi
+                $harga = optional($firstRetur->pembelian)->harga_barang ?? 0;
+
                 return [
                     'id' => $firstRetur->id,
                     'tgl' => Carbon::parse($firstRetur->updated_at)->format('d-m-Y H:i:s'),
@@ -562,11 +566,11 @@ class ArusKasService
                     'item' => "Retur Supplier",
                     'jml' => 1,
                     'sat' => "Ls",
-                    'hst' => (int)$firstRetur->harga,
-                    'nilai_transaksi' => (int)$firstRetur->harga,
+                    'hst' => (int)$harga,
+                    'nilai_transaksi' => (int)$harga,
                     'kas_kecil_in' => 0,
                     'kas_kecil_out' => 0,
-                    'kas_besar_in' => (int)$firstRetur->harga,
+                    'kas_besar_in' => (int)$harga,
                     'kas_besar_out' => 0,
                     'piutang_in' => 0,
                     'piutang_out' => 0,

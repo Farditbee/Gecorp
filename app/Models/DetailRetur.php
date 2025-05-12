@@ -33,4 +33,10 @@ class DetailRetur extends Model
     public function retur(){
         return $this->belongsTo(DataReture::class, 'id_retur');
     }
+
+    public function pembelian()
+    {
+        return $this->hasOne(DetailPembelianBarang::class, 'qrcode', 'qrcode');
+    }
+
 }
