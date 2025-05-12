@@ -25,4 +25,9 @@ class DataReture extends Model
     protected $keyType = 'string';
 
     public $primaryKey = 'id';
+
+    public function toko()
+    {
+        return $this->belongsTo(Toko::class, 'id_toko');
+    }
 }

@@ -29,4 +29,8 @@ class DetailRetur extends Model
     public function barang(){
         return $this->belongsTo(Barang::class, 'id_barang');
     }
+
+    public function retur(){
+        return $this->belongsTo(DataReture::class, 'id_retur');
+    }
 }
