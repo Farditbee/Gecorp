@@ -109,31 +109,10 @@ class NeracaController extends Controller
                 return $stockUtama + $stockDetail;
             });
 
-            $detailBeli = DetailPembelianBarang::select('id_barang', DB::raw('SUM(qty * harga_barang) as total_beli'))
-                ->groupBy('id_barang')
-                ->pluck('total_beli', 'id_barang');
+            $hppTotalBaru = StockBarang::value('hpp_baru');
 
-            $detailKasir = DetailKasir::select('id_barang', DB::raw('SUM(qty * hpp_jual) as total_jual'))
-                ->groupBy('id_barang')
-                ->pluck('total_jual', 'id_barang');
+            $totalKasir = $totalStock * $hppTotalBaru;
 
-            $retureBarang = DB::table('detail_retur as dr')
-                ->join('detail_pembelian_barang as dpb', 'dr.qrcode', '=', 'dpb.qrcode')
-                ->where('dr.status', 'success')
-                ->where('dr.status_reture', 'success')
-                ->where('dr.metode_reture', 'barang')
-                ->selectRaw('SUM(dpb.harga_barang * dr.qty_acc) as total')
-                ->value('total');
-
-            // Gabungkan kedua hasil per id_barang
-            $totalKasir = 0;
-            foreach ($detailBeli as $id => $totalBeli) {
-                $totalJual = $detailKasir[$id] ?? 0;
-                $selisih = $totalBeli - $totalJual;
-                $totalKasir += $selisih;
-            }
-
-            $totalKasir += $retureBarang;
 
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
                 + $result['data_total']['kas_kecil']['saldo_akhir']
