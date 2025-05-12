@@ -81,7 +81,7 @@ class LabaRugiController extends Controller
             }
 
             // Calculate return cost (Biaya Retur)
-            $biayaRetur = DB::table('detail_retur')
+            $biayaRetur = -1 * DB::table('detail_retur')
                 ->whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
                 ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
