@@ -4,8 +4,14 @@
     Detail Pembelian Barang
 @endsection
 
-@section('content')
+@section('css')
+    <link rel="stylesheet" href="{{ asset('css/notyf.min.css') }}">
     <style>
+        .atur-harga-btn {
+            display: none;
+            /* Sembunyikan tombol secara default */
+        }
+
         .table tbody tr {
             height: 20px;
             line-height: 1.2;
@@ -33,15 +39,17 @@
             /* Padding dalam elemen */
         }
     </style>
+@endsection
 
+@section('content')
     <div class="pcoded-main-container">
         <div class="pcoded-content pt-1 mt-1">
             @include('components.breadcrumbs')
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-12">
                     <div class="card">
-                        <div class="card-header">
-                            <a href="{{ url()->previous() }}" class="btn btn-danger">Kembali</a>
+                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
+                            <a href="{{ url()->previous() }}" class="btn btn-danger mb-2">Kembali</a>
                         </div>
                         <div class="card-body">
                             <form action="{{ route('transaksi.pembelianbarang.update_status', $pembelian->id) }}"
@@ -50,9 +58,8 @@
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-2">
-                                                <h5 class="mb-0"><i class="fa fa-barcode"></i> Nomor Nota
-                                                </h5>
+                                            <div class="col-sm-12 col-md-2">
+                                                <h5 class="mb-0"><i class="fa fa-barcode"></i> Nomor Nota</h5>
                                             </div>
                                             <div class="col">
                                                 <span
@@ -62,9 +69,8 @@
                                     </li>
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-2">
-                                                <h5 class="mb-0"><i class="fa fa-user"></i> Nama Supplier
-                                                </h5>
+                                            <div class="col-sm-12 col-md-2">
+                                                <h5 class="mb-0"><i class="fa fa-user"></i> Nama Supplier</h5>
                                             </div>
                                             <div class="col">
                                                 <span
@@ -74,9 +80,8 @@
                                     </li>
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-2">
-                                                <h5 class="mb-0"><i class="fa fa-calendar-day"></i> Tanggal Nota
-                                                </h5>
+                                            <div class="col-sm-12 col-md-2">
+                                                <h5 class="mb-0"><i class="fa fa-calendar-day"></i> Tanggal Nota</h5>
                                             </div>
                                             <div class="col">
                                                 <span
@@ -88,78 +93,86 @@
                                 <br>
                                 <div class="row">
                                     <div class="col-12">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th scope="col" class="text-center">No</th>
-                                                    <th scope="col">Status</th>
-                                                    <th scope="col">QR Code</th>
-                                                    <th scope="col">Nama Barang</th>
-                                                    <th scope="col" class="text-right">Qty</th>
-                                                    <th scope="col" class="text-right">Harga</th>
-                                                    <th scope="col" class="text-right">Total Harga</th>
-                                                    <th scope="col">Download QR Code</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $statuses = ['progress', 'success', 'failed'];
-                                                @endphp
-                                                @foreach ($pembelian->detail as $detail)
-                                                    <input type="hidden" name="detail_ids[{{ $detail->id }}]"
-                                                        value="{{ $detail->id }}">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped">
+                                                <thead class="thead-light">
                                                     <tr>
-                                                        <td class="text-center">{{ $loop->iteration }}</td>
-                                                        <td>
-                                                            @if ($detail->status == 'success')
-                                                                <span class="badge badge-success w-100"><i class="fas fa-circle-check mr-1"></i>Success</span>
-                                                            @else
-                                                                <select name="status_detail[{{ $detail->id }}]"
-                                                                    id="status_detail_{{ $detail->id }}"
-                                                                    class="form-control status-select status-select-small">
-                                                                    <option value="" disabled>Pilih Status</option>
-                                                                    @foreach ($statuses as $status)
-                                                                        <option value="{{ $status }}"
-                                                                            {{ $detail->status == $status ? 'selected' : '' }}>
-                                                                            {{ $status }}
-                                                                        </option>
-                                                                    @endforeach
-                                                                </select>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ $detail->qrcode }}</td>
-                                                        <td>{{ $detail->barang->nama_barang }}</td>
-                                                        <td class="text-right">{{ $detail->qty }}</td>
-                                                        <td class="text-right">Rp {{ number_format($detail->harga_barang, 0, ',', '.') }}</td>
-                                                        <td class="text-right">Rp
-                                                            {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}
-                                                        </td>
-                                                        <td>
-                                                            <a href="{{ asset($detail->qrcode_path) }}"
-                                                                download class="btn btn-outline-success btn-small w-100">
-                                                                <i class="fa fa-download"></i> Unduh
-                                                            </a>
-                                                        </td>
-
+                                                        <th style="width: 40px;" class="text-center">No</th>
+                                                        <th style="width: 50px;">Status</th>
+                                                        <th style="min-width: 200px;">QR Code Pembelian Barang</th>
+                                                        <th style="min-width: 300px;">Nama Barang</th>
+                                                        <th class="text-right">Qty</th>
+                                                        <th class="text-right">Harga</th>
+                                                        <th class="text-right">Total</th>
+                                                        <th>Download</th>
                                                     </tr>
-                                                @endforeach
-                                            </tbody>
-                                            <tfoot>
-                                                <tr>
-                                                    <th scope="col" colspan="6" class="text-right">SubTotal</th>
-                                                    <th scope="col" class="text-right">Rp
-                                                        {{ number_format(
-                                                            $pembelian->detail->sum(function ($detail) {
-                                                                return $detail->harga_barang * $detail->qty;
-                                                            }),
-                                                            0,
-                                                            ',',
-                                                            '.',
-                                                        ) }}
-                                                    </th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    @php $statuses = ['progress', 'success', 'failed']; @endphp
+                                                    @foreach ($pembelian->detail as $detail)
+                                                        <input type="hidden" name="detail_ids[{{ $detail->id }}]"
+                                                            value="{{ $detail->id }}">
+                                                        <tr>
+                                                            <td class="text-center">{{ $loop->iteration }}</td>
+                                                            <td>
+                                                                @if ($detail->status == 'success')
+                                                                    <span class="badge badge-success w-100"><i
+                                                                            class="fas fa-circle-check mr-1"></i>Success</span>
+                                                                @else
+                                                                    <select name="status_detail[{{ $detail->id }}]"
+                                                                        id="status_detail_{{ $detail->id }}"
+                                                                        class="form-control status-select">
+                                                                        <option value="" disabled>Pilih Status
+                                                                        </option>
+                                                                        @foreach ($statuses as $status)
+                                                                            <option value="{{ $status }}"
+                                                                                {{ $detail->status == $status ? 'selected' : '' }}>
+                                                                                {{ $status }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                <div class="d-flex flex-wrap align-items-center">
+                                                                    <span class="mr-2 mb-1"
+                                                                        id="qrcode-text-{{ $detail->id }}">{{ $detail->qrcode }}</span>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-outline-primary copy-btn"
+                                                                        data-toggle="tooltip"
+                                                                        title="Salin: {{ $detail->qrcode }}"
+                                                                        data-target="qrcode-text-{{ $detail->id }}">
+                                                                        <i class="fas fa-copy"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                            <td>{{ $detail->barang->nama_barang }}</td>
+                                                            <td class="text-right">{{ $detail->qty }}</td>
+                                                            <td class="text-right">Rp
+                                                                {{ number_format($detail->harga_barang, 0, ',', '.') }}
+                                                            </td>
+                                                            <td class="text-right">Rp
+                                                                {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}
+                                                            </td>
+                                                            <td>
+                                                                <a href="{{ asset($detail->qrcode_path) }}" download
+                                                                    class="btn btn-outline-success btn-sm w-100">
+                                                                    <i class="fa fa-download"></i> Unduh
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <th colspan="6" class="text-right">SubTotal</th>
+                                                        <th class="text-right">Rp
+                                                            {{ number_format($pembelian->detail->sum(fn($d) => $d->harga_barang * $d->qty), 0, ',', '.') }}
+                                                        </th>
+                                                        <th></th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div> <!-- table-responsive -->
                                     </div>
                                 </div>
                             </form>
@@ -167,17 +180,15 @@
                     </div>
                 </div>
             </div>
-            <!-- [ Main Content ] end -->
         </div>
     </div>
+@endsection
 
-    <style>
-        .atur-harga-btn {
-            display: none;
-            /* Sembunyikan tombol secara default */
-        }
-    </style>
+@section('asset_js')
+    <script src="{{ asset('js/notyf.min.js') }}"></script>
+@endsection
 
+@section('js')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelects = document.querySelectorAll('.status-select');
@@ -265,6 +276,27 @@
                         .catch(error => {
                             console.error('Error fetching data:', error);
                         });
+                });
+            });
+
+            const notyf = new Notyf({
+                duration: 3000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                }
+            });
+
+            document.querySelectorAll('.copy-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const textToCopy = document.getElementById(targetId).innerText;
+
+                    navigator.clipboard.writeText(textToCopy).then(function() {
+                        notyf.success('QR Code berhasil disalin');
+                    }).catch(function(err) {
+                        notyf.error('Gagal menyalin QR Code');
+                    });
                 });
             });
 

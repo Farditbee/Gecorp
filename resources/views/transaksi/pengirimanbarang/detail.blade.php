@@ -5,11 +5,25 @@
 @endsection
 
 @section('css')
+    <link rel="stylesheet" href="{{ asset('css/notyf.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <style>
         #qr_barang {
             background-color: white !important;
             cursor: text;
+        }
+
+        @media (max-width: 768px) {
+
+            .table td,
+            .table th {
+                white-space: normal !important;
+                word-wrap: break-word;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
         }
     </style>
 @endsection
@@ -105,23 +119,26 @@
                                     </div>
                                 @endif
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
+                                    <table class="table table-bordered table-striped">
                                         <thead class="thead-light">
                                             <tr>
                                                 @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id_toko)
-                                                    <th scope="col">Aksi</th>
+                                                    <th style="width: 50px;">Aksi</th>
                                                 @endif
-                                                <th scope="col">No</th>
-                                                <th scope="col">Nama Barang</th>
-                                                <th scope="col">Nama Supplier</th>
-                                                <th scope="col">QrCode</th>
-                                                <th scope="col">Qty</th>
-                                                <th scope="col" class="text-right">Harga</th>
-                                                <th scope="col" class="text-right">Total Harga</th>
+                                                <th style="width: 40px;">No</th>
+                                                <th style="min-width: 200px;">Qr Code Pengiriman Barang</th>
+                                                <th style="min-width: 150px;">Nama Barang</th>
+                                                <th style="min-width: 150px;">Nama Supplier</th>
+                                                <th class="text-right text-nowrap" style="width: 80px;">Qty
+                                                </th>
+                                                <th class="text-right text-nowrap" style="width: 100px;">
+                                                    Harga</th>
+                                                <th class="text-right text-nowrap" style="width: 120px;">
+                                                    Total Harga</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="listData"></tbody>
-                                        <tfoot id="totalData"></tfoot>
+                                        <tbody id="listData" class="text-wrap"></tbody>
+                                        <tfoot id="totalData" class="text-wrap"></tfoot>
                                     </table>
                                 </div>
                             @else
@@ -140,6 +157,10 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('asset_js')
+    <script src="{{ asset('js/notyf.min.js') }}"></script>
 @endsection
 
 @section('js')
@@ -234,17 +255,48 @@
                     <tr data-id="${item.id_barang}" data-supplier="${item.id_supplier}">
                         ${actionButtons}
                         <td>${index + 1}</td>
-                        <td>${td_nama_barang}</td>
-                        <td>${item.nama_supplier}</td>
-                        <td>${item.qrcode}</td>
-                        <td>${td_qty}</td>
-                        <td class="text-right harga-text" data-value="${harga}">${formatRupiah(harga)}</td>
-                        <td class="text-right total-harga" data-value="${harga * qty}">${formatRupiah(harga * qty)}</td>
+                        <td style="min-width: 250px;" class="text-wrap">
+                            <div class="d-flex flex-wrap align-items-center">
+                                <span class="mr-1 mb-1 text-break" id="qrcode-text-${item.id}">${item.qrcode}</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary copy-btn"
+                                    data-toggle="tooltip" title="Salin: ${item.qrcode}" data-target="qrcode-text-${item.id}">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td style="max-width: 150px;" class="text-wrap">${td_nama_barang}</td>
+                        <td style="max-width: 150px;" class="text-wrap">${item.nama_supplier}</td>
+                        <td class="text-right" style="min-width: 90px;">${td_qty}</td>
+                        <td class="text-right harga-text" data-value="${harga}" style="min-width: 100px;">${formatRupiah(harga)}</td>
+                        <td class="text-right total-harga" data-value="${harga * qty}" style="min-width: 100px;">${formatRupiah(harga * qty)}</td>
                     </tr>
                 `;
             });
 
-            $('#listData').html(rows);
+            const notyf = new Notyf({
+                duration: 3000,
+                position: {
+                    x: 'center',
+                    y: 'top',
+                }
+            });
+
+            $('#listData').html(rows); // <- pastikan ini dijalankan dulu
+
+            document.querySelectorAll('.copy-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const targetId = this.getAttribute('data-target');
+                    const textToCopy = document.getElementById(targetId).innerText;
+
+                    navigator.clipboard.writeText(textToCopy).then(function() {
+                        notyf.success('QR Code berhasil disalin');
+                    }).catch(function(err) {
+                        notyf.error('Gagal menyalin QR Code');
+                    });
+                });
+            });
+            $('[data-toggle="tooltip"]').tooltip();
+
             $('#totalData').html(`
                 <tr>
                     <th scope="col" colspan="${colSpan}" class="text-right">SubTotal</th>

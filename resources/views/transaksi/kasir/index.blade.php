@@ -22,6 +22,25 @@
                 max-width: 90%;
             }
         }
+
+        #daterange[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+        @media (max-width: 768px) {
+            #custom-filter {
+                flex-direction: column;
+            }
+
+            #custom-filter input,
+            #custom-filter button {
+                width: 100%;
+                /* Membuat input dan button mengambil lebar penuh pada mobile */
+                margin-bottom: 10px;
+                /* Jarak antar elemen */
+            }
+        }
     </style>
 @endsection
 
@@ -32,34 +51,40 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
-                                    <a id="btn-tambah" class="btn btn-primary mb-2 mr-2 text-white" data-toggle="modal"
-                                        data-target=".bd-example-modal-lg">
-                                        <i class="fa fa-plus-circle"></i> Tambah
-                                    </a>
-                                @endif
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <input class="form-control w-50 mb-2" type="text" id="daterange" name="daterange"
-                                        placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-info h-100 mb-2 mx-2" id="tb-filter" type="submit">
+                        <div class="card-header custom-header">
+                            <div class="custom-left">
+                                <div class="custom-btn-tambah-wrap">
+                                    @if (Auth::user()->id_level == 3 || Auth::user()->id_level == 4)
+                                        <a id="btn-tambah" class="btn btn-primary custom-btn-tambah text-white"
+                                            data-toggle="modal" data-target=".bd-example-modal-lg">
+                                            <i class="fa fa-plus-circle"></i> Tambah
+                                        </a>
+                                    @endif
+                                </div>
+                                <form id="custom-filter" class="d-flex justify-content-start align-items-center"
+                                    style="gap: 10px;">
+                                    <input class="form-control custom-btn-tambah w-50" type="text" id="daterange"
+                                        name="daterange" placeholder="Pilih rentang tanggal">
+                                    <button class="btn btn-info h-100" id="tb-filter" type="submit">
                                         <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                     </button>
-                                    <button type="button" class="btn btn-secondary h-100 mb-2" id="tb-reset">
+                                    <button type="button" class="btn btn-secondary h-100" id="tb-reset">
                                         <i class="fa fa-rotate mr-2"></i>Reset
                                     </button>
                                 </form>
                             </div>
-                            <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                            <div class="custom-right">
+                                <div class="custom-limit-page">
+                                    <select name="limitPage" id="limitPage" class="form-control">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
+                                </div>
+                                <div class="custom-search">
+                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                        placeholder="Cari Data" aria-label="search">
+                                </div>
                             </div>
                         </div>
                         <div class="content">
