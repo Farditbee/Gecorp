@@ -84,6 +84,7 @@ class LabaRugiController extends Controller
             $biayaRetur = -1 * DB::table('detail_retur')
                 ->whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
+                ->where('metode', 'Cash')
                 ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
 
