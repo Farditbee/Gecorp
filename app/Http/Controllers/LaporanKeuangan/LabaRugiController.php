@@ -96,7 +96,7 @@ class LabaRugiController extends Controller
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 
-            $total_labarugi = $totalPendapatan - ($totalBeban + $hpp);
+            $total_labarugi = $totalPendapatan - $hpp + $biayaRetur;
 
             $data = [
                 [
