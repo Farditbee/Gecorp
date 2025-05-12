@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DetailRetur;
 use Carbon\Carbon;
 use App\Models\Kasir;
 use App\Models\Pemasukan;
@@ -22,12 +23,11 @@ class LabaRugiService
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $assetRetur = -1 * (DB::table('detail_retur')
-            ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
-            ->whereMonth('detail_retur.created_at', $month)
-            ->whereYear('detail_retur.created_at', $year)
-            ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
-            ->value('total_retur') ?? 0);
+        $assetRetur = -1 * DetailRetur::whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->where('status', 'success')
+            ->selectRaw('SUM(harga - hpp_jual) as total')
+            ->value('total');
 
         $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
 

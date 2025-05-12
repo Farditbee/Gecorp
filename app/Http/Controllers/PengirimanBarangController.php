@@ -251,7 +251,6 @@ class PengirimanBarangController extends Controller
             'no_resi' => 'required',
             'tgl_kirim' => 'required',
             'ekspedisi' => 'required',
-            'tgl_kirim' => 'required',
             'toko_penerima' => 'required',
         ]);
 
@@ -426,11 +425,6 @@ class PengirimanBarangController extends Controller
                 ], 404);
             }
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Data Kosong',
-                'status_code' => 404,
-            ], 404);
         } catch (\Exception $e) {
             Log::error('Error fetching harga barang: ' . $e->getMessage());
 
@@ -590,7 +584,7 @@ class PengirimanBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksi.pengirimanbarang.reture')->with('success', 'Data Reture Barang berhasil ditambahkan');
+            return redirect()->route('distribusi.pengirimanbarang.reture')->with('success', 'Data Reture Barang berhasil ditambahkan');
         } catch (\Throwable $th) {
             DB::rollBack();
 
@@ -620,13 +614,13 @@ class PengirimanBarangController extends Controller
         return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
     }
 
-    public function editBarang($id)
-    {
-        $menu = [$this->title[0], $this->label[1], $this->title[3]];
-        $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
+    // public function editBarang($id)
+    // {
+    //     $menu = [$this->title[0], $this->label[1], $this->title[3]];
+    //     $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
 
-        return view('transaksi.pengirimanbarang.edit_barang', compact('menu', 'pengiriman_barang',));
-    }
+    //     return view('transaksi.pengirimanbarang.edit_barang', compact('menu', 'pengiriman_barang',));
+    // }
 
     public function updateStatus(Request $request, $id)
     {
@@ -667,7 +661,7 @@ class PengirimanBarangController extends Controller
 
                 DB::commit();
 
-                return redirect()->route('transaksi.pengirimanbarang.reture')->with('success', 'Status Berhasil Diubah');
+                return redirect()->route('distribusi.pengirimanbarang.reture')->with('success', 'Status Berhasil Diubah');
             }
 
             foreach ($detail_ids as $key => $detail_id) {
@@ -734,7 +728,7 @@ class PengirimanBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
+            return redirect()->route('distribusi.pengirimanbarang.index')->with('success', 'Status Berhasil Diubah');
         } catch (\Exception $e) {
 
             return response()->json([
@@ -910,11 +904,6 @@ class PengirimanBarangController extends Controller
                 ], 400);
             }
 
-            return response()->json([
-                'error' => true,
-                'message' => 'Tidak ada data',
-                'status_code' => 400,
-            ], 400);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => true,
