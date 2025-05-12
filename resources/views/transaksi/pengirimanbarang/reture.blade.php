@@ -173,7 +173,7 @@
                                                                 <th scope="col">Nama Barang</th>
                                                                 <th scope="col">Qty</th>
                                                                 <th scope="col" class="text-right">Harga Beli</th>
-                                                                <th scope="col" class="text-right">HPP Jual</th>
+                                                                <th scope="col" class="text-right">HPP Akhir</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody id="listData">
