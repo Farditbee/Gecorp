@@ -151,27 +151,27 @@ class RetureSuplierController extends Controller
                     DetailStockBarang::where('id_detail_pembelian', $detailBeli->id)
                                     ->increment('qty_now', $qtyAcc);
 
-                    // === Hitung dan update hpp_baru ===
-                    $stockBarang = StockBarang::where('id_barang', $idBarang)->first();
-                    $totalStock = $stockBarang->stock;
+                    // // === Hitung dan update hpp_baru ===
+                    // $stockBarang = StockBarang::where('id_barang', $idBarang)->first();
+                    // $totalStock = $stockBarang->stock;
 
-                    // Ambil harga_barang dari qrcode berdasarkan id_retur
-                    $detailRetur = DetailRetur::where('id_retur', $idRetur)
-                                               ->where('id_barang', $idBarang)
-                                               ->where('qrcode', $qrcode)
-                                               ->first();
+                    // // Ambil harga_barang dari qrcode berdasarkan id_retur
+                    // $detailRetur = DetailRetur::where('id_retur', $idRetur)
+                    //                            ->where('id_barang', $idBarang)
+                    //                            ->where('qrcode', $qrcode)
+                    //                            ->first();
 
-                    $detailPembelian = DetailPembelianBarang::where('qrcode', $detailRetur->qrcode)->first();
-                    $hargaBarang = $detailPembelian->harga_barang;
+                    // $detailPembelian = DetailPembelianBarang::where('qrcode', $detailRetur->qrcode)->first();
+                    // $hargaBarang = $detailPembelian->harga_barang;
 
-                    $hppLama = $stockBarang->hpp_baru;
+                    // $hppLama = $stockBarang->hpp_baru;
 
-                    // Rumus: (qty_acc * harga_barang) + (total_stock_lama * hpp_lama) / (qty_acc + total_stock_lama)
-                    $totalStockLama = $totalStock - $qtyAcc; // Karena stock sudah di-increment di atas
-                    $hppBaru = (($qtyAcc * $hargaBarang) + ($totalStockLama * $hppLama)) / max(($qtyAcc + $totalStockLama), 1);
+                    // // Rumus: (qty_acc * harga_barang) + (total_stock_lama * hpp_lama) / (qty_acc + total_stock_lama)
+                    // $totalStockLama = $totalStock - $qtyAcc; // Karena stock sudah di-increment di atas
+                    // $hppBaru = (($qtyAcc * $hargaBarang) + ($totalStockLama * $hppLama)) / max(($qtyAcc + $totalStockLama), 1);
 
-                    // Update hpp_baru
-                    $stockBarang->update(['hpp_baru' => $hppBaru]);
+                    // // Update hpp_baru
+                    // $stockBarang->update(['hpp_baru' => $hppBaru]);
                 }
             }
 
