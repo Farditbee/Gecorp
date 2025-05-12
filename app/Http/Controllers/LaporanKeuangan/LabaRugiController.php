@@ -46,14 +46,14 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            $assetRetur = -1 * (DB::table('detail_retur')
-                ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
-                ->whereMonth('detail_retur.created_at', $month)
-                ->whereYear('detail_retur.created_at', $year)
-                ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
-                ->value('total_retur') ?? 0);
+            // $assetRetur = (DB::table('detail_retur')
+            // ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+            // ->whereMonth('detail_retur.created_at', $month)
+            // ->whereYear('detail_retur.created_at', $year)
+            // ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
+            // ->value('total_retur') ?? 0);
 
-            $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
+            $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
 
             $hpp = DB::table('detail_kasir')
                 ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
@@ -80,6 +80,19 @@ class LabaRugiController extends Controller
                 ];
             }
 
+            // Calculate return cost (Biaya Retur)
+            $biayaRetur = DB::table('detail_retur')
+                ->whereMonth('created_at', $month)
+                ->whereYear('created_at', $year)
+                ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
+                ->value('total_biaya_retur') ?? 0;
+
+            $totalBeban += $biayaRetur;
+            $bebanOperasional[] = [
+                '3.11 Biaya Retur',
+                number_format($biayaRetur, 0, ',', '.')
+            ];
+
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 
@@ -91,7 +104,6 @@ class LabaRugiController extends Controller
                     [
                         ['1.1 Penjualan Umum', number_format($penjualanUmum, 0, ',', '.')],
                         ['1.2 Pendapatan Lainnya', number_format($pendapatanLainnya, 0, ',', '.')],
-                        ['1.3 Asset Retur', number_format($assetRetur, 0, ',', '.')],
                         ['Total Pendapatan', number_format($totalPendapatan, 0, ',', '.')]
                     ]
                 ],
