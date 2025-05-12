@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DataReture;
 use App\Models\DetailKasir;
 use App\Models\DetailPembelianBarang;
+use App\Models\DetailRetur;
 use App\Models\Hutang;
 use App\Models\Pemasukan;
 use App\Models\StockBarang;
@@ -97,9 +98,9 @@ class NeracaController extends Controller
                 "nilai" => $modal,
             ]);
 
-            $penjualanReture = DataReture::where('tipe_transaksi', 'kasir')
-                                    ->where('status', 'done')
-                                    ->sum('total_harga');
+            $penjualanReture = DetailRetur::where('status', 'success')
+                                        ->where('status_reture', '!=', 'success')
+                                        ->sum('hpp_jual');
 
             // Sisa Stock Keseluruhan Gudang
             $totalStock = StockBarang::with('detailToko')->get()->sum(function ($item) {
@@ -116,6 +117,14 @@ class NeracaController extends Controller
                 ->groupBy('id_barang')
                 ->pluck('total_jual', 'id_barang');
 
+            $retureBarang = DB::table('detail_retur as dr')
+                ->join('detail_pembelian_barang as dpb', 'dr.qrcode', '=', 'dpb.qrcode')
+                ->where('dr.status', 'success')
+                ->where('dr.status_reture', 'success')
+                ->where('dr.metode_reture', 'barang')
+                ->selectRaw('SUM(dpb.harga_barang * dr.qty_acc) as total')
+                ->value('total');
+
             // Gabungkan kedua hasil per id_barang
             $totalKasir = 0;
             foreach ($detailBeli as $id => $totalBeli) {
@@ -123,6 +132,8 @@ class NeracaController extends Controller
                 $selisih = $totalBeli - $totalJual;
                 $totalKasir += $selisih;
             }
+
+            $totalKasir += $retureBarang;
 
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
                 + $result['data_total']['kas_kecil']['saldo_akhir']
