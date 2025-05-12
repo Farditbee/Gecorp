@@ -281,7 +281,7 @@
                 }
             });
 
-            $('#listData').html(rows); // <- pastikan ini dijalankan dulu
+            $('#listData').html(rows);
 
             document.querySelectorAll('.copy-btn').forEach(function(button) {
                 button.addEventListener('click', function() {

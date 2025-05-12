@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notyf.min.css') }}">
 @endsection
 
 @section('content')
@@ -249,8 +250,8 @@
                                 <div class="tab-pane fade" id="detail--barang-{{ $stk->id }}" role="tabpanel"
                                     aria-labelledby="detail--barang-tab-{{ $stk->id }}">
                                     <div class="table-responsive mt-3">
-                                        <table class="table table-striped m-0">
-                                            <thead>
+                                        <table class="table table-bordered table-striped">
+                                            <thead class="thead-light">
                                                 <tr class="tb-head">
                                                     <th>#</th>
                                                     <th>Nama Barang</th>
@@ -279,6 +280,7 @@
 
 @section('asset_js')
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/notyf.min.js') }}"></script>
 @endsection
 
 @section('js')
@@ -416,12 +418,41 @@
                     <tr class="text-dark">
                         <td class="${classCol} text-center">${index + 1}.</td>
                         <td class="${classCol}">${element.nama_barang}</td>
-                        <td class="${classCol}">${element.qrcode}</td>
+                        <td class="${classCol}">
+                            <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                <span class="mr-1 mb-1 text-break" id="qrcode-text-${index}">${element.qrcode}</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary copy-btn"
+                                    data-toggle="tooltip" title="Salin: ${element.qrcode}" data-target="qrcode-text-${index}">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
                         <td class="${classCol}">${element.qty}</td>
                         <td class="${classCol}">${element.harga}</td>
                     </tr>`;
                 });
                 $(`#detailData-${stk_id}`).html(getDataTable);
+
+                const notyf = new Notyf({
+                    duration: 3000,
+                    position: {
+                        x: 'center',
+                        y: 'top',
+                    }
+                });
+
+                document.querySelectorAll('.copy-btn').forEach(function(button) {
+                    button.addEventListener('click', function() {
+                        const targetId = this.getAttribute('data-target');
+                        const textToCopy = document.getElementById(targetId).innerText;
+
+                        navigator.clipboard.writeText(textToCopy).then(function() {
+                            notyf.success('QR Code berhasil disalin');
+                        }).catch(function(err) {
+                            notyf.error('Gagal menyalin QR Code');
+                        });
+                    });
+                });
 
             } else {
                 errorMessage = getDataRest?.data?.message;

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/daterange-picker.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notyf.min.css') }}">
     <style>
         @media (max-width: 768px) {
             .modal-dialog {
@@ -28,6 +29,7 @@
             cursor: pointer !important;
             color: inherit !important;
         }
+
         @media (max-width: 768px) {
             #custom-filter {
                 flex-direction: column;
@@ -396,8 +398,8 @@
                                                         <th class="text-wrap align-top">Item</th>
                                                         <th class="text-wrap align-top">Harga</th>
                                                         <th class="text-wrap align-top">N.retur</th>
-                                                        <th class="text-wrap align-top">Qrcode</th>
-                                                        <th class="text-wrap align-top">Action</th>
+                                                        <th class="text-wrap align-top">QR Code Transaksi</th>
+                                                        <th class="text-wrap align-top text-right">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -411,8 +413,20 @@
                                                             <td class="text-wrap align-top">
                                                                 {{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td class="text-wrap align-top">0</td>
-                                                            <td class="text-wrap align-top">{{ $dtks->qrcode }}</td>
                                                             <td class="text-wrap align-top">
+                                                                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                                    <span class="mr-1 mb-1 text-break"
+                                                                        id="qrcode-text-{{ $dtks->id }}">{{ $dtks->qrcode }}</span>
+                                                                    <button type="button"
+                                                                        class="btn btn-sm btn-outline-primary copy-btn"
+                                                                        data-toggle="tooltip"
+                                                                        title="Salin: {{ $dtks->qrcode }}"
+                                                                        data-target="qrcode-text-{{ $dtks->id }}">
+                                                                        <i class="fas fa-copy"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-wrap align-top text-right">
                                                                 <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
                                                                     download class="btn btn-success">
                                                                     <span><i
@@ -555,6 +569,7 @@
     <script src="{{ asset('js/daterange-picker.js') }}"></script>
     <script src="{{ asset('js/daterange-custom.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/notyf.min.js') }}"></script>
 @endsection
 
 @section('js')
@@ -577,6 +592,26 @@
             isModal: '#modal-form',
             isDisabled: true,
         }];
+        const notyf = new Notyf({
+            duration: 3000,
+            position: {
+                x: 'center',
+                y: 'top',
+            }
+        });
+
+        document.querySelectorAll('.copy-btn').forEach(function(button) {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const textToCopy = document.getElementById(targetId).innerText;
+
+                navigator.clipboard.writeText(textToCopy).then(function() {
+                    notyf.success('QR Code berhasil disalin');
+                }).catch(function(err) {
+                    notyf.error('Gagal menyalin QR Code');
+                });
+            });
+        });
 
         function selectFormat(isParameter, isPlaceholder, isDisabled = true) {
             if (!$(isParameter).find('option[value=""]').length) {

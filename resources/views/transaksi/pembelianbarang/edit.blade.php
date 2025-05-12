@@ -100,7 +100,7 @@
                                                         <th style="width: 40px;" class="text-center">No</th>
                                                         <th style="width: 50px;">Status</th>
                                                         <th style="min-width: 200px;">QR Code Pembelian Barang</th>
-                                                        <th style="min-width: 300px;">Nama Barang</th>
+                                                        <th style="min-width: 200px;">Nama Barang</th>
                                                         <th class="text-right">Qty</th>
                                                         <th class="text-right">Harga</th>
                                                         <th class="text-right">Total</th>
@@ -132,7 +132,7 @@
                                                                     </select>
                                                                 @endif
                                                             </td>
-                                                            <td>
+                                                            <td style="min-width: 200px;" class="text-wrap">
                                                                 <div class="d-flex flex-wrap align-items-center">
                                                                     <span class="mr-2 mb-1"
                                                                         id="qrcode-text-{{ $detail->id }}">{{ $detail->qrcode }}</span>
@@ -145,7 +145,7 @@
                                                                     </button>
                                                                 </div>
                                                             </td>
-                                                            <td>{{ $detail->barang->nama_barang }}</td>
+                                                            <td style="max-width: 200px;" class="text-wrap">{{ $detail->barang->nama_barang }}</td>
                                                             <td class="text-right">{{ $detail->qty }}</td>
                                                             <td class="text-right">Rp
                                                                 {{ number_format($detail->harga_barang, 0, ',', '.') }}

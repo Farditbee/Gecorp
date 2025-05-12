@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('css/flatpickr.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/notyf.min.css') }}">
     <style>
         #tgl_retur[readonly] {
             background-color: white !important;
@@ -166,24 +167,40 @@
                                                             <div class="col-12">
                                                                 <div class="table-responsive">
                                                                     <div id="scan-data" class="mb-4">
-                                                                        <label for="search-data" class="form-label">Scan
-                                                                            QR Code Barang<span style="color: red"
-                                                                                class="ml-1">*</span></label>
+                                                                        <label for="search-data" class="form-label">
+                                                                            Scan QR Code Barang
+                                                                            <span style="color: red"
+                                                                                class="ml-1">*</span>
+                                                                        </label>
                                                                         <div class="input-group">
+                                                                            <div class="input-group-prepend">
+                                                                                <button id="btn-paste-data"
+                                                                                    class="btn btn-secondary"
+                                                                                    type="button">
+                                                                                    <i
+                                                                                        class="fa fa-clipboard mr-1"></i>Paste
+                                                                                </button>
+                                                                            </div>
+
                                                                             <input id="search-data" type="text"
                                                                                 class="form-control"
                                                                                 placeholder="Masukkan/Scan QR Code Barang"
                                                                                 aria-label="QRCode" required>
+
                                                                             <div class="input-group-append">
                                                                                 <button id="btn-search-data"
                                                                                     class="btn btn-primary"
-                                                                                    type="button"><i
-                                                                                        class="fa fa-magnifying-glass mr-2"></i>Cari</button>
+                                                                                    type="button">
+                                                                                    <i
+                                                                                        class="fa fa-magnifying-glass mr-2"></i>Cari
+                                                                                </button>
                                                                             </div>
                                                                         </div>
-                                                                        <small class="text-danger"><b
-                                                                                id="info-input"></b></small>
+                                                                        <small class="text-danger">
+                                                                            <b id="info-input"></b>
+                                                                        </small>
                                                                     </div>
+
                                                                     <form id="retureForm">
                                                                         <div class="table-responsive table-scroll-wrapper">
                                                                             <table
@@ -263,6 +280,7 @@
     <script src="{{ asset('js/daterange-picker.js') }}"></script>
     <script src="{{ asset('js/daterange-custom.js') }}"></script>
     <script src="{{ asset('js/pagination.js') }}"></script>
+    <script src="{{ asset('js/notyf.min.js') }}"></script>
 @endsection
 
 @section('js')
@@ -291,6 +309,20 @@
             placeholder: 'Pilih Member',
             isModal: '#modal-form'
         }];
+
+        document.getElementById('btn-paste-data').addEventListener('click', async function() {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text) {
+                    document.getElementById('search-data').value = text;
+                    notyf.success('Berhasil menempel QR Code dari clipboard');
+                } else {
+                    notyf.error('Clipboard kosong atau tidak berisi teks');
+                }
+            } catch (err) {
+                notyf.error('Gagal mengakses clipboard. Izinkan akses clipboard di browser.');
+            }
+        });
 
         async function getListData(limit = 10, page = 1, ascending = 0, search = '', customFilter = {}) {
             $('#listDataTable').html(loadingData());
@@ -1371,7 +1403,8 @@
                                 qrCodeDataArray.stock_qty.push(qtyInput ? parseInt(qtyInput
                                     .value) || 0 : 0);
                                 qrCodeDataArray.qrcode_toko.push('');
-                                qrCodeDataArray.qrcode_barang.push($("input[name='qrcode[]']").val());
+                                qrCodeDataArray.qrcode_barang.push($("input[name='qrcode[]']")
+                                    .val());
                             }
                         } else {
                             qrCodeDataArray.nama_barang.push('');
