@@ -172,7 +172,7 @@ class NeracaController extends Controller
                                 ],
                                 [
                                     "kode" => "I.5",
-                                    "nama" => "Penjualan Reture",
+                                    "nama" => "Stock Barang Reture",
                                     "nilai" => $penjualanReture,
                                 ],
                             ],

@@ -507,7 +507,7 @@ class PengirimanBarangController extends Controller
 
             DB::commit();
 
-            return redirect()->route('transaksi.pengirimanbarang.index')->with('success', 'Data Pengiriman Barang berhasil Ditambahkan.');
+            return redirect()->route('distribusi.pengirimanbarang.index')->with('success', 'Data Pengiriman Barang berhasil Ditambahkan.');
         } catch (\Exception $e) {
             DB::rollback();
 
