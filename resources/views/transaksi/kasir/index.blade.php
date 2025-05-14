@@ -63,17 +63,27 @@
                                         </a>
                                     @endif
                                 </div>
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center"
-                                    style="gap: 10px;">
-                                    <input class="form-control custom-btn-tambah w-50" type="text" id="daterange"
-                                        name="daterange" placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-info h-100" id="tb-filter" type="submit">
-                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
-                                    </button>
-                                    <button type="button" class="btn btn-secondary h-100" id="tb-reset">
-                                        <i class="fa fa-rotate mr-2"></i>Reset
-                                    </button>
+                                <form id="custom-filter" class="row">
+                                    <div class="col-xl-6 col-12">
+                                        <input class="form-control w-100" type="text" id="daterange" name="daterange"
+                                            placeholder="Pilih rentang tanggal">
+                                    </div>
+                                    <div class="col-xl-6 col-12">
+                                        <div class="row">
+                                            <div class="col-6 px-3 px-lg-1">
+                                                <button class="btn btn-info w-100" id="tb-filter" type="submit">
+                                                    <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                                </button>
+                                            </div>
+                                            <div class="col-6 px-3 px-lg-1">
+                                                <button type="button" class="btn btn-secondary w-100" id="tb-reset">
+                                                    <i class="fa fa-rotate mr-2"></i>Reset
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </form>
+
                             </div>
                             <div class="custom-right">
                                 <div class="custom-limit-page">
@@ -414,7 +424,8 @@
                                                                 {{ number_format($dtks->harga, 0, '.', '.') }}</td>
                                                             <td class="text-wrap align-top">0</td>
                                                             <td class="text-wrap align-top">
-                                                                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                                                                <div
+                                                                    class="d-flex flex-wrap align-items-center justify-content-between">
                                                                     <span class="mr-1 mb-1 text-break"
                                                                         id="qrcode-text-{{ $dtks->id }}">{{ $dtks->qrcode }}</span>
                                                                     <button type="button"
