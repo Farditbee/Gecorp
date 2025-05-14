@@ -220,19 +220,19 @@
                             <input type="hidden" id="hiddenMinus" name="minus">
 
                             <div class="form-row mb-4 align-items-end">
-                                <div class="form-group col-md-5">
+                                <div class="form-group mb-0 col-md-5">
                                     <label for="id_barang" class="form-control-label">Nama Barang<sup
                                             style="color: red">*</sup></label>
                                     <select id="barang" class="form-control select2 w-100"></select>
                                 </div>
-                                <div class="form-group col-md-5">
+                                <div class="form-group mb-0 col-md-5">
                                     <label for="harga" class="form-control-label">Harga<sup
                                             style="color: red">*</sup></label>
                                     <select class="form-control select2 w-100" id="harga">
                                         <option value="">~Pilih Member Dahulu~</option>
                                     </select>
                                 </div>
-                                <div class="form-group col-md-2">
+                                <div class="form-group mb-0 col-md-2">
                                     <label class="d-block invisible">Add</label>
                                     <button type="button" id="add-button"
                                         class="btn btn-outline-success btn-md w-100 h-100 mb-2">
@@ -256,13 +256,13 @@
                                     <tfoot>
                                         <tr>
                                             <th colspan="5" class="text-right">SubTotal</th>
-                                            <th name="total_nilai">Rp</th>
+                                            <th name="total_nilai">Rp 0</th>
                                         </tr>
                                         <tr>
                                             <th colspan="5" class="text-right">Payment</th>
                                             <th>
                                                 <select name="metode" id="metode" class="form-control w-100">
-                                                    <option value="">~Pilih Payment~</option>
+                                                    <option value="">Pilih Payment</option>
                                                     <option value="Tunai">Tunai</option>
                                                     <option value="Non-Tunai">Non-Tunai</option>
                                                 </select>
@@ -278,7 +278,7 @@
                                         </tr>
                                         <tr id="kembalian-row">
                                             <th colspan="5" id="kembalian-text" class="text-right">Kembalian</th>
-                                            <th id="kembalian-amount" name="kembalian">Rp</th>
+                                            <th id="kembalian-amount" name="kembalian">Rp 0</th>
                                         </tr>
                                     </tfoot>
                                 </table>
