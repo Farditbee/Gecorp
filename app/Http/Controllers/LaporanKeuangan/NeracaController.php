@@ -123,7 +123,7 @@ class NeracaController extends Controller
             $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
                 + $result['data_total']['aset_kecil']['aset_peralatan_kecil'];
 
-            $totalAktiva = $asetLancarTotal + $asetTetapTotal;
+            $totalAktiva = round($asetLancarTotal + $asetTetapTotal);
 
             $totalHutang = collect(array_merge($hutangItems))->sum('nilai');
 
@@ -138,7 +138,7 @@ class NeracaController extends Controller
                     'subkategori' => [
                         [
                             'judul' => 'I. ASET LANCAR',
-                            'total' => $asetLancarTotal,
+                            'total' => round($asetLancarTotal),
                             'item' => [
                                 [
                                     "kode" => "I.1",
@@ -157,13 +157,14 @@ class NeracaController extends Controller
                                 ],
                                 [
                                     "kode" => "I.4",
-                                    "nama" => "Stock Gudang ({$totalStock})",
-                                    "nilai" => $totalKasir,
+                                    "nama" => "Stock Barang Jualan ({$totalStock})",
+                                    "nilai" => round($totalKasir),
+                                    // "nilai" => $totalKasir,
                                 ],
                                 [
                                     "kode" => "I.5",
                                     "nama" => "Stock Barang Reture",
-                                    "nilai" => $penjualanReture,
+                                    "nilai" => round($penjualanReture),
                                 ],
                             ],
                         ],

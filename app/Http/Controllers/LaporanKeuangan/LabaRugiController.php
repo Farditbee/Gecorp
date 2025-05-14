@@ -46,21 +46,28 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            // $assetRetur = (DB::table('detail_retur')
-            // ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
-            // ->whereMonth('detail_retur.created_at', $month)
-            // ->whereYear('detail_retur.created_at', $year)
-            // ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
-            // ->value('total_retur') ?? 0);
+            $assetRetur = (DB::table('detail_retur')
+            ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+            ->whereMonth('detail_retur.created_at', $month)
+            ->whereYear('detail_retur.created_at', $year)
+            ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
+            ->value('total_retur') ?? 0);
 
-            $totalPendapatan = $penjualanUmum + $pendapatanLainnya;
+            $totalPendapatan = $penjualanUmum + $pendapatanLainnya - $assetRetur;
 
-            $hpp = DB::table('detail_kasir')
+            $hpppenjualan = DB::table('detail_kasir')
                 ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
                 ->whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
                 ->value('total_hpp');
 
+            $hppretur = DB::table('detail_kasir')
+            ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->value('total_hpp');
+
+            $total_hpp = $hpppenjualan - $hppretur;
 
             // Get all expense types except id 11
             $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
@@ -84,7 +91,7 @@ class LabaRugiController extends Controller
             $biayaRetur = -1 * DB::table('detail_retur')
                 ->whereMonth('created_at', $month)
                 ->whereYear('created_at', $year)
-                ->where('metode', 'Cash')
+                ->where('metode', 'Barang')
                 ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
 
@@ -97,7 +104,7 @@ class LabaRugiController extends Controller
             // Add total operational expenses
             $bebanOperasional[] = ['Total Beban Operasional', number_format($totalBeban, 0, ',', '.')];
 
-            $total_labarugi = $totalPendapatan - $hpp + $biayaRetur;
+            $total_labarugi = $totalPendapatan - $total_hpp + $biayaRetur;
 
             $data = [
                 [
@@ -105,13 +112,16 @@ class LabaRugiController extends Controller
                     [
                         ['1.1 Penjualan Umum', number_format($penjualanUmum, 0, ',', '.')],
                         ['1.2 Pendapatan Lainnya', number_format($pendapatanLainnya, 0, ',', '.')],
+                        ['1.3 Pengembalian Retur', number_format($assetRetur, 0, ',', '.')],
                         ['Total Pendapatan', number_format($totalPendapatan, 0, ',', '.')]
                     ]
                 ],
                 [
                     'II. HPP',
                     [
-                        ['Total HPP', number_format($hpp, 0, ',', '.')]
+                        ['2.1 HPP Penjualan', number_format(round($hpppenjualan), 0, ',', '.')],
+                        ['2.2 HPP Retur', number_format(round($hppretur), 0, ',', '.')],
+                        ['Total HPP', number_format(round($total_hpp), 0, ',', '.')],
                     ]
                 ],
                 [
@@ -121,7 +131,7 @@ class LabaRugiController extends Controller
                 [
                     'IV. Laba Rugi',
                     [
-                        ['Laba Rugi Ditahan', number_format($total_labarugi, 0, ',', '.')]
+                        ['Laba Rugi Ditahan', number_format(round($total_labarugi), 0, ',', '.')]
                     ]
                 ],
             ];
