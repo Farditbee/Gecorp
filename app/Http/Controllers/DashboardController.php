@@ -19,114 +19,124 @@ class DashboardController extends Controller
     }
 
     public function laporan_kasir(Request $request)
-    {
-        // Ambil parameter request dengan nilai default
-        $idToko = $request->input('nama_toko', 'all'); // Default ke 'all'
-        $period = $request->input('period', 'monthly'); // Default ke 'monthly'
-        $month = $period === 'daily' ? $request->input('month', now()->month) : null;
-        $year = $request->input('year', now()->year); // Default ke 'all' jika period yearly
+{
+    $idToko = $request->input('nama_toko', 'all');
+    $period = $request->input('period', 'monthly');
+    $month = $period === 'daily' ? $request->input('month', now()->month) : null;
+    $year = $request->input('year', now()->year);
 
-        try {
-            // Query nama toko jika idToko tidak 'all'
-            $namaToko = 'All';
-            if ($idToko !== 'all') {
-                $toko = Toko::find($idToko);
-                $namaToko = $toko ? $toko->nama_toko : 'Unknown';
-            }
-
-            // Query data kasir berdasarkan filter toko
-            $query = Kasir::with('toko:id,nama_toko');
-            if ($idToko !== 'all') {
-                $query->where('id_toko', $idToko);
-            }
-
-            // Filter berdasarkan tahun (dan bulan jika period = daily)
-            if ($year !== 'all') {
-                $query->whereYear('created_at', $year);
-            }
-            if ($period === 'daily' && $month) {
-                $query->whereMonth('created_at', $month);
-            }
-
-            $kasirData = $query->select('id', 'id_toko', 'created_at', 'total_nilai', 'total_diskon')->get();
-
-            // Struktur laporan
-            $laporan = [
-                'nama_toko' => $namaToko,
-                $period => [],
-                'totals' => 0,
-            ];
-
-            if ($period === 'daily') {
-                // Hitung data harian
-                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
-                $dailyCounts = array_fill(1, $daysInMonth, 0);
-                $dailyTotals = array_fill(1, $daysInMonth, 0);
-
-                foreach ($kasirData as $data) {
-                    $day = (int)$data->created_at->format('j');
-                    $dailyCounts[$day]++;
-                    $dailyTotals[$day] += $data->total_nilai - $data->total_diskon;
-                }
-
-                $laporan['daily'] = [
-                    $year => [
-                        $month => array_values($dailyCounts),
-                    ],
-                ];
-                $laporan['totals'] = array_sum($dailyTotals);
-            } elseif ($period === 'monthly') {
-                // Hitung data bulanan
-                $monthlyCounts = array_fill(1, 12, 0);
-                $monthlyTotals = array_fill(1, 12, 0);
-
-                foreach ($kasirData as $data) {
-                    $month = (int)$data->created_at->format('n');
-                    $monthlyCounts[$month]++;
-                    $monthlyTotals[$month] += $data->total_nilai - $data->total_diskon;
-                }
-
-                $laporan['monthly'] = [
-                    $year => array_values($monthlyCounts),
-                ];
-                $laporan['totals'] = array_sum($monthlyTotals);
-            } elseif ($period === 'yearly') {
-                $yearlyCounts = [];
-                $yearlyTotals = [];
-
-                foreach ($kasirData as $data) {
-                    $dataYear = (int)$data->created_at->format('Y');
-                    if ($year === 'all' || $dataYear == $year) {
-                        if (!isset($yearlyCounts[$dataYear])) {
-                            $yearlyCounts[$dataYear] = 0;
-                            $yearlyTotals[$dataYear] = 0;
-                        }
-                        $yearlyCounts[$dataYear]++;
-                        $yearlyTotals[$dataYear] += $data->total_nilai - $data->total_diskon;
-                    }
-                }
-
-                $laporan['yearly'] = $yearlyCounts;
-                $laporan['totals'] = array_sum($yearlyTotals);
-            }
-
-            // Return JSON response
-            return response()->json([
-                'error' => false,
-                'message' => 'Successfully',
-                'status_code' => 200,
-                'data' => [$laporan],
-            ]);
-        } catch (\Throwable $th) {
-            // Return JSON response untuk error
-            return response()->json([
-                'error' => true,
-                'message' => 'Error',
-                'status_code' => 500,
-                'data' => $th->getMessage(),
-            ]);
+    try {
+        $namaToko = 'All';
+        if ($idToko !== 'all') {
+            $toko = Toko::find($idToko);
+            $namaToko = $toko ? $toko->nama_toko : 'Unknown';
         }
+
+        $query = Kasir::with('toko:id,nama_toko');
+        if ($idToko !== 'all') {
+            $query->where('id_toko', $idToko);
+        }
+
+        if ($year !== 'all') {
+            $query->whereYear('created_at', $year);
+        }
+        if ($period === 'daily' && $month) {
+            $query->whereMonth('created_at', $month);
+        }
+
+        $kasirData = $query->select('id', 'id_toko', 'created_at', 'total_nilai', 'total_diskon')->get();
+
+        // Ambil data retur per toko
+        $returTotal = 0;
+        if ($idToko !== 'all') {
+            $returTotal = DB::table('detail_retur')
+                ->join('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                ->where('data_retur.id_toko', $idToko)
+                ->sum('detail_retur.harga') ?? 0;
+        } else {
+            $returTotal = DB::table('detail_retur')
+                ->join('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                ->sum('detail_retur.harga') ?? 0;
+        }
+
+        $laporan = [
+            'nama_toko' => $namaToko,
+            $period => [],
+            'totals' => 0,
+        ];
+
+        if ($period === 'daily') {
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $dailyCounts = array_fill(1, $daysInMonth, 0);
+            $dailyTotals = array_fill(1, $daysInMonth, 0);
+
+            foreach ($kasirData as $data) {
+                $day = (int)$data->created_at->format('j');
+                $dailyCounts[$day]++;
+                $dailyTotals[$day] += $data->total_nilai - $data->total_diskon;
+            }
+
+            $laporan['daily'] = [
+                $year => [
+                    $month => array_values($dailyCounts),
+                ],
+            ];
+            $laporan['totals'] = array_sum($dailyTotals) - $returTotal;
+
+        } elseif ($period === 'monthly') {
+            $monthlyCounts = array_fill(1, 12, 0);
+            $monthlyTotals = array_fill(1, 12, 0);
+
+            foreach ($kasirData as $data) {
+                $bulan = (int)$data->created_at->format('n');
+                $monthlyCounts[$bulan]++;
+                $monthlyTotals[$bulan] += $data->total_nilai - $data->total_diskon;
+            }
+
+            $laporan['monthly'] = [
+                $year => array_values($monthlyCounts),
+            ];
+            $laporan['totals'] = array_sum($monthlyTotals) - $returTotal;
+
+        } elseif ($period === 'yearly') {
+            $yearlyCounts = [];
+            $yearlyTotals = [];
+
+            foreach ($kasirData as $data) {
+                $dataYear = (int)$data->created_at->format('Y');
+                if (!isset($yearlyCounts[$dataYear])) {
+                    $yearlyCounts[$dataYear] = 0;
+                    $yearlyTotals[$dataYear] = 0;
+                }
+                $yearlyCounts[$dataYear]++;
+                $yearlyTotals[$dataYear] += $data->total_nilai - $data->total_diskon;
+            }
+
+            $laporan['yearly'] = $yearlyCounts;
+            // Get total returns for the specified toko
+            $returByKasir = DB::table('detail_retur')
+                ->join('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                ->where('data_retur.id_toko', $idToko)
+                ->sum('detail_retur.harga');
+
+            $laporan['totals'] = array_sum($yearlyTotals) - $returByKasir;
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => 200,
+            'data' => [$laporan],
+        ]);
+    } catch (\Throwable $th) {
+        return response()->json([
+            'error' => true,
+            'message' => 'Error',
+            'status_code' => 500,
+            'data' => $th->getMessage(),
+        ]);
     }
+}
 
     public function getBarangJual(Request $request)
     {
@@ -241,7 +251,7 @@ class DashboardController extends Controller
                 ->select(DB::raw('SUM(harga) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
 
-                $biayaReturs = DB::table('detail_retur')
+            $biayaReturs = DB::table('detail_retur')
                 ->where('metode', 'Cash')
                 ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
@@ -292,40 +302,46 @@ class DashboardController extends Controller
 
     public function getKomparasiToko(Request $request)
     {
-        // Ambil parameter filter tanggal, default ke hari ini
         $startDate = $request->input('startDate', now()->startOfDay()->toDateString());
         $endDate = $request->input('endDate', now()->endOfDay()->toDateString());
 
         try {
-            // Ambil semua toko kecuali id_toko = 1 dan gabungkan dengan transaksi
             $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
                     ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
             })
-                ->where('toko.id', '!=', 1) // Abaikan toko dengan id_toko = 1
+                ->where('toko.id', '!=', 1)
                 ->selectRaw('toko.id, toko.singkatan, COUNT(kasir.id) as jumlah_transaksi, SUM(kasir.total_nilai - kasir.total_diskon) as total_transaksi')
                 ->groupBy('toko.id', 'toko.singkatan');
 
             $tokoData = $query->get();
 
-            // Inisialisasi variabel hasil
             $result = [
                 'singkatan' => [],
                 'total' => 0,
             ];
 
-            // Iterasi data untuk membangun format hasil
             foreach ($tokoData as $data) {
+                // Hitung assetRetur hanya untuk toko ini berdasarkan id_toko di data_retur
+                $assetRetur = DB::table('detail_retur')
+                    ->join('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                    ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+                    ->where('data_retur.id_toko', $data->id)
+                    ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
+                    ->value('total_retur') ?? 0;
+
+                $assetRetur = -1 * $assetRetur;
+
                 $result['singkatan'][] = [
                     $data->singkatan => [
                         'jumlah_transaksi' => (int) $data->jumlah_transaksi,
-                        'total_transaksi' => (float) ($data->total_transaksi ?? 0),
+                        'total_transaksi' => (float) (($data->total_transaksi ?? 0) + $assetRetur),
                     ],
                 ];
-                $result['total'] += $data->total_transaksi ?? 0;
+
+                $result['total'] += ($data->total_transaksi + $assetRetur ?? 0);
             }
 
-            // Return response JSON
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully retrieved comparison data',
@@ -333,7 +349,6 @@ class DashboardController extends Controller
                 'data' => $result,
             ]);
         } catch (\Throwable $th) {
-            // Return JSON response untuk error
             return response()->json([
                 'error' => true,
                 'message' => 'Error retrieving data',
