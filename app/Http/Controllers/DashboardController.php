@@ -7,6 +7,7 @@ use App\Models\Kasir;
 use App\Models\Member;
 use App\Models\Toko;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -211,70 +212,83 @@ class DashboardController extends Controller
     }
 
     public function getOmset(Request $request)
-{
-    // Ambil tanggal dari request, default ke hari ini jika tidak ada input
-    $startDate = $request->input('startDate', now()->toDateString());
-    $endDate = $request->input('endDate', now()->toDateString());
+    {
+        // Ambil tanggal dari request, default ke hari ini jika tidak ada input
+        $startDate = $request->input('startDate', now()->toDateString());
+        $endDate = $request->input('endDate', now()->toDateString());
+        $month = $request->has('month') ? $request->month : Carbon::now()->month;
+        $year = $request->has('year') ? $request->year : Carbon::now()->year;
 
-    // Ambil id_toko dari request, default ke 1
-    $idTokoLogin = $request->input('id_toko', 1);
+        // Ambil id_toko dari request, default ke 1
+        $idTokoLogin = $request->input('id_toko', 1);
 
-    try {
-        // Hitung total omset dari tabel kasir, tergantung id_toko
-        $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
+        try {
+            // Hitung total omset dari tabel kasir, tergantung id_toko
+            $query = Toko::leftJoin('kasir', function ($join) use ($startDate, $endDate) {
                 $join->on('toko.id', '=', 'kasir.id_toko')
                     ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
             })
-            ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
-                return $query->where('toko.id', $idTokoLogin);
-            })
-            ->where('toko.id', '!=', 1)
-            ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai');
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    return $query->where('toko.id', $idTokoLogin);
+                })
+                ->where('toko.id', '!=', 1)
+                ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai');
 
-        $omsetData = $query->first();
-        $totalOmset = $omsetData->total_nilai ?? 0;
+            $omsetData = $query->first();
+            $totalOmset = $omsetData->total_nilai ?? 0;
+            $biayaRetur = DB::table('detail_retur')
+                ->where('metode', 'Cash')
+                ->select(DB::raw('SUM(harga) as total_biaya_retur'))
+                ->value('total_biaya_retur') ?? 0;
 
-        // Hitung laba kotor: total_harga - (hpp_jual * qty)
-        $labakotorquery = DetailKasir::join('kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
-            ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate])
-            ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
-                return $query->where('kasir.id_toko', $idTokoLogin);
-            })
-            ->where('kasir.id_toko', '!=', 1)
-            ->selectRaw('SUM(detail_kasir.total_harga) as total_penjualan, SUM(detail_kasir.hpp_jual * detail_kasir.qty) as total_hpp')
-            ->first();
+                $biayaReturs = DB::table('detail_retur')
+                ->where('metode', 'Cash')
+                ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
+                ->value('total_biaya_retur') ?? 0;
 
-        $laba_kotor = ($labakotorquery->total_penjualan ?? 0) - ($labakotorquery->total_hpp ?? 0);
+            $fixomset = $totalOmset - $biayaRetur;
 
-        $today = now()->toDateString();
+            // Hitung laba kotor: total_harga - (hpp_jual * qty)
+            $labakotorquery = DetailKasir::join('kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
+                ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate])
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    return $query->where('kasir.id_toko', $idTokoLogin);
+                })
+                ->where('kasir.id_toko', '!=', 1)
+                ->selectRaw('SUM(detail_kasir.total_harga) as total_penjualan, SUM(detail_kasir.hpp_jual * detail_kasir.qty) as total_hpp')
+                ->first();
 
-        $totalTransaksiHariIni = Kasir::whereDate('tgl_transaksi', $today)
-            ->where('id_toko', '!=', 1)
-            ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
-                return $query->where('id_toko', $idTokoLogin);
-            })
-            ->count();
+            $laba_kotor = ($labakotorquery->total_penjualan ?? 0) - ($labakotorquery->total_hpp ?? 0);
 
-        return response()->json([
-            "error" => false,
-            "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
-            "status_code" => 200,
-            "data" => [
-                'total' => $totalOmset,
-                'laba_kotor' => $laba_kotor,
-                'jumlah_trx' => $totalTransaksiHariIni,
-                'total_trx' => $totalOmset,
-            ],
-        ]);
-    } catch (\Throwable $th) {
-        return response()->json([
-            "error" => true,
-            "message" => "Error retrieving data",
-            "status_code" => 500,
-            "data" => $th->getMessage(),
-        ]);
+            $today = now()->toDateString();
+
+            $totalTransaksiHariIni = Kasir::whereDate('tgl_transaksi', $today)
+                ->where('id_toko', '!=', 1)
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    return $query->where('id_toko', $idTokoLogin);
+                })
+                ->count();
+
+            return response()->json([
+                "error" => false,
+                "message" => $totalOmset > 0 ? "Data retrieved successfully" : "No data found",
+                "status_code" => 200,
+                "data" => [
+                    'total' => $fixomset,
+                    'biaya_retur' => $biayaRetur,
+                    'laba_kotor' => $laba_kotor - $biayaReturs,
+                    'jumlah_trx' => $totalTransaksiHariIni,
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "error" => true,
+                "message" => "Error retrieving data",
+                "status_code" => 500,
+                "data" => $th->getMessage(),
+            ]);
+        }
     }
-}
 
     public function getKomparasiToko(Request $request)
     {
