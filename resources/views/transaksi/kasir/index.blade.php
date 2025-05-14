@@ -147,7 +147,7 @@
 
     <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
         aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lgs">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h6 class="modal-title h4" id="myLargeModalLabel">Data Transaksi</h6>
@@ -157,60 +157,50 @@
                 </div>
                 <form>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-xl-12 d-flex justify-content-between">
-                                <div class="d-flex col-6">
-                                    <div class="col-4">
-                                        <p class="mb-0"><i class="mr-1 fa fa-file-text"></i>No Nota</p>
-                                    </div>
-                                    <div class="col-8">
-                                        <h5 id="noNota" name="no_nota"></h5>
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-md-6 mb-2 d-flex align-items-center">
+                                    <i class="icon feather icon-file-text mr-1"></i>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>No Nota:</span>
+                                        <span id="noNota" name="no_nota"></span>
                                     </div>
                                 </div>
-                                <div class="d-flex col-6 justify-content-end">
-                                    <div class="col-4 text-end">
-                                        <p class="mb-0"><i class="mr-1 fa fa-store"></i>Nama Toko</p>
-                                    </div>
-                                    <div class="col-8">
+                                <div class="col-md-6 mb-2 d-flex align-items-center">
+                                    <i class="icon feather icon-airplay mr-1"></i>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Nama Toko:</span>
                                         @if (Auth::check())
-                                            <h5>: <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span>
-                                            </h5>
+                                            <span class="badge badge-info">{{ Auth::user()->toko->nama_toko }}</span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-12 d-flex justify-content-between">
-                                <div class="d-flex col-6">
-                                    <div class="col-4">
-                                        <p class="mb-0"><i class="mr-1 fa fa-calendar-day"></i>Tanggal Transaksi</p>
-                                    </div>
-                                    <div class="col-8">
-                                        <h5 name="tgl_transaksi" id="tglTransaksi"></h5>
+                            <div class="row">
+                                <div class="col-md-6 mb-2 d-flex align-items-center">
+                                    <i class="icon feather icon-calendar mr-1"></i>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Tanggal Transaksi:</span>
+                                        <span id="tglTransaksi" name="tgl_transaksi"></span>
                                     </div>
                                 </div>
-                                <div class="d-flex col-6 justify-content-end">
-                                    <div class="col-4 text-end">
-                                        <p class="mb-0"><i class="mr-1 fa fa-user"></i>Kasir</p>
-                                    </div>
-                                    <div class="col-8">
+                                <div class="col-md-6 mb-2 d-flex align-items-center">
+                                    <i class="icon feather icon-user mr-1"></i>
+                                    <div class="d-flex justify-content-between w-100">
+                                        <span>Kasir:</span>
                                         @if (Auth::check())
-                                            <h5>: <span class="badge badge-info">{{ Auth::user()->nama }}</span></h5>
+                                            <span class="badge badge-info">{{ Auth::user()->nama }}</span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-xl-12 d-flex justify-content-between">
-                                <div class="d-flex col-6">
-                                    <div class="col-4"></div>
-                                    <div class="col-8"></div>
-                                </div>
-                                <div class="d-flex col-6 justify-content-end">
-                                    <div class="col-4 text-end">
-                                        <p class="mb-0"><i class="mr-1 fa fa-id-card"></i>Member</p>
-                                    </div>
-                                    <div class="col-8 d-flex align-items-center">
-                                        <p class="mr-1">:</p>
-                                        <select id="id_member" class="form-select select2">
+                            <hr>
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label for="id_barang" class="form-control-label"><i
+                                            class="icon feather icon-users mr-1"></i>Member</label>
+                                    <div class="d-flex align-items-center justify-content">
+                                        <select id="id_member" class="form-control select2 w-50">
                                             <option value="" selected>~ Pilih Member ~</option>
                                             <option value="Guest">Guest</option>
                                             @foreach ($member as $mbr)
@@ -223,105 +213,88 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-xl-12">
-                                <div class="form">
-                                    @csrf
-                                    <input type="hidden" id="hiddenNoNota" name="no_nota">
-                                    <input type="hidden" id="hiddenKembalian" name="kembalian">
-                                    <input type="hidden" id="hiddenMember" name="id_member">
-                                    <input type="hidden" id="hiddenMinus" name="minus">
-                                    <div class="row mb-4 align-items-center">
-                                        <div class="col-5">
-                                            <div class="form-group">
-                                                <label for="id_barang" class="form-control-label">Nama Barang<sup
-                                                        style="color: red">*</sup></label>
-                                                <select id="barang" class="form-control select2"></select>
-                                            </div>
-                                        </div>
-                                        <div class="col-5">
-                                            <div class="form-group">
-                                                <label for="harga" class="form-control-label">Harga<sup
-                                                        style="color: red">*</sup></label>
-                                                <select class="form-control select2" id="harga">
-                                                    <option value="">~Pilih Member Dahulu~</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-2 d-flex align-items-end">
-                                            <button type="button" id="add-button"
-                                                class="btn btn-sm btn-secondary w-100">
-                                                <i class="mr-2 fa fa-circle-plus"></i>Add
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="row mb-2">
-                                        <div class="col-12">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Action</th>
-                                                        <th scope="col">No</th>
-                                                        <th scope="col">Nama Barang</th>
-                                                        <th scope="col">Qty</th>
-                                                        <th scope="col">Harga</th>
-                                                        <th scope="col">Total Harga</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="dataStore">
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <th scope="col" colspan="5" style="text-align:right">
-                                                            SubTotal</th>
-                                                        <th scope="col" name="total_nilai">Rp </th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="col" colspan="5" style="text-align:right">
-                                                            Payment</th>
-                                                        <th scope="col">
-                                                            <select name="metode" id="metode" style="width: 100%">
-                                                                <option value="">~Pilih Payment~</option>
-                                                                <option value="Tunai">Tunai</option>
-                                                                <option value="Non-Tunai">Non-Tunai</option>
-                                                            </select>
-                                                        </th>
-                                                    </tr>
-                                                    <tr id="uang-bayar-row">
-                                                        <th scope="col" colspan="5" style="text-align:right">Jml
-                                                            Bayar</th>
-                                                        <th scope="col">
-                                                            <input type="text" style="width: 100%" name="jml_bayar"
-                                                                id="uang-bayar-input">
-                                                            <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
-                                                        </th>
-                                                    </tr>
-                                                    <tr id="kembalian-row">
-                                                        <th scope="col" colspan="5" id="kembalian-text"
-                                                            style="text-align:right">
-                                                            Kembalian
-                                                        </th>
-                                                        <th scope="col" id="kembalian-amount" name="kembalian">Rp
-                                                        </th>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
+                            <hr>
+                            <input type="hidden" id="hiddenNoNota" name="no_nota">
+                            <input type="hidden" id="hiddenKembalian" name="kembalian">
+                            <input type="hidden" id="hiddenMember" name="id_member">
+                            <input type="hidden" id="hiddenMinus" name="minus">
+
+                            <div class="form-row mb-4 align-items-end">
+                                <div class="form-group col-md-5">
+                                    <label for="id_barang" class="form-control-label">Nama Barang<sup
+                                            style="color: red">*</sup></label>
+                                    <select id="barang" class="form-control select2 w-100"></select>
                                 </div>
+                                <div class="form-group col-md-5">
+                                    <label for="harga" class="form-control-label">Harga<sup
+                                            style="color: red">*</sup></label>
+                                    <select class="form-control select2 w-100" id="harga">
+                                        <option value="">~Pilih Member Dahulu~</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-2">
+                                    <label class="d-block invisible">Add</label>
+                                    <button type="button" id="add-button"
+                                        class="btn btn-outline-success btn-md w-100 h-100 mb-2">
+                                        <i class="mr-2 fa fa-circle-plus"></i>Add
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Action</th>
+                                            <th>No</th>
+                                            <th>Nama Barang</th>
+                                            <th>Qty</th>
+                                            <th>Harga</th>
+                                            <th>Total Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dataStore"></tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <th colspan="5" class="text-right">SubTotal</th>
+                                            <th name="total_nilai">Rp</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="5" class="text-right">Payment</th>
+                                            <th>
+                                                <select name="metode" id="metode" class="form-control w-100">
+                                                    <option value="">~Pilih Payment~</option>
+                                                    <option value="Tunai">Tunai</option>
+                                                    <option value="Non-Tunai">Non-Tunai</option>
+                                                </select>
+                                            </th>
+                                        </tr>
+                                        <tr id="uang-bayar-row">
+                                            <th colspan="5" class="text-right">Jml Bayar</th>
+                                            <th>
+                                                <input type="text" name="jml_bayar" id="uang-bayar-input"
+                                                    class="form-control">
+                                                <input type="hidden" id="hiddenUangBayar" name="jml_bayar">
+                                            </th>
+                                        </tr>
+                                        <tr id="kembalian-row">
+                                            <th colspan="5" id="kembalian-text" class="text-right">Kembalian</th>
+                                            <th id="kembalian-amount" name="kembalian">Rp</th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" id="save-data" class="btn btn-success w-100"><i
-                                class="mr-2 fa fa-save"></i>Simpan</button>
+                        <button type="submit" id="save-data" class="btn btn-success w-100">
+                            <i class="mr-2 fa fa-save"></i>Simpan
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+
 
     @foreach ($kasir as $ksr)
         <div class="modal fade" id="mediumModal-{{ $ksr->id }}" tabindex="-1" role="dialog"
@@ -866,8 +839,8 @@
                     const noNotaWithoutSeparator = formattedNoNota.replace(/-/g, '');
                     hiddenNoNotaInput.value = noNotaWithoutSeparator;
 
-                    $('#noNota').html(`: <span class="badge badge-primary">${formattedNoNota}</span>`);
-                    $('#tglTransaksi').html(`: <span class="badge badge-primary">${getTodayDateWithDay()}</span>`);
+                    $('#noNota').html(`<span class="badge badge-primary">${formattedNoNota}</span>`);
+                    $('#tglTransaksi').html(`<span class="badge badge-primary">${getTodayDateWithDay()}</span>`);
                 });
             }
         }
