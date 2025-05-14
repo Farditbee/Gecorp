@@ -46,14 +46,14 @@ class LabaRugiController extends Controller
                 ->whereYear('tanggal', $year)
                 ->sum('nilai');
 
-            $assetRetur = (DB::table('detail_retur')
+            $assetRetur = -1 * (DB::table('detail_retur')
             ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
             ->whereMonth('detail_retur.created_at', $month)
             ->whereYear('detail_retur.created_at', $year)
             ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
             ->value('total_retur') ?? 0);
 
-            $totalPendapatan = $penjualanUmum + $pendapatanLainnya - $assetRetur;
+            $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
 
             $hpppenjualan = DB::table('detail_kasir')
                 ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
@@ -61,13 +61,13 @@ class LabaRugiController extends Controller
                 ->whereYear('created_at', $year)
                 ->value('total_hpp');
 
-            $hppretur = DB::table('detail_kasir')
-            ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
+            $hppretur = -1 * DB::table('detail_retur')
+            ->select(DB::raw('SUM(hpp_jual) as total_hpp'))
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->value('total_hpp');
 
-            $total_hpp = $hpppenjualan - $hppretur;
+            $total_hpp = $hpppenjualan + $hppretur;
 
             // Get all expense types except id 11
             $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
