@@ -61,24 +61,31 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0 align-items-center flex-grow-1">
-                                <span id="time-report" class="font-weight-bold ml-2"></span>
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-xl-6 col-lg-4 mb-2">
+                                    <span id="time-report" class="font-weight-bold"></span>
+                                </div>
+                                <div class="col-12 col-xl-6 col-lg-8 mb-2">
+                                    <form id="custom-filter" class="row justify-content-end">
+                                        <div class="col-12 col-xl-6 col-lg-6 mb-2">
+                                            <input type="text" id="bulan_tahun" class="form-control"
+                                                placeholder="Pilih Bulan & Tahun" readonly>
+                                        </div>
+                                        <div class="col-6 col-xl-3 col-lg-3">
+                                            <button form="custom-filter" class="btn btn-info w-100" id="tb-filter"
+                                                type="submit">
+                                                <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                            </button>
+                                        </div>
+                                        <div class="col-6 col-xl-3 col-lg-3">
+                                            <button type="button" class="btn btn-secondary w-100" id="tb-reset">
+                                                <i class="fa fa-rotate mr-2"></i>Reset
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                            <form id="custom-filter" class="row g-2 align-items-center ms-auto">
-                                <div class="col-12 col-md-6 col-lg-6 mb-2">
-                                    <input type="text" id="bulan_tahun" class="form-control"
-                                        placeholder="Pilih Bulan & Tahun" readonly>
-                                </div>
-                                <div class="col-12 col-md-6 col-lg-6 mb-2 d-flex justify-content-end align-items-start">
-                                    <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter" type="submit">
-                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
-                                    </button>
-                                    <button type="button" class="btn btn-secondary" id="tb-reset">
-                                        <i class="fa fa-rotate mr-2"></i>Reset
-                                    </button>
-                                </div>
-                            </form>
                         </div>
                         <div class="content">
                             <div class="d-flex justify-content-center">

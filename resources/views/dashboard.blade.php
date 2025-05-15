@@ -944,8 +944,18 @@
 
         async function setTopPenjualan(dataList) {
             let getDataTable = '';
+
             for (let index = 0; index < dataList.length; index++) {
                 let element = dataList[index];
+                let retur = '';
+
+                if (element.total_retur && element.total_retur != 0) {
+                    retur = `<div class="col-12 col-xl-12 col-lg-12">
+                        <small class="text-danger">
+                            <i class="fa fa-rotate mx-1"></i> Total Retur : <b>${element.total_retur}</b>
+                        </small>
+                    </div>`;
+                }
 
                 getDataTable += `
                 <tr>
@@ -953,9 +963,14 @@
                         <div class="d-inline-block w-100">
                             <h5 class="m-b-0 font-weight-bold">${element.nama_barang}</h5>
                             <div class="d-flex justify-content-between align-items-start">
-                                <p class="m-b-0" style="font-size: 0.9rem;">
-                                    <i class="fa fa-shopping-cart"></i> <span>Terjual :</span> ${element.jumlah}
-                                </p>
+                                <div class="row">
+                                    <div class="col-12 col-xl-12 col-lg-12">
+                                        <p class="m-b-0" style="font-size: 0.9rem;">
+                                            <i class="fa fa-shopping-cart"></i> <span>Terjual :</span> ${element.jumlah}
+                                        </p>
+                                    </div>
+                                    ${retur}
+                                </div>
                                 <div class="text-right">
                                     <p class="m-b-0 font-weight-bold">Total</p>
                                     <p class="m-b-0"><span>${element.total_nilai}</span></p>
@@ -965,6 +980,7 @@
                     </td>
                 </tr>`;
             }
+
             $('#listData tr').remove();
             $('#listData').html(getDataTable);
         }
