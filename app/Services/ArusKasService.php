@@ -261,17 +261,17 @@ class ArusKasService
         // Format kasir data
         $kasirData = $kasirList
             ->groupBy(function ($kasir) {
-                return $kasir->toko->singkatan . '_' . Carbon::parse($kasir->created_at)->format('d-m-Y H:i:s');
+                return $kasir->toko->singkatan . '_' . Carbon::parse($kasir->created_at)->format('d-m-Y');
             })
             ->map(function ($groupedKasir) {
                 $firstKasir = $groupedKasir->first();
                 return [
                     'id' => $firstKasir->id,
-                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y H:i:s'),
+                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y'),
                     'subjek' => "Toko {$firstKasir->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
                     'item' => "Pendapatan Harian",
-                    'jml' => 1,
+                    'jml' => $groupedKasir->count(),
                     'sat' => "Ls",
                     'hst' => (int)$groupedKasir->sum('total_nilai'),
                     'nilai_transaksi' => (int)$groupedKasir->sum('total_nilai'),
