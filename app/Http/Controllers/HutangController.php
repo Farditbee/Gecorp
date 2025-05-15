@@ -89,16 +89,16 @@ class HutangController extends Controller
         }
 
         $totalNilai = $query->sum('nilai');
-        $totalSisa = $query->get()->sum(function($item) {
+        $totalSisa = $query->get()->sum(function ($item) {
             return $item->nilai - DetailHutang::where('id_hutang', $item->id)->sum('nilai');
         });
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -283,7 +283,7 @@ class HutangController extends Controller
         }
     }
 
-    public function delete(String $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         try {

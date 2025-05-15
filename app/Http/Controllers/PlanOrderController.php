@@ -57,10 +57,10 @@ class PlanOrderController extends Controller
 
         // Metadata pagination
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage(),
+            'total_pages' => $data->lastPage(),
         ];
 
         // Format data barang, stok, otw, dan lo

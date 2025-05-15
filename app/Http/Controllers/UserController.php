@@ -35,12 +35,12 @@ class UserController extends Controller
         $query->with(['toko', 'leveluser',])->orderBy('id', $meta['orderBy']);
 
         // Filter berdasarkan id_toko
-    if ($request->has('id_toko')) {
-        $idToko = $request->input('id_toko');
-        if ($idToko != 1) {
-            $query->where('id_toko', $idToko);
+        if ($request->has('id_toko')) {
+            $idToko = $request->input('id_toko');
+            if ($idToko != 1) {
+                $query->where('id_toko', $idToko);
+            }
         }
-    }
 
         if (!empty($request['search'])) {
             $searchTerm = trim(strtolower($request['search']));
@@ -72,10 +72,10 @@ class UserController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -197,7 +197,7 @@ class UserController extends Controller
         return redirect()->route('master.user.index')->with('success', 'Berhasil menambahkan User Baru');
     }
 
-    public function edit(String $id)
+    public function edit(string $id)
     {
         if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
             abort(403, 'Unauthorized');
@@ -212,35 +212,35 @@ class UserController extends Controller
         return view('master.user.edit', compact('menu', 'user', 'toko', 'leveluser'));
     }
 
-    public function update(Request $request, String $id)
-{
-    $user = User::findOrFail($id);
+    public function update(Request $request, string $id)
+    {
+        $user = User::findOrFail($id);
 
-    try {
-        $data = [
-            'id_toko' => $request->id_toko,
-            'id_level' => $request->id_level,
-            'nama' => $request->nama,
-            'username' => $request->username,
-            'email' => $request->email,
-            'alamat' => $request->alamat,
-            'no_hp' => $request->no_hp,
-        ];
+        try {
+            $data = [
+                'id_toko' => $request->id_toko,
+                'id_level' => $request->id_level,
+                'nama' => $request->nama,
+                'username' => $request->username,
+                'email' => $request->email,
+                'alamat' => $request->alamat,
+                'no_hp' => $request->no_hp,
+            ];
 
-        // Hanya tambahkan password jika field password tidak kosong
-        if (!empty($request->password)) {
-            $data['password'] = bcrypt($request->password);
+            // Hanya tambahkan password jika field password tidak kosong
+            if (!empty($request->password)) {
+                $data['password'] = bcrypt($request->password);
+            }
+
+            $user->update($data);
+        } catch (\Throwable $th) {
+            return redirect()->back()->with('error', $th->getMessage())->withInput();
         }
 
-        $user->update($data);
-    } catch (\Throwable $th) {
-        return redirect()->back()->with('error', $th->getMessage())->withInput();
+        return redirect()->route('master.user.index')->with('success', 'Sukses Mengubah Data User');
     }
 
-    return redirect()->route('master.user.index')->with('success', 'Sukses Mengubah Data User');
-}
-
-    public function delete(String $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         $user = User::findOrFail($id);

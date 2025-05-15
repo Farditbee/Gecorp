@@ -29,15 +29,15 @@ class AssetBarangController extends Controller
         try {
             // Query utama untuk data aset per toko
             $query = DB::table('detail_toko')
-    ->select(
-        'detail_toko.id_toko',
-        'toko.nama_toko',
-        'toko.wilayah', // Tambahkan wilayah ke dalam query
-        DB::raw('SUM(detail_toko.qty) as total_qty'),
-        DB::raw('SUM(detail_toko.harga) as total_harga')
-    )
-    ->join('toko', 'detail_toko.id_toko', '=', 'toko.id')
-    ->groupBy('detail_toko.id_toko', 'toko.nama_toko', 'toko.wilayah');
+                ->select(
+                    'detail_toko.id_toko',
+                    'toko.nama_toko',
+                    'toko.wilayah', // Tambahkan wilayah ke dalam query
+                    DB::raw('SUM(detail_toko.qty) as total_qty'),
+                    DB::raw('SUM(detail_toko.harga) as total_harga')
+                )
+                ->join('toko', 'detail_toko.id_toko', '=', 'toko.id')
+                ->groupBy('detail_toko.id_toko', 'toko.nama_toko', 'toko.wilayah');
 
 
             // Tambahkan filter berdasarkan tanggal

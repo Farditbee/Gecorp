@@ -93,10 +93,10 @@ class PiutangController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -196,7 +196,7 @@ class PiutangController extends Controller
         }
     }
 
-    public function delete(String $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         try {

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\DetailPengeluaran;
 use App\Models\JenisPengeluaran;
 use App\Models\Pengeluaran;
 use Illuminate\Http\Request;
@@ -68,7 +67,7 @@ class PengeluaranController extends Controller
 
         if ($request->has('toko')) {
             $idToko = $request->input('toko');
-                $query->where('id_toko', $idToko);
+            $query->where('id_toko', $idToko);
         }
 
         if ($request->has('jenis')) {
@@ -78,7 +77,7 @@ class PengeluaranController extends Controller
 
         if ($request->has('is_hutang')) {
             $isHutang = $request->input('is_hutang');
-                $query->where('is_hutang', $isHutang);
+            $query->where('is_hutang', $isHutang);
         }
 
         if ($request->has('startDate') && $request->has('endDate')) {
@@ -92,10 +91,10 @@ class PengeluaranController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -165,13 +164,13 @@ class PengeluaranController extends Controller
             DB::beginTransaction();
 
             $id_jenis_pengeluaran = null;
-                $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'] ?? null;
-                if (empty($id_jenis_pengeluaran) && isset($validatedData['nama_jenis'])) {
-                    $jenis_pengeluaran = JenisPengeluaran::create([
-                        'nama_jenis' => $validatedData['nama_jenis']
-                    ]);
-                    $id_jenis_pengeluaran = $jenis_pengeluaran->id;
-                }
+            $id_jenis_pengeluaran = $validatedData['id_jenis_pengeluaran'] ?? null;
+            if (empty($id_jenis_pengeluaran) && isset($validatedData['nama_jenis'])) {
+                $jenis_pengeluaran = JenisPengeluaran::create([
+                    'nama_jenis' => $validatedData['nama_jenis']
+                ]);
+                $id_jenis_pengeluaran = $jenis_pengeluaran->id;
+            }
 
             Pengeluaran::create([
                 'id_toko' => $validatedData['id_toko'],
@@ -196,7 +195,7 @@ class PengeluaranController extends Controller
         }
     }
 
-    public function delete (string $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         try {

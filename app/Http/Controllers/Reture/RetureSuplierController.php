@@ -64,15 +64,15 @@ class RetureSuplierController extends Controller
         }
 
         $query->join('supplier', 'data_retur.id_supplier', '=', 'supplier.id')
-                ->select('data_retur.*', 'supplier.nama_supplier');
+            ->select('data_retur.*', 'supplier.nama_supplier');
 
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -146,10 +146,10 @@ class RetureSuplierController extends Controller
                 if ($metodeReture === 'Barang') {
                     // Update stock & qty_now
                     StockBarang::where('id_barang', $idBarang)
-                                ->increment('stock', $qtyAcc);
+                        ->increment('stock', $qtyAcc);
 
                     DetailStockBarang::where('id_detail_pembelian', $detailBeli->id)
-                                    ->increment('qty_now', $qtyAcc);
+                        ->increment('qty_now', $qtyAcc);
 
                     // // === Hitung dan update hpp_baru ===
                     // $stockBarang = StockBarang::where('id_barang', $idBarang)->first();
@@ -210,18 +210,18 @@ class RetureSuplierController extends Controller
 
             if ($detailKasir->isEmpty()) {
                 return response()->json([
-                        'error' => true,
-                        'message' => 'Data tidak ditemukan',
-                        'status_code' => 404,
-                    ], 404);
+                    'error' => true,
+                    'message' => 'Data tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
             } else {
                 $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
-                                        ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
-                                        ->where('detail_retur.status', 'success')
-                                        ->where('detail_retur.status_reture', 'pending')
-                                        ->where('detail_retur.status_kirim', 'success')
-                                        ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
-                                        ->get();
+                    ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
+                    ->where('detail_retur.status', 'success')
+                    ->where('detail_retur.status_reture', 'pending')
+                    ->where('detail_retur.status_kirim', 'success')
+                    ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
+                    ->get();
 
                 if ($detailTransaksi->isEmpty()) {
                     return response()->json([

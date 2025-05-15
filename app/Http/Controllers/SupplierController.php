@@ -55,10 +55,10 @@ class SupplierController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -182,7 +182,7 @@ class SupplierController extends Controller
         return redirect()->route('master.supplier.index')->with('success', 'Sukses Mengubah Data Supplier');
     }
 
-    public function delete(String $id)
+    public function delete(string $id)
     {
         $supplier = Supplier::findOrFail($id);
 

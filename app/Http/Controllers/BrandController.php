@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use App\Helpers\ActivityLogger;
-use Illuminate\Support\Facades\Log;
 
 class BrandController extends Controller
 {
@@ -51,10 +50,10 @@ class BrandController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -94,8 +93,8 @@ class BrandController extends Controller
 
         $menu = [$this->title[0], $this->label[0]];
         $brand = Brand::with('jenis')
-                    ->orderBy('id', 'desc')
-                    ->get();
+            ->orderBy('id', 'desc')
+            ->get();
 
         return view('master.brand.index', compact('menu', 'brand'));
     }
@@ -138,7 +137,7 @@ class BrandController extends Controller
         try {
 
             DB::beginTransaction();
-            
+
             Brand::create([
                 'nama_brand' => $request->nama_brand,
             ]);
@@ -192,7 +191,7 @@ class BrandController extends Controller
     public function delete(string $id)
     {
         ActivityLogger::log('Delete Brand', ['id' => $id]);
-        
+
         try {
             DB::beginTransaction();
 
