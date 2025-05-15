@@ -913,6 +913,7 @@
             let nama_barang = data?.nama_barang ?? '-';
             let dataJumlah = data?.jumlah ?? '-';
             let total_nilai = data?.total_nilai ?? 0;
+            let total_retur = data?.total_retur ?? 0;
 
             let fontSize = dataJumlah.toString().length > 3 ?
                 '0.50rem' :
@@ -936,6 +937,7 @@
             let handleData = {
                 nama_barang: nama_barang === '' ? '-' : nama_barang,
                 jumlah: dataJumlah === '' ? '-' : jumlah,
+                total_retur: total_retur === '' ? '-' : total_retur,
                 total_nilai: total_nilai === '' ? '-' : formatRupiah(total_nilai),
             };
 
