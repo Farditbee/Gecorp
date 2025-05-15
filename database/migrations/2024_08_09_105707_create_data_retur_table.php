@@ -15,7 +15,7 @@ return new class extends Migration
 			$table->string('id_member')->nullable();
 			$table->string('id_supplier')->nullable();
 			$table->string('no_nota');
-			$table->dateTime('tgl_retur');
+			$table->date('tgl_retur');
 			$table->integer('total_item')->nullable();
 			$table->double('total_harga')->nullable();
 			$table->enum('tipe_transaksi', ['kasir', 'supplier'])->nullable();

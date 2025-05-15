@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailKasir;
+use App\Models\DetailRetur;
 use App\Models\Kasir;
 use App\Models\Member;
 use App\Models\Toko;
@@ -71,7 +72,7 @@ class DashboardController extends Controller
                 $dailyTotals = array_fill(1, $daysInMonth, 0);
 
                 foreach ($kasirData as $data) {
-                    $day = (int) $data->created_at->format('j');
+                    $day = (int)$data->created_at->format('j');
                     $dailyCounts[$day]++;
                     $dailyTotals[$day] += $data->total_nilai - $data->total_diskon;
                 }
@@ -82,13 +83,12 @@ class DashboardController extends Controller
                     ],
                 ];
                 $laporan['totals'] = array_sum($dailyTotals) - $returTotal;
-
             } elseif ($period === 'monthly') {
                 $monthlyCounts = array_fill(1, 12, 0);
                 $monthlyTotals = array_fill(1, 12, 0);
 
                 foreach ($kasirData as $data) {
-                    $bulan = (int) $data->created_at->format('n');
+                    $bulan = (int)$data->created_at->format('n');
                     $monthlyCounts[$bulan]++;
                     $monthlyTotals[$bulan] += $data->total_nilai - $data->total_diskon;
                 }
@@ -97,13 +97,12 @@ class DashboardController extends Controller
                     $year => array_values($monthlyCounts),
                 ];
                 $laporan['totals'] = array_sum($monthlyTotals) - $returTotal;
-
             } elseif ($period === 'yearly') {
                 $yearlyCounts = [];
                 $yearlyTotals = [];
 
                 foreach ($kasirData as $data) {
-                    $dataYear = (int) $data->created_at->format('Y');
+                    $dataYear = (int)$data->created_at->format('Y');
                     if (!isset($yearlyCounts[$dataYear])) {
                         $yearlyCounts[$dataYear] = 0;
                         $yearlyTotals[$dataYear] = 0;
@@ -140,33 +139,39 @@ class DashboardController extends Controller
 
     public function getBarangJual(Request $request)
     {
-        $selectedTokoIds = $request->input('id_toko'); // Ambil toko dari request
+        $selectedTokoIds = $request->input('id_toko');
         $query = DetailKasir::select(
             'detail_kasir.id_barang',
             'barang.nama_barang',
             DB::raw('SUM(detail_kasir.qty) as total_terjual'),
-            DB::raw('SUM((detail_kasir.qty * detail_kasir.harga) - COALESCE(detail_kasir.diskon, 0)) as total_nilai') // Hitung total nilai
+            DB::raw('SUM((detail_kasir.qty * detail_kasir.harga) - COALESCE(detail_kasir.diskon, 0)) as total_nilai')
         )
-            ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id');
+            ->join('barang', 'detail_kasir.id_barang', '=', 'barang.id')
+            ->leftJoin('detail_retur', function($join) {
+                $join->on('detail_kasir.id_kasir', '=', 'detail_retur.id_transaksi')
+                    ->on('detail_kasir.id_barang', '=', 'detail_retur.id_barang');
+            });
 
         if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
             $query->join('kasir', 'detail_kasir.id_kasir', '=', 'kasir.id')
                 ->where('kasir.id_toko', $selectedTokoIds)
                 ->groupBy('kasir.id_toko', 'detail_kasir.id_barang', 'barang.nama_barang');
-        } elseif ($selectedTokoIds === 'all') {
-            $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         } else {
             $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         }
 
-        $dataBarang = $query->orderBy('total_terjual', 'desc')->limit(10)->get();
+        $query->selectRaw('COALESCE(SUM(detail_retur.qty), 0) as total_retur');
+        $query->selectRaw('SUM(detail_kasir.qty) - COALESCE(SUM(detail_retur.qty), 0) as net_terjual');
+        $query->selectRaw('SUM((detail_kasir.qty * detail_kasir.harga) - COALESCE(detail_kasir.diskon, 0)) - COALESCE(SUM(detail_retur.qty * detail_retur.harga), 0) as net_nilai');
 
-        // Format data menjadi array yang sesuai
+        $dataBarang = $query->orderBy('net_terjual', 'desc')->limit(10)->get();
+
         $data = $dataBarang->map(function ($item) {
             return [
                 'nama_barang' => $item->nama_barang,
-                'jumlah' => $item->total_terjual,
-                'total_nilai' => $item->total_nilai, // Tambahkan total nilai ke hasil
+                'jumlah' => $item->net_terjual,
+                'total_nilai' => $item->net_nilai,
+                'total_retur' => $item->total_retur
             ];
         });
 
@@ -179,47 +184,57 @@ class DashboardController extends Controller
     }
 
     public function getMember(Request $request)
-    {
-        $selectedTokoIds = $request->input('id_toko'); // Ambil toko dari request
-        $query = Member::select(
-            'member.id',
-            'member.nama_member',
-            'kasir.id_toko',
-            'toko.nama_toko', // Tambahkan nama_toko ke dalam select
-            DB::raw('COUNT(detail_kasir.id_barang) as total_barang_dibeli'),
-            DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_pembayaran')
-        )
-            ->join('kasir', 'member.id', '=', 'kasir.id_member')
-            ->join('detail_kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
-            ->join('toko', 'kasir.id_toko', '=', 'toko.id'); // Join dengan tabel toko
+{
+    $selectedTokoIds = $request->input('id_toko');
 
-        if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
-            $query->where('kasir.id_toko', $selectedTokoIds)
-                ->groupBy('kasir.id_toko', 'toko.nama_toko', 'member.id', 'member.nama_member');
-        } else {
-            $query->groupBy('kasir.id_toko', 'toko.nama_toko', 'member.id', 'member.nama_member');
-        }
+    // Subquery untuk retur berdasarkan id_transaksi
+    $subqueryRetur = DB::table('detail_retur')
+        ->select('id_transaksi', DB::raw('SUM(harga) as total_harga_retur'))
+        ->groupBy('id_transaksi');
 
-        $dataMember = $query->orderBy('total_pembayaran', 'desc')->limit(10)->get();
-
-        // Format data menjadi array yang sesuai
-        $data = $dataMember->map(function ($item) {
-            return [
-                'nama_member' => $item->nama_member,
-                'id_toko' => $item->id_toko,
-                'nama_toko' => $item->toko->singkatan,
-                'total_barang_dibeli' => $item->total_barang_dibeli,
-                'total_pembayaran' => $item->total_pembayaran,
-            ];
+    $query = Member::select(
+        'member.id',
+        'member.nama_member',
+        'kasir.id_toko',
+        'toko.nama_toko',
+        DB::raw('COUNT(detail_kasir.id_barang) as total_barang_dibeli'),
+        DB::raw('SUM(detail_kasir.qty * detail_kasir.harga) as total_pembayaran'),
+        DB::raw('COALESCE(SUM(detail_kasir.qty * detail_kasir.harga), 0) - COALESCE(SUM(detail_retur_sub.total_harga_retur), 0) as total_pembayaran_setelah_retur')
+    )
+        ->join('kasir', 'member.id', '=', 'kasir.id_member')
+        ->join('detail_kasir', 'kasir.id', '=', 'detail_kasir.id_kasir')
+        ->join('toko', 'kasir.id_toko', '=', 'toko.id')
+        ->leftJoinSub($subqueryRetur, 'detail_retur_sub', function ($join) {
+            $join->on('kasir.id', '=', 'detail_retur_sub.id_transaksi');
         });
 
-        return response()->json([
-            "error" => false,
-            "message" => $data->isEmpty() ? "No data found" : "Data retrieved successfully",
-            "status_code" => 200,
-            "data" => $data
-        ]);
+    if (!empty($selectedTokoIds) && $selectedTokoIds !== 'all') {
+        $query->where('kasir.id_toko', $selectedTokoIds)
+            ->groupBy('kasir.id_toko', 'toko.nama_toko', 'member.id', 'member.nama_member');
+    } else {
+        $query->groupBy('kasir.id_toko', 'toko.nama_toko', 'member.id', 'member.nama_member');
     }
+
+    $dataMember = $query->orderBy('total_pembayaran_setelah_retur', 'desc')->limit(10)->get();
+
+    $data = $dataMember->map(function ($item) {
+        return [
+            'nama_member' => $item->nama_member,
+            'id_toko' => $item->id_toko,
+            'nama_toko' => $item->toko->singkatan,
+            'total_barang_dibeli' => $item->total_barang_dibeli,
+            'total_pembayaran' => $item->total_pembayaran_setelah_retur,
+            'total_pembayaran_setelah_retur' => $item->total_pembayaran,
+        ];
+    });
+
+    return response()->json([
+        "error" => false,
+        "message" => $data->isEmpty() ? "No data found" : "Data retrieved successfully",
+        "status_code" => 200,
+        "data" => $data
+    ]);
+}
 
     public function getOmset(Request $request)
     {
@@ -238,22 +253,34 @@ class DashboardController extends Controller
                 $join->on('toko.id', '=', 'kasir.id_toko')
                     ->whereBetween('kasir.tgl_transaksi', [$startDate, $endDate]);
             })
-                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
-                    return $query->where('toko.id', $idTokoLogin);
-                })
-                ->where('toko.id', '!=', 1)
-                ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai');
+            ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                return $query->where('toko.id', $idTokoLogin);
+            })
+            ->when($idTokoLogin != 1, function ($query) {
+                return $query->where('toko.id', '!=', 1);
+            })
+            ->selectRaw('SUM(kasir.total_nilai - kasir.total_diskon) as total_nilai');
 
             $omsetData = $query->first();
             $totalOmset = $omsetData->total_nilai ?? 0;
             $biayaRetur = DB::table('detail_retur')
-                ->where('metode', 'Cash')
-                ->select(DB::raw('SUM(harga) as total_biaya_retur'))
+                ->leftJoin('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                ->where('detail_retur.metode', 'Cash')
+                ->whereBetween('data_retur.tgl_retur', [$startDate, $endDate])
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    return $query->where('data_retur.id_toko', $idTokoLogin);
+                })
+                ->select(DB::raw('SUM(detail_retur.harga) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
 
             $biayaReturs = DB::table('detail_retur')
-                ->where('metode', 'Cash')
-                ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
+                ->leftJoin('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
+                ->where('detail_retur.metode', 'Cash')
+                ->whereBetween('data_retur.tgl_retur', [$startDate, $endDate])
+                ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
+                    return $query->where('data_retur.id_toko', $idTokoLogin);
+                })
+                ->select(DB::raw('SUM(detail_retur.harga - detail_retur.hpp_jual) as total_biaya_retur'))
                 ->value('total_biaya_retur') ?? 0;
 
             $fixomset = $totalOmset - $biayaRetur;
@@ -272,7 +299,7 @@ class DashboardController extends Controller
 
             $today = now()->toDateString();
 
-            $totalTransaksiHariIni = Kasir::whereDate('tgl_transaksi', $today)
+            $totalTransaksiHariIni = Kasir::whereBetween('tgl_transaksi', [$startDate, $endDate])
                 ->where('id_toko', '!=', 1)
                 ->when($idTokoLogin != 1, function ($query) use ($idTokoLogin) {
                     return $query->where('id_toko', $idTokoLogin);
@@ -327,6 +354,7 @@ class DashboardController extends Controller
                     ->join('data_retur', 'detail_retur.id_retur', '=', 'data_retur.id')
                     ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
                     ->where('data_retur.id_toko', $data->id)
+                    ->whereBetween('data_retur.tgl_retur', [$startDate, $endDate])
                     ->select(DB::raw('SUM(CASE WHEN detail_retur.metode = "Cash" THEN detail_retur.harga ELSE stock_barang.hpp_baru END) as total_retur'))
                     ->value('total_retur') ?? 0;
 
