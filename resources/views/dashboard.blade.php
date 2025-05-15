@@ -103,8 +103,8 @@
                                 <div class="card-body position-relative">
                                     <div class="row p-3">
                                         <div class="col-12 glass bg-primary text-white">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
+                                            <div class="row justify-content-between align-items-center">
+                                                <div class="col-8 col-xl-9 col-lg-12">
                                                     <h5 class="mb-2 text-light font-weight-bold">Total Omset</h5>
                                                     <div class="d-flex align-items-center mb-2">
                                                         <div class="avatar bg-primary text-white mx-2">
@@ -120,44 +120,53 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <button class="btn-dynamic btn btn-outline-light" type="button"
-                                                    data-toggle="collapse" data-target="#filter-collapse3"
-                                                    aria-expanded="false" aria-controls="filter-collapse3">
-                                                    <i class="fa fa-filter"></i> Filter
-                                                </button>
+                                                <div class="col-4 col-xl-3 col-lg-12 text-right">
+                                                    <button class="btn-dynamic btn btn-outline-light w-100" type="button"
+                                                        data-toggle="collapse" data-target="#filter-collapse3"
+                                                        aria-expanded="false" aria-controls="filter-collapse3">
+                                                        <i class="fa fa-filter"></i> Filter
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div class="collapse" id="filter-collapse3">
                                                 <hr>
-                                                <div class="d-flex flex-column flex-md-row align-items-md-start gap-2 mt-2">
-                                                    <form id="custom-filter-omset"
-                                                        class="d-flex justify-content-between align-items-center w-100">
-                                                        <input class="form-control w-75 mb-lg-0" type="text"
-                                                            id="daterange-omset" name="daterange"
-                                                            placeholder="Pilih rentang tanggal">
-                                                        <button
-                                                            class="btn btn-light w-25 h-100 d-flex align-items-center justify-content-center mx-2"
-                                                            id="tb-filter" type="submit">
-                                                            <i class="fa fa-magnifying-glass mr-2"></i>Submit
-                                                        </button>
-                                                        <button type="button"
-                                                            class="btn btn-secondary w-25 h-100 d-flex align-items-center justify-content-center"
-                                                            id="reset-omset">
-                                                            <i class="fa fa-rotate mr-2"></i>Reset
-                                                        </button>
-                                                    </form>
-                                                </div>
+                                                <form id="custom-filter-omset">
+                                                    <div class="row">
+                                                        <div class="col-12 col-xl-6 col-lg-12 mb-2">
+                                                            <input class="form-control" type="text" id="daterange-omset"
+                                                                name="daterange" placeholder="Pilih rentang tanggal">
+                                                        </div>
+                                                        <div class="col-12 col-xl-6 col-lg-12">
+                                                            <div class="row justify-content-end text-right">
+                                                                <div class="col-6 col-xl-6 col-lg-12 mb-2 text-right">
+                                                                    <button class="btn btn-light w-100 h-100 d-flex align-items-center justify-content-center" id="tb-filter"
+                                                                        type="submit">
+                                                                        <i class="fa fa-magnifying-glass mr-1"></i>Submit
+                                                                    </button>
+                                                                </div>
+                                                                <div class="col-6 col-xl-6 col-lg-12 mb-2 text-right">
+                                                                    <button type="button"
+                                                                        class="btn btn-secondary w-100 h-100 d-flex align-items-center justify-content-center"
+                                                                        id="reset-omset">
+                                                                        <i class="fa fa-rotate mr-1"></i>Reset
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </form>
                                             </div>
                                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
                                                 <hr>
                                                 <div class="row">
-                                                    <div class="col-md-6 px-3 pb-2">
+                                                    <div class="col-12 col-xl-6 col-lg-12 px-3 pb-2">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-shopping-cart fa-lg mb-2 text-primary"></i>
                                                             <div class="font-weight-bold">Jumlah Transaksi</div>
                                                             <div id="total-transaksi" class="fs-4 font-weight-bold">0</div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6 px-3">
+                                                    <div class="col-12 col-xl-6 col-lg-12 px-3">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-wallet fa-lg mb-2 text-primary"></i>
                                                             <div class="font-weight-bold">Laba Kotor</div>
