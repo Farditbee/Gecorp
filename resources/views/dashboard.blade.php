@@ -469,7 +469,7 @@
 
                 if (startDateFormatted && endDateFormatted) {
                     $('#info-omset').html(
-                        `Omset dari <span style="color: #1abc9c; padding: 2px 5px;">${startDateFormatted}</span> s/d <span style="color: #1abc9c; padding: 2px 5px;">${endDateFormatted}</span>`
+                        `Omset dari <span class="text-dark font-weight-bold" style="padding: 2px 5px;">${startDateFormatted}</span> s/d <span class="text-dark font-weight-bold" style="padding: 2px 5px;">${endDateFormatted}</span>`
                     );
                 } else {
                     $('#info-omset').html('Terjadi Kesalahan, Silahkan pilih filter dengan benar');
