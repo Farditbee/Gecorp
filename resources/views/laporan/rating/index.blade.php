@@ -1,5 +1,8 @@
-<title>Rating Barang - Gecorp</title>
 @extends('layouts.main')
+
+@section('title')
+    Rekapitulasi Rating Barang
+@endsection
 
 @section('content')
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.0.0/dist/css/tom-select.css" rel="stylesheet">

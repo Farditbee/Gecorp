@@ -42,39 +42,64 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0 align-items-center">
-                                <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
-                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                    aria-controls="filter-collapse">
-                                    <i class="fa fa-filter"></i> Filter
-                                </button>
-                                <span id="time-report" class="font-weight-bold ml-2"></span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-xl-6 col-lg-8">
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-xl-2 col-lg-4 mb-2">
+                                            <button class="btn-dynamic btn btn-outline-primary w-100" type="button"
+                                                data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                                aria-controls="filter-collapse">
+                                                <i class="fa fa-filter"></i> Filter
+                                            </button>
+                                        </div>
+                                        <div class="col-12 col-xl-10 col-lg-8 mb-2">
+                                            <span id="time-report" class="font-weight-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-6 col-lg-4">
+                                    <div class="row justify-content-end">
+                                        <div class="col-12 col-xl-4 col-lg-6">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
                             <div class="card-body p-0">
                                 <div class="collapse mt-2" id="filter-collapse">
-                                    <form id="custom-filter"
-                                        class="d-flex flex-wrap justify-content-between align-items-center mx-2">
-                                        <div class="d-flex flex-wrap align-items-center gap-2 mx-3">
-                                            <input type="text" id="bulan_tahun" class="form-control mr-1 mb-3"
-                                                style="width: 300px;" placeholder="Pilih Bulan & Tahun" readonly>
-                                            <select name="f_toko" id="f_toko" class="form-control select2 ml-1 mt-1"
-                                                style="width: 300px;"></select>
-                                        </div>
-                                        <div class="d-flex gap-2 mt-2 mt-md-0 mx-3">
-                                            <button form="custom-filter" class="btn btn-info mr-1" id="tb-filter"
-                                                type="submit">
-                                                <i class="fa fa-magnifying-glass mr-2"></i>Cari
-                                            </button>
-                                            <button type="button" class="btn btn-secondary ml-1" id="tb-reset">
-                                                <i class="fa fa-rotate mr-2"></i>Reset
-                                            </button>
+                                    <form id="custom-filter">
+                                        <div class="row">
+                                            <div class="col-12 col-xl-6 col-lg-6">
+                                                <div class="row mx-2">
+                                                    <div class="col-6 col-xl-6 mb-2">
+                                                        <input type="text" id="bulan_tahun" class="form-control"
+                                                            placeholder="Pilih Bulan & Tahun" readonly>
+                                                    </div>
+                                                    <div class="col-6 col-xl-6 mb-2">
+                                                        <select name="f_toko" id="f_toko" class="form-control"></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-xl-6 col-lg-6">
+                                                <div class="row mx-2 justify-content-end">
+                                                    <div class="col-6 col-xl-2 col-lg-4 mb-2 text-end">
+                                                        <button form="custom-filter" class="btn btn-info w-100"
+                                                            id="tb-filter" type="submit">
+                                                            <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                                        </button>
+                                                    </div>
+                                                    <div class="col-6 col-xl-2 col-lg-4 mb-2 text-end">
+                                                        <button type="button" class="btn btn-secondary w-100"
+                                                            id="tb-reset">
+                                                            <i class="fa fa-rotate mr-2"></i>Reset
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </form>
                                 </div>

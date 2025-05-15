@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Asset Barang
+    Rekapitulasi Asset Barang Jualan
 @endsection
 
 @section('css')
@@ -16,17 +16,26 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <span id="time-report" class="font-weight-bold"></span>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 150px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 250px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-md-6 mb-2">
+                                    <span id="time-report" class="font-weight-bold"></span>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-md-2">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-md-4">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
@@ -85,7 +94,7 @@
 
 @section('js')
     <script>
-        let title = 'Laporan Asset Barang';
+        let title = 'Rekapitulasi Asset Barang';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -114,7 +123,8 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data
+                .pagination.total != 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
@@ -123,7 +133,7 @@
                 errorMessage = getDataRest?.data?.message;
                 let errorRow = `
                             <tr class="text-dark">
-                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> Tidak ada data </th>
                             </tr>`;
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
@@ -190,7 +200,8 @@
             const formattedNow =
                 `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 
-            $('#time-report').html(`<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${formattedNow}</b>)`);
+            $('#time-report').html(
+                `<i class="fa fa-file-text mr-1"></i><b>${title}</b> (<b class="text-primary">${formattedNow}</b>)`);
             await getListData(defaultLimitPage, currentPage, defaultAscending, defaultSearch, customFilter);
             await searchList();
         }

@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Laporan Pengiriman - Gecorp
+    Rekapitulasi Pengiriman
 @endsection
 
 @section('css')
@@ -27,6 +27,12 @@
             vertical-align: middle;
             font-size: 14px;
         }
+
+        #daterange[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
     </style>
 @endsection
 
@@ -38,35 +44,46 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center w-50">
-                                <form id="custom-filter" class="d-flex align-items-center flex-grow-1">
-                                    <input class="form-control mx-1" type="text" id="daterange" name="daterange"
-                                        placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-warning mx-1 d-flex align-items-center" id="tb-filter"
-                                        type="submit" data-container="body" data-toggle="tooltip" data-placement="top"
-                                        title="Filter Pengiriman Barang">
-                                        <i class="fa fa-filter mr-1"></i>Filter
-                                    </button>
-                                </form>
-                                <a href="{{ route('laporan.pengiriman.index') }}" class="btn btn-secondary mx-1"
-                                    onclick="resetFilter()">
-                                    <i class="fa fa-rotate mr-1"></i>Reset
-                                </a>
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-md-4 align-items-center mb-2 mb-md-0">
+                                    <form id="custom-filter" class="row align-items-center">
+                                        <div class="col-12 col-md-6 mb-2">
+                                            <input class="form-control" type="text" id="daterange" name="daterange"
+                                                placeholder="Pilih rentang tanggal">
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <button class="btn btn-warning w-100" id="tb-filter" type="submit"
+                                                data-container="body" data-toggle="tooltip" data-placement="top"
+                                                title="Filter Pembelian Barang">
+                                                <i class="fa fa-filter mr-1"></i>Filter
+                                            </button>
+                                        </div>
+                                        <div class="col-6 col-md-3 mb-2">
+                                            <a href="{{ route('laporan.pembelian.index') }}" class="btn btn-secondary w-100"
+                                                onclick="resetFilter()">
+                                                <i class="fa fa-rotate mr-1"></i>Reset
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-12 col-md-8 text-md-right">
+                                    @if (request('startDate') && request('endDate'))
+                                        <p class="text-muted mb-0 font-weight-bold">
+                                            Data dimuat dalam periode dari tanggal
+                                            <span class="text-primary">
+                                                {{ \Carbon\Carbon::parse(request('startDate'))->locale('id')->translatedFormat('d F Y') }}
+                                                s/d
+                                                {{ \Carbon\Carbon::parse(request('endDate'))->locale('id')->translatedFormat('d F Y') }}.
+                                            </span>
+                                        </p>
+                                    @else
+                                        <p class="text-muted mb-0 font-weight-bold">
+                                            Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
+                                        </p>
+                                    @endif
+                                </div>
                             </div>
-                            @if (request('startDate') && request('endDate'))
-                                <p class="text-muted mt-2 mb-0 w-100 text-right font-weight-bold">
-                                    Data dimuat dalam periode dari tanggal
-                                    <span class="text-danger">
-                                        {{ \Carbon\Carbon::parse(request('startDate'))->format('d M Y') }} s/d
-                                        {{ \Carbon\Carbon::parse(request('endDate'))->format('d M Y') }}.
-                                    </span>
-                                </p>
-                            @else
-                                <p class="text-muted mt-2 mb-0 w-100 text-right font-weight-bold">
-                                    Data dimuat default pada Bulan ini, silahkan filter untuk kustomisasi periode
-                                </p>
-                            @endif
                         </div>
 
                         <div class="content">

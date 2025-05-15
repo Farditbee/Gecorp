@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Rating Member
+    Rekapitulasi Rating Member
 @endsection
 
 @section('css')
@@ -17,24 +17,37 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex gap-1 align-items-center">
-                                <button class="btn-dynamic btn btn-outline-primary mr-2" type="button"
-                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                    aria-controls="filter-collapse">
-                                    <i class="fa fa-filter"></i> Filter
-                                </button>
-                                <span id="time-report" class="font-weight-bold"></span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 150px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 250px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="row align-items-center">
+                                        <div class="col-12 col-md-2 mb-2">
+                                            <button class="btn-dynamic btn btn-outline-primary w-100" type="button"
+                                                data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                                aria-controls="filter-collapse">
+                                                <i class="fa fa-filter"></i> Filter
+                                            </button>
+                                        </div>
+                                        <div class="col-12 col-md-10 mb-2">
+                                            <span id="time-report" class="font-weight-bold"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-md-2">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-md-4">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
@@ -99,7 +112,7 @@
 
 @section('js')
     <script>
-        let title = 'Laporan Rating Member';
+        let title = 'Rekapitulasi Rating Member';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -133,7 +146,7 @@
                 return resp;
             });
 
-            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data)) {
+            if (getDataRest && getDataRest.status == 200 && Array.isArray(getDataRest.data.data) && getDataRest.data.data.length > 0) {
                 let handleDataArray = await Promise.all(
                     getDataRest.data.data.map(async item => await handleData(item))
                 );
