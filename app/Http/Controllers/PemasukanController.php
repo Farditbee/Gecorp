@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\DetailPemasukan;
-use App\Models\JenisPemasukan;
 use App\Models\Pemasukan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -87,10 +86,10 @@ class PemasukanController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -165,7 +164,7 @@ class PemasukanController extends Controller
         }
     }
 
-    public function delete (string $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         try {

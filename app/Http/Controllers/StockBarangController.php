@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Barang;
 use App\Models\DetailPembelianBarang;
-use App\Models\DetailStockBarang;
 use App\Models\DetailToko;
 use App\Models\LevelHarga;
 use App\Models\StockBarang;
@@ -39,9 +38,11 @@ class StockBarangController extends Controller
         if ($idToko == 1) {
             $query->orderBy('stock', $meta['orderBy']);
         } else {
-            $query->withSum(['detailToko as total_qty' => function ($q) use ($idToko) {
-                $q->where('id_toko', $idToko);
-            }], 'qty');
+            $query->withSum([
+                'detailToko as total_qty' => function ($q) use ($idToko) {
+                    $q->where('id_toko', $idToko);
+                }
+            ], 'qty');
         }
 
         // Tambahkan filter pencarian jika ada
@@ -66,10 +67,10 @@ class StockBarangController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         // Format data untuk respons

@@ -49,8 +49,8 @@ class KasbonController extends Controller
         $tgl_bayar = Carbon::now();
 
         $kasbon = Kasbon::where('id', $request->id_kasbon)
-                        ->where('id_member', $request->id_member)
-                        ->first();
+            ->where('id_member', $request->id_member)
+            ->first();
 
         if (!$kasbon) {
             return response()->json([

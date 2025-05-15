@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Milon\Barcode\Facades\DNS1DFacade;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Imagick\Driver;
 use Maatwebsite\Excel\Facades\Excel;
 
 class BarangController extends Controller
@@ -66,10 +64,10 @@ class BarangController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -161,15 +159,15 @@ class BarangController extends Controller
     //     ]);
 
     //     ActivityLogger::log('Tambah Barang', $request->all());
-        
+
     //     try {
     //         // Ambil nama jenis dan brand barang
     //         $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
     //         $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
-        
+
     //         // Buat kombinasi kode nama
     //         $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
-        
+
     //         // Generate barcode value
     //         $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
 
@@ -223,7 +221,7 @@ class BarangController extends Controller
     //         return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
     //     } catch (\Exception $e) {
     //         return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
-    //     }  
+    //     }
     // }
 
     // Server
@@ -237,52 +235,52 @@ class BarangController extends Controller
             'garansi' => 'nullable|string|max:255',
             'gambar_barang' => 'nullable|image|max:2048',
         ]);
-    
+
         ActivityLogger::log('Tambah Barang', $request->all());
-    
+
         try {
             // Ambil nama jenis dan brand barang
             $jenisBarang = JenisBarang::findOrFail($request->id_jenis_barang)->nama_jenis_barang;
             $brandBarang = Brand::findOrFail($request->id_brand_barang)->nama_brand;
-    
+
             // Buat kombinasi kode nama
             $initials = strtoupper(substr($jenisBarang, 0, 1) . substr($brandBarang, 0, 1));
-    
+
             // Generate barcode value
             $barcodeValue = $request->barcode ?: $initials . random_int(100000, 999999);
-    
+
             // Path ke public/barcodes
             $barcodeFolder = public_path('barcodes');
-    
+
             // Buat folder barcodes jika belum ada
             if (!file_exists($barcodeFolder)) {
                 mkdir($barcodeFolder, 0755, true);
             }
-    
+
             // Buat nama file barcode
             $barcodeFilename = "{$barcodeValue}.png";
             $barcodeFullPath = "{$barcodeFolder}/{$barcodeFilename}";
-    
+
             // Cek apakah barcode sudah ada, jika belum buat
             if (!file_exists($barcodeFullPath)) {
                 $barcodeImage = DNS1DFacade::getBarcodePNG($barcodeValue, 'C128', 3, 100);
-    
+
                 if (!$barcodeImage) {
                     throw new \Exception('Gagal membuat barcode PNG dari base64');
                 }
-    
+
                 if (!file_put_contents($barcodeFullPath, base64_decode($barcodeImage))) {
                     throw new \Exception('Gagal menyimpan gambar barcode ke folder public/barcodes');
                 }
             }
-    
+
             // Handle gambar_barang jika diupload
             $gambarPath = null;
             if ($request->hasFile('gambar_barang')) {
                 $gambarFile = $request->file('gambar_barang');
                 $gambarPath = $gambarFile->store('gambar_barang', 'public'); // Tetap simpan di storage/public/gambar_barang
             }
-    
+
             // Simpan ke database
             $barang = new Barang();
             $barang->nama_barang = $request->nama_barang;
@@ -293,7 +291,7 @@ class BarangController extends Controller
             $barang->gambar_path = $gambarPath;
             $barang->garansi = $request->garansi ?: 'No';
             $barang->save();
-    
+
             return redirect()->route('master.barang.index')->with('success', 'Data Barang berhasil ditambahkan!');
         } catch (\Exception $e) {
             return redirect()->back()->with(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
@@ -361,7 +359,7 @@ class BarangController extends Controller
         DB::beginTransaction();
 
         ActivityLogger::log('Delete Barang', ['id' => $id]);
-        
+
         $barang = Barang::findOrFail($id);
         try {
 
@@ -382,9 +380,9 @@ class BarangController extends Controller
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls'
         ]);
-    
+
         Excel::import(new BarangImport, $request->file('file'));
-    
+
         return back()->with('success', 'Data berhasil diimpor!');
     }
 }

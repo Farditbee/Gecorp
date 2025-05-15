@@ -58,10 +58,10 @@ class TokoController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -174,46 +174,46 @@ class TokoController extends Controller
     }
 
     public function detail(string $id)
-{
-    if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
-        abort(403, 'Unauthorized');
-    }
-    // Ambil data user yang sedang login
-    $user = Auth::user();
-
-    // Jika user bukan id_level 1 atau 2, lakukan pembatasan akses
-    if (!in_array($user->id_level, [1, 2])) {
-        // Jika user adalah level 3, cek apakah dia hanya bisa melihat id_toko miliknya sendiri
-        if ($user->id_level == 3 && $user->id_toko != $id) {
+    {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
             abort(403, 'Unauthorized');
         }
+        // Ambil data user yang sedang login
+        $user = Auth::user();
+
+        // Jika user bukan id_level 1 atau 2, lakukan pembatasan akses
+        if (!in_array($user->id_level, [1, 2])) {
+            // Jika user adalah level 3, cek apakah dia hanya bisa melihat id_toko miliknya sendiri
+            if ($user->id_level == 3 && $user->id_toko != $id) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
+        $menu = [$this->title[0], $this->label[0], $this->title[2]];
+        $toko = Toko::findOrFail($id);
+
+        $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
+
+        // Jika hanya satu id disimpan, pastikan dia array
+        if (is_int($levelHargaArray)) {
+            $levelHargaArray = [$levelHargaArray];
+        }
+
+        // Ambil data level harga berdasarkan id yang ada di array
+        $levelhargas = [];
+        if (is_array($levelHargaArray) && !empty($levelHargaArray)) {
+            $levelhargas = LevelHarga::whereIn('id', $levelHargaArray)->get();
+        }
+
+        $detail_toko = DetailToko::where('id_toko', $id)
+            ->with('barang')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $stock = StockBarang::orderBy('id', 'desc')->get();
+
+        return view('master.toko.detail', compact('menu', 'toko', 'detail_toko', 'stock', 'levelhargas'));
     }
-
-    $menu = [$this->title[0], $this->label[0], $this->title[2]];
-    $toko = Toko::findOrFail($id);
-
-    $levelHargaArray = json_decode($toko->id_level_harga, true) ?? [];
-
-    // Jika hanya satu id disimpan, pastikan dia array
-    if (is_int($levelHargaArray)) {
-        $levelHargaArray = [$levelHargaArray];
-    }
-
-    // Ambil data level harga berdasarkan id yang ada di array
-    $levelhargas = [];
-    if (is_array($levelHargaArray) && !empty($levelHargaArray)) {
-        $levelhargas = LevelHarga::whereIn('id', $levelHargaArray)->get();
-    }
-
-    $detail_toko = DetailToko::where('id_toko', $id)
-        ->with('barang')
-        ->orderBy('id', 'desc')
-        ->get();
-
-    $stock = StockBarang::orderBy('id', 'desc')->get();
-
-    return view('master.toko.detail', compact('menu', 'toko', 'detail_toko', 'stock', 'levelhargas'));
-}
 
     public function create_detail(string $id)
     {
@@ -285,8 +285,8 @@ class TokoController extends Controller
         $request->validate([
             'nama_toko' => 'required',
             'singkatan' => 'required|max:4|unique:toko,singkatan,' . $id, // Abaikan validasi untuk data saat ini
-            'wilayah'   => 'required',
-            'alamat'    => 'required',
+            'wilayah' => 'required',
+            'alamat' => 'required',
         ], [
             'singkatan.unique' => 'Singkatan sudah digunakan.', // Custom error message
         ]);
@@ -294,10 +294,10 @@ class TokoController extends Controller
         try {
             // Update data
             $toko->update([
-                'nama_toko'     => $request->nama_toko,
-                'singkatan'     => $request->singkatan,
-                'wilayah'       => $request->wilayah,
-                'alamat'        => $request->alamat,
+                'nama_toko' => $request->nama_toko,
+                'singkatan' => $request->singkatan,
+                'wilayah' => $request->wilayah,
+                'alamat' => $request->alamat,
                 'id_level_harga' => json_encode($request->id_level_harga),
             ]);
         } catch (\Throwable $th) {
@@ -357,7 +357,7 @@ class TokoController extends Controller
         }
     }
 
-    public function delete(String $id)
+    public function delete(string $id)
     {
         DB::beginTransaction();
         $toko = Toko::findOrFail($id);

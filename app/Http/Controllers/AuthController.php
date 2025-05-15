@@ -14,7 +14,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -47,18 +46,18 @@ class AuthController extends Controller
                 $route = route('dashboard.index');
             }
             return response()->json([
-                'status_code'   => 200,
-                'error'         => false,
-                'message'       => "Successfully",
-                'data'          => array(
-                    'route_redirect'    => $route
+                'status_code' => 200,
+                'error' => false,
+                'message' => "Successfully",
+                'data' => array(
+                    'route_redirect' => $route
                 )
             ], 200);
         } else {
             return response()->json([
-                'status_code'   => 300,
-                'error'         => true,
-                'message'       => "Terjadi Kesalahan",
+                'status_code' => 300,
+                'error' => true,
+                'message' => "Terjadi Kesalahan",
             ], 300);
         }
     }

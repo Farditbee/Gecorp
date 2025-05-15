@@ -68,10 +68,10 @@ class PembelianBarangController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $mappedData = collect($data->items())->map(function ($item) {
@@ -417,18 +417,18 @@ class PembelianBarangController extends Controller
 
             // Ambil data dari tabel berdasarkan id_pembelian dan join ke tabel barang
             $tempDetails = DB::table('temp_detail_pembelian_barang')
-            ->join('barang', 'temp_detail_pembelian_barang.id_barang', '=', 'barang.id') // Join dengan tabel barang
-            ->select(
-                'temp_detail_pembelian_barang.id_pembelian_barang',
-                'temp_detail_pembelian_barang.id_barang',
-                'barang.nama_barang', // Ambil nama_barang dari tabel barang
-                'temp_detail_pembelian_barang.qty',
-                'temp_detail_pembelian_barang.harga_barang',
-                'temp_detail_pembelian_barang.total_harga',
-                'temp_detail_pembelian_barang.level_harga'
-            )
-            ->where('temp_detail_pembelian_barang.id_pembelian_barang', $id_pembelian)
-            ->get();
+                ->join('barang', 'temp_detail_pembelian_barang.id_barang', '=', 'barang.id') // Join dengan tabel barang
+                ->select(
+                    'temp_detail_pembelian_barang.id_pembelian_barang',
+                    'temp_detail_pembelian_barang.id_barang',
+                    'barang.nama_barang', // Ambil nama_barang dari tabel barang
+                    'temp_detail_pembelian_barang.qty',
+                    'temp_detail_pembelian_barang.harga_barang',
+                    'temp_detail_pembelian_barang.total_harga',
+                    'temp_detail_pembelian_barang.level_harga'
+                )
+                ->where('temp_detail_pembelian_barang.id_pembelian_barang', $id_pembelian)
+                ->get();
 
 
             // Decode kolom level_harga dari JSON ke array

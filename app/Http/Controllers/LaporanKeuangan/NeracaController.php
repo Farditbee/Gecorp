@@ -3,9 +3,6 @@
 namespace App\Http\Controllers\LaporanKeuangan;
 
 use App\Http\Controllers\Controller;
-use App\Models\DataReture;
-use App\Models\DetailKasir;
-use App\Models\DetailPembelianBarang;
 use App\Models\DetailRetur;
 use App\Models\Hutang;
 use App\Models\Pemasukan;
@@ -14,7 +11,6 @@ use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
 {
@@ -99,8 +95,8 @@ class NeracaController extends Controller
             ]);
 
             $penjualanReture = DetailRetur::where('status', 'success')
-                                        ->where('status_reture', '!=', 'success')
-                                        ->sum('hpp_jual');
+                ->where('status_reture', '!=', 'success')
+                ->sum('hpp_jual');
 
             // Sisa Stock Keseluruhan Gudang
             $totalStock = StockBarang::with('detailToko')->get()->sum(function ($item) {

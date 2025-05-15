@@ -87,10 +87,10 @@ class PengirimanBarangController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -611,7 +611,7 @@ class PengirimanBarangController extends Controller
             abort(403, $text);
         }
 
-        return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang',));
+        return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang', ));
     }
 
     // public function editBarang($id)
@@ -1077,7 +1077,8 @@ class PengirimanBarangController extends Controller
         }
     }
 
-    public function returePengiriman() {
+    public function returePengiriman()
+    {
 
         abort_if(!Auth::check() || !in_array(Auth::user()->id_level, [1, 2, 3]), 403, 'Unauthorized');
 

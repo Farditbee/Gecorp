@@ -16,7 +16,7 @@ class LoginController extends Controller
 
     public function post_login(Request $request)
     {
-        if (Auth::attempt(["username" => $request->username, "password" => $request->password])){
+        if (Auth::attempt(["username" => $request->username, "password" => $request->password])) {
             Log::info('User logged in: ' . Auth::user()->username);
             return redirect()->route('ds_admin')->with('message', 'Berhasil Login');
         } else {
@@ -25,7 +25,8 @@ class LoginController extends Controller
         }
     }
 
-    public function logout(){
+    public function logout()
+    {
         Auth::logout();
 
         return redirect('/login');

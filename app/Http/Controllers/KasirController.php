@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Barang;
 use App\Models\DetailKasir;
 use App\Models\DetailPembelianBarang;
-use App\Models\DetailPengirimanBarang;
 use App\Models\DetailToko;
 use App\Models\Kasbon;
 use App\Models\Kasir;
@@ -20,11 +19,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-// use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Endroid\QrCode\QrCode;
 use Endroid\QrCode\Writer\PngWriter;
 use Endroid\QrCode\Encoding\Encoding;
-use Endroid\QrCode\ErrorCorrectionLevel\ErrorCorrectionLevelLow;
 use Endroid\QrCode\Label\Label;
 use Endroid\QrCode\Label\Font\NotoSans;
 
@@ -98,10 +95,10 @@ class KasirController extends Controller
             $data = $query->paginate($meta['limit']);
 
             $paginationMeta = [
-                'total'        => $data->total(),
-                'per_page'     => $data->perPage(),
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
                 'current_page' => $data->currentPage(),
-                'total_pages'  => $data->lastPage()
+                'total_pages' => $data->lastPage()
             ];
 
             $data = [
@@ -247,7 +244,7 @@ class KasirController extends Controller
             // 5. Jika member adalah "Guest", tampilkan semua harga yang tersedia
             if ($memberId === 'Guest') {
                 $filteredHarga = collect($levelHarga)
-                    ->sortByDesc(fn($harga) => (int)explode(' : ', $harga)[1]) // Urutkan harga dari tertinggi
+                    ->sortByDesc(fn($harga) => (int) explode(' : ', $harga)[1]) // Urutkan harga dari tertinggi
                     ->values()
                     ->map(fn($harga) => intval(explode(' : ', $harga)[1])); // Ambil hanya angka harga
 
@@ -338,8 +335,8 @@ class KasirController extends Controller
             $kasir->total_nilai = 0;
             $kasir->no_nota = $request->no_nota;
             $kasir->metode = $request->metode;
-            $kasir->jml_bayar = (float)str_replace(',', '', $request->jml_bayar); // Pastikan format angka benar
-            $kasir->kembalian = (float)$request->kembalian;
+            $kasir->jml_bayar = (float) str_replace(',', '', $request->jml_bayar); // Pastikan format angka benar
+            $kasir->kembalian = (float) $request->kembalian;
             $kasir->save();
 
             $totalItem = 0;
@@ -348,8 +345,8 @@ class KasirController extends Controller
             $counter = 1;
 
             foreach ($idBarangs as $index => $id_barang) {
-                $qty = isset($qtys[$index]) ? (float)$qtys[$index] : null;
-                $harga_barang = isset($hargaBarangs[$index]) ? (float)$hargaBarangs[$index] : null;
+                $qty = isset($qtys[$index]) ? (float) $qtys[$index] : null;
+                $harga_barang = isset($hargaBarangs[$index]) ? (float) $hargaBarangs[$index] : null;
 
                 if (is_null($qty) || is_null($harga_barang)) {
                     continue;

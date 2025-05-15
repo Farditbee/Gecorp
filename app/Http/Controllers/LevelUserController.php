@@ -51,10 +51,10 @@ class LevelUserController extends Controller
         $data = $query->paginate($meta['limit']);
 
         $paginationMeta = [
-            'total'        => $data->total(),
-            'per_page'     => $data->perPage(),
+            'total' => $data->total(),
+            'per_page' => $data->perPage(),
             'current_page' => $data->currentPage(),
-            'total_pages'  => $data->lastPage()
+            'total_pages' => $data->lastPage()
         ];
 
         $data = [
@@ -137,7 +137,7 @@ class LevelUserController extends Controller
         return redirect()->route('master.leveluser.index')->with('success', 'Sukses menambahkan User Baru');
     }
 
-    public function edit(String $id)
+    public function edit(string $id)
     {
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
@@ -170,7 +170,7 @@ class LevelUserController extends Controller
         return redirect()->route('master.leveluser.index')->with('success', 'Sukses Mengubah Data Level User');
     }
 
-    public function delete(String $id)
+    public function delete(string $id)
     {
         $leveluser = LevelUser::findOrFail($id);
 
