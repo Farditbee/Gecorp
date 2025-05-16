@@ -25,47 +25,59 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data mr-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran">
-                                    <i class="fa fa-plus-circle"></i> Tambah
-                                </button>
-                                <button class="btn-dynamic btn btn-outline-primary ml-1" type="button"
-                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                    aria-controls="filter-collapse">
-                                    <i class="fa fa-filter"></i> Filter
-                                </button>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="row align-items-center">
+                                        <div class="col-6 col-lg-4 col-xl-2 mb-2">
+                                            <button class="btn btn-primary text-white add-data w-100"
+                                                data-container="body" data-toggle="tooltip" data-placement="top"
+                                                title="Tambah Pemasukan">
+                                                <i class="fa fa-plus-circle"></i> Tambah
+                                            </button>
+                                        </div>
+                                        <div class="col-6 col-lg-4 col-xl-2 mb-2">
+                                            <button class="btn-dynamic btn btn-outline-primary w-100" type="button"
+                                                data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                                aria-controls="filter-collapse">
+                                                <i class="fa fa-filter"></i> Filter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-lg-4 col-xl-2">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-lg-6 col-xl-4">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
                             <div class="collapse mt-2" id="filter-collapse">
                                 <form id="custom-filter" class="row g-2 align-items-center mx-2">
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                    <div class="col-12 col-xl-3 col-lg-3 mb-2">
                                         <input class="form-control" type="text" id="daterange" name="daterange"
                                             placeholder="Pilih rentang tanggal">
                                     </div>
                                     @if (auth()->user()->id_toko == 1)
-                                        <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                        <div class="col-12 col-xl-3 col-lg-3 mb-2">
                                             <select class="form-control select2" id="toko" name="toko"></select>
                                         </div>
                                     @endif
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2">
+                                    <div class="col-12 col-xl-3 col-lg-3 mb-2">
                                         <select class="form-control select2" id="jenis" name="jenis"></select>
                                     </div>
-                                    <div class="col-12 col-md-6 col-lg-4 mb-2">
-                                    </div>
-                                    <div class="col-12 col-md-6 col-lg-2 mb-2 d-flex justify-content-end align-items-start">
+                                    <div class="col-12 col-xl-3 col-lg-3 mb-2 d-flex justify-content-end align-items-start">
                                         <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
                                             type="submit">
                                             <i class="fa fa-magnifying-glass mr-2"></i>Cari
