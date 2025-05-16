@@ -17,24 +17,30 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex mb-2 mb-lg-0">
-                                    <a href="{{ route('master.brand.create') }}" class="mr-2 btn btn-primary"
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-xl-1 col-lg-2 mb-2">
+                                    <a href="{{ route('master.brand.create') }}" class="mr-2 btn btn-primary w-100"
                                         data-container="body" data-toggle="tooltip" data-placement="top"
                                         title="Tambah Data Brand">
                                         <i class="fa fa-circle-plus"></i> Tambah
                                     </a>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                                </div>
+                                <div class="col-12 col-xl-11 col-lg-10 mb-2">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-xl-1 col-lg-2">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-xl-2 col-lg-4 justify-content-end">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">

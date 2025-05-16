@@ -18,23 +18,30 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-2">
-                                <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Promo">
-                                    <i class="fa fa-plus-circle"></i> Tambah
-                                </button>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-xl-1 col-lg-2 mb-2">
+                                    <button class="btn btn-primary mb-2 mb-lg-0 text-white add-data w-100"
+                                        data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Tambah Promo">
+                                        <i class="fa fa-plus-circle"></i> Tambah
+                                    </button>
+                                </div>
+                                <div class="col-12 col-xl-11 col-lg-10 mb-2">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-xl-1 col-lg-2">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-xl-2 col-lg-4 justify-content-end">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
@@ -155,7 +162,8 @@
                             </div>
                             <div class="col-4">
                                 <div class="form-group">
-                                    <label for="id_supplier" class="form-control-label">Diskon <i class="fa fa-percent"></i></label>
+                                    <label for="id_supplier" class="form-control-label">Diskon <i
+                                            class="fa fa-percent"></i></label>
                                     <input class="form-control" type="number" min='0' max='100'
                                         name="diskon" id="diskon">
                                 </div>
@@ -266,7 +274,8 @@
             if (data.status == 'Sukses') {
                 status =
                     `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>${data.status}</span>`;
-                edit_button = `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Promo Selesai</span>`;
+                edit_button =
+                    `<span class="badge badge-success"><i class="fa fa-circle-check mr-1"></i>Promo Selesai</span>`;
             } else if (data.status == 'On Going') {
                 status = `<span class="badge badge-warning"><i class="fa fa-spinner mr-1"></i>${data.status}</span>`;
                 edit_button = `
