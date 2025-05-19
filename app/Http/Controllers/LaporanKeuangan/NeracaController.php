@@ -11,7 +11,6 @@ use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
 {
@@ -105,20 +104,16 @@ class NeracaController extends Controller
                 $stockDetail = $item->detailToko->sum('qty') ?? 0;
                 return $stockUtama + $stockDetail;
             });
-            $nilai_assettoko = DB::table('detail_toko')
-                        ->selectRaw('SUM(qty * harga) as total')
-                        ->value('total');
 
-            $nilai_assetpusat = DB::table('stock_barang')
-                        ->selectRaw('SUM(stock * hpp_baru) as total')
-                        ->value('total');
+            $hppTotalBaru = StockBarang::value('hpp_baru');
 
-            $total_asset = $nilai_assettoko + $nilai_assetpusat;
+            $totalKasir = $totalStock * $hppTotalBaru;
+
 
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
                 + $result['data_total']['kas_kecil']['saldo_akhir']
                 + $result['data_total']['piutang']['saldo_akhir']
-                + $total_asset
+                + $totalKasir
                 + $penjualanReture;
 
             $asetTetapTotal = $result['data_total']['aset_besar']['aset_peralatan_besar']
@@ -159,8 +154,8 @@ class NeracaController extends Controller
                                 [
                                     "kode" => "I.4",
                                     "nama" => "Stock Barang Jualan ({$totalStock})",
-                                    "nilai" => round($total_asset),
-                                    // "nilai" => $total_asset,
+                                    "nilai" => round($totalKasir),
+                                    // "nilai" => $totalKasir,
                                 ],
                                 [
                                     "kode" => "I.5",
