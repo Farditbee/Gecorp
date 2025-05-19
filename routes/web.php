@@ -256,6 +256,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/reture/storeNotaSupplier', [RetureController::class, 'storeNotaSupplier'])->name('create.NoteReture');
         Route::delete('/reture/deleteTempItem', [RetureController::class, 'deleteTempItem'])->name('delete.tempItem');
 
+        // Pengembalian Barang Controller
+        Route::get('/pengembalian/delete', [RetureController::class, 'delete'])->name('pengembalian.delete');
+
         Route::prefix('reture')->as('reture.')->group(function () {
             Route::prefix('suplier')->as('suplier.')->group(function () {
                 Route::get('/', [RetureSuplierController::class, 'index'])->name('index');
