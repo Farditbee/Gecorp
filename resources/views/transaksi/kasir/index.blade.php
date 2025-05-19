@@ -421,7 +421,7 @@
                                                                     </div>
                                                                     <div class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
                                                                         <button class="w-100 btn btn-sm btn-outline-info"
-                                                                            onclick="pengembalianData({{ $dtks->id }}, '{{ $dtks->barang->nama_barang }}')">
+                                                                            onclick="pengembalianData({{ $dtks->id }}, '{{ $dtks->qrcode_pembelian }}', '{{ $dtks->barang->nama_barang }}')">
                                                                             <i class="fa fa-rotate mr-2"></i>Pengembalian
                                                                         </button>
                                                                     </div>
@@ -756,7 +756,7 @@
             renderPagination();
         }
 
-        async function pengembalianData(id, barang) {
+        async function pengembalianData(id, qrcode, barang) {
             swal({
                 title: `Pengembalian Barang`,
                 text: `${barang}`,
@@ -774,6 +774,7 @@
                     'DELETE',
                     `{{ route('pengembalian.delete') }}`, {
                         id: id,
+                        qrcode_pembelian: qrcode,
                         id_toko: {{ auth()->user()->id_toko }}
                     }
                 ).then(function(response) {
