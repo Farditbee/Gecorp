@@ -267,7 +267,7 @@ class ArusKasService
                 $firstKasir = $groupedKasir->first();
                 return [
                     'id' => $firstKasir->id,
-                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y'),
+                    'tgl' => Carbon::parse($firstKasir->created_at)->format('d-m-Y H:i:s'),
                     'subjek' => "Toko {$firstKasir->toko->singkatan}",
                     'kategori' => "Pendapatan Umum",
                     'item' => "Pendapatan Harian",

@@ -115,7 +115,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-brands-by-jenis', [BrandController::class, 'getBrandsByJenis'])->name('getBrandsByJenis');
         Route::post('/import-barang', [BarangController::class, 'import'])->name('master.barang.import');
 
-
         // Supplier Controller
         Route::get('/supplier', [SupplierController::class, 'index'])->name('master.supplier.index');
         Route::get('/supplier/create', [SupplierController::class, 'create'])->name('master.supplier.create');

@@ -424,7 +424,7 @@ class KasirController extends Controller
                 $stock = StockBarang::where('id_barang', $id_barang_final)->first();
                 $hpp_jual = $stock ? $stock->hpp_baru : 0;
 
-                DetailKasir::create([
+                $detailKasirData = [
                     'id_kasir' => $kasir->id,
                     'id_barang' => $id_barang_final,
                     'id_supplier' => $id_supplier,
@@ -436,7 +436,10 @@ class KasirController extends Controller
                     'qrcode' => $qrCodeValue,
                     'qrcode_path' => $qrCodePath,
                     'hpp_jual' => $hpp_jual,
-                ]);
+                    'qrcode_pembelian' => $barcode,
+                ];
+
+                DetailKasir::create($detailKasirData);
 
                 $totalItem += $qty;
                 $totalNilai += $qty * $harga_barang;

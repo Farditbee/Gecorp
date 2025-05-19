@@ -41,7 +41,7 @@ class PengembalianController extends Controller
         $idKasir = $detailKasir->id_kasir;
 
         // 3. Update qty di tabel detail_toko
-        $detailToko = DetailToko::where('qrcode', $detailKasir->qrcode)
+        $detailToko = DetailToko::where('qrcode', $detailKasir->qrcode_pembelian)
             ->where('id_toko', $idToko)
             ->first();
 
@@ -69,6 +69,7 @@ class PengembalianController extends Controller
             if ($kasir) {
                 $kasir->total_item -= $detailKasir->qty;
                 $kasir->total_nilai -= ($detailKasir->qty * $detailKasir->harga);
+                $kasir->kembalian = $kasir->jml_bayar - $kasir->total_nilai;
                 $kasir->save();
             }
 

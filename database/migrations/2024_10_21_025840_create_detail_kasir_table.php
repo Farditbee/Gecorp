@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('id_kasir');
             $table->string('id_barang');
             $table->string('id_supplier');
+            $table->string('qrcode_pembelian');
             $table->string('qrcode')->nullable();
             $table->string('qrcode_path')->nullable();
             $table->integer('reture_qty')->nullable();
