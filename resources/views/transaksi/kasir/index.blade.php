@@ -382,7 +382,7 @@
                                                         <th class="text-wrap align-top">Harga</th>
                                                         <th class="text-wrap align-top">N.retur</th>
                                                         <th class="text-wrap align-top">QR Code Transaksi</th>
-                                                        <th class="text-wrap align-top text-right">Action</th>
+                                                        <th class="text-wrap align-top text-center">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -410,12 +410,22 @@
                                                                     </button>
                                                                 </div>
                                                             </td>
-                                                            <td class="text-wrap align-top text-right">
-                                                                <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
-                                                                    download class="btn btn-success">
-                                                                    <span><i
-                                                                            class="fa fa-download mr-2"></i>Download</span>
-                                                                </a>
+                                                            <td class="text-wrap align-top">
+                                                                <div class="row pl-2 pr-4">
+                                                                    <div class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
+                                                                        <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
+                                                                            download class="w-100 btn btn-sm btn-outline-success">
+                                                                            <span><i
+                                                                                    class="fa fa-download mr-2"></i>Download</span>
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
+                                                                        <button class="w-100 btn btn-sm btn-outline-info"
+                                                                            onclick="pengembalianData({{ $dtks->id }}, '{{ $dtks->barang->nama_barang }}')">
+                                                                            <i class="fa fa-rotate mr-2"></i>Pengembalian
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -744,6 +754,43 @@
             $('#countPage').text(`${display_from} - ${display_to}`);
             $('[data-toggle="tooltip"]').tooltip();
             renderPagination();
+        }
+
+        async function pengembalianData(id, barang) {
+            swal({
+                title: `Pengembalian Barang`,
+                text: `${barang}`,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Ya, Konfirmasi!",
+                cancelButtonText: "Tidak, Batal!",
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                reverseButtons: true,
+                confirmButtonClass: "btn btn-danger",
+                cancelButtonClass: "btn btn-secondary",
+            }).then(async (result) => {
+                let postDataRest = await renderAPI(
+                    'DELETE',
+                    `{{ route('pengembalian.delete') }}`, {
+                        id: id,
+                        id_toko: {{ auth()->user()->id_toko }}
+                    }
+                ).then(function(response) {
+                    return response;
+                }).catch(function(error) {
+                    let resp = error.response;
+                    return resp;
+                });
+
+                if (postDataRest.status == 200) {
+                    notificationAlert('success', 'Pemberitahuan', postDataRest.data.message);
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+                }
+            }).catch(swal.noop);
         }
 
         async function filterList() {
