@@ -258,7 +258,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/reture/deleteTempItem', [RetureController::class, 'deleteTempItem'])->name('delete.tempItem');
 
         // Pengembalian Barang Controller
-        Route::get('/pengembalian/delete', [PengembalianController::class, 'delete'])->name('pengembalian.delete');
+        Route::delete('/pengembalian/delete', [PengembalianController::class, 'delete'])->name('pengembalian.delete');
 
         Route::prefix('reture')->as('reture.')->group(function () {
             Route::prefix('suplier')->as('suplier.')->group(function () {
