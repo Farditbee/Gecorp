@@ -20,6 +20,7 @@ use App\Http\Controllers\MutasiController;
 use App\Http\Controllers\PemasukanController;
 use App\Http\Controllers\PembelianBarangController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\Pengembalian\PengembalianController;
 use App\Http\Controllers\PengirimanBarangController;
 use App\Http\Controllers\PiutangController;
 use App\Http\Controllers\PlanOrderController;
@@ -257,7 +258,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/reture/deleteTempItem', [RetureController::class, 'deleteTempItem'])->name('delete.tempItem');
 
         // Pengembalian Barang Controller
-        Route::get('/pengembalian/delete', [RetureController::class, 'delete'])->name('pengembalian.delete');
+        Route::get('/pengembalian/delete', [PengembalianController::class, 'delete'])->name('pengembalian.delete');
 
         Route::prefix('reture')->as('reture.')->group(function () {
             Route::prefix('suplier')->as('suplier.')->group(function () {
