@@ -41,7 +41,7 @@ class PengembalianController extends Controller
         $idKasir = $detailKasir->id_kasir;
 
         // 3. Update qty di tabel detail_toko
-        $detailToko = DetailToko::where('qrcode', $detailKasir->qrcode_pembelian)
+        $detailToko = DetailToko::where('qrcode', $detailKasir->detailPembelian->qrcode)
             ->where('id_toko', $idToko)
             ->first();
 

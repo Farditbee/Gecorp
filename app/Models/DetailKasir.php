@@ -34,4 +34,9 @@ class DetailKasir extends Model
     {
         return $this->belongsTo(Kasir::class, 'id_kasir');
     }
+
+    public function detailPembelian(): BelongsTo
+    {
+        return $this->belongsTo(DetailPembelianBarang::class, 'id_detail_pembelian');
+    }
 }
