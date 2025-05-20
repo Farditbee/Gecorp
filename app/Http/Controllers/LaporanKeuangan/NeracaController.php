@@ -11,6 +11,7 @@ use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
 {
@@ -98,16 +99,36 @@ class NeracaController extends Controller
                 ->where('status_reture', '!=', 'success')
                 ->sum('hpp_jual');
 
-            // Sisa Stock Keseluruhan Gudang
-            $totalStock = StockBarang::with('detailToko')->get()->sum(function ($item) {
-                $stockUtama = $item->stock ?? 0;
-                $stockDetail = $item->detailToko->sum('qty') ?? 0;
-                return $stockUtama + $stockDetail;
+            $stokDetailStock = DB::table('detail_stock')
+                ->select('id_barang', DB::raw('SUM(qty_now) as total_stok'))
+                ->groupBy('id_barang');
+
+            $stokDetailToko = DB::table('detail_toko')
+                ->select('id_barang', DB::raw('SUM(qty) as total_stok'))
+                ->groupBy('id_barang');
+
+            // Gabungkan hasil stok dari kedua tabel
+            $gabunganStok = $stokDetailStock
+                ->unionAll($stokDetailToko);
+
+            $stokPerBarang = DB::table(DB::raw("({$gabunganStok->toSql()}) as gabungan"))
+                ->mergeBindings($gabunganStok)
+                ->select('id_barang', DB::raw('SUM(total_stok) as total_stok'))
+                ->groupBy('id_barang')
+                ->get();
+
+            $totalStokKeseluruhan = $stokPerBarang->sum('total_stok');
+
+            // Ambil semua HPP dalam satu query
+            $hppList = DB::table('stock_barang')
+                ->select('id_barang', 'hpp_baru')
+                ->pluck('hpp_baru', 'id_barang');
+
+            // Hitung total kasir
+            $totalKasir = $stokPerBarang->sum(function ($item) use ($hppList) {
+                $hpp = $hppList[$item->id_barang] ?? 0;
+                return $item->total_stok * $hpp;
             });
-
-            $hppTotalBaru = StockBarang::value('hpp_baru');
-
-            $totalKasir = $totalStock * $hppTotalBaru;
 
 
             $asetLancarTotal = $result['data_total']['kas_besar']['saldo_akhir']
@@ -153,7 +174,7 @@ class NeracaController extends Controller
                                 ],
                                 [
                                     "kode" => "I.4",
-                                    "nama" => "Stock Barang Jualan ({$totalStock})",
+                                    "nama" => "Stock Barang Jualan ({$totalStokKeseluruhan})",
                                     "nilai" => round($totalKasir),
                                     // "nilai" => $totalKasir,
                                 ],
