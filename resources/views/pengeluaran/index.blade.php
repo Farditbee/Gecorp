@@ -29,14 +29,13 @@
                             <div class="row">
                                 <div class="col-12 col-md-6">
                                     <div class="row align-items-center">
-                                        <div class="col-6 col-lg-4 col-xl-2 mb-2">
-                                            <button class="btn btn-primary text-white add-data w-100"
-                                                data-container="body" data-toggle="tooltip" data-placement="top"
-                                                title="Tambah Pemasukan">
+                                        <div class="col-6 col-lg-4 col-xl-4 mb-2">
+                                            <button class="btn btn-primary text-white add-data w-100" data-container="body"
+                                                data-toggle="tooltip" data-placement="top" title="Tambah Pengeluaran Lainnya">
                                                 <i class="fa fa-plus-circle"></i> Tambah
                                             </button>
                                         </div>
-                                        <div class="col-6 col-lg-4 col-xl-2 mb-2">
+                                        <div class="col-6 col-lg-4 col-xl-4 mb-2">
                                             <button class="btn-dynamic btn btn-outline-primary w-100" type="button"
                                                 data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
                                                 aria-controls="filter-collapse">
@@ -47,14 +46,14 @@
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="row justify-content-end">
-                                        <div class="col-4 col-lg-4 col-xl-2">
+                                        <div class="col-4 col-lg-2 col-xl-2">
                                             <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
                                                 <option value="10">10</option>
                                                 <option value="20">20</option>
                                                 <option value="30">30</option>
                                             </select>
                                         </div>
-                                        <div class="col-8 col-lg-6 col-xl-4">
+                                        <div class="col-8 col-lg-4 col-xl-4">
                                             <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
                                                 name="search" placeholder="Cari Data" aria-label="search">
                                         </div>

@@ -31,7 +31,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-6 col-lg-4 col-xl-4 mb-2">
                                             <button class="btn btn-primary text-white add-data w-100" data-container="body"
-                                                data-toggle="tooltip" data-placement="top" title="Tambah Pemasukan">
+                                                data-toggle="tooltip" data-placement="top" title="Tambah Mutasi Kas">
                                                 <i class="fa fa-plus-circle"></i> Tambah
                                             </button>
                                         </div>
