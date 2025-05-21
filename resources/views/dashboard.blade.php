@@ -122,9 +122,9 @@
                                                 </div>
                                                 <div class="col-4 col-xl-3 col-lg-12 text-right">
                                                     <button class="btn-dynamic btn btn-outline-light w-100" type="button"
-                                                        data-toggle="collapse" data-target="#filter-collapse3"
+                                                        data-toggle="collapse" data-target="#filter-collapse3" title="Filter"
                                                         aria-expanded="false" aria-controls="filter-collapse3">
-                                                        <i class="fa fa-filter"></i> Filter
+                                                        <i class="fa fa-filter"></i>
                                                     </button>
                                                 </div>
                                             </div>
@@ -132,11 +132,11 @@
                                                 <hr>
                                                 <form id="custom-filter-omset">
                                                     <div class="row">
-                                                        <div class="col-12 col-xl-6 col-lg-12 mb-2">
+                                                        <div class="col-12 col-xl-12 col-lg-12 mb-2">
                                                             <input class="form-control" type="text" id="daterange-omset"
                                                                 name="daterange" placeholder="Pilih rentang tanggal">
                                                         </div>
-                                                        <div class="col-12 col-xl-6 col-lg-12">
+                                                        <div class="col-12 col-xl-12 col-lg-12">
                                                             <div class="row justify-content-end text-right">
                                                                 <div class="col-6 col-xl-6 col-lg-12 mb-2 text-right">
                                                                     <button class="btn btn-light w-100 h-100 d-flex align-items-center justify-content-center" id="tb-filter"
