@@ -46,14 +46,14 @@
                             <div class="row">
                                 <div class="col-12 col-xl-6 col-lg-8">
                                     <div class="row align-items-center">
-                                        <div class="col-12 col-xl-2 col-lg-4 mb-2">
+                                        <div class="col-12 col-xl-3 col-lg-4 mb-2">
                                             <button class="btn-dynamic btn btn-outline-primary w-100" type="button"
                                                 data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
                                                 aria-controls="filter-collapse">
                                                 <i class="fa fa-filter"></i> Filter
                                             </button>
                                         </div>
-                                        <div class="col-12 col-xl-10 col-lg-8 mb-2">
+                                        <div class="col-12 col-xl-9 col-lg-8 mb-2">
                                             <span id="time-report" class="font-weight-bold"></span>
                                         </div>
                                     </div>
@@ -86,13 +86,13 @@
                                             </div>
                                             <div class="col-12 col-xl-6 col-lg-6">
                                                 <div class="row mx-2 justify-content-end">
-                                                    <div class="col-6 col-xl-2 col-lg-4 mb-2 text-end">
+                                                    <div class="col-6 col-xl-4 col-lg-4 mb-2 text-end">
                                                         <button form="custom-filter" class="btn btn-info w-100"
                                                             id="tb-filter" type="submit">
                                                             <i class="fa fa-magnifying-glass mr-2"></i>Cari
                                                         </button>
                                                     </div>
-                                                    <div class="col-6 col-xl-2 col-lg-4 mb-2 text-end">
+                                                    <div class="col-6 col-xl-4 col-lg-4 mb-2 text-end">
                                                         <button type="button" class="btn btn-secondary w-100"
                                                             id="tb-reset">
                                                             <i class="fa fa-rotate mr-2"></i>Reset
