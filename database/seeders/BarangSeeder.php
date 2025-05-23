@@ -38,7 +38,7 @@ class BarangSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         // Delete all files in the qrcodes/pembelian directory
-        $qrCodeDirectory = public_path('app/public/qrcodes/pembelian');
+        $qrCodeDirectory = public_path('qrcodes/pembelian');
         if (file_exists($qrCodeDirectory)) {
             $files = glob($qrCodeDirectory . '/*'); // get all file names
             foreach ($files as $file) { // iterate files
@@ -60,7 +60,7 @@ class BarangSeeder extends Seeder
         }
 
         // Delete all files in the kasir directory
-        $trx_kasir = public_path('app/public/qrcodes/trx_kasir');
+        $trx_kasir = public_path('qrcodes/trx_kasir');
         if (file_exists($trx_kasir)) {
             $files = glob($trx_kasir . '/*'); // get all file names
             foreach ($files as $file) { // iterate files
@@ -71,7 +71,7 @@ class BarangSeeder extends Seeder
         }
 
         // Delete all files in the kasir directory
-        $gambar_barang = public_path('app/public/gambar_barang');
+        $gambar_barang = public_path('gambar_barang');
         if (file_exists($gambar_barang)) {
             $files = glob($gambar_barang . '/*'); // get all file names
             foreach ($files as $file) { // iterate files
