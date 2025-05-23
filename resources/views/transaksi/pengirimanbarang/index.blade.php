@@ -18,48 +18,68 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center flex-wrap">
-                            <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-                                <a href="{{ route('distribusi.pengirimanbarang.create') }}"
-                                    class="btn btn-primary mb-2 mb-lg-0 text-white" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Tambah Pengiriman Barang">
-                                    <i class="fa fa-plus-circle"></i> Tambah
-                                </a>
-                                <a href="{{ route('distribusi.pengirimanbarang.reture') }}"
-                                    class="btn btn-warning mb-2 mb-lg-0 text-dark mx-1" data-container="body"
-                                    data-toggle="tooltip" data-placement="top" title="Reture Pengiriman Barang">
-                                    <i class="fa fa-rotate-left"></i> Reture
-                                </a>
-                                <button class="btn-dynamic btn btn-outline-primary" type="button"
-                                    data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
-                                    aria-controls="filter-collapse"data-container="body" data-toggle="tooltip"
-                                    data-placement="top" title="Filter Pengiriman Barang">
-                                    <i class="fa fa-filter"></i> Filter
-                                </button>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-lg-start flex-wrap">
-                                <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0"
-                                    style="width: 100px;">
-                                    <option value="10">10</option>
-                                    <option value="20">20</option>
-                                    <option value="30">30</option>
-                                </select>
-                                <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                    name="search" placeholder="Cari Data" aria-label="search" style="width: 200px;">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-12 col-xl-6 col-lg-6 mb-2">
+                                    <div class="row">
+                                        <div class="col-6 col-xxl-2 col-lg-4 col-xl-3">
+                                            <a href="{{ route('distribusi.pengirimanbarang.create') }}"
+                                                class="btn btn-primary mb-2 text-white w-100" data-container="body"
+                                                data-toggle="tooltip" data-placement="top" title="Tambah Pengiriman Barang">
+                                                <i class="fa fa-plus-circle"></i> Tambah
+                                            </a>
+                                        </div>
+                                        <div class="col-6 col-xxl-2 col-lg-4 col-xl-3">
+                                            <a href="{{ route('distribusi.pengirimanbarang.reture') }}"
+                                                class="btn btn-warning mb-2 text-dark w-100" data-container="body"
+                                                data-toggle="tooltip" data-placement="top" title="Reture Pengiriman Barang">
+                                                <i class="fa fa-rotate-left"></i> Reture
+                                            </a>
+                                        </div>
+                                        <div class="col-12 col-xxl-2 col-lg-4 col-xl-3">
+                                            <button class="btn-dynamic btn btn-outline-primary mb-2 w-100" type="button"
+                                                data-toggle="collapse" data-target="#filter-collapse" aria-expanded="false"
+                                                aria-controls="filter-collapse"data-container="body" data-toggle="tooltip"
+                                                data-placement="top" title="Filter Pengiriman Barang">
+                                                <i class="fa fa-filter"></i> Filter
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-6 col-lg-6 mb-2">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 col-xl-2 col-lg-3">
+                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
+                                                <option value="10">10</option>
+                                                <option value="20">20</option>
+                                                <option value="30">30</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-8 col-xl-4 col-lg-4 justify-content-end">
+                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
+                                                name="search" placeholder="Cari Data" aria-label="search">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="content">
                             <x-adminlte-alerts />
-                            <div class="collapse mt-2 pl-4" id="filter-collapse">
-                                <form id="custom-filter" class="d-flex justify-content-start align-items-center">
-                                    <input class="form-control w-25 mb-2" type="text" id="daterange" name="daterange"
-                                        placeholder="Pilih rentang tanggal">
-                                    <button class="btn btn-info mr-2 h-100 mb-2 mx-2" id="tb-filter" type="submit">
-                                        <i class="fa fa-magnifying-glass mr-2"></i>Cari
-                                    </button>
-                                    <button type="button" class="btn btn-secondary mr-2 h-100 mb-2" id="tb-reset">
-                                        <i class="fa fa-rotate mr-2"></i>Reset
-                                    </button>
+                            <div class="collapse mt-2" id="filter-collapse">
+                                <form id="custom-filter" class="row g-2 align-items-center mx-2">
+                                    <div class="col-12 col-xl-3 col-lg-3 mb-2">
+                                        <input class="form-control" type="text" id="daterange" name="daterange"
+                                            placeholder="Pilih rentang tanggal">
+                                    </div>
+                                    <div class="col-12 col-xl-9 col-lg-3 mb-2 d-flex justify-content-end align-items-start">
+                                        <button form="custom-filter" class="btn btn-info mr-2" id="tb-filter"
+                                            type="submit">
+                                            <i class="fa fa-magnifying-glass mr-2"></i>Cari
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="tb-reset">
+                                            <i class="fa fa-rotate mr-2"></i>Reset
+                                        </button>
+                                    </div>
                                 </form>
                             </div>
                             <div class="card-body p-0">
