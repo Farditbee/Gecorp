@@ -183,7 +183,10 @@
             $(document).on('click', function(event) {
                 let target = $(event.target);
 
-                if (target.is('input, select, textarea')) {
+                if (
+                    target.is('input, select, textarea') ||
+                    target.closest('.select2-container').length > 0
+                ) {
                     clearTimeout(debounceTimer);
                     return;
                 }
@@ -191,6 +194,18 @@
                 debounceTimer = setTimeout(function() {
                     $('#qr_barang').focus();
                 }, 2000);
+            });
+        });
+
+        $(document).ready(function() {
+            $('#id_barang').on('select2:open', function() {
+                setTimeout(function() {
+                    let searchField = document.querySelector(
+                        '.select2-container--open .select2-search__field');
+                    if (searchField) {
+                        searchField.focus();
+                    }
+                }, 100);
             });
         });
 

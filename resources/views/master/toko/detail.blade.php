@@ -28,7 +28,7 @@
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-3">
-                                        <h4 class="mb-0"><i class="fa fa-home"></i> Nama Toko</h4>
+                                        <span class="mb-0 font-weight-bold"><i class="fa fa-home"></i> Nama Toko</span>
                                     </div>
                                     <div class="col">
                                         <span style="font-size: 16px;" class="badge badge-pill badge-secondary">{{ old('nama_toko', $toko->nama_toko) }}</span>
@@ -38,7 +38,7 @@
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-3">
-                                        <h4 class="mb-0"><i class="fa fa-globe"></i> Wilayah</h4>
+                                        <span class="mb-0 font-weight-bold"><i class="fa fa-globe"></i> Wilayah</span>
                                     </div>
                                     <div class="col">
                                         <span style="font-size: 16px;" class="badge badge-pill badge-secondary">{{ old('wilayah', $toko->wilayah) }}</span>
@@ -48,7 +48,7 @@
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-3">
-                                        <h4 class="mb-0"><i class="fa fa-map-marker"></i> Alamat</h4>
+                                        <span class="mb-0 font-weight-bold"><i class="fa fa-map-marker"></i> Alamat</span>
                                     </div>
                                     <div class="col">
                                         <span style="font-size: 16px;" class="badge badge-pill badge-secondary">{{ old('alamat', $toko->alamat) }}</span>
@@ -58,7 +58,7 @@
                             <li class="list-group-item">
                                 <div class="row">
                                     <div class="col-3">
-                                        <h4 class="mb-0"><i class="fa fa-sitemap"></i> Level Harga</h4>
+                                        <span class="mb-0 font-weight-bold"><i class="fa fa-sitemap"></i> Level Harga</span>
                                     </div>
                                     <div class="col">
                                         @if(!empty($levelhargas))
