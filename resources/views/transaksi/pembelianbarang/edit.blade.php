@@ -58,10 +58,10 @@
                                 <ul class="list-group list-group-flush">
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-sm-12 col-md-2">
+                                            <div class="col-6 col-xxl-2 col-xl-2 col-lg-4">
                                                 <h5 class="mb-0"><i class="fa fa-barcode"></i> Nomor Nota</h5>
                                             </div>
-                                            <div class="col">
+                                            <div class="col-6 col-xxl-10 col-xl-10 col-lg-8">
                                                 <span
                                                     class="badge badge-pill badge-primary">{{ $pembelian->no_nota }}</span>
                                             </div>
@@ -69,10 +69,10 @@
                                     </li>
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-sm-12 col-md-2">
+                                            <div class="col-6 col-xxl-2 col-xl-2 col-lg-4">
                                                 <h5 class="mb-0"><i class="fa fa-user"></i> Nama Supplier</h5>
                                             </div>
-                                            <div class="col">
+                                            <div class="col-6 col-xxl-10 col-xl-10 col-lg-8">
                                                 <span
                                                     class="badge badge-pill badge-secondary">{{ $pembelian->supplier->nama_supplier }}</span>
                                             </div>
@@ -80,10 +80,10 @@
                                     </li>
                                     <li class="list-group-item">
                                         <div class="row">
-                                            <div class="col-sm-12 col-md-2">
+                                            <div class="col-6 col-xxl-2 col-xl-2 col-lg-4">
                                                 <h5 class="mb-0"><i class="fa fa-calendar-day"></i> Tanggal Nota</h5>
                                             </div>
-                                            <div class="col">
+                                            <div class="col-6 col-xxl-10 col-xl-10 col-lg-8">
                                                 <span
                                                     class="badge badge-pill badge-secondary">{{ $pembelian->tgl_nota }}</span>
                                             </div>
@@ -104,7 +104,7 @@
                                                         <th class="text-right">Qty</th>
                                                         <th class="text-right">Harga</th>
                                                         <th class="text-right">Total</th>
-                                                        <th>Download</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -133,19 +133,28 @@
                                                                 @endif
                                                             </td>
                                                             <td style="min-width: 200px;" class="text-wrap">
-                                                                <div class="d-flex flex-wrap align-items-center">
-                                                                    <span class="mr-2 mb-1"
-                                                                        id="qrcode-text-{{ $detail->id }}">{{ $detail->qrcode }}</span>
-                                                                    <button type="button"
-                                                                        class="btn btn-sm btn-outline-primary copy-btn"
-                                                                        data-toggle="tooltip"
-                                                                        title="Salin: {{ $detail->qrcode }}"
-                                                                        data-target="qrcode-text-{{ $detail->id }}">
-                                                                        <i class="fas fa-copy"></i>
-                                                                    </button>
+                                                                <div class="d-flex align-items-start" style="gap: 10px;">
+                                                                    <!-- Gambar di kiri -->
+                                                                    <img src="{{ asset($detail->qrcode_path) }}"
+                                                                        alt="QR Code"
+                                                                        style="max-width: 50px; height: auto;">
+
+                                                                    <!-- Kontainer kanan: span di atas, button di bawah -->
+                                                                    <div class="d-flex flex-column">
+                                                                        <span class="mr-2 mb-1 text-dark font-weight-bold"
+                                                                            id="qrcode-text-{{ $detail->id }}">{{ $detail->qrcode }}</span>
+                                                                        <button type="button"
+                                                                            class="btn btn-sm btn-outline-primary copy-btn"
+                                                                            data-toggle="tooltip"
+                                                                            title="Salin: {{ $detail->qrcode }}"
+                                                                            data-target="qrcode-text-{{ $detail->id }}">
+                                                                            <i class="fas fa-copy"></i>
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </td>
-                                                            <td style="max-width: 200px;" class="text-wrap">{{ $detail->barang->nama_barang }}</td>
+                                                            <td style="max-width: 200px;" class="text-wrap">
+                                                                {{ $detail->barang->nama_barang }}</td>
                                                             <td class="text-right">{{ $detail->qty }}</td>
                                                             <td class="text-right">Rp
                                                                 {{ number_format($detail->harga_barang, 0, ',', '.') }}
@@ -154,10 +163,27 @@
                                                                 {{ number_format($detail->harga_barang * $detail->qty, 0, ',', '.') }}
                                                             </td>
                                                             <td>
-                                                                <a href="{{ asset($detail->qrcode_path) }}" download
-                                                                    class="btn btn-outline-success btn-sm w-100">
-                                                                    <i class="fa fa-download"></i> Unduh
-                                                                </a>
+                                                                <div class="row">
+                                                                    <div class="col-12 col-xl-6 col-lg-12">
+                                                                        <a href="{{ asset($detail->qrcode_path) }}"
+                                                                            download
+                                                                            class="btn btn-outline-success btn-sm w-100"
+                                                                            title="Unduh QR Code Pembelian Barang"
+                                                                            data-toggle="tooltip" data-placement="top">
+                                                                            <i class="fa fa-download"></i> Unduh
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class="col-12 col-xl-6 col-lg-12">
+                                                                        <button type="button"
+                                                                            class="btn btn-outline-info btn-sm w-100 open-modal-print"
+                                                                            title="Atur Print QR Code Pembelian Barang"
+                                                                            data-qty="{{ $detail->qty }}"
+                                                                            data-qrcode="{{ asset($detail->qrcode_path) }}"
+                                                                            data-toggle="tooltip" data-placement="top">
+                                                                            <i class="fa fa-print"></i> Print
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     @endforeach
@@ -182,6 +208,20 @@
             </div>
         </div>
     </div>
+    <div id="modal-form" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+        aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title"></h5>
+                    <button type="button" class="btn-close reset-all close" data-bs-dismiss="modal"
+                        aria-label="Close"><i class="fa fa-xmark"></i></button>
+                </div>
+                <div class="modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('asset_js')
@@ -190,6 +230,129 @@
 
 @section('js')
     <script>
+        async function showData() {
+            // Reset isi modal ketika ditutup
+            $('#modal-form').on('hidden.bs.modal', function() {
+                $(this).find('.modal-body').html('');
+            });
+
+            // Ketika tombol open-modal-print diklik
+            $(document).on("click", ".open-modal-print", function() {
+                const maxQty = $(this).data("qty");
+                const qrCodePath = $(this).data("qrcode");
+
+                // Kosongkan isi modal-body sebelum mengisi ulang
+                $("#modal-form .modal-body").html("");
+
+                // Tampilkan modal
+                $("#modal-title").html(`Form Print QR Code Pembelian Barang`);
+                $("#modal-form").modal("show");
+
+                // Isi ulang isi modal dengan form
+                $("#modal-form .modal-body").html(`
+            <div class="mb-3">
+                <label for="qty_print" class="form-label">Jumlah Print</label>
+                <input type="number" id="qty_print" class="form-control" min="1" max="${maxQty}" value="1">
+                <small class="form-text text-danger">Maksimum: ${maxQty}</small>
+            </div>
+            <div class="justify-content-end">
+                <button type="button" class="btn btn-primary w-100" id="confirm-print"
+                    data-qrcode="${qrCodePath}" data-max="${maxQty}">
+                    <i class="fa fa-print mr-1"></i>Konfirmasi Print
+                </button>
+            </div>
+        `);
+
+                // Fokus ke input qty setelah modal ditampilkan
+                setTimeout(() => {
+                    $("#qty_print").focus();
+                }, 500);
+            });
+
+            // Konfirmasi print QR code
+            $(document).on("click", "#confirm-print", function() {
+                const qty = parseInt($("#qty_print").val());
+                const maxQty = parseInt($(this).data("max"));
+                const qrCodePath = $(this).data("qrcode");
+
+                if (isNaN(qty) || qty < 1 || qty > maxQty) {
+                    notificationAlert('error', 'Error',
+                        `Jumlah print tidak valid. Harus antara 1 hingga ${maxQty}`);
+                    return;
+                }
+
+                const printWindow = window.open('', '_blank');
+                let imagesHtml = '';
+
+                for (let i = 0; i < qty; i++) {
+                    imagesHtml += `
+                <div class="print-item">
+                    <img src="${qrCodePath}" alt="QR Code">
+                </div>`;
+                }
+
+                printWindow.document.write(`
+            <html>
+                <head>
+                    <title>QR Code Print</title>
+                    <style>
+                        @media print {
+                            @page {
+                                size: 58mm auto;
+                                margin: 4mm;
+                            }
+                            body {
+                                font-family: Arial, sans-serif;
+                                text-align: center;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .print-item {
+                                margin-bottom: 10px;
+                                page-break-inside: avoid;
+                            }
+                            img {
+                                width: 50mm;
+                                height: auto;
+                            }
+                        }
+                        body {
+                            font-family: Arial, sans-serif;
+                            text-align: center;
+                        }
+                        .print-item {
+                            margin: 10px 0;
+                        }
+                        img {
+                            width: 50mm;
+                            height: auto;
+                        }
+                    </style>
+                </head>
+                <body>
+                    ${imagesHtml}
+                </body>
+            </html>
+        `);
+
+                printWindow.document.close();
+                printWindow.onload = function() {
+                    printWindow.focus();
+                    printWindow.print();
+                    printWindow.onafterprint = function() {
+                        printWindow.close();
+                    };
+                };
+
+                $("#modal-form").modal("hide");
+            });
+        }
+
+
+        async function initPageLoad() {
+            await showData();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const statusSelects = document.querySelectorAll('.status-select');
 

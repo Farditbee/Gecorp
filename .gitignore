@@ -20,3 +20,5 @@ yarn-error.log
 /.vscode
 /.zed
 composer.lock
+/public/barcodes/
+/public/qrcodes/
