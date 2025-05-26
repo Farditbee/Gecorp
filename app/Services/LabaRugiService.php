@@ -14,7 +14,7 @@ class LabaRugiService
 {
     public function hitungLabaRugi($month, $year)
     {
-        $penjualanUmum = (int)Kasir::whereMonth('tgl_transaksi', $month)
+        $penjualanUmum = (int) Kasir::whereMonth('tgl_transaksi', $month)
             ->whereYear('tgl_transaksi', $year)
             ->sum('total_nilai');
 
@@ -23,17 +23,22 @@ class LabaRugiService
             ->whereYear('tanggal', $year)
             ->sum('nilai');
 
-        $assetRetur = -1 * DetailRetur::whereMonth('created_at', $month)
-            ->whereYear('created_at', $year)
-            ->where('status', 'success')
-            ->selectRaw('SUM(harga - hpp_jual) as total')
-            ->value('total');
+        $assetRetur = -1 * (
+            DB::table('detail_retur')
+                ->leftJoin('stock_barang', 'detail_retur.id_barang', '=', 'stock_barang.id_barang')
+                ->whereMonth('detail_retur.created_at', $month)
+                ->whereYear('detail_retur.created_at', $year)
+                ->where('detail_retur.metode', 'Cash')
+                ->where('detail_retur.status', 'success')
+                ->select(DB::raw('SUM(detail_retur.harga) as total_retur'))
+                ->value('total_retur') ?? 0
+        );
 
         $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
 
         // Calculate HPP from pembelian_barang
         $hpp = DB::table('detail_kasir')
-        ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
+            ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->value('total_hpp');

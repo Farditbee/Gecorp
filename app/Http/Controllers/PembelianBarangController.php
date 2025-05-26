@@ -269,7 +269,7 @@ class PembelianBarangController extends Controller
                     $barang = Barang::findOrFail($id_barang);
 
                     // Generate QR Code Value
-                    $tglNota = \Carbon\Carbon::parse($pembelian->tgl_nota)->format('dmY');
+                    $tglNota = Carbon::parse($pembelian->tgl_nota)->format('dmY');
                     $idSupplier = $pembelian->id_supplier;
                     $idPembelian = $pembelian->id;
                     $qrCodeValue = "{$tglNota}SP{$idSupplier}ID{$idPembelian}-{$counter}";
