@@ -614,14 +614,6 @@ class PengirimanBarangController extends Controller
         return view('transaksi.pengirimanbarang.edit', compact('menu', 'pengiriman_barang', ));
     }
 
-    // public function editBarang($id)
-    // {
-    //     $menu = [$this->title[0], $this->label[1], $this->title[3]];
-    //     $pengiriman_barang = PengirimanBarang::with('detail')->findOrFail($id);
-
-    //     return view('transaksi.pengirimanbarang.edit_barang', compact('menu', 'pengiriman_barang',));
-    // }
-
     public function updateStatus(Request $request, $id)
     {
         // Ambil data pengiriman_barang
@@ -633,6 +625,18 @@ class PengirimanBarangController extends Controller
         $statuses = $request->input('status_detail', []);
         $tipe_kirim = $request->tipe_kirim;
         $id_retur = $request->input('id_retur', []);
+
+        $nonEmptyStatuses = array_filter($statuses, function ($status) {
+            return trim($status) !== '';
+        });
+
+        if (empty($nonEmptyStatuses)) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Harap ceklis barang terlebih dahulu',
+                'status_code' => 400,
+            ], 400);
+        }
 
         // dd($request->all());
 
@@ -736,7 +740,6 @@ class PengirimanBarangController extends Controller
                 'message' => 'Terjadi kesalahan: ' . $e->getMessage(),
                 'status_code' => 500,
             ], 500);
-            // return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
         }
     }
 
