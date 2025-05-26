@@ -160,7 +160,7 @@ class DashboardController extends Controller
             $query->groupBy('detail_kasir.id_barang', 'barang.nama_barang');
         }
 
-        $query->selectRaw('COALESCE(SUM(detail_retur.qty), 0) as total_retur');
+        $query->selectRaw('COALESCE(SUM(detail_retur.qty), 0) as total_retur')->where('detail_retur.status', 'success');
         $query->selectRaw('SUM(detail_kasir.qty) - COALESCE(SUM(detail_retur.qty), 0) as net_terjual');
         $query->selectRaw('SUM((detail_kasir.qty * detail_kasir.harga) - COALESCE(detail_kasir.diskon, 0)) - COALESCE(SUM(detail_retur.qty * detail_retur.harga), 0) as net_nilai');
 
