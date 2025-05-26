@@ -150,7 +150,7 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h6 class="modal-title h4" id="myLargeModalLabel">Data Transaksi</h6>
+                    <h6 class="modal-title" id="myLargeModalLabel">Data Transaksi</h6>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -197,11 +197,11 @@
                             <hr>
                             <div class="row mb-3">
                                 <div class="col-md-12">
-                                    <label for="id_barang" class="form-control-label"><i
+                                    <label for="id_member" class="form-control-label"><i
                                             class="icon feather icon-users mr-1"></i>Member</label>
                                     <div class="d-flex align-items-center justify-content">
                                         <select id="id_member" class="form-control select2 w-50">
-                                            <option value="" selected>~ Pilih Member ~</option>
+                                            <option value="" selected>Pilih Member</option>
                                             <option value="Guest">Guest</option>
                                             @foreach ($member as $mbr)
                                                 <option value="{{ $mbr->id }}"
@@ -211,6 +211,7 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div id="guestInputContainer" class="mt-2"></div>
                                 </div>
                             </div>
                             <hr>
@@ -412,14 +413,17 @@
                                                             </td>
                                                             <td class="text-wrap align-top">
                                                                 <div class="row pl-2 pr-4">
-                                                                    <div class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
+                                                                    <div
+                                                                        class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
                                                                         <a href="{{ asset('storage/' . $dtks->qrcode_path) }}"
-                                                                            download class="w-100 btn btn-sm btn-outline-success">
+                                                                            download
+                                                                            class="w-100 btn btn-sm btn-outline-success">
                                                                             <span><i
                                                                                     class="fa fa-download mr-2"></i>Download</span>
                                                                         </a>
                                                                     </div>
-                                                                    <div class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
+                                                                    <div
+                                                                        class="col-12 col-xl-6 col-lg-12 p-0 m-0 mb-2 pl-2 justify-content-end">
                                                                         <button class="w-100 btn btn-sm btn-outline-info"
                                                                             onclick="pengembalianData({{ $dtks->id }}, '{{ $dtks->barang->nama_barang }}')">
                                                                             <i class="fa fa-rotate mr-2"></i>Pengembalian
@@ -906,6 +910,28 @@
             let subtotal = 0;
             let hiddenUangBayar = document.getElementById('hiddenUangBayar');
             let getStock = 0;
+
+            $('#id_member').on('change', function() {
+                const selectedValue = $(this).val();
+                const guestInputContainer = $('#guestInputContainer');
+
+                if (selectedValue === 'Guest') {
+                    if ($('#nama_guest').length === 0) {
+                        const inputHTML = `
+                    <label for="nama_guest" class="form-control-label">
+                        <i class="icon feather icon-user mr-1"></i>Nama Guest
+                    </label>
+                    <div class="d-flex align-items-center justify-content">
+                        <input type="text" id="nama_guest" name="nama_guest" class="form-control w-100"
+                            placeholder="Masukkan nama guest">
+                    </div>
+                `;
+                        guestInputContainer.html(inputHTML);
+                    }
+                } else {
+                    guestInputContainer.empty();
+                }
+            });
 
             function updateRowNumbers() {
                 const rows = tableBody.querySelectorAll('tr');
