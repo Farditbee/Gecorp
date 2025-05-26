@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('kasir', function (Blueprint $table) {
             $table->id('id');
             $table->string('id_member')->nullable();
+            $table->string('nama_guest')->nullable();
             $table->string('id_users');
             $table->date('tgl_transaksi');
             $table->string('id_toko');
