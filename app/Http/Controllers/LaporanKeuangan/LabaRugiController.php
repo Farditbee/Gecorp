@@ -52,6 +52,7 @@ class LabaRugiController extends Controller
                     ->whereMonth('detail_retur.created_at', $month)
                     ->whereYear('detail_retur.created_at', $year)
                     ->where('detail_retur.metode', 'Cash')
+                    ->where('detail_retur.status', 'success')
                     ->select(DB::raw('SUM(detail_retur.harga) as total_retur'))
                     ->value('total_retur') ?? 0
             );
