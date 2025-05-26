@@ -49,7 +49,7 @@
                                         <form action="{{ route('transaksi.pengirimanbarang.store') }}" method="POST">
                                             @csrf
                                             <div class="row">
-                                                <div class="col-6">
+                                                <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                     <div class="form-group">
                                                         <label for="no_resi" class=" form-control-label">Nomor Resi<span
                                                                 style="color: red">*</span></label>
@@ -57,7 +57,7 @@
                                                             placeholder="Contoh : 001" class="form-control">
                                                     </div>
                                                 </div>
-                                                <div class="col-6">
+                                                <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                     <div class="form-group">
                                                         <label for="tgl_kirim" class="form-control-label">Tanggal
                                                             Kirim</label>
@@ -67,7 +67,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-6">
+                                                <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                     <div class="form-group">
                                                         <label class=" form-control-label">Toko Pengirim<span
                                                                 style="color: red">*</span></label>
@@ -78,7 +78,7 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-6">
+                                                <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                     <div class="form-group">
                                                         <label for="nama_pengirim" class=" form-control-label">Nama Pengirim
                                                             (Admin
@@ -162,7 +162,7 @@
                                             </div>
                                             <div id="item-container">
                                                 <div class="item-group">
-                                                    <div class="row">
+                                                    <div class="row mb-3">
                                                         <div class="col-md-12">
                                                             <div class="form-group">
                                                                 <label for="qr_barang" class="form-control-label">
@@ -197,29 +197,31 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-12">
-                                                    <table class="table table-bordered">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Action</th>
-                                                                <th scope="col">No</th>
-                                                                <th scope="col">Nama Barang</th>
-                                                                <th scope="col">Supplier</th>
-                                                                <th scope="col">QrCode</th>
-                                                                <th scope="col">Qty</th>
-                                                                <th scope="col" class="text-right">Harga</th>
-                                                                <th scope="col" class="text-right">Total Harga</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody id="listData"></tbody>
-                                                        <tfoot>
-                                                            <tr>
-                                                                <th scope="col" colspan="7" class="text-right">
-                                                                    SubTotal</th>
-                                                                <th id="subTotal" scope="col" class="text-right">
-                                                                </th>
-                                                            </tr>
-                                                        </tfoot>
-                                                    </table>
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Action</th>
+                                                                    <th scope="col">No</th>
+                                                                    <th scope="col">Nama Barang</th>
+                                                                    <th scope="col">Nama Supplier</th>
+                                                                    <th scope="col">Qr Code Pembelian Barang</th>
+                                                                    <th scope="col">Qty</th>
+                                                                    <th scope="col" class="text-right">Harga</th>
+                                                                    <th scope="col" class="text-right">Total Harga</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="listData"></tbody>
+                                                            <tfoot>
+                                                                <tr>
+                                                                    <th scope="col" colspan="7" class="text-right">
+                                                                        SubTotal</th>
+                                                                    <th id="subTotal" scope="col" class="text-right">
+                                                                    </th>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
                                                     <div class="form-group">
                                                         <button id="save-data" type="button"
                                                             class="btn btn-primary w-100">
@@ -306,7 +308,10 @@
             $(document).on('click', function(event) {
                 let target = $(event.target);
 
-                if (target.is('input, select, textarea')) {
+                if (
+                    target.is('input, select, textarea') ||
+                    target.closest('.select2-container').length > 0
+                ) {
                     clearTimeout(debounceTimer);
                     return;
                 }
@@ -314,6 +319,18 @@
                 debounceTimer = setTimeout(function() {
                     $('#qr_barang').focus();
                 }, 2000);
+            });
+        });
+
+        $(document).ready(function() {
+            $('#id_barang').on('select2:open', function() {
+                setTimeout(function() {
+                    let searchField = document.querySelector(
+                        '.select2-container--open .select2-search__field');
+                    if (searchField) {
+                        searchField.focus();
+                    }
+                }, 100);
             });
         });
 
@@ -444,9 +461,10 @@
                             </td>
                             <td class="supplier-text">${item.nama_supplier}</td>
                             <td class="qrcode-text">${item.qrcode}</td>
-                            <td>
-                                <input type="number" name="qty[]" class="qty-input form-control" value="${qty}"
-                                    min="${minQty}" max="${maxQty}" data-harga="${harga}">
+                            <td style="min-width: 120px;">
+                                <input type="number" name="qty[]" class="qty-input form-control w-100"
+                                    value="${qty}" min="${minQty}" max="${maxQty}" data-harga="${harga}"
+                                    style="min-width: 100px;">
                                 <small class="text-danger">Max: ${maxQty}</small>
                             </td>
                             <td class="text-right harga-text" data-value="${harga}">${formatRupiah(harga)}</td>

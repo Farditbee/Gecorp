@@ -84,7 +84,7 @@
                                 @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id_toko)
                                     <div id="item-container">
                                         <div class="item-group">
-                                            <div class="row">
+                                            <div class="row mb-3">
                                                 <div class="col-md-12">
                                                     <div class="form-group">
                                                         <label for="qr_barang" class="form-control-label">
@@ -119,21 +119,21 @@
                                     </div>
                                 @endif
                                 <div class="table-responsive">
-                                    <table class="table table-bordered table-striped">
-                                        <thead class="thead-light">
+                                    <table class="table table-bordered">
+                                        <thead>
                                             <tr>
                                                 @if ($pengiriman_barang->status === 'pending' && $pengiriman_barang->toko_pengirim == auth()->user()->id_toko)
-                                                    <th style="width: 50px;">Aksi</th>
+                                                    <th>Aksi</th>
                                                 @endif
-                                                <th style="width: 40px;">No</th>
-                                                <th style="min-width: 200px;">Qr Code Pengiriman Barang</th>
-                                                <th style="min-width: 150px;">Nama Barang</th>
-                                                <th style="min-width: 150px;">Nama Supplier</th>
-                                                <th class="text-right text-nowrap" style="width: 80px;">Qty
+                                                <th>No</th>
+                                                <th>Qr Code Pembelian Barang</th>
+                                                <th>Nama Barang</th>
+                                                <th>Nama Supplier</th>
+                                                <th>Qty
                                                 </th>
-                                                <th class="text-right text-nowrap" style="width: 100px;">
+                                                <th class="text-right">
                                                     Harga</th>
-                                                <th class="text-right text-nowrap" style="width: 120px;">
+                                                <th class="text-right">
                                                     Total Harga</th>
                                             </tr>
                                         </thead>
@@ -259,7 +259,7 @@
                         <input type="hidden" name="id_detail_pembelian[]" value="${item.id_detail_pembelian}">
                         ${item.nama_barang}`;
                     td_qty = `
-                        <input type="number" name="qty[]" class="qty-input form-control" value="${qty}" min="${minQty}" max="${item.stock}" data-harga="${harga}">
+                        <input type="number" name="qty[]" style="min-width: 100px;" class="qty-input form-control" value="${qty}" min="${minQty}" max="${item.stock}" data-harga="${harga}">
                         <small class="text-danger">Max: ${item.stock}</small>`;
                 } else {
                     td_nama_barang = item.nama_barang;
@@ -281,7 +281,7 @@
                         </td>
                         <td style="max-width: 150px;" class="text-wrap">${td_nama_barang}</td>
                         <td style="max-width: 150px;" class="text-wrap">${item.nama_supplier}</td>
-                        <td class="text-right" style="min-width: 90px;">${td_qty}</td>
+                        <td class="text-right" style="min-width: 120px;">${td_qty}</td>
                         <td class="text-right harga-text" data-value="${harga}" style="min-width: 100px;">${formatRupiah(harga)}</td>
                         <td class="text-right total-harga" data-value="${harga * qty}" style="min-width: 100px;">${formatRupiah(harga * qty)}</td>
                     </tr>

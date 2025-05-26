@@ -127,7 +127,7 @@ class BarangSeeder extends Seeder
             "nama_barang" => "Asus ROG Zephyrus G14",
             "id_jenis_barang" => $jenisBarang1->id,
             "id_brand_barang" => $brandBarang1->id,
-            "level_harga" => json_encode(["Level 1 : 1200","Level 2 : 1300","Level 3 : 1400","User 1 : 2000","User 2 : 2100"]),
+            "level_harga" => json_encode(["Level 1 : 1200", "Level 2 : 1300", "Level 3 : 1400", "User 1 : 2000", "User 2 : 2100"]),
         ]);
 
         // Create second data dummy
@@ -169,7 +169,52 @@ class BarangSeeder extends Seeder
             "nama_barang" => "Samsung Galaxy S21",
             "id_jenis_barang" => $jenisBarang2->id,
             "id_brand_barang" => $brandBarang2->id,
-            "level_harga" => json_encode(["Level 1 : 2100","Level 2 : 2200","Level 3 : 2300","User 1 : 3000","User 2 : 3200"]),
+            "level_harga" => json_encode(["Level 1 : 2100", "Level 2 : 2200", "Level 3 : 2300", "User 1 : 3000", "User 2 : 3200"]),
+        ]);
+
+        Brand::create([
+            "id" => 3,
+            "nama_brand" => "Vivo",
+        ]);
+
+        Brand::create([
+            "id" => 4,
+            "nama_brand" => "Axioo",
+        ]);
+
+        Brand::create([
+            "id" => 5,
+            "nama_brand" => "Acer",
+        ]);
+
+        Brand::create([
+            "id" => 6,
+            "nama_brand" => "MSI",
+        ]);
+
+        Brand::create([
+            "id" => 7,
+            "nama_brand" => "NYK Nemesis",
+        ]);
+
+        Brand::create([
+            "id" => 8,
+            "nama_brand" => "Ugreen",
+        ]);
+
+        JenisBarang::create([
+            "id" => 3,
+            "nama_jenis_barang" => "Aksesoris",
+        ]);
+
+        JenisBarang::create([
+            "id" => 4,
+            "nama_jenis_barang" => "Tools",
+        ]);
+
+        JenisBarang::create([
+            "id" => 5,
+            "nama_jenis_barang" => "Elektronik",
         ]);
     }
 }
