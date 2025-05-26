@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('qty_acc')->nullable();
             $table->double('harga');
             $table->double('hpp_jual')->nullable();
+            $table->double('hpp_baru')->nullable();
             $table->enum('metode', ['Cash', 'Barang']);
             $table->enum('metode_reture', ['Cash', 'Barang'])->nullable();
             $table->string('qrcode_barang')->nullable();

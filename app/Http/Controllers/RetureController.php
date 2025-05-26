@@ -341,6 +341,7 @@ class RetureController extends Controller
                     ->where('id_barang', $item->id_barang)
                     ->where('id_retur', $item->id_retur)
                     ->first();
+                $stock = StockBarang::where('id_barang', $item->id_barang)->latest()->first();
 
                 return [
                     'id' => $item->id,
@@ -353,6 +354,7 @@ class RetureController extends Controller
                     'qty' => $item->qty,
                     'qrcode' => $item->qrcode,
                     'harga' => $item->harga,
+                    'hpp_baru' => $stock->hpp_baru,
                     'created_at' => $item->created_at,
                     'updated_at' => $item->updated_at,
                     'nama_toko' => $kasir->toko->nama_toko ?? "Tidak Ditemukan",
@@ -719,6 +721,7 @@ class RetureController extends Controller
                         ->update([
                             'status' => 'success',
                             'hpp_jual' => $hpp[$index],
+                            'hpp_baru' => $hpp[$index],
                             'qrcode_barang' => $qrcode_toko[$index],
                             'qty_acc' => $stock[$index],
                             'metode' => $metode[$index],
@@ -800,6 +803,9 @@ class RetureController extends Controller
                 ->where('id_detail_pembelian', $detailPembelian->id)
                 ->first();
 
+            $stock = StockBarang::where('id_barang', $id_barang)
+                ->first();
+
             if ($id_toko == 1) {
                 // Cek stok barang di tabel StockBarang
                 $stock = DetailStockBarang::where('id_barang', $id_barang)
@@ -814,7 +820,7 @@ class RetureController extends Controller
                     'id_barang' => $stock->id_barang,
                     'nama_barang' => $barang->barang->nama_barang,
                     'stock_toko_qty' => $stock->qty_now,
-                    'hpp_baru' => $detailKasir->hpp_jual,
+                    'hpp_baru' => $stock->hpp_baru,
                 ];
             } elseif ($id_toko != 1) {
                 $stock_toko = DetailToko::where('id_toko', $id_toko)
@@ -834,7 +840,7 @@ class RetureController extends Controller
                     'id_barang' => $stock_toko->id_barang,
                     'nama_barang' => $barang->nama_barang,
                     'stock_toko_qty' => $stock_toko->qty,
-                    'hpp_baru' => $detailKasir->hpp_jual,
+                    'hpp_baru' => $stock->hpp_baru,
                 ];
             } else {
                 return response()->json(['message' => 'Toko tidak ditemukan'], 404);
