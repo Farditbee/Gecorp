@@ -667,6 +667,7 @@
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
                 $('#totalPage').text("0");
+                $('#totalData').text(getDataRest?.data?.total ?? 0);
             }
         }
 

@@ -110,7 +110,8 @@ class KasirController extends Controller
                 return response()->json([
                     'status_code' => 400,
                     'errors' => true,
-                    'message' => 'Tidak ada data'
+                    'message' => 'Tidak ada data',
+                    'total' => 0,
                 ], 400);
             }
 
@@ -126,7 +127,7 @@ class KasirController extends Controller
                     'nama_toko' => $item['toko']->nama_toko ?? null,
                     'nama' => $item['users']->nama ?? null,
                     'utang' => $item['kasbon']->utang ?? null,
-                    'tgl_transaksi' => \Carbon\Carbon::parse($item->tgl_transaksi)->format('d-m-Y'),
+                    'tgl_transaksi' => Carbon::parse($item->tgl_transaksi)->format('d-m-Y'),
                     'no_nota' => $item->no_nota,
                     'total_item' => $item->total_item,
                     'metode' => $item->metode,
