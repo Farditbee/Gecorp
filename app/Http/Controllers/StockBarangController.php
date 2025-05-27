@@ -177,6 +177,15 @@ class StockBarangController extends Controller
         $totalHargaSuccess = $successfulDetails->sum('total_harga');
         $totalQtySuccess = $successfulDetails->sum('qty');
 
+        // Ambil total qty dari detail_toko
+        $qtyDetailToko = DB::table('detail_toko')
+            ->where('id_barang', $id_barang)
+            ->sum('qty');
+
+        // Hitung stock gabungan
+        $stockDariStockBarang = $stockBarang->stock ?? 0;
+        $totalStock = $stockDariStockBarang + $qtyDetailToko;
+
         // Hitung HPP baru
         if ($totalQtySuccess > 0) {
             $hppBaru = $totalHargaSuccess / $totalQtySuccess;
@@ -195,7 +204,7 @@ class StockBarangController extends Controller
 
         if ($stockBarang) {
             return response()->json([
-                'stock' => $stockBarang->stock,
+                'stock' => $totalStock,
                 'hpp_awal' => $stockBarang->hpp_baru ?? 0,
                 'hpp_baru' => 0,
                 'total_harga_success' => $totalHargaSuccess,

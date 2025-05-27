@@ -92,7 +92,7 @@ class MemberController extends Controller
 
             $levelData = [];
             if (!empty($idLevelHarga)) {
-                $levelData = \App\Models\LevelHarga::whereIn('id', $idLevelHarga)
+                $levelData = LevelHarga::whereIn('id', $idLevelHarga)
                     ->get(['jenis_barang', 'nama_level_harga as level_harga'])
                     ->toArray();
             }
@@ -102,8 +102,8 @@ class MemberController extends Controller
                 foreach (json_decode($item->level_info, true) as $info) {
                     preg_match('/(\d+) : (\d+)/', $info, $matches);
                     if (!empty($matches)) {
-                        $jenisBarang = \App\Models\JenisBarang::find($matches[1]);
-                        $levelHarga = \App\Models\LevelHarga::find($matches[2]);
+                        $jenisBarang = JenisBarang::find($matches[1]);
+                        $levelHarga = LevelHarga::find($matches[2]);
 
                         if ($jenisBarang && $levelHarga) {
                             $selectedLevels[] = [
@@ -237,7 +237,7 @@ class MemberController extends Controller
                 'level_info' => json_encode($levelInfo),
             ]);
 
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             return redirect()->route('master.member.index')->with('error', $th->getMessage())->withInput();
         }
 
@@ -324,7 +324,7 @@ class MemberController extends Controller
                 'success' => true,
                 'message' => 'Sukses menghapus Data Member'
             ]);
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             DB::rollBack();
             return response()->json([
                 'success' => false,

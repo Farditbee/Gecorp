@@ -97,7 +97,7 @@ class PembelianBarangController extends Controller
                     'failed' => 'Gagal',
                     default => $item->status,
                 },
-                'tgl_nota' => \Carbon\Carbon::parse($item->tgl_nota)->format('d-m-Y'),
+                'tgl_nota' => Carbon::parse($item->tgl_nota)->format('d-m-Y'),
                 'no_nota' => $item->no_nota,
                 'total_item' => $totalItem,
                 'total_nilai' => 'Rp. ' . number_format($totalNilai, 0, ',', '.'),

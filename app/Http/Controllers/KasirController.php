@@ -331,6 +331,7 @@ class KasirController extends Controller
             $kasir->id_users = $user->id;
             $kasir->tgl_transaksi = $tglTransaksi;
             $kasir->id_toko = $user->id_toko;
+            $kasir->nama_guest = $request->nama_guest ?? null;
             $kasir->total_item = 0;
             $kasir->total_nilai = 0;
             $kasir->no_nota = $request->no_nota;

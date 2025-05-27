@@ -41,50 +41,49 @@ class Member extends Model
         return $this->belongsTo(LevelHarga::class, 'id_level_harga');
     }
 
-    // Accessor untuk level_data
     public function getLevelDataAttribute()
-{
-    $levelInfo = json_decode($this->level_info, true); // Decode JSON dari level_info
-    $result = [];
+    {
+        $levelInfo = json_decode($this->level_info, true); // Decode JSON dari level_info
+        $result = [];
 
-    if ($levelInfo) {
-        $jenis_barang_ids = [];
-        $level_harga_ids = [];
+        if ($levelInfo) {
+            $jenis_barang_ids = [];
+            $level_harga_ids = [];
 
-        // Loop untuk mengambil id dari level_info
-        foreach ($levelInfo as $info) {
-            // Preg_match untuk format tanpa tanda kurung
-            if (preg_match('/(\d+) : (\d+)/', $info, $matches)) {
-                $jenis_barang_ids[] = $matches[1]; // id_jenis_barang
-                $level_harga_ids[] = $matches[2]; // id_level_harga
+            // Loop untuk mengambil id dari level_info
+            foreach ($levelInfo as $info) {
+                // Preg_match untuk format tanpa tanda kurung
+                if (preg_match('/(\d+) : (\d+)/', $info, $matches)) {
+                    $jenis_barang_ids[] = $matches[1]; // id_jenis_barang
+                    $level_harga_ids[] = $matches[2]; // id_level_harga
+                }
+            }
+
+            // Ambil data jenis_barang dan level_harga dari database
+            $jenis_barangs = JenisBarang::whereIn('id', $jenis_barang_ids)->get();
+            $level_hargas = LevelHarga::whereIn('id', $level_harga_ids)->get();
+
+            // Gabungkan data jenis_barang dan level_harga
+            foreach ($levelInfo as $info) {
+                // Preg_match lagi untuk mencocokkan setiap pasangan id
+                if (preg_match('/(\d+) : (\d+)/', $info, $matches)) {
+                    $jenis_barang_id = $matches[1];
+                    $level_harga_id = $matches[2];
+
+                    // Temukan nama dari hasil query
+                    $jenis_barang = $jenis_barangs->firstWhere('id', $jenis_barang_id);
+                    $level_harga = $level_hargas->firstWhere('id', $level_harga_id);
+
+                    // Simpan pasangan nama_jenis_barang dan nama_level_harga
+                    $result[] = [
+                        'jenis_barang' => $jenis_barang ? $jenis_barang->nama_jenis_barang : 'Jenis barang tidak ditemukan',
+                        'level_harga' => $level_harga ? $level_harga->nama_level_harga : 'Level harga tidak ditemukan'
+                    ];
+                }
             }
         }
 
-        // Ambil data jenis_barang dan level_harga dari database
-        $jenis_barangs = \App\Models\JenisBarang::whereIn('id', $jenis_barang_ids)->get();
-        $level_hargas = \App\Models\LevelHarga::whereIn('id', $level_harga_ids)->get();
-
-        // Gabungkan data jenis_barang dan level_harga
-        foreach ($levelInfo as $info) {
-            // Preg_match lagi untuk mencocokkan setiap pasangan id
-            if (preg_match('/(\d+) : (\d+)/', $info, $matches)) {
-                $jenis_barang_id = $matches[1];
-                $level_harga_id = $matches[2];
-
-                // Temukan nama dari hasil query
-                $jenis_barang = $jenis_barangs->firstWhere('id', $jenis_barang_id);
-                $level_harga = $level_hargas->firstWhere('id', $level_harga_id);
-
-                // Simpan pasangan nama_jenis_barang dan nama_level_harga
-                $result[] = [
-                    'jenis_barang' => $jenis_barang ? $jenis_barang->nama_jenis_barang : 'Jenis barang tidak ditemukan',
-                    'level_harga' => $level_harga ? $level_harga->nama_level_harga : 'Level harga tidak ditemukan'
-                ];
-            }
-        }
+        return $result;
     }
-
-    return $result;
-}
 
 }
