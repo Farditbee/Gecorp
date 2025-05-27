@@ -289,12 +289,13 @@ class PembelianBarangController extends Controller
                         ->setMargin(10);
 
                     $writer = new PngWriter();
-                    $result = $writer->write(
-                        $qrCode,
-                        null,
-                        Label::create("{$barang->nama_barang}")
-                            ->setFont(new NotoSans(12))
-                    );
+                    $result = $writer->write($qrCode);
+                    // $result = $writer->write(
+                    //     $qrCode,
+                    //     null,
+                    //     Label::create("{$barang->nama_barang}")
+                    //         ->setFont(new NotoSans(12))
+                    // );
 
                     $result->saveToFile($fullPath);
 
