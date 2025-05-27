@@ -44,7 +44,7 @@
                                     </select>
                                 </div>
                                 <div class="custom-search">
-                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                    <input id="tb-search" class="tb-search form-control" type="search" name="search"
                                         placeholder="Cari Data" aria-label="search">
                                 </div>
                             </div>
