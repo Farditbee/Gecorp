@@ -276,7 +276,7 @@ class PembelianBarangController extends Controller
 
                     // Path QR code for this barang
                     $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
-                    $fullPath = storage_path('app/public/' . $qrCodePath);
+                    $fullPath = public_path($qrCodePath);
 
                     if (!file_exists(dirname($fullPath))) {
                         mkdir(dirname($fullPath), 0755, true);
