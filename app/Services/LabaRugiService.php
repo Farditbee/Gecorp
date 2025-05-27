@@ -36,12 +36,20 @@ class LabaRugiService
 
         $totalPendapatan = $penjualanUmum + $pendapatanLainnya + $assetRetur;
 
-        // Calculate HPP from pembelian_barang
-        $hpp = DB::table('detail_kasir')
+        $hpppenjualan = DB::table('detail_kasir')
             ->select(DB::raw('SUM(qty * hpp_jual) as total_hpp'))
             ->whereMonth('created_at', $month)
             ->whereYear('created_at', $year)
             ->value('total_hpp');
+
+        $hppretur = -1 * DB::table('detail_retur')
+            ->where('detail_retur.metode', 'Cash')
+            ->select(DB::raw('SUM(hpp_jual) as total_hpp'))
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->value('total_hpp');
+
+        $total_hpp = $hpppenjualan + $hppretur;
 
         // Get all expense types except id 11
         $jenisPengeluaran = JenisPengeluaran::where('id', '!=', 11)->get();
@@ -56,7 +64,16 @@ class LabaRugiService
             $totalBeban += $totalNilai;
         }
 
-        $totalLRJukey = round($totalPendapatan - $hpp - $totalBeban);
+        $biayaRetur = -1 * DB::table('detail_retur')
+            ->whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->where('metode', 'Barang')
+            ->select(DB::raw('SUM(harga - hpp_jual) as total_biaya_retur'))
+            ->value('total_biaya_retur') ?? 0;
+
+        $totalBeban += $biayaRetur;
+
+        $totalLRJukey = $totalPendapatan - $total_hpp + $biayaRetur;
 
         return $totalLRJukey;
     }
