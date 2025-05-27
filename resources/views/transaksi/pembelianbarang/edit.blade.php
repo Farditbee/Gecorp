@@ -178,6 +178,7 @@
                                                                             class="btn btn-outline-info btn-sm w-100 open-modal-print"
                                                                             title="Atur Print QR Code Pembelian Barang"
                                                                             data-qty="{{ $detail->qty }}"
+                                                                            data-barang="{{ $detail->barang->nama_barang }}"
                                                                             data-qrcode="{{ asset($detail->qrcode_path) }}"
                                                                             data-toggle="tooltip" data-placement="top">
                                                                             <i class="fa fa-print"></i> Print
@@ -230,124 +231,152 @@
 
 @section('js')
     <script>
-        async function showData() {
-            // Reset isi modal ketika ditutup
-            $('#modal-form').on('hidden.bs.modal', function() {
-                $(this).find('.modal-body').html('');
-            });
+        $('#modal-form').on('hidden.bs.modal', function() {
+            $(this).find('.modal-body').html('');
+        });
 
-            // Ketika tombol open-modal-print diklik
-            $(document).on("click", ".open-modal-print", function() {
-                const maxQty = $(this).data("qty");
-                const qrCodePath = $(this).data("qrcode");
+async function showData() {
+    $('#modal-form').on('hidden.bs.modal', function () {
+        $(this).find('.modal-body').html('');
+    });
 
-                // Kosongkan isi modal-body sebelum mengisi ulang
-                $("#modal-form .modal-body").html("");
+    $(document).off("click", "#confirm-print").on("click", "#confirm-print", function () {
+        const qty = parseInt($("#qty_print").val());
+        const maxQty = parseInt($(this).data("max"));
+        const qrCodePath = $(this).data("qrcode");
+        const namaBarang = $(this).data("barang");
 
-                // Tampilkan modal
-                $("#modal-title").html(`Form Print QR Code Pembelian Barang`);
-                $("#modal-form").modal("show");
+        if (isNaN(qty) || qty < 1 || qty > maxQty) {
+            notificationAlert('error', 'Error', `Jumlah print tidak valid. Harus antara 1 hingga ${maxQty}`);
+            return;
+        }
 
-                // Isi ulang isi modal dengan form
-                $("#modal-form .modal-body").html(`
-            <div class="mb-3">
-                <label for="qty_print" class="form-label">Jumlah Print</label>
-                <input type="number" id="qty_print" class="form-control" min="1" max="${maxQty}" value="1">
-                <small class="form-text text-danger">Maksimum: ${maxQty}</small>
-            </div>
-            <div class="justify-content-end">
-                <button type="button" class="btn btn-primary w-100" id="confirm-print"
-                    data-qrcode="${qrCodePath}" data-max="${maxQty}">
-                    <i class="fa fa-print mr-1"></i>Konfirmasi Print
-                </button>
-            </div>
-        `);
+        const printWindow = window.open('', '_blank');
+        let imagesHtml = '';
 
-                // Fokus ke input qty setelah modal ditampilkan
-                setTimeout(() => {
-                    $("#qty_print").focus();
-                }, 500);
-            });
-
-            // Konfirmasi print QR code
-            $(document).on("click", "#confirm-print", function() {
-                const qty = parseInt($("#qty_print").val());
-                const maxQty = parseInt($(this).data("max"));
-                const qrCodePath = $(this).data("qrcode");
-
-                if (isNaN(qty) || qty < 1 || qty > maxQty) {
-                    notificationAlert('error', 'Error',
-                        `Jumlah print tidak valid. Harus antara 1 hingga ${maxQty}`);
-                    return;
-                }
-
-                const printWindow = window.open('', '_blank');
-                let imagesHtml = '';
-
-                for (let i = 0; i < qty; i++) {
-                    imagesHtml += `
-                <div class="print-item">
+        for (let i = 0; i < qty; i++) {
+            imagesHtml += `
+                <div class="label">
                     <img src="${qrCodePath}" alt="QR Code">
-                </div>`;
-                }
+                    <div class="label-text">${namaBarang}</div>
+                </div>
+            `;
+        }
 
-                printWindow.document.write(`
+        printWindow.document.write(`
             <html>
                 <head>
-                    <title>QR Code Print</title>
+                    <title>Print QR Labels</title>
                     <style>
                         @media print {
                             @page {
-                                size: 58mm auto;
-                                margin: 4mm;
+                                size: auto;
+                                margin: 0mm;
                             }
                             body {
-                                font-family: Arial, sans-serif;
-                                text-align: center;
                                 margin: 0;
                                 padding: 0;
                             }
-                            .print-item {
-                                margin-bottom: 10px;
-                                page-break-inside: avoid;
-                            }
-                            img {
-                                width: 50mm;
-                                height: auto;
-                            }
                         }
+
                         body {
                             font-family: Arial, sans-serif;
-                            text-align: center;
                         }
-                        .print-item {
-                            margin: 10px 0;
+
+                        .label-container {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 5mm; /* kiri-kanan */
+    row-gap: 3.3mm;     /* bawah */
+    margin-top: 0;    /* pastikan tidak ada gap atas */
+}
+
+
+                        .label {
+                            width: 30mm;
+                            height: 15mm;
+                            display: flex;
+                            align-items: center;
+                            padding: 0mm;
+                            box-sizing: border-box;
                         }
-                        img {
-                            width: 50mm;
-                            height: auto;
+
+                        .label img {
+                            width: 12mm;
+                            height: 12mm;
+                            object-fit: contain;
+                            margin-right: 2mm;
+                        }
+
+                        .label-text {
+                            font-size: 8px;
+                            line-height: 1.2;
+                            word-break: break-word;
+                            flex: 1;
                         }
                     </style>
                 </head>
                 <body>
-                    ${imagesHtml}
+                    <div class="label-container">
+                        ${imagesHtml}
+                    </div>
                 </body>
             </html>
         `);
+        printWindow.document.close();
 
-                printWindow.document.close();
-                printWindow.onload = function() {
-                    printWindow.focus();
-                    printWindow.print();
-                    printWindow.onafterprint = function() {
-                        printWindow.close();
-                    };
-                };
+        printWindow.onload = function () {
+            printWindow.focus();
+            setTimeout(() => {
+                printWindow.print();
+            }, 0);
+        };
 
-                $("#modal-form").modal("hide");
-            });
-        }
+        const handleAfterPrint = () => {
+            printWindow.close();
+            setTimeout(() => {
+                const input = document.getElementById('qty_print');
+                if (input) {
+                    input.blur();
+                    setTimeout(() => {
+                        input.focus();
+                        input.select();
+                    }, 10);
+                }
+            }, 300);
+            window.removeEventListener('afterprint', handleAfterPrint);
+        };
 
+        window.addEventListener('afterprint', handleAfterPrint);
+    });
+}
+
+
+
+
+        $(document).on("click", ".open-modal-print", function() {
+            const maxQty = $(this).data("qty");
+            const qrCodePath = $(this).data("qrcode");
+            const namaBarang = $(this).data("barang");
+
+            $("#modal-form .modal-body").html("");
+            $("#modal-title").html(`Form Print QR Code Pembelian Barang`);
+            $("#modal-form").modal("show");
+
+            $("#modal-form .modal-body").html(`
+        <div class="mb-3">
+            <label for="qty_print" class="form-label">Jumlah Print</label>
+            <input type="number" id="qty_print" class="form-control" min="1" max="${maxQty}" value="${maxQty}">
+            <small class="form-text text-danger">Maksimum: ${maxQty}</small>
+        </div>
+        <div class="justify-content-end">
+            <button type="button" class="btn btn-primary w-100" id="confirm-print"
+                data-qrcode="${qrCodePath}" data-barang="${namaBarang}" data-max="${maxQty}">
+                <i class="fa fa-print mr-1"></i>Konfirmasi Print
+            </button>
+        </div>
+    `);
+        });
 
         async function initPageLoad() {
             await showData();
