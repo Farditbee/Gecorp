@@ -99,6 +99,10 @@ class NeracaController extends Controller
                 ->where('status_reture', '!=', 'success')
                 ->sum('hpp_jual');
 
+            $stockRetur = DetailRetur::where('status', 'success')
+                ->where('status_reture', '!=', 'success')
+                ->sum('qty_acc');
+
             $stokDetailStock = DB::table('detail_stock')
                 ->select('id_barang', DB::raw('SUM(qty_now) as total_stok'))
                 ->groupBy('id_barang');
@@ -180,7 +184,7 @@ class NeracaController extends Controller
                                 ],
                                 [
                                     "kode" => "I.5",
-                                    "nama" => "Stock Barang Reture",
+                                    "nama" => "Stock Barang Retur ({$stockRetur})",
                                     "nilai" => round($penjualanReture),
                                 ],
                             ],
