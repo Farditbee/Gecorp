@@ -195,7 +195,7 @@ class PembelianBarangController extends Controller
 
         $menu = [$this->title[0], $this->label[1], $this->title[1]];
 
-        return view('transaksi.pembelianbarang.edit');
+        return view('transaksi.pembelianbarang.edit', compact('menu'));
     }
 
     public function getDetailPembelian(Request $request)
