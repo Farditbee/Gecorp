@@ -187,16 +187,48 @@ class PembelianBarangController extends Controller
         }
     }
 
-    public function edit($id)
+    public function detail($id)
     {
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
+        
         $menu = [$this->title[0], $this->label[1], $this->title[1]];
-        $pembelian = PembelianBarang::with('detail')->findOrFail($id);
-        $LevelHarga = LevelHarga::all();
 
-        return view('transaksi.pembelianbarang.edit', compact('menu', 'pembelian', 'LevelHarga'));
+        return view('transaksi.pembelianbarang.edit');
+    }
+
+    public function getDetailPembelian($id)
+    {
+        $pembelian = PembelianBarang::with(['supplier', 'detail.barang'])->findOrFail($id);
+
+        $detail = $pembelian->detail->map(function ($item) {
+            return [
+                'status' => $item->status,
+                'qrcode_path' => $item->qrcode_path,
+                'nama_barang' => $item->barang->nama_barang ?? '-',
+                'qty' => $item->qty,
+                'harga_barang' => $item->harga_barang,
+                'total_harga' => $item->total_harga,
+            ];
+        });
+
+        $subTotal = $detail->sum(function ($item) {
+            return $item['qty'] * $item['harga_barang'];
+        });
+
+        return response()->json([
+            'data' => [
+                'no_nota' => $pembelian->no_nota,
+                'nama_supplier' => $pembelian->supplier->nama_supplier ?? '-',
+                'tgl_nota' => $pembelian->tgl_nota,
+                'sub_total' => $subTotal,
+                'detail' => $detail,
+            ],
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+        ]);
     }
 
     public function getStock($id_barang)
