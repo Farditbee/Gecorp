@@ -266,7 +266,7 @@
                                                     <th>Harga Satuan (Hpp Baru)</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="detailData-{{ $stk->id }}">
+                                            <tbody id="detailData-{{ $stk->id_barang }}">
                                             </tbody>
                                         </table>
                                     </div>

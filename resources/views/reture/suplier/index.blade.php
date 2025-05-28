@@ -55,7 +55,7 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Nama Supplier</th>
-                                                <th class="text-wrap align-top">Tgl Reture</th>
+                                                <th class="text-wrap align-top">Tgl Retur</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Action</th>
                                             </tr>
@@ -99,12 +99,12 @@
                                                 <a class="nav-item nav-link active" id="tambah-tab" data-toggle="tab"
                                                     href="#tambah" role="tab" aria-controls="tambah"
                                                     aria-selected="true">
-                                                    Tambah Reture
+                                                    Tambah Retur
                                                 </a>
                                                 <a class="nav-item nav-link disabled" id="detail-tab" data-toggle="tab"
                                                     href="#detail" role="tab" aria-controls="detail"
                                                     aria-selected="false" style="pointer-events: none; opacity: 0.6;">
-                                                    Detail Reture
+                                                    Detail Retur
                                                 </a>
                                             </div>
                                         </nav>
@@ -114,25 +114,19 @@
                                                 <br>
                                                 <form id="form">
                                                     <div class="row">
-                                                        <div class="col-4">
+                                                        <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                             <label for="f_supplier" class=" form-control-label">Nama
                                                                 Suplier <span class="text-danger">*</span></label>
                                                             <select class="form-select select2" name="suplier"
                                                                 id="f_supplier">
                                                             </select>
                                                         </div>
-                                                        <div class="col-4">
+                                                        <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
-                                                                Reture <span class="text-danger">*</span></label>
+                                                                Retur <span class="text-danger">*</span></label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
-                                                        </div>
-                                                        <div class="col-4">
-                                                            <label for="no_nota" class=" form-control-label">Nomor
-                                                                Nota <span class="text-danger">*</span></label>
-                                                            <input type="number" id="no_nota" name="no_nota"
-                                                                placeholder="Contoh : 001" class="form-control">
                                                         </div>
                                                     </div>
                                                     <button type="submit" style="float: right" id="save-btn"
@@ -159,7 +153,7 @@
                                                     </li>
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <h5><i class="fa fa-calendar mr-2"></i>Tanggal Reture</h5>
+                                                        <h5><i class="fa fa-calendar mr-2"></i>Tanggal Retur</h5>
                                                         <span id="i_tgl_retur" class="badge badge-secondary"></span>
                                                     </li>
                                                 </ul>
@@ -239,7 +233,7 @@
         let globalIdSupplier = null;
         let barcodeResponses = {};
 
-        let title = 'Reture';
+        let title = 'Retur';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -381,7 +375,7 @@
         async function addData() {
             $(document).on("click", ".add-data", function() {
                 setDatePicker();
-                $("#modal-title").html(`Form Tambah Reture Suplier`);
+                $("#modal-title").html(`Form Tambah Retur Suplier`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input:not(#tgl_retur), select, textarea")
@@ -415,7 +409,7 @@
                 dataTemp.id_retur = data.id;
                 dataTemp.no_nota = data.no_nota;
 
-                $("#modal-title").html(`Form Detail Reture Supplier No. Nota: ${data.no_nota}`);
+                $("#modal-title").html(`Form Detail Retur Supplier No. Nota: ${data.no_nota}`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
@@ -527,7 +521,6 @@
                     id_supplier: $('#f_supplier').select2('data').length > 0 ? $('#f_supplier').select2(
                         'data')[0].id : null,
                     tgl_retur: $('#tgl_retur').val(),
-                    no_nota: $('#no_nota').val(),
                 };
 
                 const method = 'POST';

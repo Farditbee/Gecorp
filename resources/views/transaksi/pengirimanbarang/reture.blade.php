@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Reture Pengiriman Barang
+    Retur Pengiriman Barang
 @endsection
 
 @section('css')
