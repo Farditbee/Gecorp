@@ -209,7 +209,7 @@ class NeracaController extends Controller
                 ],
                 [
                     'kategori' => 'PASIVA',
-                    'total' => $totalPasiva,
+                    'total' => round($totalPasiva),
                     'subkategori' => [
                         [
                             'judul' => 'III. HUTANG',
@@ -218,7 +218,7 @@ class NeracaController extends Controller
                         ],
                         [
                             'judul' => 'IV. EKUITAS',
-                            'total' => $totalEkuitas,
+                            'total' => round($totalEkuitas),
                             'item' => $ekuitasItems,
                         ],
                     ],
