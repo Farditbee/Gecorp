@@ -185,7 +185,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close"><i
                             class="fa fa-circle-xmark mr-1"></i>Tutup</button>
-                    <button type="submit" class="btn btn-primary" id="btnSimpan" form="formTambahData"><i
+                    <button type="submit" class="btn btn-primary" id="submit-button" form="formTambahData"><i
                             class="fa fa-save mr-1"></i>Simpan</button>
                 </div>
             </div>
@@ -479,6 +479,13 @@
         async function submitForm() {
             $(document).off("submit").on("submit", "#formTambahData", async function(e) {
                 e.preventDefault();
+
+                const $submitButton = $("#submit-button");
+                const originalButtonHTML = $submitButton.html();
+
+                $submitButton.prop("disabled", true).html(
+                    `<i class="fas fa-spinner fa-spin"></i> Menyimpan...`);
+
                 loadingPage(true);
 
                 let actionUrl = $("#formTambahData").data("action-url");
@@ -520,6 +527,8 @@
                     loadingPage(false);
                     let resp = error.response || {};
                     notificationAlert("error", "Kesalahan", resp.message || "Terjadi kesalahan");
+                } finally {
+                    $submitButton.prop("disabled", false).html(originalButtonHTML);
                 }
             });
         }
