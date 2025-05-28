@@ -151,12 +151,8 @@ class PengeluaranController extends Controller
             'is_asset.in' => 'Nilai Asset tidak valid'
         ];
 
-        if ($request->has('id_jenis_pengeluaran') && $request->id_jenis_pengeluaran == 1) {
-            $validation['is_asset'] = 'required|in:Asset Peralatan Kecil,Asset Peralatan Besar';
-        } else {
             $validation['is_asset'] = 'nullable';
             $validatedData['is_asset'] = null;
-        }
 
         $validatedData = $request->validate($validation, $messages);
 
