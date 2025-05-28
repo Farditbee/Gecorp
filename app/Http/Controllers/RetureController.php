@@ -866,65 +866,71 @@ class RetureController extends Controller
         $request->validate([
             'id_supplier' => 'required|string',
             'tgl_retur' => 'required|date',
-            'no_nota' => 'required|string',
         ]);
 
         $user = Auth::user();
 
         $tglRetur = Carbon::parse($request->tgl_retur);
         if ($tglRetur->format('H:i:s') === '00:00:00') {
-            // Tambahkan waktu default (waktu saat ini)
             $tglRetur->setTimeFromTimeString(Carbon::now()->format('H:i:s'));
         }
 
         try {
-            $supplier = Supplier::where('id', $request->id_supplier)->first();
+            $supplier = Supplier::find($request->id_supplier);
+
+            if (!$supplier) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Supplier tidak ditemukan',
+                    'status_code' => 404,
+                ], 404);
+            }
 
             $detailKasir = DetailKasir::where('id_supplier', $request->id_supplier)->get();
-
             if ($detailKasir->isEmpty()) {
                 return response()->json([
                     'error' => true,
                     'message' => 'Data tidak ditemukan',
                     'status_code' => 404,
                 ], 404);
-            } else {
-                $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
-                    ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
-                    ->where('detail_retur.status', 'success')
-                    ->where('detail_retur.status_reture', 'pending')
-                    ->where('detail_retur.status_kirim', 'success')
-                    ->select('detail_retur.*', 'detail_pembelian_barang.harga_barang as hpp_jual', 'detail_pembelian_barang.qrcode')
-                    ->get();
-
-                if ($detailTransaksi->isEmpty()) {
-                    return response()->json([
-                        'error' => true,
-                        'message' => 'Tidak ada Barang yang bisa di Reture',
-                        'status_code' => 404,
-                    ], 404);
-                }
             }
+
+            $detailTransaksi = DetailRetur::join('detail_pembelian_barang', 'detail_retur.qrcode', '=', 'detail_pembelian_barang.qrcode')
+                ->whereIn('detail_retur.id_transaksi', $detailKasir->pluck('id_kasir'))
+                ->where('detail_retur.status', 'success')
+                ->where('detail_retur.status_reture', 'pending')
+                ->where('detail_retur.status_kirim', 'success')
+                ->select(
+                    'detail_retur.*',
+                    'detail_pembelian_barang.harga_barang as hpp_jual',
+                    'detail_pembelian_barang.qrcode'
+                )
+                ->get();
+
+            if ($detailTransaksi->isEmpty()) {
+                return response()->json([
+                    'error' => true,
+                    'message' => 'Tidak ada Barang yang bisa di Reture',
+                    'status_code' => 404,
+                ], 404);
+            }
+
+            // Generate no_nota unik
+            $noNota = $this->generateUniqueNota($request->id_supplier);
 
             $retur = DataReture::create([
                 'id_users' => $user->id,
                 'id_toko' => $user->id_toko,
-                'no_nota' => $request->no_nota,
+                'no_nota' => $noNota,
                 'tgl_retur' => $tglRetur,
                 'id_supplier' => $request->id_supplier,
                 'tipe_transaksi' => 'supplier',
             ]);
 
-            // Ambil data barang berdasarkan id_barang dari detailTransaksi
             $barang = Barang::whereIn('id', $detailTransaksi->pluck('id_barang'))->get();
+            $namaBarang = $barang->pluck('nama_barang', 'id');
 
-            // Map nama_barang dari koleksi Barang
-            $namaBarang = $barang->mapWithKeys(function ($item) {
-                return [$item->id => $item->nama_barang];
-            });
-
-            // Map detailTransaksi untuk menambahkan nama_barang
-            $detailTransaksi = $detailTransaksi->map(function ($item) use ($namaBarang) {
+            $detailReturMapped = $detailTransaksi->map(function ($item) use ($namaBarang) {
                 return [
                     'id_transaksi' => $item->id_transaksi,
                     'id_retur' => $item->id_retur,
@@ -938,7 +944,6 @@ class RetureController extends Controller
                 ];
             });
 
-            // Return JSON response
             return response()->json([
                 'error' => false,
                 'message' => 'Successfully',
@@ -949,7 +954,7 @@ class RetureController extends Controller
                     'tgl_retur' => $retur->tgl_retur,
                     'nama_supplier' => $supplier->nama_supplier,
                 ],
-                'detail_retur' => $detailTransaksi,
+                'detail_retur' => $detailReturMapped,
             ]);
         } catch (\Throwable $th) {
             Log::error($th->getMessage());
@@ -1005,5 +1010,15 @@ class RetureController extends Controller
                 'status_code' => 500,
             ], 500);
         }
+    }
+
+    private function generateUniqueNota($idSupplier)
+    {
+        $prefix = 'RS' . now()->format('Ymd') . 'SP' . $idSupplier;
+        do {
+            $noNota = $prefix . str_pad(rand(0, 999), 3, '0', STR_PAD_LEFT);
+        } while (DataReture::where('no_nota', $noNota)->exists());
+
+        return $noNota;
     }
 }
