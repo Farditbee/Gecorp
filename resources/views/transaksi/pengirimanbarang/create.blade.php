@@ -46,7 +46,8 @@
                                     <div class="tab-pane fade show {{ session('tab') == 'detail' ? '' : 'active' }}"
                                         id="tambah" role="tabpanel" aria-labelledby="tambah-tab">
                                         <br>
-                                        <form action="{{ route('transaksi.pengirimanbarang.store') }}" method="POST">
+                                        <form id="pengirimanForm" action="{{ route('transaksi.pengirimanbarang.store') }}"
+                                            method="POST">
                                             @csrf
                                             <div class="row">
                                                 <div class="col-12 col-xxl-6 col-xl-6 col-lg-6">
@@ -105,8 +106,10 @@
                                                     placeholder="Contoh : Sicepat" class="form-control">
                                             </div>
 
-                                            <button type="submit" style="float: right" class="btn btn-success"><i
-                                                    class="fa fa-save"></i> Selanjutnya</button>
+                                            <button type="submit" id="submitBtn" style="float: right"
+                                                class="btn btn-success">
+                                                <i class="fa fa-save"></i> Selanjutnya
+                                            </button>
                                         </form>
                                     </div>
                                     <div class="tab-pane fade {{ session('tab') == 'detail' ? 'show active' : '' }}"
@@ -281,6 +284,12 @@
                 this.showPicker();
             });
         }
+
+        $('#pengirimanForm').on('submit', function() {
+            $('#submitBtn').attr('disabled', true).html(
+                '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...'
+                );
+        });
 
         async function setDatePicker() {
             flatpickr("#tgl_kirim", {
