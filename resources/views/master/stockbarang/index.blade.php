@@ -342,7 +342,7 @@
             let detail_button = `
                 <button id="detail-${data.id}" class="p-1 btn detail-data btn-primary atur-harga-btn"
                     data-toggle="modal" data-target="#mediumModal-${data.id}"
-                    data-id='${data.id}' data-id-barang='${data.id_barang}' onclick="detailBarang(${data.id})">
+                    data-id='${data.id}' data-id-barang='${data.id_barang}' onclick="detailBarang(${data.id_barang})">
                     <span class="text-white" data-container="body" data-toggle="tooltip" data-placement="top" title="Detail ${title}: ${data.nama_barang}"><i class="fa fa-eye mr-1"></i>Detail</span>
                 </button>`;
 

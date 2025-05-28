@@ -187,16 +187,69 @@ class PembelianBarangController extends Controller
         }
     }
 
-    public function edit($id)
+    public function detail($id)
     {
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
-        $menu = [$this->title[0], $this->label[1], $this->title[1]];
-        $pembelian = PembelianBarang::with('detail')->findOrFail($id);
-        $LevelHarga = LevelHarga::all();
 
-        return view('transaksi.pembelianbarang.edit', compact('menu', 'pembelian', 'LevelHarga'));
+        $menu = [$this->title[0], $this->label[1], $this->title[1]];
+
+        return view('transaksi.pembelianbarang.edit', compact('menu'));
+    }
+
+    public function getDetailPembelian(Request $request)
+    {
+        $id = $request->input('id_pembelian');
+
+        if (!$id) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => true,
+                'status_code' => 400,
+                'message' => 'ID Pembelian tidak ditemukan',
+            ], 400);
+        }
+
+        $pembelian = PembelianBarang::with(['supplier', 'detail.barang'])->find($id);
+
+        if (!$pembelian) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => true,
+                'status_code' => 404,
+                'message' => 'Pembelian tidak ditemukan',
+            ], 404);
+        }
+
+        $detail = $pembelian->detail->map(function ($item) {
+            return [
+                'status' => $item->status,
+                'qrcode' => $item->qrcode,
+                'qrcode_path' => $item->qrcode_path,
+                'nama_barang' => $item->barang->nama_barang ?? '-',
+                'qty' => $item->qty,
+                'harga_barang' => $item->harga_barang,
+                'total_harga' => $item->total_harga,
+            ];
+        });
+
+        $subTotal = $detail->sum(function ($item) {
+            return $item['qty'] * $item['harga_barang'];
+        });
+
+        return response()->json([
+            'data' => [
+                'no_nota' => $pembelian->no_nota,
+                'nama_supplier' => $pembelian->supplier->nama_supplier ?? '-',
+                'tgl_nota' => $pembelian->tgl_nota,
+                'sub_total' => $subTotal,
+                'detail' => $detail,
+            ],
+            'status_code' => 200,
+            'errors' => false,
+            'message' => 'Sukses',
+        ]);
     }
 
     public function getStock($id_barang)
@@ -276,7 +329,7 @@ class PembelianBarangController extends Controller
 
                     // Path QR code for this barang
                     $qrCodePath = "qrcodes/pembelian/{$idPembelian}-{$counter}.png";
-                    $fullPath = storage_path('app/public/' . $qrCodePath);
+                    $fullPath = public_path($qrCodePath);
 
                     if (!file_exists(dirname($fullPath))) {
                         mkdir(dirname($fullPath), 0755, true);
@@ -289,12 +342,13 @@ class PembelianBarangController extends Controller
                         ->setMargin(10);
 
                     $writer = new PngWriter();
-                    $result = $writer->write(
-                        $qrCode,
-                        null,
-                        Label::create("{$barang->nama_barang}")
-                            ->setFont(new NotoSans(12))
-                    );
+                    $result = $writer->write($qrCode);
+                    // $result = $writer->write(
+                    //     $qrCode,
+                    //     null,
+                    //     Label::create("{$barang->nama_barang}")
+                    //         ->setFont(new NotoSans(12))
+                    // );
 
                     $result->saveToFile($fullPath);
 

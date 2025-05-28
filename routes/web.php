@@ -71,7 +71,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/pembelianbarang/store', [PembelianBarangController::class, 'store'])->name('transaksi.pembelianbarang.store');
         Route::post('/pembelianbarang/additem', [PembelianBarangController::class, 'addItem'])->name('transaksi.pembelianbarang.additem');
         Route::delete('/pembelianbarang/remove-item/{id}', [PembelianBarangController::class, 'removeItem']);
-        Route::get('/pembelianbarang/{id}/edit', [PembelianBarangController::class, 'edit'])->name('transaksi.pembelianbarang.edit');
+        Route::get('/pembelianbarang/{id}/detail', [PembelianBarangController::class, 'detail'])->name('transaksi.pembelianbarang.detail');
+        Route::get('/pembelianbarang/Getdetail', [PembelianBarangController::class, 'getDetailPembelian'])->name('transaksi.pembelianbarang.Getdetail');
         Route::put('/pembelianbarang/{id}/update', [PembelianBarangController::class, 'update'])->name('transaksi.pembelianbarang.update');
         Route::delete('/pembelianbarang/{id}/delete', [PembelianBarangController::class, 'delete'])->name('transaksi.pembelianbarang.delete');
         Route::get('/get-stock/{id_barang}', [PembelianBarangController::class, 'getStock'])->name('transaksi.pembelian.getstock');

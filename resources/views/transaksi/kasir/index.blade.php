@@ -94,7 +94,7 @@
                                     </select>
                                 </div>
                                 <div class="custom-search">
-                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                    <input id="tb-search" class="tb-search form-control" type="search" name="search"
                                         placeholder="Cari Data" aria-label="search">
                                 </div>
                             </div>
@@ -667,6 +667,7 @@
                 $('#listData').html(errorRow);
                 $('#countPage').text("0 - 0");
                 $('#totalPage').text("0");
+                $('#totalData').text(getDataRest?.data?.total ?? 0);
             }
         }
 

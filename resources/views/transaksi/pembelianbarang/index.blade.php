@@ -164,7 +164,7 @@
                                     </select>
                                 </div>
                                 <div class="custom-search">
-                                    <input id="tb-search" class="form-control" type="search" name="search"
+                                    <input id="tb-search" class="tb-search form-control" type="search" name="search"
                                         placeholder="Cari Data" aria-label="search">
                                 </div>
                             </div>
@@ -539,7 +539,7 @@
                 status =
                     `<span class="badge badge-success custom-badge"><i class="mx-1 fa fa-circle-check"></i>Sukses</span>`;
                 detail_button = `
-                    <a href="pembelianbarang/${data.id}/edit" class="p-1 btn detail-data action_button"
+                    <a href="pembelianbarang/${data.id}/detail?r=${data.id}" class="p-1 btn detail-data action_button"
                         data-container="body" data-toggle="tooltip" data-placement="top"
                         title="Detail Data Nomor Nota: ${data.no_nota}"
                         data-id='${data.id}'>
@@ -667,7 +667,7 @@
 
                 let id = $(this).data('id');
                 if (id) {
-                    window.location.href = `pembelianbarang/${id}/edit`;
+                    window.location.href = `pembelianbarang/${id}/detail?id=${data.id}`;
                 }
             });
         }
