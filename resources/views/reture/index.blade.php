@@ -1,7 +1,7 @@
 @extends('layouts.main')
 
 @section('title')
-    Reture Member
+    Retur Member
 @endsection
 
 @section('css')
@@ -58,7 +58,7 @@
                                                 <th class="text-center text-wrap align-top">No</th>
                                                 <th class="text-wrap align-top">No. Nota</th>
                                                 <th class="text-wrap align-top">Nama Member</th>
-                                                <th class="text-wrap align-top">Tanggal Reture</th>
+                                                <th class="text-wrap align-top">Tanggal Retur</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-wrap align-top">Action</th>
                                             </tr>
@@ -102,12 +102,12 @@
                                                 <a class="nav-item nav-link active" id="tambah-tab" data-toggle="tab"
                                                     href="#tambah" role="tab" aria-controls="tambah"
                                                     aria-selected="true">
-                                                    Tambah Reture
+                                                    Tambah Retur
                                                 </a>
                                                 <a class="nav-item nav-link disabled" id="detail-tab" data-toggle="tab"
                                                     href="#detail" role="tab" aria-controls="detail"
                                                     aria-selected="false" style="pointer-events: none; opacity: 0.6;">
-                                                    Detail Reture
+                                                    Detail Retur
                                                 </a>
                                             </div>
                                         </nav>
@@ -126,7 +126,7 @@
                                                         </div>
                                                         <div class="col-6">
                                                             <label for="tgl_retur" class="form-control-label">Tanggal
-                                                                Reture <span class="text-danger">*</span></label>
+                                                                Retur <span class="text-danger">*</span></label>
                                                             <input class="form-control tgl_retur" type="text"
                                                                 name="tgl_retur" id="tgl_retur"
                                                                 placeholder="Pilih tanggal" readonly>
@@ -157,7 +157,7 @@
                                                     </li>
                                                     <li
                                                         class="list-group-item d-flex justify-content-between align-items-center">
-                                                        <h5><i class="fa fa-calendar mr-2"></i>Tanggal Reture</h5>
+                                                        <h5><i class="fa fa-calendar mr-2"></i>Tanggal Retur</h5>
                                                         <span id="i_tgl_retur" class="badge badge-secondary"></span>
                                                     </li>
                                                 </ul>
@@ -292,7 +292,7 @@
         let globalIdMember = null;
         let qrCodeResponses = {};
 
-        let title = 'Reture';
+        let title = 'Retur';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
@@ -544,7 +544,7 @@
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
 
-                $("#modal-title").html(`Form Edit Reture No. Nota: ${nota}`);
+                $("#modal-title").html(`Form Edit Retur No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
@@ -600,7 +600,7 @@
                 dataTemp.id_retur = id;
                 dataTemp.no_nota = nota;
 
-                $("#modal-title").html(`Form Detail Reture No. Nota: ${nota}`);
+                $("#modal-title").html(`Form Detail Retur No. Nota: ${nota}`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input, select, textarea").val("").prop("checked", false).trigger("change");
@@ -651,7 +651,7 @@
         async function addData() {
             $(document).on("click", ".add-data", async function() {
                 await setDatePicker();
-                $("#modal-title").html(`Form Tambah Reture`);
+                $("#modal-title").html(`Form Tambah Retur`);
                 $("#modal-form").modal("show");
 
                 $("form").find("input:not(#tgl_retur), select, textarea")
