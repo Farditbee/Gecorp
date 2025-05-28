@@ -192,15 +192,35 @@ class PembelianBarangController extends Controller
         if (!in_array(Auth::user()->id_level, [1, 2])) {
             abort(403, 'Unauthorized');
         }
-        
+
         $menu = [$this->title[0], $this->label[1], $this->title[1]];
 
         return view('transaksi.pembelianbarang.edit');
     }
 
-    public function getDetailPembelian($id)
+    public function getDetailPembelian(Request $request)
     {
-        $pembelian = PembelianBarang::with(['supplier', 'detail.barang'])->findOrFail($id);
+        $id = $request->input('id_pembelian');
+
+        if (!$id) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => true,
+                'status_code' => 400,
+                'message' => 'ID Pembelian tidak ditemukan',
+            ], 400);
+        }
+
+        $pembelian = PembelianBarang::with(['supplier', 'detail.barang'])->find($id);
+        
+        if (!$pembelian) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => true,
+                'status_code' => 404,
+                'message' => 'Pembelian tidak ditemukan',
+            ], 404);
+        }
 
         $detail = $pembelian->detail->map(function ($item) {
             return [
