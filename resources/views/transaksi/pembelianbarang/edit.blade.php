@@ -83,7 +83,7 @@
                                     <div class="table-responsive">
                                         <table class="table table-bordered">
                                             <thead>
-                                                <tr>
+                                                <tr class="tb-head">
                                                     <th style="width: 40px;" class="text-center">No</th>
                                                     <th style="width: 50px;">Status</th>
                                                     <th style="min-width: 200px;">QR Code Pembelian Barang</th>
@@ -531,17 +531,17 @@
                             ${item.status === 'success'
                                 ? `<span class="badge badge-success w-100"><i class="fas fa-circle-check mr-1"></i>Success</span>`
                                 : `<select class="form-control">
-                                                                            <option value="" disabled ${!item.status ? 'selected' : ''}>Pilih Status</option>
-                                                                            <option value="progress" ${item.status === 'progress' ? 'selected' : ''}>progress</option>
-                                                                            <option value="success" ${item.status === 'success' ? 'selected' : ''}>success</option>
-                                                                            <option value="failed" ${item.status === 'failed' ? 'selected' : ''}>failed</option>
-                                                                        </select>`}
+                                                                                        <option value="" disabled ${!item.status ? 'selected' : ''}>Pilih Status</option>
+                                                                                        <option value="progress" ${item.status === 'progress' ? 'selected' : ''}>progress</option>
+                                                                                        <option value="success" ${item.status === 'success' ? 'selected' : ''}>success</option>
+                                                                                        <option value="failed" ${item.status === 'failed' ? 'selected' : ''}>failed</option>
+                                                                                    </select>`}
                         </td>
                         <td>
                             <div class="d-flex align-items-start" style="gap: 10px;">
                                 <img src="{{ asset('') }}/${item.qrcode_path}" alt="QR Code" style="max-width: 50px; height: auto;">
                                 <div class="d-flex flex-column">
-                                    <span class="mr-2 mb-1 text-dark font-weight-bold">${item.qrcode || '-'}</span>
+                                    <span id="qrcode-text-${index}" class="mr-2 mb-1 text-dark font-weight-bold">${item.qrcode || '-'}</span>
                                     <button type="button" class="btn btn-sm btn-outline-primary copy-btn" data-target="qrcode-text-${index}">
                                         <i class="fas fa-copy"></i>
                                     </button>
@@ -555,12 +555,14 @@
                         <td>
                             <div class="row">
                                 <div class="col-12 col-xl-6 col-lg-12">
-                                    <a href="{{ asset('') }}/${item.qrcode_path}" download class="btn btn-outline-success btn-sm w-100">
+                                    <a href="{{ asset('') }}/${item.qrcode_path}" download class="btn btn-outline-success btn-sm w-100" data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Unduh QR Code Pembelian Barang">
                                         <i class="fa fa-download"></i> Unduh
                                     </a>
                                 </div>
                                 <div class="col-12 col-xl-6 col-lg-12">
-                                    <button type="button" class="btn btn-outline-info btn-sm w-100 open-modal-print"
+                                    <button type="button" class="btn btn-outline-info btn-sm w-100 open-modal-print" data-container="body" data-toggle="tooltip" data-placement="top"
+                                        title="Atur print QR Code Pembelian Barang"
                                         data-qty="${item.qty}" data-barang="${item.nama_barang}" data-qrcode="${item.qrcode_path}">
                                         <i class="fa fa-print"></i> Print
                                     </button>
@@ -572,18 +574,50 @@
 
                     // Footer subtotal
                     detailFooter.innerHTML = `
-                <tr>
-                    <th colspan="6" class="text-right">SubTotal</th>
-                    <th class="text-right">Rp ${Number(data.sub_total).toLocaleString('id-ID')}</th>
-                    <th>
-                        <button type="button" class="btn btn-info btn-sm w-100 open-modal-print-all"
-                            data-items='${jsonItems}'>
-                            <i class="fa fa-print"></i> Print Semua
-                        </button>
-                    </th>
-                </tr>`;
+                    <tr>
+                        <th colspan="6" class="text-right">SubTotal</th>
+                        <th class="text-right">Rp ${Number(data.sub_total).toLocaleString('id-ID')}</th>
+                        <th>
+                            <button type="button" class="btn btn-info btn-sm w-100 open-modal-print-all" data-container="body" data-toggle="tooltip" data-placement="top"
+                                title="Atur semua print QR Code Pembelian Barang"
+                                data-items='${jsonItems}'>
+                                <i class="fa fa-print"></i> Print Semua
+                            </button>
+                        </th>
+                    </tr>`;
+                    $('[data-toggle="tooltip"]').tooltip();
+                    const notyf = new Notyf({
+                        duration: 2000,
+                        position: {
+                            x: 'center',
+                            y: 'top',
+                        },
+                    });
+
+                    // Pasang event listener setelah elemen dimuat
+                    document.querySelectorAll('.copy-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const targetId = this.getAttribute('data-target');
+                            const targetText = document.getElementById(targetId)?.textContent;
+
+                            if (targetText) {
+                                navigator.clipboard.writeText(targetText).then(() => {
+                                    notyf.success('QR Code berhasil disalin!');
+                                }).catch(() => {
+                                    notyf.error('Gagal menyalin QR Code');
+                                });
+                            } else {
+                                notyf.error('Data QR Code tidak ditemukan');
+                            }
+                        });
+                    });
                 } else {
-                    alert('Gagal mendapatkan data');
+                    errorMessage = 'Tidak ada data';
+                    let errorRow = `
+                            <tr class="text-dark">
+                                <th class="text-center" colspan="${$('.tb-head th').length}"> ${errorMessage} </th>
+                            </tr>`;
+                    $('#detail-body').html(errorRow);
                 }
             } catch (err) {
                 console.error('Fetch detail failed', err);
