@@ -633,7 +633,7 @@ class PengirimanBarangController extends Controller
         if (empty($nonEmptyStatuses)) {
             return response()->json([
                 'error' => true,
-                'message' => 'Harap ceklis barang terlebih dahulu',
+                'message' => 'Harap ceklis barang yang ingin di verify terlebih dahulu',
                 'status_code' => 400,
             ], 400);
         }
