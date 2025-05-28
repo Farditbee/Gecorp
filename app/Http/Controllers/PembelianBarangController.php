@@ -212,7 +212,7 @@ class PembelianBarangController extends Controller
         }
 
         $pembelian = PembelianBarang::with(['supplier', 'detail.barang'])->find($id);
-        
+
         if (!$pembelian) {
             return response()->json([
                 'status' => 'error',
@@ -225,6 +225,7 @@ class PembelianBarangController extends Controller
         $detail = $pembelian->detail->map(function ($item) {
             return [
                 'status' => $item->status,
+                'qrcode' => $item->qrcode,
                 'qrcode_path' => $item->qrcode_path,
                 'nama_barang' => $item->barang->nama_barang ?? '-',
                 'qty' => $item->qty,
