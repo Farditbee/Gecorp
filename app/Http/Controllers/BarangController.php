@@ -91,8 +91,8 @@ class BarangController extends Controller
                 'barcode_path' => $item->barcode_path,
                 'gambar_path' => $item->gambar_path,
                 'nama_barang' => $item->nama_barang,
-                'nama_jenis_barang' => $item['jenis']->nama_jenis_barang,
-                'nama_brand' => $item['brand']->nama_brand,
+                'nama_jenis_barang' => optional($item['jenis'])->nama_jenis_barang ?? 'Tidak Ada',
+                'nama_brand' => optional($item['brand'])->nama_brand ?? 'Tidak Ada',
             ];
         });
 
