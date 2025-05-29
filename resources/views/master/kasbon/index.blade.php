@@ -180,7 +180,7 @@
                     <tr class="text-dark">
                         <td class="${classCol} text-left"><span class="ml-4">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_member}</td>
-                        <td class="${classCol}">Rp. ${element.utang}</td>
+                        <td class="${classCol}">Rp. ${Number(element.utang).toLocaleString('id-ID')}</td>
                         <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">
                             <div class="d-flex w-100">

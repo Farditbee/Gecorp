@@ -61,7 +61,7 @@
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between">
                                             <strong><i class="fa fa-file-text"></i> Sisa Hutang (Rp)</strong>
-                                            <span>{{ intval($kasbon->utang_sisa) }}</span>
+                                            <span>{{ 'Rp. ' . number_format($kasbon->utang_sisa, 0, ',', '.') }}</span>
                                         </li>
                                         <hr class="m-0">
                                     </ul>
@@ -129,7 +129,7 @@
                                                         <tr>
                                                             <td class="text-center">{{ $loop->iteration }}</td>
                                                             <td class="text-wrap">{{ $dt->tgl_bayar }}</td>
-                                                            <td class="text-wrap">Rp. {{ intval($dt->bayar) }}</td>
+                                                            <td class="text-wrap">{{ 'Rp. ' . number_format($dt->bayar, 0, ',', '.') }}</td>
                                                             <td class="text-wrap">{{ $dt->tipe_bayar }}</td>
                                                         </tr>
                                                     @endforeach
@@ -186,7 +186,7 @@
                         id_member: {{ $kasbon->member->id }},
                     };
 
-                    return renderAPI('POST', '{{ route('kasbon.bayar') }}', formData)
+                    return renderAPI('POST', '{{ route('transaksi.bayar') }}', formData)
                         .then((postData) => {
                             loadingPage(false);
 
