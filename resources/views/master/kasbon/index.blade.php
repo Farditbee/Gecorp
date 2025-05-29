@@ -44,6 +44,7 @@
                                                         class="ml-4">No</span></th>
                                                 <th class="text-wrap align-top">Nama Member</th>
                                                 <th class="text-wrap align-top">Hutang</th>
+                                                <th class="text-wrap align-top">Sisa Hutang</th>
                                                 <th class="text-wrap align-top">Status</th>
                                                 <th class="text-center text-wrap align-top" style="width: 15%;"><span
                                                         class="mr-4">Action</span></th>
@@ -162,6 +163,7 @@
                 id: data?.id ?? '-',
                 nama_member: data?.nama_member ?? '-',
                 utang: data?.utang ?? '-',
+                utang_sisa: data?.utang_sisa ?? '-',
                 status: data?.status ?? '-',
                 edit_button,
             };
@@ -181,6 +183,7 @@
                         <td class="${classCol} text-left"><span class="ml-4">${display_from + index}.</td>
                         <td class="${classCol}">${element.nama_member}</td>
                         <td class="${classCol}">Rp. ${Number(element.utang).toLocaleString('id-ID')}</td>
+                        <td class="${classCol}">Rp. ${Number(element.utang_sisa).toLocaleString('id-ID')}</td>
                         <td class="${classCol}">${element.status}</td>
                         <td class="${classCol}">
                             <div class="d-flex w-100">

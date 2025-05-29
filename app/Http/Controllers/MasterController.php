@@ -763,6 +763,7 @@ class MasterController extends Controller
                 'nama_member' => $item['member']['nama_member'],
                 'no_hp' => $item['member']['no_hp'],
                 'utang' => intval($item['utang']),
+                'utang_sisa' => intval($item['utang_sisa']),
                 'tgl_kasbon' => $item['created_at'],
                 'status' => $item['status'] === 'BL' ? 'Belum Lunas' : 'Lunas',
             ];
