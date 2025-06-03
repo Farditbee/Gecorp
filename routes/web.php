@@ -96,6 +96,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/toko/{id_toko}/detail/{id_barang}/delete', [TokoController::class, 'delete_detail'])->name('master.toko.delete_detail');
         Route::get('/master/toko/search', [TokoController::class, 'search'])->name('master.toko.search');
         Route::get('/master/stock/searchs', [TokoController::class, 'searchs'])->name('master.stock.searchs');
+        Route::post('/import-toko', [TokoController::class, 'import'])->name('master.toko.import');
 
         // User Controller
         Route::get('/user', [UserController::class, 'index'])->name('master.user.index');

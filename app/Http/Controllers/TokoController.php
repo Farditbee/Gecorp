@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\TokoImport;
 use App\Models\Barang;
 use App\Models\DetailToko;
 use App\Models\LevelHarga;
@@ -10,6 +11,7 @@ use App\Models\Toko;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TokoController extends Controller
 {
@@ -376,5 +378,16 @@ class TokoController extends Controller
                 'message' => 'Gagal menghapus Data Toko: ' . $th->getMessage()
             ], 500);
         }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls'
+        ]);
+
+        Excel::import(new TokoImport, $request->file('file'));
+
+        return back()->with('success', 'Data berhasil diimpor!');
     }
 }
