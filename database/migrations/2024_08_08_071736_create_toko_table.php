@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id('id');
             $table->string('nama_toko');
             $table->string('singkatan')->nullable();
-            $table->string('id_level_harga');
+            $table->string('id_level_harga')->nullable();
             $table->string('wilayah');
             $table->text('alamat');
             $table->softDeletes();
