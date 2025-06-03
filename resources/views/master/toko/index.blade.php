@@ -8,6 +8,119 @@
     <link rel="stylesheet" href="{{ asset('css/button-action.css') }}">
     <link rel="stylesheet" href="{{ asset('css/table.css') }}">
     <link rel="stylesheet" href="{{ asset('css/sweetalert2.css') }}">
+    <style>
+        #tgl_nota[readonly] {
+            background-color: white !important;
+            cursor: pointer !important;
+            color: inherit !important;
+        }
+
+        .custom-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-left {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-btn-tambah-wrap {
+            flex: 1 1 auto;
+        }
+
+        .custom-form-import {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .custom-input-file {
+            padding: 8px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 4px;
+            flex: 1 1 auto;
+        }
+
+        .custom-btn-import {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+
+        .custom-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            gap: 10px;
+            flex: 0 0 auto;
+        }
+
+        .custom-limit-page {
+            flex: 0 0 auto;
+        }
+
+        .custom-search {
+            flex: 0 0 auto;
+            width: 200px;
+        }
+
+        @media (max-width: 767.98px) {
+            .custom-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-left {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .custom-btn-tambah-wrap {
+                width: 100%;
+            }
+
+            .custom-form-import {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .custom-input-file {
+                flex: 1 1 65%;
+            }
+
+            .custom-btn-import {
+                flex: 1 1 30%;
+            }
+
+            .custom-right {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+                margin-top: 10px;
+            }
+
+            .custom-limit-page {
+                flex: 1 1 25%;
+            }
+
+            .custom-search {
+                flex: 1 1 70%;
+            }
+
+            .custom-btn-tambah {
+                width: 100%;
+            }
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -17,11 +130,9 @@
             <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-header">
-                            <div class="row">
-                                <div class="col-12 col-xl-2 col-lg-2 mb-2">
-                                    @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-                                        <div class="custom-left">
+                        <div class="card-header custom-header">
+                            <div class="custom-left">
+                                @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                     <div class="custom-btn-tambah-wrap">
                                         <a href="{{ route('master.toko.create') }}"
                                             class="btn btn-primary custom-btn-tambah" data-toggle="tooltip"
@@ -38,24 +149,19 @@
                                             <i class="fa fa-file-import"></i> Import
                                         </button>
                                     </form>
+                                @endif
+                            </div>
+                            <div class="custom-right">
+                                <div class="custom-limit-page">
+                                    <select name="limitPage" id="limitPage" class="form-control">
+                                        <option value="10">10</option>
+                                        <option value="20">20</option>
+                                        <option value="30">30</option>
+                                    </select>
                                 </div>
-                                    @endif
-                                </div>
-
-                                <div class="col-12 col-xl-10 col-lg-10 mb-2">
-                                    <div class="row justify-content-end">
-                                        <div class="col-4 col-xl-2 col-lg-2">
-                                            <select name="limitPage" id="limitPage" class="form-control mr-2 mb-2 mb-lg-0">
-                                                <option value="10">10</option>
-                                                <option value="20">20</option>
-                                                <option value="30">30</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-8 col-xl-4 col-lg-4 justify-content-end">
-                                            <input id="tb-search" class="tb-search form-control mb-2 mb-lg-0" type="search"
-                                                name="search" placeholder="Cari Data" aria-label="search">
-                                        </div>
-                                    </div>
+                                <div class="custom-search">
+                                    <input id="tb-search" class="tb-search form-control" type="search" name="search"
+                                        placeholder="Cari Data" aria-label="search">
                                 </div>
                             </div>
                         </div>
