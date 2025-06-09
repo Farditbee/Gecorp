@@ -6,11 +6,15 @@
             </a>
             <a href="#!" class="b-brand">
                 <b class="text-white" style="font-size: 30px;">
-                    {{ Auth::user()->toko->singkatan }}
+                    @if (auth()->user()->id_level = 1)
+                        Super Admin
+                    @else
+                        {{ Auth::user()->toko->singkatan }}
+                    @endif
                 </b>
             </a>
-            <a href="" onclick="event.preventDefault(); document.getElementById('logout-m-form').submit();" title="Logout"
-                class="btn btn-outline-secondary rounded p-2 text-white d-block d-md-none"
+            <a href="" onclick="event.preventDefault(); document.getElementById('logout-m-form').submit();"
+                title="Logout" class="btn btn-outline-secondary rounded p-2 text-white d-block d-md-none"
                 style="position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; font-size: 18px;">
                 <i class="feather icon-log-out"></i>
             </a>
