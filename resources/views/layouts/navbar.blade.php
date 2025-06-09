@@ -145,9 +145,9 @@
                                         class="fa fa-star"></i> Rating Member</a></li>
                             @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
                                 <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
-                                            class="fa fa-box"></i> Asset Barang Jualan</a></li>
+                                            class="fa fa-box"></i> Aset Barang Jualan</a></li>
                                 <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
-                                            class="fa fa-box"></i> Asset Barang Retur</a></li>
+                                            class="fa fa-box"></i> Aset Barang Retur</a></li>
                             @endif
                         </ul>
                     </li>

@@ -25,12 +25,17 @@
                             <form action="{{ route('master.user.store') }}" method="post" class="">
                                 <div class="table-responsive">
                                     @csrf
-                                    <div class="form-group">
-                                        <label for="id_toko" class=" form-control-label">Nama Toko<span
-                                                style="color: red">*</span></label>
-                                        <select name="id_toko" id="selector" class="form-control select2" tabindex="1">
-                                        </select>
-                                    </div>
+                                    @if (auth()->user()->id_level == 1)
+                                        <div class="form-group">
+                                            <label for="id_toko" class=" form-control-label">Nama Toko<span
+                                                    style="color: red">*</span></label>
+                                            <select name="id_toko" id="selector" class="form-control select2"
+                                                tabindex="1">
+                                            </select>
+                                        </div>
+                                    @else
+                                        <input type="hidden" name="id_toko" value="{{ auth()->user()->id_toko }}">
+                                    @endif
                                     <div class="form-group">
                                         <label for="id_level" class="form-control-label">Level<span
                                                 style="color: red">*</span></label>

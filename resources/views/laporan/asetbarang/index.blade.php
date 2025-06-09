@@ -94,7 +94,7 @@
 
 @section('js')
     <script>
-        let title = 'Rekapitulasi Asset Barang';
+        let title = 'Rekapitulasi Aset Barang Jualan';
         let defaultLimitPage = 10;
         let currentPage = 1;
         let totalPage = 1;
