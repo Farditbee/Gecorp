@@ -94,8 +94,8 @@ class UserController extends Controller
         $mappedData = collect($data['data'])->map(function ($item) {
             return [
                 'id' => $item['id'],
-                'nama_toko' => $item['toko']->nama_toko,
-                'nama_level' => $item['leveluser']->nama_level,
+                'nama_toko' => optional($item['toko'])->nama_toko ?? 'Tidak ada',
+                'nama_level' => optional($item['leveluser'])->nama_level ?? 'Tidak ada',
                 'nama' => $item->nama,
                 'username' => $item->username,
                 'email' => $item->email,
