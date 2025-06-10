@@ -140,7 +140,7 @@ class UserController extends Controller
     public function create()
     {
 
-        if (!in_array(Auth::user()->id_level, [1, 2, 3])) {
+        if (!in_array(Auth::user()->id_level, [1, 2, 3, 6])) {
             abort(403, 'Unauthorized');
         }
 
