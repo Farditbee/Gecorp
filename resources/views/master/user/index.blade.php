@@ -127,7 +127,7 @@
                         <div class="card-header custom-header">
                             <div class="custom-left">
                                 <div class="custom-btn-tambah-wrap">
-                                    @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
+                                    @if (in_array(Auth::user()->id_level, [1, 2, 3, 6]))
                                         <a href="{{ route('master.user.create') }}"
                                             class="mr-2 btn btn-primary custom-btn-tambah text-white" data-container="body"
                                             data-toggle="tooltip" data-placement="top" title="Tambah Data User">

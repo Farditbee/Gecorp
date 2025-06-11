@@ -6,7 +6,7 @@
             </a>
             <a href="#!" class="b-brand">
                 <b class="text-white" style="font-size: 30px;">
-                    @if (auth()->user()->id_level = 1)
+                    @if (auth()->user()->id_level == 1)
                         Super Admin
                     @else
                         {{ Auth::user()->toko->singkatan }}

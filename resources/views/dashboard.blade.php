@@ -36,7 +36,7 @@
         .glass {
             background: rgb(255, 251, 251);
             border-radius: 1rem;
-            padding: 1.5rem;
+            padding: 1rem;
             backdrop-filter: blur(8px);
             flex: 1 1 auto;
             word-wrap: break-word;
@@ -97,11 +97,11 @@
                 <div class="col-12 col-lg-4">
                     <div class="row">
                         <div class="col-12">
-                            <div class="card statistics-card-1 position-relative">
+                            {{-- <div class="card statistics-card-1 position-relative">
                                 <img src="{{ asset('images/dash-1.svg') }}" alt="img" class="img-fluid"
-                                    style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;">
-                                <div class="card-body position-relative">
-                                    <div class="row p-3">
+                                    style="position: absolute; top: 0; right: 0; width: 125px; height: auto; z-index: 1;"> --}}
+                                {{-- <div class="card-body position-relative"> --}}
+                                    <div class="row px-3 pb-3">
                                         <div class="col-12 glass bg-primary text-white">
                                             <div class="row justify-content-between align-items-center">
                                                 <div class="col-8 col-xl-9 col-lg-12">
@@ -156,17 +156,17 @@
                                                     </div>
                                                 </form>
                                             </div>
-                                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 5)
+                                            @if (in_array(Auth::user()->id_level, [1, 5, 6]))
                                                 <hr>
                                                 <div class="row">
-                                                    <div class="col-12 col-xl-6 col-lg-12 px-3 pb-2">
+                                                    <div class="col-12 col-xxl-6 col-xl-6 col-lg-12 px-3 pb-2">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-shopping-cart fa-lg mb-2 text-primary"></i>
                                                             <div class="font-weight-bold">Jumlah Transaksi</div>
                                                             <div id="total-transaksi" class="fs-4 font-weight-bold">0</div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-12 col-xl-6 col-lg-12 px-3">
+                                                    <div class="col-12 col-xxl-6 col-xl-6 col-lg-12 px-3">
                                                         <div class="glass flex-fill text-dark">
                                                             <i class="fa fa-wallet fa-lg mb-2 text-primary"></i>
                                                             <div class="font-weight-bold">Laba Kotor</div>
@@ -177,8 +177,8 @@
                                             @endif
                                         </div>
                                     </div>
-                                </div>
-                            </div>
+                                {{-- </div> --}}
+                            {{-- </div> --}}
                         </div>
                         <div class="col-12">
                             <div class="card table-card">
@@ -244,7 +244,7 @@
                 </div>
                 <div class="col-12 col-lg-8">
                     <div class="row">
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
@@ -1148,7 +1148,7 @@
             await getOmset(customFilter4);
             await filterOmset();
             await setDynamicButton();
-            if ('{{ auth()->user()->id_level == 1 || auth()->user()->id_level == 2 }}') {
+            if ('{{ auth()->user()->id_level == 1 || auth()->user()->id_level == 2 || auth()->user()->id_level == 6 }}') {
                 await getKomparasiToko(customFilter);
                 await filterKomparasiToko();
             }

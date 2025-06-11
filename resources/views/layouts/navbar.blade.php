@@ -1,5 +1,5 @@
 @php
-    $nav_link = 'text-primary bg-white';
+    $nav_link = 'text-primary bg-white'; // Highlight for active menu
 @endphp
 
 <nav class="pcoded-navbar theme-horizontal menu-light nav-svg">
@@ -9,6 +9,8 @@
                 <li class="nav-item pcoded-menu-caption">
                     <label>Navigasi</label>
                 </li>
+
+                {{-- Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ route('dashboard.index') }}"
                         class="nav-link {{ request()->routeIs('dashboard.*') ? $nav_link : '' }}">
@@ -16,11 +18,13 @@
                         <span class="pcoded-mtext">Dashboard</span>
                     </a>
                 </li>
+
+                {{-- Data Master --}}
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)"
-                        class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}"><span
-                            class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Data
-                            Master</span></a>
+                    <a href="javascript:void(0)" class="nav-link {{ request()->routeIs('master.*') ? $nav_link : '' }}">
+                        <span class="pcoded-micon"><i class="feather icon-box"></i></span>
+                        <span class="pcoded-mtext">Data Master</span>
+                    </a>
                     <ul class="pcoded-submenu">
                         <li class="font-weight-bold">Entitas</li>
                         <li><a class="dropdown-item" href="{{ route('master.user.index') }}"><i class="fa fa-users"></i>
@@ -29,12 +33,13 @@
                                 Data Toko</a></li>
                         <li><a class="dropdown-item" href="{{ route('master.member.index') }}"><i
                                     class="fa fa-user"></i> Data Member</a></li>
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                             <li><a class="dropdown-item" href="{{ route('master.supplier.index') }}"><i
                                         class="fa fa-download"></i> Data Supplier</a></li>
                         @endif
+
                         <li class="font-weight-bold mt-2">Manajemen Barang</li>
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                             <li><a class="dropdown-item" href="{{ route('master.jenisbarang.index') }}"><i
                                         class="fa fa-sitemap"></i> Jenis Barang</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.brand.index') }}"><i
@@ -44,10 +49,13 @@
                         @endif
                         <li><a class="dropdown-item" href="{{ route('master.stockbarang.index') }}"><i
                                     class="fa fa-tasks"></i> Stok Barang</a></li>
-                        @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+
+                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                             <li class="font-weight-bold mt-2">Pengaturan</li>
-                            <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
-                                        class="fa fa-laptop"></i> Level User</a></li>
+                            @if (in_array(Auth::user()->id_level, [1, 2]))
+                                <li><a class="dropdown-item" href="{{ route('master.leveluser.index') }}"><i
+                                            class="fa fa-laptop"></i> Level User</a></li>
+                            @endif
                             <li><a class="dropdown-item" href="{{ route('master.levelharga.index') }}"><i
                                         class="fa fa-sitemap"></i> Level Harga</a></li>
                             <li><a class="dropdown-item" href="{{ route('master.promo.index') }}"><i
@@ -55,95 +63,84 @@
                         @endif
                     </ul>
                 </li>
-                @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
+
+                {{-- Distribusi --}}
+                @if (in_array(Auth::user()->id_level, [1, 2, 3, 6]))
                     <li class="nav-item pcoded-hasmenu">
-                        <a href="javascript::void(0)"
-                            class="nav-link {{ request()->routeIs('distribusi.*') ? $nav_link : '' }}"><span
-                                class="pcoded-micon"><i class="icon feather icon-package"></i></span><span
-                                class="pcoded-mtext">Distribusi</span>
+                        <a href="javascript:void(0)"
+                            class="nav-link {{ request()->routeIs('distribusi.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="feather icon-package"></i></span>
+                            <span class="pcoded-mtext">Distribusi</span>
                         </a>
                         <ul class="pcoded-submenu">
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
-                                <li><a class="dropdown-item" href="{{ route('distribusi.pengirimanbarang.index') }}"><i
-                                            class="fa fa-truck"></i> Pengiriman Barang</a></li>
-                            @endif
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            <li><a class="dropdown-item" href="{{ route('distribusi.pengirimanbarang.index') }}"><i
+                                        class="fa fa-truck"></i> Pengiriman Barang</a></li>
+                            @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                                 <li><a class="dropdown-item" href="{{ route('distribusi.planorder.index') }}"><i
-                                            class="fa fa-laptop"></i> Lokasi dan Riwayat Barang
-                                    </a></li>
+                                            class="fa fa-laptop"></i> Lokasi & Riwayat Barang</a></li>
                             @endif
                         </ul>
                     </li>
                 @endif
+
+                {{-- Transaksi --}}
                 <li class="nav-item pcoded-hasmenu">
-                    <a href="javascript::void(0)"
-                        class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}"><span
-                            class="pcoded-micon"><i class="icon feather icon-shopping-cart"></i></span><span
-                            class="pcoded-mtext">Transaksi</span>
+                    <a href="javascript:void(0)"
+                        class="nav-link {{ request()->routeIs('transaksi.*') ? $nav_link : '' }}">
+                        <span class="pcoded-micon"><i class="feather icon-shopping-cart"></i></span>
+                        <span class="pcoded-mtext">Transaksi</span>
                     </a>
                     <ul class="pcoded-submenu">
-                        @if (Auth::user()->id_level == 1 ||
-                                Auth::user()->id_level == 2 ||
-                                Auth::user()->id_level == 3 ||
-                                Auth::user()->id_level == 4)
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-                                <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
-                                            class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
-                            @endif
-                            <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
-                                        class="fa fa-laptop"></i> Transaksi Kasir</a></li>
-
-                            <li><a class="dropdown-item" href="{{ route('transaksi.index') }}"><i
-                                        class="fa fa-laptop"></i> Kasbon Member</a></li>
+                        @if (in_array(Auth::user()->id_level, [1, 2, 6]))
+                            <li><a class="dropdown-item" href="{{ route('transaksi.pembelianbarang.index') }}"><i
+                                        class="fa fa-shopping-cart"></i> Pembelian Barang</a></li>
                         @endif
+                        <li><a class="dropdown-item" href="{{ route('transaksi.kasir.index') }}"><i
+                                    class="fa fa-cash-register"></i> Transaksi Kasir</a></li>
+                        <li><a class="dropdown-item" href="{{ route('transaksi.index') }}"><i
+                                    class="fa fa-money-bill"></i> Kasbon Member</a></li>
                     </ul>
                 </li>
-                @if (Auth::user()->id_level == 1 ||
-                        Auth::user()->id_level == 2 ||
-                        Auth::user()->id_level == 3 ||
-                        Auth::user()->id_level == 4)
+
+                {{-- Retur --}}
+                @if (in_array(Auth::user()->id_level, [1, 2, 3, 4, 6]))
                     <li class="nav-item pcoded-hasmenu">
-                        <a href="javascript::void(0)"
-                            class="nav-link {{ request()->routeIs('reture.*') ? $nav_link : '' }}"><span
-                                class="pcoded-micon"><i class="icon feather icon-rotate-ccw"></i></span><span
-                                class="pcoded-mtext">Retur</span></a>
+                        <a href="javascript:void(0)"
+                            class="nav-link {{ request()->routeIs('reture.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="feather icon-rotate-ccw"></i></span>
+                            <span class="pcoded-mtext">Retur</span>
+                        </a>
                         <ul class="pcoded-submenu">
-                            @if (Auth::user()->id_level == 1 ||
-                                    Auth::user()->id_level == 2 ||
-                                    Auth::user()->id_level == 3 ||
-                                    Auth::user()->id_level == 4)
-                                <li>
-                                    <a href="{{ route('reture.index') }}" class="dropdown-item"><i
-                                            class="icon feather icon-rotate-cw"></i> Retur dari Member</a>
-                                </li>
-                            @endif
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
-                                <li>
-                                    <a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
-                                            class="icon feather icon-corner-down-left"></i> Retur ke Supplier</a>
-                                </li>
+                            <li><a href="{{ route('reture.index') }}" class="dropdown-item"><i
+                                        class="feather icon-rotate-cw"></i> Retur dari Member</a></li>
+                            @if (in_array(Auth::user()->id_level, [1, 2, 6]))
+                                <li><a href="{{ route('reture.suplier.index') }}" class="dropdown-item"><i
+                                            class="feather icon-corner-down-left"></i> Retur ke Supplier</a></li>
                             @endif
                         </ul>
                     </li>
                 @endif
-                @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2 || Auth::user()->id_level == 3)
+
+                {{-- Rekapitulasi --}}
+                @if (in_array(Auth::user()->id_level, [1, 2, 3, 6]))
                     <li class="nav-item pcoded-hasmenu">
-                        <a href="javascript::void(0)"
-                            class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}"><span
-                                class="pcoded-micon"><i class="icon feather icon-file-text"></i></span><span
-                                class="pcoded-mtext">Rekapitulasi</span></a>
+                        <a href="javascript:void(0)"
+                            class="nav-link {{ request()->routeIs('laporan.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="feather icon-file-text"></i></span>
+                            <span class="pcoded-mtext">Rekapitulasi</span>
+                        </a>
                         <ul class="pcoded-submenu">
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                                 <li><a class="dropdown-item" href="{{ route('laporan.pembelian.index') }}"><i
                                             class="fa fa-book"></i> Rekap Pembelian</a></li>
                             @endif
                             <li><a class="dropdown-item" href="{{ route('laporan.pengiriman.index') }}"><i
-                                        class="fa fa-book"></i> Rekap Pengiriman</a></li>
+                                        class="fa fa-truck"></i> Rekap Pengiriman</a></li>
                             <li><a class="dropdown-item" href="{{ route('laporan.rating.index') }}"><i
                                         class="fa fa-star"></i> Rating Barang</a></li>
                             <li><a class="dropdown-item" href="{{ route('laporan.ratingmember.index') }}"><i
                                         class="fa fa-star"></i> Rating Member</a></li>
-                            @if (Auth::user()->id_level == 1 || Auth::user()->id_level == 2)
+                            @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                                 <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
                                             class="fa fa-box"></i> Aset Barang Jualan</a></li>
                                 <li><a class="dropdown-item" href="{{ route('laporan.asetbarang.index') }}"><i
@@ -152,12 +149,15 @@
                         </ul>
                     </li>
                 @endif
-                @if (auth()->user()->id_level == 1 || auth()->user()->id_level == 2 || auth()->user()->id_level == 6)
+
+                {{-- Laporan Keuangan --}}
+                @if (in_array(Auth::user()->id_level, [1, 2, 6]))
                     <li class="nav-item pcoded-hasmenu">
-                        <a href="javascript::void(0)"
-                            class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}"><span
-                                class="pcoded-micon"><i class="icon feather icon-folder"></i></span><span
-                                class="pcoded-mtext">Laporan Keuangan</span></a>
+                        <a href="javascript:void(0)"
+                            class="nav-link {{ request()->routeIs('laporankeuangan.*') ? $nav_link : '' }}">
+                            <span class="pcoded-micon"><i class="feather icon-folder"></i></span>
+                            <span class="pcoded-mtext">Laporan Keuangan</span>
+                        </a>
                         <ul class="pcoded-submenu">
                             <li>
                                 <a href="{{ route('laporankeuangan.aruskas.index') }}" class="dropdown-item"><i
@@ -174,6 +174,8 @@
                         </ul>
                     </li>
                 @endif
+
+                {{-- Jurnal Keuangan --}}
                 @if (auth()->user()->id_level != 5)
                     <li class="nav-item pcoded-hasmenu">
                         <a href="javascript::void(0)"
