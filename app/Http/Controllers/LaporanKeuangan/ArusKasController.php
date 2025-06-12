@@ -5,6 +5,7 @@ namespace App\Http\Controllers\LaporanKeuangan;
 use App\Http\Controllers\Controller;
 use App\Services\ArusKasService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ArusKasController extends Controller
 {
@@ -23,6 +24,10 @@ class ArusKasController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[4]];
 
         return view('laporankeuangan.aruskas.index', compact('menu'));

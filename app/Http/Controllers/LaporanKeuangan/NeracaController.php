@@ -11,6 +11,7 @@ use App\Services\ArusKasService;
 use App\Services\LabaRugiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class NeracaController extends Controller
@@ -32,6 +33,10 @@ class NeracaController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[4]];
 
         return view('laporankeuangan.neraca.index', compact('menu'));

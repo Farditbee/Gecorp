@@ -9,6 +9,7 @@ use App\Models\Pengeluaran;
 use App\Models\JenisPengeluaran;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class LabaRugiController extends Controller
@@ -25,6 +26,10 @@ class LabaRugiController extends Controller
 
     public function index()
     {
+        if (!in_array(Auth::user()->id_level, [1])) {
+            abort(403, 'Unauthorized');
+        }
+
         $menu = [$this->title[0], $this->label[4]];
 
         return view('laporankeuangan.labarugi.index', compact('menu'));
